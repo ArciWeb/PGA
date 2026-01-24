@@ -1,0 +1,1180 @@
+﻿<!DOCTYPE html>
+<html lang="sk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ArciWeb-PGA StatsKeeper</title>
+    <style>
+        :root {
+            --bg-color: #1e1e1e;
+            --card-bg: #2d2d2d;
+            --text-main: #ffffff;
+            --text-muted: #b0b0b0;
+            --accent-green: #2ecc71; /* Aktívne */
+            --accent-grey: #7f8c8d; /* Neaktívne */
+            --accent-red: #e74c3c; /* Prázdne */
+            --border-radius: 12px;
+            --transition: 0.3s ease;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        /* Header & Controls */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .version {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-left: 10px;
+        }
+
+        .icon-btn {
+            background: none;
+            border: none;
+            color: var(--text-main);
+            font-size: 1.8rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .icon-btn:hover {
+            transform: rotate(90deg);
+        }
+
+        /* Search */
+        .search-container {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        #playerSearch {
+            width: 100%;
+            padding: 12px 15px;
+            border-radius: var(--border-radius);
+            border: none;
+            background-color: var(--card-bg);
+            color: var(--text-main);
+            font-size: 1rem;
+            box-sizing: border-box;
+        }
+
+        #searchResults {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            z-index: 100;
+            max-height: 200px;
+            overflow-y: auto;
+            display: none;
+        }
+
+        .search-item {
+            padding: 10px 15px;
+            border-bottom: 1px solid #444;
+            cursor: pointer;
+        }
+
+        .search-item:hover {
+            background-color: #444;
+        }
+
+        /* Filters */
+        .filter-section {
+            margin-bottom: 15px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .filter-btn {
+            padding: 10px 15px;
+            border-radius: var(--border-radius);
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            user-select: none;
+        }
+
+        .filter-btn.active {
+            background-color: var(--accent-green);
+            color: #000;
+        }
+
+        .filter-btn.inactive {
+            background-color: var(--card-bg); /* Sivá logika */
+            color: var(--accent-grey);
+            border: 1px solid var(--accent-grey);
+        }
+        
+        .filter-btn.empty {
+            background-color: var(--card-bg);
+            color: var(--accent-red);
+            border: 1px solid var(--accent-red);
+        }
+
+        /* Table */
+        .table-container {
+            overflow-x: auto;
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius);
+            padding: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 600px;
+        }
+
+        th, td {
+            padding: 12px 10px;
+            text-align: left;
+            border-bottom: 1px solid #444;
+        }
+
+        th {
+            cursor: pointer;
+            user-select: none;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        th:hover {
+            color: var(--text-main);
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        .player-row:hover {
+            background-color: #3a3a3a;
+            cursor: pointer;
+        }
+
+        .sort-arrow {
+            font-size: 0.8em;
+            margin-left: 5px;
+        }
+
+        /* Popups */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+            z-index: 1000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal {
+            background-color: var(--bg-color);
+            border-radius: var(--border-radius);
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            padding: 20px;
+            animation: fadeIn 0.2s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #444;
+            padding-bottom: 10px;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: var(--text-main);
+            font-size: 2.5rem;
+            cursor: pointer;
+            line-height: 1;
+            padding: 10px;
+        }
+
+        .close-btn:hover {
+            color: var(--accent-red);
+        }
+
+        /* Settings Slots */
+        .slot-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .slot-card {
+            background-color: var(--card-bg);
+            padding: 15px;
+            border-radius: var(--border-radius);
+            border: 1px solid #444;
+        }
+
+        .slot-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .slot-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .btn {
+            padding: 8px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            text-align: center;
+            transition: var(--transition);
+        }
+        
+        .btn-green { background-color: var(--accent-green); color: #000; }
+        .btn-red { background-color: var(--accent-red); color: white; }
+        .btn-grey { background-color: #7f8c8d; color: white; }
+        .btn:hover { opacity: 0.9; }
+
+        .settings-top-actions {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        /* File Manager List inside Settings */
+        .file-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .file-list li {
+            display: flex;
+            justify-content: space-between;
+            background: var(--card-bg);
+            margin-bottom: 5px;
+            padding: 8px;
+            border-radius: 6px;
+        }
+
+        /* Profile Stats */
+        .profile-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .stat-box {
+            background: var(--card-bg);
+            padding: 10px;
+            border-radius: var(--border-radius);
+            text-align: center;
+        }
+        .stat-label { font-size: 0.8rem; color: var(--text-muted); }
+        .stat-value { font-size: 1.2rem; font-weight: bold; }
+
+        #fileInput { display: none; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div>
+            <h1>ArciWeb-PGA StatsKeeper <span class="version">v1.76.6</span></h1>
+        </div>
+        <button class="icon-btn" onclick="openSettings()">&#9881;</button>
+    </header>
+
+    <div class="search-container">
+        <input type="text" id="playerSearch" placeholder="Vyhľadať hráča..." oninput="handleSearch(this.value)">
+        <div id="searchResults"></div>
+    </div>
+
+    <div id="filterContainer">
+        <div class="filter-section" id="tourFilters">
+            </div>
+        <div class="filter-section" id="seasonFilters">
+            </div>
+        <div class="filter-section" id="weekFilters">
+            </div>
+    </div>
+
+    <div class="table-container">
+        <table id="mainTable">
+            <thead>
+                </thead>
+            <tbody>
+                </tbody>
+        </table>
+    </div>
+
+    <input type="file" id="fileInput" accept=".txt" multiple onchange="handleFiles(this.files)">
+
+    <div id="popupsLayer"></div>
+
+    <script>
+        // --- DATA & STATE ---
+        let db = {
+            files: [] // { id, name, type, season, week, content: [] }
+        };
+
+        let appState = {
+            filters: {
+                tours: ['ALL'], 
+                seasons: ['ALL'],
+                activeWeek: null 
+            },
+            sort: { column: 'totalPoints', dir: 'desc' }, 
+            history: [] 
+        };
+
+        const TOUR_TYPES = {
+            PRIPRAVA: { label: 'Príprava', key: 'PRIPRAVA' },
+            KFT: { label: 'Korn Ferry Tour', key: 'KFT' },
+            PGA: { label: 'PGA Tour', key: 'PGA' }
+        };
+
+        // --- INIT ---
+        document.addEventListener('DOMContentLoaded', () => {
+            initSlots();
+            loadStateFromSlot('autosave', true); 
+            renderApp();
+            
+            window.onpopstate = function(event) {
+                // Ak je otvorené nejaké okno, len ho zatvoríme a nepúšťame renderApp()
+                if (modalStack.length > 0) {
+                    const overlay = modalStack.pop();
+                    if (overlay) overlay.remove();
+                    // Ak už nie sú žiadne okná, vrátime scrollovanie na body
+                    if (modalStack.length === 0) document.body.style.overflow = 'auto';
+                } 
+                // Ak nie je okno, ale menili sme filtre/zoradenie, vtedy sa tabuľka obnoví
+                else if (appState.history.length > 0) {
+                    let prevState = appState.history.pop();
+                    if(prevState) {
+                        appState.filters = prevState.filters;
+                        appState.sort = prevState.sort;
+                        renderApp();
+                    }
+                }
+            };
+        });
+
+        function pushInternalHistory() {
+            appState.history.push(JSON.parse(JSON.stringify({
+                filters: appState.filters,
+                sort: appState.sort
+            })));
+            window.history.pushState({ app: true }, "");
+            saveAuto();
+        }
+
+        // --- FILE PARSING ---
+        function handleFiles(files) {
+            Array.from(files).forEach(file => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    parseTxt(file.name, e.target.result);
+                    renderApp();
+                    saveAuto();
+                };
+                reader.readAsText(file);
+            });
+            document.getElementById('fileInput').value = ''; 
+        }
+
+        function parseTxt(filename, text) {
+            const parts = filename.replace('.txt', '').split(' ');
+            let typeKey = 'UNKNOWN';
+            let season = '00';
+            let week = '0';
+
+            if (parts.length >= 2) {
+                const namePart = parts[0].toUpperCase();
+                if (namePart.includes('PRIPRAVA') || namePart.includes('PRÍPRAVA')) typeKey = 'PRIPRAVA';
+                else if (namePart.includes('KFT')) typeKey = 'KFT';
+                else if (namePart.includes('PGA')) typeKey = 'PGA';
+
+                const numParts = parts[1].split('-');
+                if (numParts.length === 2) {
+                    season = numParts[0];
+                    week = numParts[1];
+                }
+            }
+
+            const lines = text.split('\n').map(l => l.trim()).filter(l => l);
+            const players = [];
+            for (let i = 0; i < lines.length; i++) {
+                if (lines[i].startsWith('[source')) continue;
+                if (lines[i].startsWith('}')) continue; 
+
+                let name = lines[i];
+                if (!lines[i+1]) break; 
+
+                let par = lines[i+1];
+                let r1 = lines[i+2];
+                let r2 = lines[i+3];
+                let r3 = lines[i+4];
+                let r4 = lines[i+5];
+                let pts = lines[i+6];
+
+                if (pts === undefined) break; 
+
+                players.push({
+                    name: name,
+                    par: parseInt(par) || 0,
+                    r1: r1, r2: r2, r3: r3, r4: r4,
+                    points: parseFloat(pts) || 0,
+                    fileRank: 0 
+                });
+
+                i += 6; 
+            }
+
+            let sortedPlayers = [...players].sort((a, b) => {
+                if (a.par !== b.par) return a.par - b.par;
+                return b.points - a.points;
+            });
+
+            sortedPlayers.forEach((p, index) => {
+                let rank = index + 1;
+                if (index > 0) {
+                    let prev = sortedPlayers[index-1];
+                    if (prev.par === p.par && prev.points === p.points) {
+                        rank = prev.fileRank;
+                    }
+                }
+                p.fileRank = rank;
+            });
+            
+            db.files = db.files.filter(f => f.name !== filename);
+
+            db.files.push({
+                id: Date.now() + Math.random(),
+                name: filename,
+                type: typeKey,
+                season: season,
+                week: parseInt(week),
+                content: players
+            });
+        }
+
+        // --- CORE LOGIC ---
+        function getActiveFiles() {
+            let files = db.files;
+            
+            if (!appState.filters.tours.includes('ALL')) {
+                files = files.filter(f => appState.filters.tours.includes(f.type));
+            }
+
+            if (!appState.filters.seasons.includes('ALL')) {
+                files = files.filter(f => appState.filters.seasons.includes(f.season));
+            }
+
+            return files;
+        }
+
+        // --- POMOCNÉ FUNKCIE PRE MENÁ ---
+        function normalizeName(name) {
+            return name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+        }
+
+        function getDistance(a, b) {
+            const matrix = [];
+            for (let i = 0; i <= b.length; i++) matrix[i] = [i];
+            for (let j = 0; j <= a.length; j++) matrix[0][j] = j;
+            for (let i = 1; i <= b.length; i++) {
+                for (let j = 1; j <= a.length; j++) {
+                    if (b.charAt(i - 1) === a.charAt(j - 1)) matrix[i][j] = matrix[i - 1][j - 1];
+                    else matrix[i][j] = Math.min(matrix[i - 1][j - 1] + 1, matrix[i][j - 1] + 1, matrix[i - 1][j] + 1);
+                }
+            }
+            return matrix[b.length][a.length];
+        }
+
+
+        function getAggregatedStats() {
+            const files = getActiveFiles();
+            const playerMap = {};
+
+            files.forEach(file => {
+                file.content.forEach(p => {
+                    // --- NOVÁ LOGIKA VYHĽADÁVANIA DUPLIKÁTOV ---
+                    let targetName = p.name;
+                    const normNew = normalizeName(targetName);
+
+                    for (let existingName in playerMap) {
+                        const normExisting = normalizeName(existingName);
+                        // Ak je meno rovnaké bez diakritiky ALEBO sa líši len o 1 znak
+                        if (normNew === normExisting || getDistance(normNew, normExisting) <= 1) {
+                            targetName = existingName; // Priradíme ho k už existujúcemu menu
+                            break;
+                        }
+                    }
+
+                    if (!playerMap[targetName]) {
+                        playerMap[targetName] = {
+                            name: targetName,
+                            totalPar: 0,
+                            weeksPlayed: 0, 
+                            tournaments: new Set(), 
+                            totalPoints: 0,
+                            totalHoles: 0
+                        };
+                    }
+                    // Dáta sa pripočítajú k "targetName" (pôvodnému alebo nájdenému)
+                    playerMap[targetName].totalPar += p.par;
+                    playerMap[targetName].totalPoints += p.points;
+                    playerMap[targetName].weeksPlayed += 1;
+                    
+                    if (file.type !== 'PRIPRAVA') {
+                        playerMap[targetName].tournaments.add(file.type + '-' + file.season);
+                    }
+
+                    let roundCount = 0;
+                    if (p.r1 !== 'NA') roundCount++;
+                    if (p.r2 !== 'NA') roundCount++;
+                    if (p.r3 !== 'NA') roundCount++;
+                    if (p.r4 !== 'NA') roundCount++;
+                    playerMap[targetName].totalHoles += (roundCount * 18);
+                });
+            });
+            
+            Object.values(playerMap).forEach(player => {
+                player.tournamentCount = player.tournaments.size;
+            });
+
+            let arr = Object.values(playerMap);
+            return sortData(arr);
+        }
+
+
+        function getWeekStats(fileId) {
+            const file = db.files.find(f => f.id === fileId);
+            if (!file) return [];
+            return sortData(file.content.map(p => ({...p})), true); 
+        }
+
+        function sortData(data, isWeek = false) {
+            const col = appState.sort.column;
+            const dir = appState.sort.dir === 'asc' ? 1 : -1;
+
+            return data.sort((a, b) => {
+                let valA = a[col];
+                let valB = b[col];
+
+                if (typeof valA === 'string' && col !== 'r1' && col !== 'r2' && col !== 'r3' && col !== 'r4') {
+                    return valA.localeCompare(valB) * dir;
+                }
+                
+                if (['r1','r2','r3','r4'].includes(col)) {
+                    valA = valA === 'NA' ? 999 : parseInt(valA);
+                    valB = valB === 'NA' ? 999 : parseInt(valB);
+                }
+
+                return (valA - valB) * dir;
+            });
+        }
+
+        function assignRanks(data) {
+            let rank = 1;
+            for (let i = 0; i < data.length; i++) {
+                if (i > 0) {
+                    const prev = data[i-1];
+                    const curr = data[i];
+                    if (prev[appState.sort.column] !== curr[appState.sort.column]) {
+                        rank = i + 1;
+                    }
+                }
+                data[i].rank = rank;
+            }
+            return data;
+        }
+
+        // --- RENDERING ---
+        function renderApp() {
+            renderFilters();
+            renderTable();
+        }
+
+        function renderFilters() {
+            const tContainer = document.getElementById('tourFilters');
+            tContainer.innerHTML = '';
+            
+            const tourOpts = [
+                { id: 'ALL', label: 'Všetky turnaje' },
+                { id: 'PRIPRAVA', label: 'Príprava' },
+                { id: 'KFT', label: 'Korn Ferry Tour' },
+                { id: 'PGA', label: 'PGA Tour' }
+            ];
+
+            tourOpts.forEach(opt => {
+                const btn = document.createElement('button');
+                const hasData = opt.id === 'ALL' ? db.files.length > 0 : db.files.some(f => f.type === opt.id);
+                const isActive = appState.filters.tours.includes(opt.id);
+                
+                btn.className = `filter-btn ${isActive ? 'active' : 'inactive'} ${!hasData ? 'empty' : ''}`;
+                btn.innerText = opt.label;
+                btn.onclick = () => toggleTourFilter(opt.id);
+                tContainer.appendChild(btn);
+            });
+
+            const sContainer = document.getElementById('seasonFilters');
+            sContainer.innerHTML = '';
+            
+            const seasons = [...new Set(db.files.map(f => f.season))].sort();
+            const seasonOpts = [{ id: 'ALL', label: 'Všetky sezóny' }, ...seasons.map(s => ({ id: s, label: `Sezóna ${s}` }))];
+
+            seasonOpts.forEach(opt => {
+                const btn = document.createElement('button');
+                let relevantFiles = db.files;
+                if (!appState.filters.tours.includes('ALL')) relevantFiles = relevantFiles.filter(f => appState.filters.tours.includes(f.type));
+                
+                const hasData = opt.id === 'ALL' ? relevantFiles.length > 0 : relevantFiles.some(f => f.season === opt.id);
+                const isActive = appState.filters.seasons.includes(opt.id);
+
+                btn.className = `filter-btn ${isActive ? 'active' : 'inactive'} ${!hasData ? 'empty' : ''}`;
+                btn.innerText = opt.label;
+                btn.onclick = () => toggleSeasonFilter(opt.id);
+                sContainer.appendChild(btn);
+            });
+
+            const wContainer = document.getElementById('weekFilters');
+            wContainer.innerHTML = '';
+            
+            let displayFiles = getActiveFiles();
+            
+            const typeOrder = { 'PRIPRAVA': 1, 'KFT': 2, 'PGA': 3, 'UNKNOWN': 4 };
+            displayFiles.sort((a, b) => {
+                if (typeOrder[a.type] !== typeOrder[b.type]) return typeOrder[a.type] - typeOrder[b.type];
+                if (a.season !== b.season) return parseInt(a.season) - parseInt(b.season);
+                return a.week - b.week;
+            });
+
+            displayFiles.forEach(f => {
+                const btn = document.createElement('button');
+                const isActive = appState.filters.activeWeek === f.id;
+                btn.className = `filter-btn ${isActive ? 'active' : 'inactive'}`;
+                btn.style.fontSize = '0.9rem';
+                btn.innerText = f.name.replace('.txt', '');
+                btn.onclick = () => toggleWeekFilter(f.id);
+                wContainer.appendChild(btn);
+            });
+        }
+
+        function toggleTourFilter(id) {
+            pushInternalHistory();
+            if (id === 'ALL') {
+                appState.filters.tours = ['ALL'];
+            } else {
+                appState.filters.tours = appState.filters.tours.filter(t => t !== 'ALL');
+                if (appState.filters.tours.includes(id)) {
+                    appState.filters.tours = appState.filters.tours.filter(t => t !== id);
+                } else {
+                    appState.filters.tours.push(id);
+                }
+                if (appState.filters.tours.length === 0) appState.filters.tours = ['ALL'];
+            }
+            renderApp();
+        }
+
+        function toggleSeasonFilter(id) {
+            pushInternalHistory();
+            if (id === 'ALL') {
+                appState.filters.seasons = ['ALL'];
+            } else {
+                appState.filters.seasons = appState.filters.seasons.filter(s => s !== 'ALL');
+                if (appState.filters.seasons.includes(id)) {
+                    appState.filters.seasons = appState.filters.seasons.filter(s => s !== id);
+                } else {
+                    appState.filters.seasons.push(id);
+                }
+                if (appState.filters.seasons.length === 0) appState.filters.seasons = ['ALL'];
+            }
+            renderApp();
+        }
+
+        function toggleWeekFilter(id) {
+            pushInternalHistory();
+            if (appState.filters.activeWeek === id) {
+                appState.filters.activeWeek = null; 
+            } else {
+                appState.filters.activeWeek = id;
+            }
+            appState.sort = { column: 'points', dir: 'desc' };
+            renderApp();
+        }
+
+        function renderTable() {
+            const thead = document.querySelector('#mainTable thead');
+            const tbody = document.querySelector('#mainTable tbody');
+            tbody.innerHTML = '';
+            thead.innerHTML = '';
+
+            let data;
+            let columns;
+
+            if (appState.filters.activeWeek) {
+                data = getWeekStats(appState.filters.activeWeek);
+                columns = [
+                    { key: 'rank', label: 'Poz.' },
+                    { key: 'name', label: 'Meno' },
+                    { key: 'par', label: 'Par' },
+                    { key: 'r1', label: 'R1' },
+                    { key: 'r2', label: 'R2' },
+                    { key: 'r3', label: 'R3' },
+                    { key: 'r4', label: 'R4' },
+                    { key: 'points', label: 'Body' }
+                ];
+            } else {
+                data = getAggregatedStats();
+                columns = [
+                    { key: 'rank', label: 'Poz.' },
+                    { key: 'name', label: 'Meno' },
+                    { key: 'totalPar', label: 'Par (Súčet)' },
+                    { key: 'weeksPlayed', label: 'Týždne (Celkom)' },
+                    { key: 'totalHoles', label: 'Jamky' },
+                    { key: 'tournamentCount', label: 'Turnaje' },
+                    { key: 'totalPoints', label: 'Body (Súčet)' }
+                ];
+            }
+
+            data = assignRanks(data);
+
+            const trHead = document.createElement('tr');
+            columns.forEach(col => {
+                const th = document.createElement('th');
+                th.innerText = col.label;
+                if (appState.sort.column === col.key) {
+                    const arrow = document.createElement('span');
+                    arrow.className = 'sort-arrow';
+                    arrow.innerText = appState.sort.dir === 'asc' ? '▲' : '▼';
+                    th.appendChild(arrow);
+                }
+                th.onclick = () => changeSort(col.key);
+                trHead.appendChild(th);
+            });
+            thead.appendChild(trHead);
+
+            data.forEach(row => {
+                const tr = document.createElement('tr');
+                tr.className = 'player-row';
+                tr.onclick = () => openPlayerProfile(row.name);
+                
+                columns.forEach(col => {
+                    const td = document.createElement('td');
+                    td.innerText = row[col.key] !== undefined ? row[col.key] : '-';
+                    tr.appendChild(td);
+                });
+                tbody.appendChild(tr);
+            });
+        }
+
+        function changeSort(key) {
+            pushInternalHistory();
+            if (appState.sort.column === key) {
+                appState.sort.dir = appState.sort.dir === 'asc' ? 'desc' : 'asc';
+            } else {
+                appState.sort.column = key;
+                appState.sort.dir = 'desc'; 
+            }
+            renderTable();
+        }
+
+        // --- SEARCH ---
+        function handleSearch(query) {
+            const resultsDiv = document.getElementById('searchResults');
+            if (!query) {
+                resultsDiv.style.display = 'none';
+                return;
+            }
+
+            const normQuery = query.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+            
+            const allPlayers = [];
+            db.files.forEach(f => f.content.forEach(p => {
+                const normNew = normalizeName(p.name);
+                if (!allPlayers.some(existing => {
+                    const normEx = normalizeName(existing);
+                    return normNew === normEx || getDistance(normNew, normEx) <= 1;
+                })) {
+                    allPlayers.push(p.name);
+                }
+            }));
+            
+             const matches = allPlayers.filter(name => {
+                const normName = name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                return normName.includes(normQuery);
+            });
+
+            resultsDiv.innerHTML = '';
+            if (matches.length > 0) {
+                resultsDiv.style.display = 'block';
+                matches.forEach(name => {
+                    const div = document.createElement('div');
+                    div.className = 'search-item';
+                    div.innerText = name;
+                    div.onclick = () => {
+                        openPlayerProfile(name);
+                        resultsDiv.style.display = 'none';
+                        document.getElementById('playerSearch').value = '';
+                    };
+                    resultsDiv.appendChild(div);
+                });
+            } else {
+                resultsDiv.style.display = 'none';
+            }
+        }
+
+        // --- POPUPS & PROFILES ---
+        let modalStack = [];
+
+        function createModal(contentHtml) {
+            const layer = document.getElementById('popupsLayer');
+            const overlay = document.createElement('div');
+            overlay.className = 'modal-overlay';
+            overlay.style.zIndex = 1000 + modalStack.length; 
+            
+            overlay.innerHTML = `
+                <div class="modal">
+                    ${contentHtml}
+                </div>
+            `;
+            
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) closeTopModal();
+            });
+
+            layer.appendChild(overlay);
+            overlay.style.display = 'flex';
+            modalStack.push(overlay);
+            
+            window.history.pushState({ modal: true }, "");
+            saveAuto();
+        }
+
+        function closeTopModal(popHistory = true) {
+            if (modalStack.length === 0) return;
+            
+            if (popHistory) {
+                // Vyvoláme vrátenie sa v histórii. 
+                // Funkcia window.onpopstate (upravená vyššie) sa postará o odstránenie okna bez renderu.
+                window.history.back(); 
+            } else {
+                const overlay = modalStack.pop();
+                if (overlay) overlay.remove();
+                if (modalStack.length === 0) document.body.style.overflow = 'auto';
+            }
+        }
+
+
+        function openPlayerProfile(playerName) {
+            const containerId = 'profile-' + Date.now();
+            createModal(`<div id="${containerId}">${generateProfileHtml(playerName, 'ALL', containerId)}</div>`);
+        }
+
+        window.updateProfileView = function(containerId, playerName, filter) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = generateProfileHtml(playerName, filter, containerId);
+        }
+
+        function getLatestTourRank(playerName, tourType) {
+            const tourFiles = db.files.filter(f => f.type === tourType);
+            if (tourFiles.length === 0) return 'N/A';
+
+            const latestSeason = Math.max(...tourFiles.map(f => parseInt(f.season)));
+            const currentSeasonFiles = tourFiles.filter(f => parseInt(f.season) === latestSeason);
+
+            const seasonStats = {};
+            currentSeasonFiles.forEach(file => {
+                file.content.forEach(p => {
+                    let targetName = p.name;
+                    const normNew = normalizeName(targetName);
+                    for (let existingName in seasonStats) {
+                        const normExisting = normalizeName(existingName);
+                        if (normNew === normExisting || getDistance(normNew, normExisting) <= 1) {
+                            targetName = existingName;
+                            break;
+                        }
+                    }
+                    if (!seasonStats[targetName]) seasonStats[targetName] = 0;
+                    seasonStats[targetName] += p.points;
+                });
+            });
+
+            const leaderboard = Object.entries(seasonStats)
+                .map(([name, points]) => ({ name, points }))
+                .sort((a, b) => b.points - a.points);
+
+            const normSearch = normalizeName(playerName);
+            const playerIndex = leaderboard.findIndex(entry => {
+                const normEntry = normalizeName(entry.name);
+                return normSearch === normEntry || getDistance(normSearch, normEntry) <= 1;
+            });
+
+            return playerIndex !== -1 ? (playerIndex + 1) + '.' : 'N/A';
+        }
+
+
+        function generateProfileHtml(playerName, filter, containerId) {
+            let filteredFiles = db.files.filter(f => filter === 'ALL' || f.type === filter);
+            
+            let p_par = 0, p_points = 0, p_holes = 0;
+            let p_rounds = [], r1s = [], r2s = [], r3s = [], r4s = [];
+            let p_ranks = [];
+            let uniqueTournaments = new Set(); // Pre unikátne turnaje (Typ-Sezóna)
+            let historyHtml = '';
+            
+            const normSearch = normalizeName(playerName);
+            
+            // Zoradenie súborov
+            const typeOrder = { 'PRIPRAVA': 1, 'KFT': 2, 'PGA': 3, 'UNKNOWN': 4 };
+            filteredFiles.sort((a, b) => {
+                if (typeOrder[a.type] !== typeOrder[b.type]) return typeOrder[a.type] - typeOrder[b.type];
+                if (a.season !== b.season) return parseInt(a.season) - parseInt(b.season);
+                return a.week - b.week;
+            });
+
+            filteredFiles.forEach(f => {
+                const data = f.content.find(p => {
+                    const normFile = normalizeName(p.name);
+                    return normSearch === normFile || getDistance(normSearch, normFile) <= 1;
+                });
+
+                if (data) {
+                    p_par += data.par; 
+                    p_points += data.points;
+                    if (data.fileRank) p_ranks.push(data.fileRank);
+                    
+                    // Počítame unikátne turnaje (napr. KFT-25)
+                    if (f.type !== 'PRIPRAVA') {
+                        uniqueTournaments.add(f.type + '-' + f.season);
+                    } else {
+                        uniqueTournaments.add('PRIPRAVA-' + f.id); // Prípravu rátame každú zvlášť
+                    }
+
+                    // Výpočet jamiek a kôl
+                    [data.r1, data.r2, data.r3, data.r4].forEach((r, idx) => {
+                        if (r !== 'NA') {
+                            const val = parseInt(r);
+                            p_rounds.push(val);
+                            p_holes += 18; // Každé odohraté kolo je 18 jamiek
+                            if(idx===0)r1s.push(val); if(idx===1)r2s.push(val); 
+                            if(idx===2)r3s.push(val); if(idx===3)r4s.push(val);
+                        }
+                    });
+                    historyHtml += `<tr><td>${f.name}</td><td>${data.fileRank}</td><td>${data.par}</td><td>${data.r1}</td><td>${data.r2}</td><td>${data.r3}</td><td>${data.r4}</td><td>${data.points}</td></tr>`;
+                }
+            });
+
+            const avg = arr => arr.length ? Math.round(arr.reduce((a,b)=>a+b,0)/arr.length) : '-';
+            const best = p_rounds.length ? Math.min(...p_rounds) : '-';
+            const worst = p_rounds.length ? Math.max(...p_rounds) : '-';
+            const bestFinish = p_ranks.length ? Math.min(...p_ranks) : '-';
+            // Dynamické určenie ranku podľa filtra
+            let rankLabel = "PGA";
+            let rankValue = "N/A";
+
+            if (filter === 'KFT') {
+                rankLabel = "KFT";
+                rankValue = getLatestTourRank(playerName, 'KFT');
+            } else {
+                // Pre 'ALL', 'PGA' alebo 'PRIPRAVA' necháme predvolené PGA
+                rankLabel = "PGA";
+                rankValue = getLatestTourRank(playerName, 'PGA');
+            }
+
+
+            return `
+                <div class="modal-header">
+                    <h2>${playerName}</h2>
+                    <button class="close-btn" onclick="closeTopModal()">&times;</button>
+                </div>
+                <div class="filter-section">
+                    <button class="filter-btn ${filter === 'ALL' ? 'active' : 'inactive'}" onclick="updateProfileView('${containerId}', '${playerName}', 'ALL')">Celá história</button>
+                    <button class="filter-btn ${filter === 'KFT' ? 'active' : 'inactive'}" onclick="updateProfileView('${containerId}', '${playerName}', 'KFT')">KFT</button>
+                    <button class="filter-btn ${filter === 'PGA' ? 'active' : 'inactive'}" onclick="updateProfileView('${containerId}', '${playerName}', 'PGA')">PGA</button>
+                    <button class="filter-btn ${filter === 'PRIPRAVA' ? 'active' : 'inactive'}" onclick="updateProfileView('${containerId}', '${playerName}', 'PRIPRAVA')">Príprava</button>
+                </div>
+                <div class="profile-stats-grid">
+                    <div class="stat-box"><div class="stat-label" style="color:var(--accent-green)">Počet jamiek</div><div class="stat-value">${p_holes}</div></div>
+                    <div class="stat-box"><div class="stat-label">Body</div><div class="stat-value">${p_points.toFixed(3)}</div></div>
+                    <div class="stat-box"><div class="stat-label">Par</div><div class="stat-value">${p_par}</div></div>
+                    <div class="stat-box"><div class="stat-label">Najlepšie kolo</div><div class="stat-value">${best}</div></div>
+                    <div class="stat-box"><div class="stat-label">Najhoršie kolo</div><div class="stat-value">${worst}</div></div>
+                    <div class="stat-box"><div class="stat-label">Najlepšie umiestnenie</div><div class="stat-value">${bestFinish}</div></div>
+                    <div class="stat-box"><div class="stat-label" style="color:var(--accent-green)">Turnajov</div><div class="stat-value">${uniqueTournaments.size}</div></div>
+                    <div class="stat-box"><div class="stat-label" style="color:var(--accent-green)">${rankLabel}</div><div class="stat-value">${rankValue}</div></div>
+
+                </div>
+                ${filter !== 'ALL' ? `
+                <div class="profile-stats-grid">
+                    <div class="stat-box"><div class="stat-label">Ø R1</div><div class="stat-value">${avg(r1s)}</div></div>
+                    <div class="stat-box"><div class="stat-label">Ø R2</div><div class="stat-value">${avg(r2s)}</div></div>
+                    <div class="stat-box"><div class="stat-label">Ø R3</div><div class="stat-value">${avg(r3s)}</div></div>
+                    <div class="stat-box"><div class="stat-label">Ø R4</div><div class="stat-value">${avg(r4s)}</div></div>
+                </div>` : ''}
+                <div class="table-container">
+                    <table>
+                        <thead><tr><th>Turnaj</th><th>Poz.</th><th>Par</th><th>R1</th><th>R2</th><th>R3</th><th>R4</th><th>Body</th></tr></thead>
+                        <tbody>${historyHtml}</tbody>
+                    </table>
+                </div>
+            `;
+        }
+
+        // --- SETTINGS & SAVE ---
+        function openSettings() {
+            const html = `
+                <div class="modal-header">
+                    <h2>Nastavenia</h2>
+                    <button class="close-btn" onclick="closeTopModal()">&times;</button>
+                </div>
+                <div class="settings-top-actions">
+                    <button class="btn btn-green" onclick="document.getElementById('fileInput').click()">Vložiť .txt</button>
+                    <button class="btn btn-grey" onclick="openFileManager()">Správca súborov</button>
+                    <button class="btn btn-red" onclick="clearDB()">Vymazať databázu</button>
+                </div>
+                <h3>Uložené pozície</h3>
+                <div class="slot-grid" id="slotContainer"></div>
+            `;
+            createModal(html);
+            renderSlots();
+        }
+
+        function openFileManager() {
+            const files = [...db.files].sort((a, b) => {
+                const typeOrder = { 'PRIPRAVA': 1, 'KFT': 2, 'PGA': 3, 'UNKNOWN': 4 };
+                if (typeOrder[a.type] !== typeOrder[b.type]) return typeOrder[a.type] - typeOrder[b.type];
+                return a.name.localeCompare(b.name);
+            });
+
+            let listHtml = '';
+            files.forEach(f => {
+                listHtml += `<li><span>${f.name}</span><button class="btn btn-red" style="padding:2px 8px;" onclick="deleteFile(${f.id})">Del</button></li>`;
+            });
+
+            createModal(`<div class="modal-header"><h2>Správca súborov</h2><button class="close-btn" onclick="closeTopModal()">&times;</button></div><ul class="file-list">${listHtml}</ul>`);
+        }
+
+        function deleteFile(id) {
+            db.files = db.files.filter(f => f.id !== id);
+            closeTopModal(); 
+            openFileManager(); 
+            renderApp();
+        }
+
+        function clearDB() {
+            if(confirm('Naozaj vymazať všetky načítané dáta?')) {
+                db.files = [];
+                renderApp();
+                closeTopModal();
+            }
+        }
+
+        function initSlots() {}
+
+        function renderSlots() {
+            const container = document.getElementById('slotContainer');
+            if(!container) return;
+            container.innerHTML = '';
+            for (let i = 1; i <= 4; i++) {
+                const key = `ArciWeb_Slot_${i}`;
+                const data = localStorage.getItem(key);
+                const hasData = !!data;
+                const div = document.createElement('div');
+                div.className = 'slot-card';
+                div.innerHTML = `
+                    <span class="slot-title" style="color: ${hasData ? 'var(--accent-green)' : 'var(--accent-red)'}">Slot ${i}</span>
+                    <div class="slot-actions">
+                        <button class="btn btn-green" onclick="saveToSlot(${i})">Uložiť</button>
+                        <button class="btn btn-grey" onclick="loadFromSlot(${i})" ${!hasData ? 'disabled' : ''}>Načítať</button>
+                        <button class="btn btn-red" onclick="deleteSlot(${i})" ${!hasData ? 'disabled' : ''}>Vymazať</button>
+                    </div>
+                `;
+                container.appendChild(div);
+            }
+        }
+
+        function saveToSlot(i) {
+            localStorage.setItem(`ArciWeb_Slot_${i}`, JSON.stringify({ db: db, appState: appState }));
+            renderSlots();
+        }
+
+        function loadFromSlot(i) {
+            loadStateFromSlot(`ArciWeb_Slot_${i}`);
+            closeTopModal();
+        }
+
+        function deleteSlot(i) {
+            localStorage.removeItem(`ArciWeb_Slot_${i}`);
+            renderSlots();
+        }
+
+        function saveAuto() {
+            localStorage.setItem('autosave', JSON.stringify({ db: db, appState: appState }));
+        }
+
+        function loadStateFromSlot(key, silent = false) {
+            const data = localStorage.getItem(key);
+            if (data) {
+                try {
+                    const parsed = JSON.parse(data);
+                    db = parsed.db;
+                    appState = parsed.appState;
+                    appState.history = []; 
+                    if (!silent) renderApp();
+                } catch (e) {}
+            }
+        }
+
+    </script>
+</body>
+</html>
+
