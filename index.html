@@ -10,9 +10,9 @@
             --card-bg: #2d2d2d;
             --text-main: #ffffff;
             --text-muted: #b0b0b0;
-            --accent-green: #2ecc71; /* Aktívne */
-            --accent-grey: #7f8c8d; /* Neaktívne */
-            --accent-red: #e74c3c; /* Prázdne */
+            --accent-green: #2ecc71;
+            --accent-grey: #7f8c8d;
+            --accent-red: #e74c3c;
             --border-radius: 12px;
             --transition: 0.3s ease;
         }
@@ -26,7 +26,6 @@
             overflow-x: hidden;
         }
 
-        /* Header & Controls */
         header {
             display: flex;
             justify-content: space-between;
@@ -59,7 +58,6 @@
             transform: rotate(90deg);
         }
 
-        /* Search */
         .search-container {
             margin-bottom: 20px;
             position: relative;
@@ -100,7 +98,6 @@
             background-color: #444;
         }
 
-        /* Filters Layout */
         #filterContainer {
             display: flex;
             flex-direction: column;
@@ -112,7 +109,6 @@
             width: 100%;
         }
 
-        /* Full Width Buttons */
         .btn-full-width {
             width: 100%;
             display: block;
@@ -122,7 +118,6 @@
             font-size: 1rem;
         }
 
-        /* Standard Row (Tours) */
         .filter-row {
             display: flex;
             flex-wrap: wrap;
@@ -134,7 +129,6 @@
             justify-content: center;
         }
 
-        /* Grid for Seasons (6 columns) */
         .filter-grid-6 {
             display: grid;
             grid-template-columns: repeat(6, 1fr);
@@ -149,7 +143,6 @@
             text-align: center;
         }
 
-        /* Week Filters */
         .week-filter-container {
             margin-top: 10px;
             padding-top: 10px;
@@ -168,6 +161,7 @@
             transition: var(--transition);
             display: flex;
             align-items: center;
+            justify-content: center;
             gap: 5px;
             user-select: none;
             color: var(--text-main);
@@ -190,7 +184,12 @@
             border: 1px solid var(--accent-red);
         }
 
-        /* Table */
+        .filter-btn.season-active {
+            background-color: #3498db;
+            color: white;
+            border: none;
+        }
+
         .table-container {
             overflow-x: auto;
             background-color: var(--card-bg);
@@ -235,7 +234,6 @@
             margin-left: 5px;
         }
 
-        /* Popups */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -291,7 +289,6 @@
             color: var(--accent-red);
         }
 
-        /* Settings Slots */
         .slot-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -340,7 +337,6 @@
             flex-wrap: wrap;
         }
 
-        /* File Manager List inside Settings */
         .file-list {
             list-style: none;
             padding: 0;
@@ -355,30 +351,70 @@
             border-radius: 6px;
         }
 
-        /* Profile Stats */
         .profile-stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-            gap: 10px;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
             margin-bottom: 20px;
         }
         .stat-box {
             background: var(--card-bg);
-            padding: 10px;
+            padding: 8px;
             border-radius: var(--border-radius);
             text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
-        .stat-label { font-size: 0.8rem; color: var(--text-muted); }
-        .stat-value { font-size: 1.2rem; font-weight: bold; }
+        .stat-label { font-size: 0.7rem; color: var(--text-muted); margin-bottom: 2px; }
+        .stat-value { font-size: 1rem; font-weight: bold; }
+
+        .profile-filter-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .profile-filter-row .filter-btn {
+            flex: 1;
+        }
+        .season-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #444;
+        }
+        .season-tag {
+            font-size: 0.75rem;
+            padding: 4px 8px;
+            border-radius: 12px;
+            cursor: pointer;
+            background: var(--card-bg);
+            border: 1px solid #555;
+            color: #ccc;
+        }
+        .season-tag:hover { border-color: #888; color: #fff; }
+        .season-tag.active {
+            background: var(--accent-green);
+            color: #000;
+            border-color: var(--accent-green);
+        }
 
         #fileInput { display: none; }
+        
+        @media (max-width: 500px) {
+            .profile-stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
     </style>
 </head>
 <body>
 
     <header>
         <div>
-            <h1>ArciWeb-PGA StatsKeeper <span class="version">v1.76.94</span></h1>
+            <h1>ArciWeb-PGA StatsKeeper <span class="version">v1.79.96</span></h1>
         </div>
         <button class="icon-btn" onclick="openSettings()">&#9881;</button>
     </header>
@@ -405,9 +441,8 @@
     <div id="popupsLayer"></div>
 
     <script>
-        // --- DATA & STATE ---
         let db = {
-            files: [] // { id, name, type, season, week, content: [] }
+            files: []
         };
 
         let appState = {
@@ -429,7 +464,6 @@
             PGA: { label: 'PGA Tour', key: 'PGA' }
         };
 
-        // --- INIT ---
         document.addEventListener('DOMContentLoaded', () => {
             initSlots();
             loadStateFromSlot('autosave', true); 
@@ -461,7 +495,6 @@
             saveAuto();
         }
 
-        // --- FILE PARSING ---
         function handleFiles(files) {
             Array.from(files).forEach(file => {
                 const reader = new FileReader();
@@ -551,7 +584,6 @@
             });
         }
 
-        // --- CORE LOGIC ---
         function getActiveFiles() {
             let files = db.files;
             
@@ -566,7 +598,6 @@
             return files;
         }
 
-        // --- POMOCNÉ FUNKCIE PRE MENÁ ---
         function normalizeName(name) {
             return name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
         }
@@ -583,7 +614,6 @@
             }
             return matrix[b.length][a.length];
         }
-
 
         function getAggregatedStats() {
             const files = getActiveFiles();
@@ -637,7 +667,6 @@
             return sortData(arr);
         }
 
-
         function getWeekStats(fileId) {
             const file = db.files.find(f => f.id === fileId);
             if (!file) return [];
@@ -680,7 +709,6 @@
             return data;
         }
 
-        // --- RENDERING ---
         function renderApp() {
             renderFilters();
             renderTable();
@@ -690,11 +718,9 @@
             const mainContainer = document.getElementById('filterContainer');
             mainContainer.innerHTML = '';
             
-            // 1. TOUR FILTERS
             const tourSection = document.createElement('div');
             tourSection.className = 'filter-section';
             
-            // "Všetky turnaje" (Full Width)
             const allToursBtn = document.createElement('button');
             const allToursActive = appState.filters.tours.includes('ALL');
             const hasDataTour = db.files.length > 0;
@@ -703,7 +729,6 @@
             allToursBtn.onclick = () => toggleTourFilter('ALL');
             tourSection.appendChild(allToursBtn);
 
-            // Sub-filters row (Príprava, KFT, PGA)
             const tourRow = document.createElement('div');
             tourRow.className = 'filter-row';
             const tourOpts = [
@@ -724,11 +749,9 @@
             tourSection.appendChild(tourRow);
             mainContainer.appendChild(tourSection);
 
-            // 2. SEASON FILTERS
             const seasonSection = document.createElement('div');
             seasonSection.className = 'filter-section';
             
-            // "Všetky sezóny" (Full Width)
             const allSeasonsBtn = document.createElement('button');
             const allSeasonsActive = appState.filters.seasons.includes('ALL');
             let relevantFilesForSeasons = db.files;
@@ -740,7 +763,6 @@
             allSeasonsBtn.onclick = () => toggleSeasonFilter('ALL');
             seasonSection.appendChild(allSeasonsBtn);
 
-            // Sub-filters grid (Seasons 015, 016...)
             const seasonGrid = document.createElement('div');
             seasonGrid.className = 'filter-grid-6';
             const seasons = [...new Set(db.files.map(f => f.season))].sort();
@@ -750,14 +772,13 @@
                 const hasDataS = relevantFilesForSeasons.some(f => f.season === s);
                 const isActiveS = appState.filters.seasons.includes(s);
                 btn.className = `filter-btn ${isActiveS ? 'active' : 'inactive'} ${!hasDataS ? 'empty' : ''}`;
-                btn.innerText = s; // Iba cislo
+                btn.innerText = s; 
                 btn.onclick = () => toggleSeasonFilter(s);
                 seasonGrid.appendChild(btn);
             });
             seasonSection.appendChild(seasonGrid);
             mainContainer.appendChild(seasonSection);
 
-            // 3. WEEK FILTERS (Show button first)
             const weekSection = document.createElement('div');
             weekSection.className = 'filter-section';
 
@@ -769,24 +790,22 @@
                 showWeeksBtn.onclick = () => {
                     appState.ui.showWeeks = true;
                     saveAuto();
-                    renderFilters(); // Re-render to show grid
+                    renderFilters(); 
                 };
                 weekSection.appendChild(showWeeksBtn);
             } else {
-                // Hide button (optional, or keeping it to collapse)
                 const hideWeeksBtn = document.createElement('button');
                 hideWeeksBtn.className = 'filter-btn btn-full-width active';
                 hideWeeksBtn.style.marginTop = '15px';
                 hideWeeksBtn.innerText = 'Skryť konkrétne týždne';
                 hideWeeksBtn.onclick = () => {
                     appState.ui.showWeeks = false;
-                    appState.filters.activeWeek = null; // Reset selection when hiding
-                    renderApp(); // Full rerender
+                    appState.filters.activeWeek = null; 
+                    renderApp(); 
                     saveAuto();
                 };
                 weekSection.appendChild(hideWeeksBtn);
 
-                // Week Grid
                 const weekContainer = document.createElement('div');
                 weekContainer.className = 'week-filter-container';
                 
@@ -931,7 +950,6 @@
             renderTable();
         }
 
-        // --- SEARCH ---
         function handleSearch(query) {
             const resultsDiv = document.getElementById('searchResults');
             if (!query) {
@@ -976,7 +994,6 @@
             }
         }
 
-        // --- POPUPS & PROFILES ---
         let modalStack = [];
 
         function createModal(contentHtml) {
@@ -1015,15 +1032,14 @@
             }
         }
 
-
         function openPlayerProfile(playerName) {
             const containerId = 'profile-' + Date.now();
             createModal(`<div id="${containerId}">${generateProfileHtml(playerName, 'ALL', containerId)}</div>`);
         }
 
-        window.updateProfileView = function(containerId, playerName, filter) {
+        window.updateProfileView = function(containerId, playerName, filter, specificSeason = null) {
             const container = document.getElementById(containerId);
-            container.innerHTML = generateProfileHtml(playerName, filter, containerId);
+            container.innerHTML = generateProfileHtml(playerName, filter, containerId, specificSeason);
         }
 
         function getLatestTourRank(playerName, tourType) {
@@ -1039,7 +1055,6 @@
                     let targetName = p.name;
                     const normNew = normalizeName(targetName);
                     
-                    // Robust check (same as aggregated) to prevent "N/A" due to minor name diffs
                     for (let existingName in seasonStats) {
                         const normExisting = normalizeName(existingName);
                         if (normNew === normExisting || getDistance(normNew, normExisting) <= 1) {
@@ -1056,17 +1071,24 @@
             const leaderboard = Object.entries(seasonStats)
                 .map(([name, points]) => ({ name, points }))
                 .sort((a, b) => b.points - a.points);
+            
+            let currentRank = 1;
+            for(let i=0; i<leaderboard.length; i++) {
+                if (i > 0 && leaderboard[i].points < leaderboard[i-1].points) {
+                    currentRank = i + 1;
+                }
+                leaderboard[i].rank = currentRank;
+            }
 
             const normSearch = normalizeName(playerName);
-            const playerIndex = leaderboard.findIndex(entry => {
-                const normEntry = normalizeName(entry.name);
+            const entry = leaderboard.find(e => {
+                const normEntry = normalizeName(e.name);
                 return normSearch === normEntry || getDistance(normSearch, normEntry) <= 1;
             });
 
-            return playerIndex !== -1 ? (playerIndex + 1) + '.' : 'N/A';
+            return entry ? entry.rank + '.' : 'N/A';
         }
 
-        // --- NEW HELPER FOR SEASON STATS ---
         function getSeasonRankStats(playerName, tourType, season) {
             const files = db.files.filter(f => f.type === tourType && f.season === season);
             if(files.length === 0) return null;
@@ -1103,31 +1125,49 @@
             const leaderboard = Object.entries(seasonPlayers)
                 .map(([name, stats]) => ({ name, ...stats }))
                 .sort((a,b) => b.points - a.points);
+            
+            let currentRank = 1;
+            for(let i=0; i<leaderboard.length; i++) {
+                if (i > 0 && leaderboard[i].points < leaderboard[i-1].points) {
+                    currentRank = i + 1;
+                }
+                leaderboard[i].rank = currentRank;
+            }
                 
             const normSearch = normalizeName(playerName);
-            const index = leaderboard.findIndex(entry => {
-                const normEntry = normalizeName(entry.name);
+            const entry = leaderboard.find(e => {
+                const normEntry = normalizeName(e.name);
                 return normSearch === normEntry || getDistance(normSearch, normEntry) <= 1;
             });
 
-            if(index !== -1) {
-                const stats = leaderboard[index];
-                return {
-                    rank: index + 1,
-                    par: stats.par,
-                    holes: stats.holes,
-                    best: stats.best === 999 ? '-' : stats.best,
-                    points: stats.points
-                };
-            }
-            return null;
+            return entry;
         }
 
 
-        function generateProfileHtml(playerName, filter, containerId) {
+        function generateProfileHtml(playerName, filter, containerId, specificSeason = null) {
             let fileFilter = filter === 'TURNAJE' ? 'ALL' : filter;
             let filteredFiles = db.files.filter(f => fileFilter === 'ALL' || f.type === fileFilter);
             
+            const normSearch = normalizeName(playerName);
+
+            let availableSeasons = [];
+            if (['KFT', 'PGA', 'PRIPRAVA'].includes(filter)) {
+                const relevantForSeasons = db.files.filter(f => f.type === filter);
+                const playerSeasons = new Set();
+                relevantForSeasons.forEach(f => {
+                    const hasPlayer = f.content.some(p => {
+                         const normFile = normalizeName(p.name);
+                         return normSearch === normFile || getDistance(normSearch, normFile) <= 1;
+                    });
+                    if (hasPlayer) playerSeasons.add(f.season);
+                });
+                availableSeasons = [...playerSeasons].sort();
+            }
+
+            if (specificSeason) {
+                filteredFiles = filteredFiles.filter(f => f.season === specificSeason);
+            }
+
             let p_par = 0, p_points = 0, p_holes = 0;
             let p_rounds = [], r1s = [], r2s = [], r3s = [], r4s = [];
             let p_ranks = [];
@@ -1135,7 +1175,10 @@
             let historyHtml = '';
             let tableHead = `<tr><th>Turnaj</th><th>Poz.</th><th>Par</th><th>R1</th><th>R2</th><th>R3</th><th>R4</th><th>Body</th></tr>`;
             
-            const normSearch = normalizeName(playerName);
+            let s_participation = 0;
+            let s_top20 = 0;
+            let s_top5 = 0;
+            let s_wins = 0;
 
             filteredFiles.forEach(f => {
                 const data = f.content.find(p => {
@@ -1146,7 +1189,16 @@
                 if (data) {
                     p_par += data.par; 
                     p_points += data.points;
-                    if (data.fileRank) p_ranks.push(data.fileRank);
+                    if (data.fileRank) {
+                        p_ranks.push(data.fileRank);
+                        
+                        if (filter !== 'TURNAJE') {
+                            s_participation++; 
+                            if(data.fileRank <= 20) s_top20++;
+                            if(data.fileRank <= 5) s_top5++;
+                            if(data.fileRank === 1) s_wins++;
+                        }
+                    }
                     
                     if (f.type !== 'PRIPRAVA') {
                         uniqueTournaments.add(f.type + '-' + f.season);
@@ -1194,6 +1246,11 @@
                 groupArray.forEach(group => {
                     const stats = getSeasonRankStats(playerName, group.type, group.season);
                     if (stats) { 
+                        s_participation++;
+                        if(stats.rank <= 20) s_top20++;
+                        if(stats.rank <= 5) s_top5++;
+                        if(stats.rank === 1) s_wins++;
+
                         historyHtml += `<tr>
                             <td>${group.type} ${group.season}</td>
                             <td>${stats.rank}</td>
@@ -1230,12 +1287,30 @@
             
             let rankLabel = "PGA";
             let rankValue = "N/A";
-            if (filter === 'KFT') {
-                rankLabel = "KFT";
-                rankValue = getLatestTourRank(playerName, 'KFT');
+            
+            let checkTour = (filter === 'KFT') ? 'KFT' : 'PGA';
+            if (specificSeason) {
+                const sRankStats = getSeasonRankStats(playerName, checkTour, specificSeason);
+                rankLabel = `${checkTour} ${specificSeason}`;
+                rankValue = sRankStats ? sRankStats.rank + '.' : 'N/A';
             } else {
-                rankLabel = "PGA";
-                rankValue = getLatestTourRank(playerName, 'PGA');
+                if (filter === 'KFT') {
+                    rankLabel = "KFT";
+                    rankValue = getLatestTourRank(playerName, 'KFT');
+                } else {
+                    rankLabel = "PGA";
+                    rankValue = getLatestTourRank(playerName, 'PGA');
+                }
+            }
+
+            let seasonTagsHtml = '';
+            if (availableSeasons.length > 0) {
+                seasonTagsHtml += `<div class="season-tags">`;
+                availableSeasons.forEach(s => {
+                    const isAct = (s === specificSeason);
+                    seasonTagsHtml += `<span class="season-tag ${isAct ? 'active' : ''}" onclick="updateProfileView('${containerId}', '${playerName}', '${filter}', '${isAct ? '' : s}')">${s}</span>`;
+                });
+                seasonTagsHtml += `</div>`;
             }
 
             return `
@@ -1243,13 +1318,18 @@
                     <h2>${playerName}</h2>
                     <button class="close-btn" onclick="closeTopModal()">&times;</button>
                 </div>
-                <div class="filter-section" style="margin-bottom:15px; display:flex; flex-wrap:wrap; gap:5px;">
-                    <button class="filter-btn ${filter === 'ALL' ? 'active' : 'inactive'}" onclick="updateProfileView('${containerId}', '${playerName}', 'ALL')">Celá história</button>
-                    <button class="filter-btn ${filter === 'KFT' ? 'active' : 'inactive'}" onclick="updateProfileView('${containerId}', '${playerName}', 'KFT')">KFT</button>
-                    <button class="filter-btn ${filter === 'PGA' ? 'active' : 'inactive'}" onclick="updateProfileView('${containerId}', '${playerName}', 'PGA')">PGA</button>
-                    <button class="filter-btn ${filter === 'PRIPRAVA' ? 'active' : 'inactive'}" onclick="updateProfileView('${containerId}', '${playerName}', 'PRIPRAVA')">Príprava</button>
-                    <button class="filter-btn ${filter === 'TURNAJE' ? 'active' : 'inactive'}" onclick="updateProfileView('${containerId}', '${playerName}', 'TURNAJE')">Turnaje</button>
+                <div style="margin-bottom:15px;">
+                    <div class="profile-filter-row">
+                        <button class="filter-btn ${filter === 'ALL' ? 'active' : 'inactive'}" onclick="updateProfileView('${containerId}', '${playerName}', 'ALL')">Celá história</button>
+                        <button class="filter-btn ${filter === 'TURNAJE' ? 'active' : 'inactive'}" onclick="updateProfileView('${containerId}', '${playerName}', 'TURNAJE')">Turnaje</button>
+                    </div>
+                    <div class="profile-filter-row">
+                        <button class="filter-btn ${filter === 'PRIPRAVA' ? 'active' : 'inactive'}" onclick="updateProfileView('${containerId}', '${playerName}', 'PRIPRAVA')">Príprava</button>
+                        <button class="filter-btn ${filter === 'KFT' ? 'active' : 'inactive'}" onclick="updateProfileView('${containerId}', '${playerName}', 'KFT')">KFT</button>
+                        <button class="filter-btn ${filter === 'PGA' ? 'active' : 'inactive'}" onclick="updateProfileView('${containerId}', '${playerName}', 'PGA')">PGA</button>
+                    </div>
                 </div>
+                ${seasonTagsHtml}
                 <div class="profile-stats-grid">
                     <div class="stat-box"><div class="stat-label" style="color:var(--accent-green)">Počet jamiek</div><div class="stat-value">${p_holes}</div></div>
                     <div class="stat-box"><div class="stat-label">Body</div><div class="stat-value">${p_points.toFixed(3)}</div></div>
@@ -1259,8 +1339,15 @@
                     <div class="stat-box"><div class="stat-label">Najlepšie umiestnenie</div><div class="stat-value">${bestFinish}</div></div>
                     <div class="stat-box"><div class="stat-label" style="color:var(--accent-green)">Turnajov</div><div class="stat-value">${uniqueTournaments.size}</div></div>
                     <div class="stat-box"><div class="stat-label" style="color:var(--accent-green)">${rankLabel}</div><div class="stat-value">${rankValue}</div></div>
-
                 </div>
+                
+                <div class="profile-stats-grid">
+                     <div class="stat-box"><div class="stat-label" style="color:#3498db">Účasť</div><div class="stat-value">${s_participation}</div></div>
+                     <div class="stat-box"><div class="stat-label" style="color:#3498db">Top 20</div><div class="stat-value">${s_top20}</div></div>
+                     <div class="stat-box"><div class="stat-label" style="color:#3498db">Top 5</div><div class="stat-value">${s_top5}</div></div>
+                     <div class="stat-box"><div class="stat-label" style="color:#3498db">Wins</div><div class="stat-value">${s_wins}</div></div>
+                </div>
+
                 ${(filter !== 'ALL' && filter !== 'TURNAJE') ? `
                 <div class="profile-stats-grid">
                     <div class="stat-box"><div class="stat-label">Ø R1</div><div class="stat-value">${avg(r1s)}</div></div>
@@ -1277,7 +1364,6 @@
             `;
         }
 
-        // --- SETTINGS & SAVE ---
         function openSettings() {
             const html = `
                 <div class="modal-header">
@@ -1376,7 +1462,7 @@
                     const parsed = JSON.parse(data);
                     db = parsed.db;
                     appState = parsed.appState;
-                    if(!appState.ui) appState.ui = { showWeeks: false }; // Migracia
+                    if(!appState.ui) appState.ui = { showWeeks: false }; 
                     appState.history = []; 
                     if (!silent) renderApp();
                 } catch (e) {}
