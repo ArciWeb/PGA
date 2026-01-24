@@ -100,12 +100,63 @@
             background-color: #444;
         }
 
-        /* Filters */
+        /* Filters Layout */
+        #filterContainer {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
         .filter-section {
-            margin-bottom: 15px;
+            width: 100%;
+        }
+
+        /* Full Width Buttons */
+        .btn-full-width {
+            width: 100%;
+            display: block;
+            margin-bottom: 8px;
+            text-align: center;
+            padding: 12px;
+            font-size: 1rem;
+        }
+
+        /* Standard Row (Tours) */
+        .filter-row {
             display: flex;
             flex-wrap: wrap;
             gap: 10px;
+            width: 100%;
+        }
+        .filter-row .filter-btn {
+            flex: 1;
+            justify-content: center;
+        }
+
+        /* Grid for Seasons (6 columns) */
+        .filter-grid-6 {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 8px;
+            width: 100%;
+        }
+
+        .filter-grid-6 .filter-btn {
+            font-size: 0.85rem;
+            padding: 8px 5px;
+            justify-content: center;
+            text-align: center;
+        }
+
+        /* Week Filters */
+        .week-filter-container {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #444;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
         }
 
         .filter-btn {
@@ -119,6 +170,7 @@
             align-items: center;
             gap: 5px;
             user-select: none;
+            color: var(--text-main);
         }
 
         .filter-btn.active {
@@ -127,7 +179,7 @@
         }
 
         .filter-btn.inactive {
-            background-color: var(--card-bg); /* Sivá logika */
+            background-color: var(--card-bg);
             color: var(--accent-grey);
             border: 1px solid var(--accent-grey);
         }
@@ -326,7 +378,7 @@
 
     <header>
         <div>
-            <h1>ArciWeb-PGA StatsKeeper <span class="version">v1.76.6</span></h1>
+            <h1>ArciWeb-PGA StatsKeeper <span class="version">v1.76.94</span></h1>
         </div>
         <button class="icon-btn" onclick="openSettings()">&#9881;</button>
     </header>
@@ -337,13 +389,7 @@
     </div>
 
     <div id="filterContainer">
-        <div class="filter-section" id="tourFilters">
-            </div>
-        <div class="filter-section" id="seasonFilters">
-            </div>
-        <div class="filter-section" id="weekFilters">
-            </div>
-    </div>
+        </div>
 
     <div class="table-container">
         <table id="mainTable">
@@ -370,6 +416,9 @@
                 seasons: ['ALL'],
                 activeWeek: null 
             },
+            ui: {
+                showWeeks: false 
+            },
             sort: { column: 'totalPoints', dir: 'desc' }, 
             history: [] 
         };
@@ -387,14 +436,11 @@
             renderApp();
             
             window.onpopstate = function(event) {
-                // Ak je otvorené nejaké okno, len ho zatvoríme a nepúšťame renderApp()
                 if (modalStack.length > 0) {
                     const overlay = modalStack.pop();
                     if (overlay) overlay.remove();
-                    // Ak už nie sú žiadne okná, vrátime scrollovanie na body
                     if (modalStack.length === 0) document.body.style.overflow = 'auto';
                 } 
-                // Ak nie je okno, ale menili sme filtre/zoradenie, vtedy sa tabuľka obnoví
                 else if (appState.history.length > 0) {
                     let prevState = appState.history.pop();
                     if(prevState) {
@@ -545,15 +591,13 @@
 
             files.forEach(file => {
                 file.content.forEach(p => {
-                    // --- NOVÁ LOGIKA VYHĽADÁVANIA DUPLIKÁTOV ---
                     let targetName = p.name;
                     const normNew = normalizeName(targetName);
 
                     for (let existingName in playerMap) {
                         const normExisting = normalizeName(existingName);
-                        // Ak je meno rovnaké bez diakritiky ALEBO sa líši len o 1 znak
                         if (normNew === normExisting || getDistance(normNew, normExisting) <= 1) {
-                            targetName = existingName; // Priradíme ho k už existujúcemu menu
+                            targetName = existingName; 
                             break;
                         }
                     }
@@ -568,7 +612,6 @@
                             totalHoles: 0
                         };
                     }
-                    // Dáta sa pripočítajú k "targetName" (pôvodnému alebo nájdenému)
                     playerMap[targetName].totalPar += p.par;
                     playerMap[targetName].totalPoints += p.points;
                     playerMap[targetName].weeksPlayed += 1;
@@ -644,11 +687,26 @@
         }
 
         function renderFilters() {
-            const tContainer = document.getElementById('tourFilters');
-            tContainer.innerHTML = '';
+            const mainContainer = document.getElementById('filterContainer');
+            mainContainer.innerHTML = '';
             
+            // 1. TOUR FILTERS
+            const tourSection = document.createElement('div');
+            tourSection.className = 'filter-section';
+            
+            // "Všetky turnaje" (Full Width)
+            const allToursBtn = document.createElement('button');
+            const allToursActive = appState.filters.tours.includes('ALL');
+            const hasDataTour = db.files.length > 0;
+            allToursBtn.className = `filter-btn btn-full-width ${allToursActive ? 'active' : 'inactive'} ${!hasDataTour ? 'empty' : ''}`;
+            allToursBtn.innerText = 'Všetky turnaje';
+            allToursBtn.onclick = () => toggleTourFilter('ALL');
+            tourSection.appendChild(allToursBtn);
+
+            // Sub-filters row (Príprava, KFT, PGA)
+            const tourRow = document.createElement('div');
+            tourRow.className = 'filter-row';
             const tourOpts = [
-                { id: 'ALL', label: 'Všetky turnaje' },
                 { id: 'PRIPRAVA', label: 'Príprava' },
                 { id: 'KFT', label: 'Korn Ferry Tour' },
                 { id: 'PGA', label: 'PGA Tour' }
@@ -656,56 +714,102 @@
 
             tourOpts.forEach(opt => {
                 const btn = document.createElement('button');
-                const hasData = opt.id === 'ALL' ? db.files.length > 0 : db.files.some(f => f.type === opt.id);
+                const hasData = db.files.some(f => f.type === opt.id);
                 const isActive = appState.filters.tours.includes(opt.id);
-                
                 btn.className = `filter-btn ${isActive ? 'active' : 'inactive'} ${!hasData ? 'empty' : ''}`;
                 btn.innerText = opt.label;
                 btn.onclick = () => toggleTourFilter(opt.id);
-                tContainer.appendChild(btn);
+                tourRow.appendChild(btn);
             });
+            tourSection.appendChild(tourRow);
+            mainContainer.appendChild(tourSection);
 
-            const sContainer = document.getElementById('seasonFilters');
-            sContainer.innerHTML = '';
+            // 2. SEASON FILTERS
+            const seasonSection = document.createElement('div');
+            seasonSection.className = 'filter-section';
             
+            // "Všetky sezóny" (Full Width)
+            const allSeasonsBtn = document.createElement('button');
+            const allSeasonsActive = appState.filters.seasons.includes('ALL');
+            let relevantFilesForSeasons = db.files;
+            if (!appState.filters.tours.includes('ALL')) relevantFilesForSeasons = relevantFilesForSeasons.filter(f => appState.filters.tours.includes(f.type));
+            const hasDataSeasons = relevantFilesForSeasons.length > 0;
+            
+            allSeasonsBtn.className = `filter-btn btn-full-width ${allSeasonsActive ? 'active' : 'inactive'} ${!hasDataSeasons ? 'empty' : ''}`;
+            allSeasonsBtn.innerText = 'Všetky sezóny';
+            allSeasonsBtn.onclick = () => toggleSeasonFilter('ALL');
+            seasonSection.appendChild(allSeasonsBtn);
+
+            // Sub-filters grid (Seasons 015, 016...)
+            const seasonGrid = document.createElement('div');
+            seasonGrid.className = 'filter-grid-6';
             const seasons = [...new Set(db.files.map(f => f.season))].sort();
-            const seasonOpts = [{ id: 'ALL', label: 'Všetky sezóny' }, ...seasons.map(s => ({ id: s, label: `Sezóna ${s}` }))];
-
-            seasonOpts.forEach(opt => {
+            
+            seasons.forEach(s => {
                 const btn = document.createElement('button');
-                let relevantFiles = db.files;
-                if (!appState.filters.tours.includes('ALL')) relevantFiles = relevantFiles.filter(f => appState.filters.tours.includes(f.type));
+                const hasDataS = relevantFilesForSeasons.some(f => f.season === s);
+                const isActiveS = appState.filters.seasons.includes(s);
+                btn.className = `filter-btn ${isActiveS ? 'active' : 'inactive'} ${!hasDataS ? 'empty' : ''}`;
+                btn.innerText = s; // Iba cislo
+                btn.onclick = () => toggleSeasonFilter(s);
+                seasonGrid.appendChild(btn);
+            });
+            seasonSection.appendChild(seasonGrid);
+            mainContainer.appendChild(seasonSection);
+
+            // 3. WEEK FILTERS (Show button first)
+            const weekSection = document.createElement('div');
+            weekSection.className = 'filter-section';
+
+            if (!appState.ui.showWeeks) {
+                const showWeeksBtn = document.createElement('button');
+                showWeeksBtn.className = 'filter-btn btn-full-width inactive';
+                showWeeksBtn.style.marginTop = '15px';
+                showWeeksBtn.innerText = 'Zobraziť konkrétne týždne';
+                showWeeksBtn.onclick = () => {
+                    appState.ui.showWeeks = true;
+                    saveAuto();
+                    renderFilters(); // Re-render to show grid
+                };
+                weekSection.appendChild(showWeeksBtn);
+            } else {
+                // Hide button (optional, or keeping it to collapse)
+                const hideWeeksBtn = document.createElement('button');
+                hideWeeksBtn.className = 'filter-btn btn-full-width active';
+                hideWeeksBtn.style.marginTop = '15px';
+                hideWeeksBtn.innerText = 'Skryť konkrétne týždne';
+                hideWeeksBtn.onclick = () => {
+                    appState.ui.showWeeks = false;
+                    appState.filters.activeWeek = null; // Reset selection when hiding
+                    renderApp(); // Full rerender
+                    saveAuto();
+                };
+                weekSection.appendChild(hideWeeksBtn);
+
+                // Week Grid
+                const weekContainer = document.createElement('div');
+                weekContainer.className = 'week-filter-container';
                 
-                const hasData = opt.id === 'ALL' ? relevantFiles.length > 0 : relevantFiles.some(f => f.season === opt.id);
-                const isActive = appState.filters.seasons.includes(opt.id);
+                let displayFiles = getActiveFiles();
+                const typeOrder = { 'PRIPRAVA': 1, 'KFT': 2, 'PGA': 3, 'UNKNOWN': 4 };
+                displayFiles.sort((a, b) => {
+                    if (typeOrder[a.type] !== typeOrder[b.type]) return typeOrder[a.type] - typeOrder[b.type];
+                    if (a.season !== b.season) return parseInt(a.season) - parseInt(b.season);
+                    return a.week - b.week;
+                });
 
-                btn.className = `filter-btn ${isActive ? 'active' : 'inactive'} ${!hasData ? 'empty' : ''}`;
-                btn.innerText = opt.label;
-                btn.onclick = () => toggleSeasonFilter(opt.id);
-                sContainer.appendChild(btn);
-            });
-
-            const wContainer = document.getElementById('weekFilters');
-            wContainer.innerHTML = '';
-            
-            let displayFiles = getActiveFiles();
-            
-            const typeOrder = { 'PRIPRAVA': 1, 'KFT': 2, 'PGA': 3, 'UNKNOWN': 4 };
-            displayFiles.sort((a, b) => {
-                if (typeOrder[a.type] !== typeOrder[b.type]) return typeOrder[a.type] - typeOrder[b.type];
-                if (a.season !== b.season) return parseInt(a.season) - parseInt(b.season);
-                return a.week - b.week;
-            });
-
-            displayFiles.forEach(f => {
-                const btn = document.createElement('button');
-                const isActive = appState.filters.activeWeek === f.id;
-                btn.className = `filter-btn ${isActive ? 'active' : 'inactive'}`;
-                btn.style.fontSize = '0.9rem';
-                btn.innerText = f.name.replace('.txt', '');
-                btn.onclick = () => toggleWeekFilter(f.id);
-                wContainer.appendChild(btn);
-            });
+                displayFiles.forEach(f => {
+                    const btn = document.createElement('button');
+                    const isActive = appState.filters.activeWeek === f.id;
+                    btn.className = `filter-btn ${isActive ? 'active' : 'inactive'}`;
+                    btn.style.fontSize = '0.9rem';
+                    btn.innerText = f.name.replace('.txt', '');
+                    btn.onclick = () => toggleWeekFilter(f.id);
+                    weekContainer.appendChild(btn);
+                });
+                weekSection.appendChild(weekContainer);
+            }
+            mainContainer.appendChild(weekSection);
         }
 
         function toggleTourFilter(id) {
@@ -903,8 +1007,6 @@
             if (modalStack.length === 0) return;
             
             if (popHistory) {
-                // Vyvoláme vrátenie sa v histórii. 
-                // Funkcia window.onpopstate (upravená vyššie) sa postará o odstránenie okna bez renderu.
                 window.history.back(); 
             } else {
                 const overlay = modalStack.pop();
@@ -936,6 +1038,8 @@
                 file.content.forEach(p => {
                     let targetName = p.name;
                     const normNew = normalizeName(targetName);
+                    
+                    // Robust check (same as aggregated) to prevent "N/A" due to minor name diffs
                     for (let existingName in seasonStats) {
                         const normExisting = normalizeName(existingName);
                         if (normNew === normExisting || getDistance(normNew, normExisting) <= 1) {
@@ -943,6 +1047,7 @@
                             break;
                         }
                     }
+                    
                     if (!seasonStats[targetName]) seasonStats[targetName] = 0;
                     seasonStats[targetName] += p.points;
                 });
@@ -961,25 +1066,76 @@
             return playerIndex !== -1 ? (playerIndex + 1) + '.' : 'N/A';
         }
 
+        // --- NEW HELPER FOR SEASON STATS ---
+        function getSeasonRankStats(playerName, tourType, season) {
+            const files = db.files.filter(f => f.type === tourType && f.season === season);
+            if(files.length === 0) return null;
+
+            const seasonPlayers = {};
+            files.forEach(f => {
+                f.content.forEach(p => {
+                    let targetName = p.name;
+                    const normNew = normalizeName(targetName);
+                    for (let existingName in seasonPlayers) {
+                         const normExisting = normalizeName(existingName);
+                         if (normNew === normExisting || getDistance(normNew, normExisting) <= 1) {
+                             targetName = existingName;
+                             break;
+                         }
+                    }
+                    
+                    if(!seasonPlayers[targetName]) {
+                        seasonPlayers[targetName] = { points: 0, par: 0, holes: 0, best: 999 };
+                    }
+                    seasonPlayers[targetName].points += p.points;
+                    seasonPlayers[targetName].par += p.par;
+                    
+                    [p.r1, p.r2, p.r3, p.r4].forEach(r => {
+                        if(r !== 'NA') {
+                            const val = parseInt(r);
+                            seasonPlayers[targetName].holes += 18;
+                            if(val < seasonPlayers[targetName].best) seasonPlayers[targetName].best = val;
+                        }
+                    });
+                });
+            });
+
+            const leaderboard = Object.entries(seasonPlayers)
+                .map(([name, stats]) => ({ name, ...stats }))
+                .sort((a,b) => b.points - a.points);
+                
+            const normSearch = normalizeName(playerName);
+            const index = leaderboard.findIndex(entry => {
+                const normEntry = normalizeName(entry.name);
+                return normSearch === normEntry || getDistance(normSearch, normEntry) <= 1;
+            });
+
+            if(index !== -1) {
+                const stats = leaderboard[index];
+                return {
+                    rank: index + 1,
+                    par: stats.par,
+                    holes: stats.holes,
+                    best: stats.best === 999 ? '-' : stats.best,
+                    points: stats.points
+                };
+            }
+            return null;
+        }
+
 
         function generateProfileHtml(playerName, filter, containerId) {
-            let filteredFiles = db.files.filter(f => filter === 'ALL' || f.type === filter);
+            let fileFilter = filter === 'TURNAJE' ? 'ALL' : filter;
+            let filteredFiles = db.files.filter(f => fileFilter === 'ALL' || f.type === fileFilter);
             
             let p_par = 0, p_points = 0, p_holes = 0;
             let p_rounds = [], r1s = [], r2s = [], r3s = [], r4s = [];
             let p_ranks = [];
-            let uniqueTournaments = new Set(); // Pre unikátne turnaje (Typ-Sezóna)
+            let uniqueTournaments = new Set();
             let historyHtml = '';
+            let tableHead = `<tr><th>Turnaj</th><th>Poz.</th><th>Par</th><th>R1</th><th>R2</th><th>R3</th><th>R4</th><th>Body</th></tr>`;
             
             const normSearch = normalizeName(playerName);
-            
-            // Zoradenie súborov
-            const typeOrder = { 'PRIPRAVA': 1, 'KFT': 2, 'PGA': 3, 'UNKNOWN': 4 };
-            filteredFiles.sort((a, b) => {
-                if (typeOrder[a.type] !== typeOrder[b.type]) return typeOrder[a.type] - typeOrder[b.type];
-                if (a.season !== b.season) return parseInt(a.season) - parseInt(b.season);
-                return a.week - b.week;
-            });
 
             filteredFiles.forEach(f => {
                 const data = f.content.find(p => {
@@ -992,55 +1148,107 @@
                     p_points += data.points;
                     if (data.fileRank) p_ranks.push(data.fileRank);
                     
-                    // Počítame unikátne turnaje (napr. KFT-25)
                     if (f.type !== 'PRIPRAVA') {
                         uniqueTournaments.add(f.type + '-' + f.season);
                     } else {
-                        uniqueTournaments.add('PRIPRAVA-' + f.id); // Prípravu rátame každú zvlášť
+                        uniqueTournaments.add('PRIPRAVA-' + f.id); 
                     }
 
-                    // Výpočet jamiek a kôl
                     [data.r1, data.r2, data.r3, data.r4].forEach((r, idx) => {
                         if (r !== 'NA') {
                             const val = parseInt(r);
                             p_rounds.push(val);
-                            p_holes += 18; // Každé odohraté kolo je 18 jamiek
+                            p_holes += 18;
                             if(idx===0)r1s.push(val); if(idx===1)r2s.push(val); 
                             if(idx===2)r3s.push(val); if(idx===3)r4s.push(val);
                         }
                     });
-                    historyHtml += `<tr><td>${f.name}</td><td>${data.fileRank}</td><td>${data.par}</td><td>${data.r1}</td><td>${data.r2}</td><td>${data.r3}</td><td>${data.r4}</td><td>${data.points}</td></tr>`;
+
+                    if (filter !== 'TURNAJE') {
+                        historyHtml += `<tr><td>${f.name}</td><td>${data.fileRank}</td><td>${data.par}</td><td>${data.r1}</td><td>${data.r2}</td><td>${data.r3}</td><td>${data.r4}</td><td>${data.points}</td></tr>`;
+                    }
                 }
             });
+
+            if (filter === 'TURNAJE') {
+                tableHead = `<tr><th>Turnaj</th><th>Poz.</th><th>Par</th><th>Jamky</th><th>Najlepšie</th><th>Body</th></tr>`;
+                
+                let seasonGroups = new Set();
+                db.files.forEach(f => {
+                    if (f.type !== 'UNKNOWN') {
+                        seasonGroups.add(f.type + '|' + f.season);
+                    }
+                });
+
+                let groupArray = Array.from(seasonGroups).map(str => {
+                    const [type, season] = str.split('|');
+                    return { type, season };
+                });
+
+                const typeOrder = { 'KFT': 1, 'PGA': 2, 'PRIPRAVA': 3 };
+                groupArray.sort((a, b) => {
+                    if (typeOrder[a.type] !== typeOrder[b.type]) return (typeOrder[a.type]||99) - (typeOrder[b.type]||99);
+                    return parseInt(a.season) - parseInt(b.season);
+                });
+
+                groupArray.forEach(group => {
+                    const stats = getSeasonRankStats(playerName, group.type, group.season);
+                    if (stats) { 
+                        historyHtml += `<tr>
+                            <td>${group.type} ${group.season}</td>
+                            <td>${stats.rank}</td>
+                            <td>${stats.par}</td>
+                            <td>${stats.holes}</td>
+                            <td>${stats.best}</td>
+                            <td>${stats.points.toFixed(3)}</td>
+                        </tr>`;
+                    }
+                });
+            } else {
+                 historyHtml = '';
+                 const typeOrder = { 'PRIPRAVA': 1, 'KFT': 2, 'PGA': 3, 'UNKNOWN': 4 };
+                 filteredFiles.sort((a, b) => {
+                     if (typeOrder[a.type] !== typeOrder[b.type]) return typeOrder[a.type] - typeOrder[b.type];
+                     if (a.season !== b.season) return parseInt(a.season) - parseInt(b.season);
+                     return a.week - b.week;
+                 });
+                 filteredFiles.forEach(f => {
+                    const data = f.content.find(p => {
+                        const normFile = normalizeName(p.name);
+                        return normSearch === normFile || getDistance(normSearch, normFile) <= 1;
+                    });
+                    if(data) {
+                        historyHtml += `<tr><td>${f.name}</td><td>${data.fileRank}</td><td>${data.par}</td><td>${data.r1}</td><td>${data.r2}</td><td>${data.r3}</td><td>${data.r4}</td><td>${data.points}</td></tr>`;
+                    }
+                 });
+            }
 
             const avg = arr => arr.length ? Math.round(arr.reduce((a,b)=>a+b,0)/arr.length) : '-';
             const best = p_rounds.length ? Math.min(...p_rounds) : '-';
             const worst = p_rounds.length ? Math.max(...p_rounds) : '-';
             const bestFinish = p_ranks.length ? Math.min(...p_ranks) : '-';
-            // Dynamické určenie ranku podľa filtra
+            
             let rankLabel = "PGA";
             let rankValue = "N/A";
-
             if (filter === 'KFT') {
                 rankLabel = "KFT";
                 rankValue = getLatestTourRank(playerName, 'KFT');
             } else {
-                // Pre 'ALL', 'PGA' alebo 'PRIPRAVA' necháme predvolené PGA
                 rankLabel = "PGA";
                 rankValue = getLatestTourRank(playerName, 'PGA');
             }
-
 
             return `
                 <div class="modal-header">
                     <h2>${playerName}</h2>
                     <button class="close-btn" onclick="closeTopModal()">&times;</button>
                 </div>
-                <div class="filter-section">
+                <div class="filter-section" style="margin-bottom:15px; display:flex; flex-wrap:wrap; gap:5px;">
                     <button class="filter-btn ${filter === 'ALL' ? 'active' : 'inactive'}" onclick="updateProfileView('${containerId}', '${playerName}', 'ALL')">Celá história</button>
                     <button class="filter-btn ${filter === 'KFT' ? 'active' : 'inactive'}" onclick="updateProfileView('${containerId}', '${playerName}', 'KFT')">KFT</button>
                     <button class="filter-btn ${filter === 'PGA' ? 'active' : 'inactive'}" onclick="updateProfileView('${containerId}', '${playerName}', 'PGA')">PGA</button>
                     <button class="filter-btn ${filter === 'PRIPRAVA' ? 'active' : 'inactive'}" onclick="updateProfileView('${containerId}', '${playerName}', 'PRIPRAVA')">Príprava</button>
+                    <button class="filter-btn ${filter === 'TURNAJE' ? 'active' : 'inactive'}" onclick="updateProfileView('${containerId}', '${playerName}', 'TURNAJE')">Turnaje</button>
                 </div>
                 <div class="profile-stats-grid">
                     <div class="stat-box"><div class="stat-label" style="color:var(--accent-green)">Počet jamiek</div><div class="stat-value">${p_holes}</div></div>
@@ -1053,7 +1261,7 @@
                     <div class="stat-box"><div class="stat-label" style="color:var(--accent-green)">${rankLabel}</div><div class="stat-value">${rankValue}</div></div>
 
                 </div>
-                ${filter !== 'ALL' ? `
+                ${(filter !== 'ALL' && filter !== 'TURNAJE') ? `
                 <div class="profile-stats-grid">
                     <div class="stat-box"><div class="stat-label">Ø R1</div><div class="stat-value">${avg(r1s)}</div></div>
                     <div class="stat-box"><div class="stat-label">Ø R2</div><div class="stat-value">${avg(r2s)}</div></div>
@@ -1062,7 +1270,7 @@
                 </div>` : ''}
                 <div class="table-container">
                     <table>
-                        <thead><tr><th>Turnaj</th><th>Poz.</th><th>Par</th><th>R1</th><th>R2</th><th>R3</th><th>R4</th><th>Body</th></tr></thead>
+                        <thead>${tableHead}</thead>
                         <tbody>${historyHtml}</tbody>
                     </table>
                 </div>
@@ -1168,6 +1376,7 @@
                     const parsed = JSON.parse(data);
                     db = parsed.db;
                     appState = parsed.appState;
+                    if(!appState.ui) appState.ui = { showWeeks: false }; // Migracia
                     appState.history = []; 
                     if (!silent) renderApp();
                 } catch (e) {}
@@ -1177,4 +1386,3 @@
     </script>
 </body>
 </html>
-
