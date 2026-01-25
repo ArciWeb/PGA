@@ -2,8 +2,8 @@
 <html lang="sk">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ArciWeb-PGA StatsKeeper</title>
+    <meta id="viewportMeta" name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ArciWeb PGA StatsKeeper v1.91.7</title>
     <style>
         :root {
             --bg-color: #1e1e1e;
@@ -11,412 +11,263 @@
             --text-main: #ffffff;
             --text-muted: #b0b0b0;
             --accent-green: #2ecc71;
-            --accent-grey: #7f8c8d;
+            --accent-blue: #3498db;
             --accent-red: #e74c3c;
+            --highlight-gold: #f1c40f;
             --border-radius: 12px;
-            --transition: 0.3s ease;
+            --transition: 0.2s ease;
+            --font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            --modal-z: 1000;
         }
 
         body {
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            font-family: var(--font-family);
             background-color: var(--bg-color);
             color: var(--text-main);
             margin: 0;
             padding: 20px;
             overflow-x: hidden;
+            transition: background-color 0.3s, color 0.3s;
         }
 
+        /* --- Header & Layout --- */
         header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 20px;
-        }
-
-        h1 {
-            margin: 0;
-            font-size: 1.5rem;
-            font-weight: 700;
-        }
-
-        .version {
-            font-size: 0.8rem;
-            color: var(--text-muted);
-            margin-left: 10px;
-        }
-
-        .icon-btn {
-            background: none;
-            border: none;
-            color: var(--text-main);
-            font-size: 1.8rem;
-            cursor: pointer;
-            transition: var(--transition);
-        }
-
-        .icon-btn:hover {
-            transform: rotate(90deg);
-        }
-
-        .search-container {
-            margin-bottom: 20px;
-            position: relative;
-        }
-
-        #playerSearch {
-            width: 100%;
-            padding: 12px 15px;
-            border-radius: var(--border-radius);
-            border: none;
-            background-color: var(--card-bg);
-            color: var(--text-main);
-            font-size: 1rem;
-            box-sizing: border-box;
-        }
-
-        #searchResults {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            width: 100%;
-            background-color: var(--card-bg);
-            border-radius: var(--border-radius);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-            z-index: 100;
-            max-height: 200px;
-            overflow-y: auto;
-            display: none;
-        }
-
-        .search-item {
-            padding: 10px 15px;
+            padding-bottom: 10px;
             border-bottom: 1px solid #444;
-            cursor: pointer;
-        }
-
-        .search-item:hover {
-            background-color: #444;
-        }
-
-        #filterContainer {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-
-        .filter-section {
-            width: 100%;
-        }
-
-        .btn-full-width {
-            width: 100%;
-            display: block;
-            margin-bottom: 8px;
-            text-align: center;
-            padding: 12px;
-            font-size: 1rem;
-        }
-
-        .filter-row {
-            display: flex;
             flex-wrap: wrap;
             gap: 10px;
-            width: 100%;
-        }
-        .filter-row .filter-btn {
-            flex: 1;
-            justify-content: center;
         }
 
-        .filter-grid-6 {
-            display: grid;
-            grid-template-columns: repeat(6, 1fr);
-            gap: 8px;
-            width: 100%;
-        }
-
-        .filter-grid-6 .filter-btn {
-            font-size: 0.85rem;
-            padding: 8px 5px;
-            justify-content: center;
-            text-align: center;
-        }
-
-        .week-filter-container {
-            margin-top: 10px;
-            padding-top: 10px;
-            border-top: 1px solid #444;
+        .header-left {
             display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
+            flex-direction: column;
+            gap: 5px;
         }
+
+        h1 { margin: 0; font-size: 1.4rem; font-weight: 700; }
+        .version { font-size: 0.7rem; color: var(--text-muted); margin-left: 5px; vertical-align: middle; }
+
+        .header-ranks {
+            display: flex;
+            gap: 15px;
+            margin-top: 5px;
+        }
+        .header-rank-link {
+            font-size: 0.85rem;
+            color: var(--accent-green);
+            cursor: pointer;
+            text-decoration: none;
+            border-bottom: 1px dotted var(--accent-green);
+            transition: var(--transition);
+        }
+        .header-rank-link:hover {
+            color: var(--highlight-gold);
+            border-bottom-color: var(--highlight-gold);
+        }
+
+        .header-icons { display: flex; gap: 15px; }
+        .icon-btn {
+            background: none; border: none; color: var(--text-main);
+            font-size: 1.4rem; cursor: pointer; transition: var(--transition);
+            display: flex; align-items: center; justify-content: center;
+        }
+        .icon-btn:hover { transform: scale(1.1); color: var(--accent-green); }
+
+        /* --- Search --- */
+        .search-container { margin-bottom: 15px; position: relative; }
+        #playerSearch {
+            width: 100%; padding: 12px 15px; border-radius: var(--border-radius);
+            border: 1px solid #444; background-color: var(--card-bg);
+            color: var(--text-main); font-size: 1rem; box-sizing: border-box;
+        }
+        #searchResults {
+            position: absolute; top: 100%; left: 0; width: 100%;
+            background-color: var(--card-bg); border-radius: 0 0 var(--border-radius) var(--border-radius);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5); z-index: 100;
+            max-height: 250px; overflow-y: auto; display: none; border: 1px solid #555;
+        }
+        .search-item { padding: 12px 15px; border-bottom: 1px solid #444; cursor: pointer; }
+        .search-item:hover { background-color: #444; }
+
+        /* --- Filters --- */
+        #filterContainer { display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; }
+        .filter-section { width: 100%; }
+        .filter-label { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 5px; display: block; text-transform: uppercase; letter-spacing: 1px; }
+
+        .filter-row { display: flex; flex-wrap: wrap; gap: 8px; width: 100%; }
+        .btn-full-width { width: 100%; display: block; text-align: center; }
 
         .filter-btn {
-            padding: 10px 15px;
-            border-radius: var(--border-radius);
-            border: none;
-            cursor: pointer;
-            font-weight: 600;
-            transition: var(--transition);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 5px;
-            user-select: none;
-            color: var(--text-main);
+            padding: 8px 12px; border-radius: 8px; border: 1px solid #444;
+            cursor: pointer; font-weight: 600; font-size: 0.85rem;
+            transition: var(--transition); display: flex; align-items: center;
+            justify-content: center; user-select: none;
+            background-color: var(--card-bg); color: var(--text-muted); flex: 1;
+        }
+        .filter-btn:hover { background-color: #3d3d3d; }
+        .filter-btn.active { background-color: var(--accent-green); color: #000; border-color: var(--accent-green); }
+        .filter-btn.empty { opacity: 0.4; pointer-events: none; }
+        
+        .filter-btn.important-tour { 
+            border: 1px solid var(--highlight-gold); 
+            color: var(--highlight-gold); 
+            box-shadow: 0 0 5px rgba(241, 196, 15, 0.2);
+        }
+        .filter-btn.important-tour.active { 
+            background-color: var(--highlight-gold); 
+            color: #000; 
+            box-shadow: 0 0 10px rgba(241, 196, 15, 0.5);
         }
 
-        .filter-btn.active {
-            background-color: var(--accent-green);
-            color: #000;
+        .filter-btn.significant-tour {
+            border: 1px dashed var(--accent-blue);
+            color: var(--accent-blue);
+        }
+        .filter-btn.significant-tour.active {
+            background-color: var(--accent-blue);
+            color: #fff;
         }
 
-        .filter-btn.inactive {
-            background-color: var(--card-bg);
-            color: var(--accent-grey);
-            border: 1px solid var(--accent-grey);
+        /* Dropdown like filter for Events */
+        .dropdown-filter {
+            width: 100%; background: var(--card-bg); border: 1px solid #444;
+            color: white; padding: 10px; border-radius: 8px; text-align: left;
+            position: relative; cursor: pointer;
+        }
+        .dropdown-content {
+            display: none; flex-wrap: wrap; gap: 5px; padding: 10px;
+            background: #252525; border: 1px solid #444; border-radius: 8px;
+            margin-top: 5px; max-height: 200px; overflow-y: auto;
+        }
+        .dropdown-content.show { display: flex; }
+
+        /* --- Table --- */
+        .table-container {
+            overflow-x: auto; background-color: var(--card-bg);
+            border-radius: var(--border-radius); padding: 5px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        table { width: 100%; border-collapse: collapse; min-width: 350px; }
+        th, td { padding: 10px 8px; text-align: center; border-bottom: 1px solid #444; font-size: 0.9rem; }
+        td:nth-child(2), th:nth-child(2) { text-align: left; }
+        th { cursor: pointer; color: var(--text-muted); font-weight: 600; text-transform: uppercase; font-size: 0.75rem; }
+        th:hover { color: var(--text-main); text-decoration: underline; }
+        
+        .player-row:hover { background-color: rgba(255,255,255,0.05); cursor: pointer; }
+        
+        .important-row { 
+            background-color: rgba(241, 196, 15, 0.15); 
+            color: var(--highlight-gold);
+            font-weight: 500;
+        }
+        .significant-row {
+            background-color: rgba(52, 152, 219, 0.15);
+            color: var(--accent-blue);
         }
         
-        .filter-btn.empty {
-            background-color: var(--card-bg);
-            color: var(--accent-red);
-            border: 1px solid var(--accent-red);
-        }
-
-        .filter-btn.season-active {
-            background-color: #3498db;
-            color: white;
-            border: none;
-        }
-
-        .table-container {
-            overflow-x: auto;
-            background-color: var(--card-bg);
-            border-radius: var(--border-radius);
-            padding: 10px;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            min-width: 600px;
-        }
-
-        th, td {
-            padding: 12px 10px;
-            text-align: left;
-            border-bottom: 1px solid #444;
-        }
-
-        th {
-            cursor: pointer;
-            user-select: none;
-            color: var(--text-muted);
-            font-size: 0.9rem;
-        }
-
-        th:hover {
-            color: var(--text-main);
-        }
-
-        tr:last-child td {
-            border-bottom: none;
-        }
-
-        .player-row:hover {
-            background-color: #3a3a3a;
-            cursor: pointer;
-        }
-
-        .sort-arrow {
-            font-size: 0.8em;
-            margin-left: 5px;
-        }
-
+        /* --- Modal / Popup System --- */
         .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(5px);
-            z-index: 1000;
-            display: none;
-            justify-content: center;
-            align-items: center;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(5px);
+            display: flex; justify-content: center; align-items: center;
+            opacity: 0; animation: fadeIn 0.2s forwards;
         }
-
         .modal {
-            background-color: var(--bg-color);
-            border-radius: var(--border-radius);
-            width: 90%;
-            max-width: 800px;
-            max-height: 90vh;
-            overflow-y: auto;
-            position: relative;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            padding: 20px;
-            animation: fadeIn 0.2s;
+            background-color: #1a1a1a; border-radius: 16px;
+            width: 95%; max-width: 850px; max-height: 92vh;
+            overflow-y: auto; position: relative;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.7);
+            border: 1px solid #333; display: flex; flex-direction: column;
         }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: scale(0.95); }
-            to { opacity: 1; transform: scale(1); }
-        }
+        @keyframes fadeIn { to { opacity: 1; } }
 
         .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            border-bottom: 1px solid #444;
-            padding-bottom: 10px;
+            padding: 15px 20px; border-bottom: 1px solid #333;
+            display: flex; justify-content: space-between; align-items: center;
+            background: #222; position: sticky; top: 0; z-index: 10;
         }
+        .modal-header h2 { margin: 0; font-size: 1.2rem; color: var(--text-main); display: flex; align-items: center; gap: 10px;}
+        .close-btn { background: none; border: none; color: #fff; font-size: 1.8rem; cursor: pointer; }
 
-        .close-btn {
-            background: none;
-            border: none;
-            color: var(--text-main);
-            font-size: 2.5rem;
-            cursor: pointer;
-            line-height: 1;
-            padding: 10px;
-        }
+        .modal-body { padding: 20px; overflow-y: auto; }
 
-        .close-btn:hover {
-            color: var(--accent-red);
+        /* --- Profile Grid Layout --- */
+        .profile-tabs { display: flex; gap: 10px; margin-bottom: 15px; border-bottom: 1px solid #333; padding-bottom: 10px; }
+        .profile-tab {
+            flex: 1; padding: 10px; text-align: center; background: var(--card-bg);
+            border-radius: 8px; cursor: pointer; border: 1px solid transparent; color: #aaa;
         }
+        .profile-tab.active { background: var(--accent-green); color: #000; font-weight: bold; }
 
-        .slot-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-top: 15px;
-        }
-
-        .slot-card {
-            background-color: var(--card-bg);
-            padding: 15px;
-            border-radius: var(--border-radius);
-            border: 1px solid #444;
-        }
-
-        .slot-title {
-            font-weight: bold;
-            margin-bottom: 10px;
-            display: block;
-        }
-
-        .slot-actions {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-        }
-
-        .btn {
-            padding: 8px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.9rem;
-            text-align: center;
-            transition: var(--transition);
-        }
+        .profile-filters-area { margin-bottom: 20px; background: #222; padding: 10px; border-radius: 8px; }
         
-        .btn-green { background-color: var(--accent-green); color: #000; }
-        .btn-red { background-color: var(--accent-red); color: white; }
-        .btn-grey { background-color: #7f8c8d; color: white; }
-        .btn:hover { opacity: 0.9; }
-
-        .settings-top-actions {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-        }
-
-        .file-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-        .file-list li {
-            display: flex;
-            justify-content: space-between;
-            background: var(--card-bg);
-            margin-bottom: 5px;
-            padding: 8px;
-            border-radius: 6px;
-        }
-
-        .profile-stats-grid {
+        .stats-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 8px;
             margin-bottom: 20px;
         }
+
         .stat-box {
-            background: var(--card-bg);
-            padding: 8px;
-            border-radius: var(--border-radius);
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
+            background: var(--card-bg); padding: 12px 5px;
+            border-radius: 8px; text-align: center;
+            display: flex; flex-direction: column; justify-content: center;
+            border: 1px solid #3d3d3d; min-height: 70px;
         }
-        .stat-label { font-size: 0.7rem; color: var(--text-muted); margin-bottom: 2px; }
-        .stat-value { font-size: 1rem; font-weight: bold; }
-
-        .profile-filter-row {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 10px;
-        }
-        .profile-filter-row .filter-btn {
-            flex: 1;
-        }
-        .season-tags {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 5px;
-            margin-bottom: 15px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid #444;
-        }
-        .season-tag {
-            font-size: 0.75rem;
-            padding: 4px 8px;
-            border-radius: 12px;
-            cursor: pointer;
-            background: var(--card-bg);
-            border: 1px solid #555;
-            color: #ccc;
-        }
-        .season-tag:hover { border-color: #888; color: #fff; }
-        .season-tag.active {
-            background: var(--accent-green);
-            color: #000;
-            border-color: var(--accent-green);
-        }
-
-        #fileInput { display: none; }
+        .stat-box.highlight { border-color: var(--highlight-gold); background: rgba(241, 196, 15, 0.05); }
+        .stat-label { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px; letter-spacing: 0.5px; }
+        .stat-value { font-size: 1.1rem; font-weight: 700; color: #fff; }
+        .stat-value.gold { color: var(--highlight-gold); }
+        .stat-value.green { color: var(--accent-green); }
+        .stat-value.blue { color: var(--accent-blue); }
         
-        @media (max-width: 500px) {
-            .profile-stats-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
+        .rank-clickable { cursor: pointer; text-decoration: underline; text-decoration-style: dotted; }
+        .rank-clickable:hover { color: var(--accent-green); }
+
+        /* --- Settings & Slots --- */
+        .slot-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-top: 15px; }
+        .slot-card { background: var(--card-bg); padding: 10px; border-radius: 8px; border: 1px solid #444; text-align: center; }
+        
+        .theme-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 8px; margin-top: 10px; }
+        .theme-btn { padding: 8px; border-radius: 6px; cursor: pointer; text-align: center; font-size: 0.75rem; border: 2px solid transparent; color: #fff; }
+        .theme-btn.active { border-color: #fff; transform: scale(1.05); }
+
+        .btn { padding: 8px 15px; border: none; border-radius: 6px; cursor: pointer; font-size: 0.9rem; color: white; transition: 0.2s; }
+        .btn-green { background: var(--accent-green); color: #000; }
+        .btn-red { background: var(--accent-red); }
+        .btn-grey { background: #555; }
+        .btn-blue { background: var(--accent-blue); }
+        .btn:hover { filter: brightness(1.1); }
+        .btn-sm { padding: 4px 8px; font-size: 0.8rem; margin: 2px; }
+
+        @media (max-width: 600px) {
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            th, td { font-size: 0.8rem; padding: 8px 4px; }
+            .modal-header h2 { font-size: 1rem; }
         }
+
+        #fileInput, #slotFileInput { display: none; }
     </style>
 </head>
 <body>
 
     <header>
-        <div>
-            <h1>ArciWeb-PGA StatsKeeper <span class="version">v1.79.96</span></h1>
+        <div class="header-left">
+            <h1>ArciWeb <span class="version">v1.91.7</span></h1>
+            <div class="header-ranks">
+                <span class="header-rank-link" onclick="showRankTable('PGA')">PGA Rank</span>
+                <span class="header-rank-link" onclick="showRankTable('World')">Svetový Rank</span>
+                <span class="header-rank-link" onclick="showRankTable('Tour')">Tour Rank</span>
+            </div>
         </div>
-        <button class="icon-btn" onclick="openSettings()">&#9881;</button>
+        <div class="header-icons">
+            <button class="icon-btn" onclick="toggleZoom()" title="Zoom Mode">🔍</button>
+            <button class="icon-btn" onclick="openSettings()" title="Nastavenia">&#9881;</button>
+        </div>
     </header>
 
     <div class="search-container">
@@ -425,1050 +276,1248 @@
     </div>
 
     <div id="filterContainer">
+        <div class="filter-section">
+            <span class="filter-label">Tour</span>
+            <div class="filter-row">
+                <button class="filter-btn active" id="btn-tour-all" onclick="setTourFilter('ALL')">Všetky</button>
+                <button class="filter-btn" id="btn-tour-KFT" onclick="setTourFilter('KFT')">KFT</button>
+                <button class="filter-btn" id="btn-tour-PGA" onclick="setTourFilter('PGA')">PGA</button>
+            </div>
         </div>
+
+        <div class="filter-section">
+             <span class="filter-label">Turnaje</span>
+             <div class="dropdown-filter" onclick="toggleEventDropdown()">
+                 <span id="eventFilterLabel">Všetky turnaje</span>
+                 <span style="float:right">▼</span>
+             </div>
+             <div id="eventDropdown" class="dropdown-content">
+                 </div>
+        </div>
+
+        <div class="filter-section">
+            <span class="filter-label">Sezóna</span>
+            <div class="filter-row" id="seasonFilterContainer">
+                </div>
+        </div>
+        
+        <div class="filter-section">
+             <button class="filter-btn btn-full-width" id="weekToggleBtn" onclick="toggleWeekView()">Zobraziť konkrétne týždne (Súbory)</button>
+             <div id="weeksContainer" class="filter-row" style="display:none; margin-top:10px;"></div>
+        </div>
+    </div>
 
     <div class="table-container">
         <table id="mainTable">
-            <thead>
-                </thead>
-            <tbody>
-                </tbody>
+            <thead></thead>
+            <tbody></tbody>
         </table>
     </div>
 
     <input type="file" id="fileInput" accept=".txt" multiple onchange="handleFiles(this.files)">
-
+    <input type="file" id="slotFileInput" accept=".json" onchange="finishSlotUpload(this.files)">
+    
     <div id="popupsLayer"></div>
 
-    <script>
-        let db = {
-            files: []
-        };
+<script>
+    const colorSchemes = {
+        'Default': { bg: '#1e1e1e', card: '#2d2d2d', text: '#ffffff', accent: '#2ecc71' },
+        'Midnight': { bg: '#0f172a', card: '#1e293b', text: '#f1f5f9', accent: '#38bdf8' },
+        'Gold': { bg: '#000000', card: '#1c1c1c', text: '#ffd700', accent: '#ffec8b' },
+        'Forest': { bg: '#1a2f1a', card: '#2f4f2f', text: '#dbebdb', accent: '#90ee90' },
+        'Cherry': { bg: '#2b0000', card: '#420000', text: '#ffcccc', accent: '#ff4d4d' },
+        'Ocean': { bg: '#001f3f', card: '#003366', text: '#7FDBFF', accent: '#39CCCC' },
+    };
 
-        let appState = {
-            filters: {
-                tours: ['ALL'], 
-                seasons: ['ALL'],
-                activeWeek: null 
-            },
-            ui: {
-                showWeeks: false 
-            },
-            sort: { column: 'totalPoints', dir: 'desc' }, 
-            history: [] 
-        };
+    let db = { files: [] };
+    let appState = {
+        filters: { tours: ['ALL'], events: [], seasons: [], activeWeek: null },
+        ui: { showWeeks: false, eventDropdownOpen: false },
+        sort: { column: 'points', dir: 'desc' },
+        settings: { zoom: false, theme: 'Default' },
+        history: []
+    };
+    
+    let modalStack = [];
+    let slotToUpload = null;
 
-        const TOUR_TYPES = {
-            PRIPRAVA: { label: 'Príprava', key: 'PRIPRAVA' },
-            KFT: { label: 'Korn Ferry Tour', key: 'KFT' },
-            PGA: { label: 'PGA Tour', key: 'PGA' }
-        };
+    document.addEventListener('DOMContentLoaded', () => {
+        loadAutoSave();
+        applyTheme(appState.settings.theme);
+        applyZoom(appState.settings.zoom);
+        renderApp();
 
-        document.addEventListener('DOMContentLoaded', () => {
-            initSlots();
-            loadStateFromSlot('autosave', true); 
-            renderApp();
-            
-            window.onpopstate = function(event) {
-                if (modalStack.length > 0) {
-                    const overlay = modalStack.pop();
-                    if (overlay) overlay.remove();
-                    if (modalStack.length === 0) document.body.style.overflow = 'auto';
-                } 
-                else if (appState.history.length > 0) {
-                    let prevState = appState.history.pop();
-                    if(prevState) {
-                        appState.filters = prevState.filters;
-                        appState.sort = prevState.sort;
-                        renderApp();
-                    }
-                }
+        window.onpopstate = function(event) {
+            if (modalStack.length > 0) closeTopModal(false);
+        };
+    });
+
+    function handleFiles(files) {
+        Array.from(files).forEach(file => {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                parseTxt(file.name, e.target.result);
+                renderApp();
+                saveAuto();
             };
+            reader.readAsText(file);
+        });
+        document.getElementById('fileInput').value = ''; 
+    }
+
+    function parseTxt(filename, text) {
+        if (filename.toUpperCase().includes('PRIPRAVA') || filename.toUpperCase().includes('PRÍPRAVA')) return;
+
+        // Formát: [Type] [Season]-[EventNum]-[Week] [EventName] [Flags]
+        // Nový formát: PGA 01-01-1 KFT Qualification!.txt
+        
+        let cleanName = filename.replace('.txt', '').trim();
+        let isImportant = false; 
+        let isSignificant = false; 
+        
+        if (cleanName.includes('!')) { isImportant = true; cleanName = cleanName.replace('!', '').trim(); }
+        if (cleanName.includes('=')) { isSignificant = true; cleanName = cleanName.replace('=', '').trim(); }
+
+        const parts = cleanName.split(' ');
+        if (parts.length < 2) return; 
+
+        let type = parts[0].toUpperCase();
+        if (type !== 'KFT' && type !== 'PGA') return;
+
+        let season = '00';
+        let eventNum = 0;
+        let week = 0;
+        let eventName = 'Unknown';
+
+        // Parse: Season-EventNum-Week (e.g., 01-01-1)
+        const datePart = parts[1];
+        if (datePart.includes('-')) {
+            const d = datePart.split('-');
+            season = d[0];
+            // Ak máme 3 časti, tak druhá je EventNum a tretia je Week
+            if (d.length >= 3) {
+                eventNum = parseInt(d[1]);
+                week = parseInt(d[2]);
+            } else if (d.length === 2) {
+                // Fallback ak by bol starý formát alebo chyba
+                week = parseInt(d[1]);
+            }
+        }
+
+        // Zvyšok je názov turnaja
+        if (parts.length > 2) {
+            eventName = parts.slice(2).join(' ');
+        } else {
+            eventName = `${type} ${season}-${week}`;
+        }
+
+        const lines = text.split('\n').map(l => l.trim()).filter(l => l);
+        const players = [];
+
+        for (let i = 0; i < lines.length; i++) {
+            if (lines[i].startsWith('[source')) continue;
+            if (lines[i].startsWith('}')) continue;
+
+            let name = lines[i];
+            if (!lines[i+1] || isNaN(parseInt(lines[i+1]))) {
+                 if(i + 6 >= lines.length) break;
+            }
+
+            let par = parseInt(lines[i+1]) || 0;
+            let r1 = lines[i+2]; let r2 = lines[i+3]; let r3 = lines[i+4]; let r4 = lines[i+5];
+            let pts = parseFloat(lines[i+6]) || 0;
+
+            if (pts === undefined) break;
+
+            players.push({
+                name: name,
+                par: par,
+                r1: r1, r2: r2, r3: r3, r4: r4,
+                points: pts,
+                rank: 0
+            });
+            i += 6;
+        }
+
+        players.sort((a, b) => {
+            if (a.points !== b.points) return b.points - a.points;
+            return a.par - b.par;
         });
 
-        function pushInternalHistory() {
-            appState.history.push(JSON.parse(JSON.stringify({
-                filters: appState.filters,
-                sort: appState.sort
-            })));
-            window.history.pushState({ app: true }, "");
+        let currentRank = 1;
+        for (let i = 0; i < players.length; i++) {
+            if (i > 0 && players[i].points === players[i-1].points) {
+                players[i].rank = players[i-1].rank;
+            } else {
+                players[i].rank = i + 1;
+            }
+        }
+
+        db.files = db.files.filter(f => f.name !== filename); 
+        
+        db.files.push({
+            id: Date.now() + Math.random(),
+            name: filename,
+            type: type,
+            season: season,
+            week: week,
+            eventNum: eventNum,
+            eventName: eventName,
+            isImportant: isImportant,
+            isSignificant: isSignificant,
+            timestamp: Date.now(), 
+            content: players
+        });
+    }
+
+    function clearDB() {
+        if(confirm('Naozaj vymazať celú databázu?')) {
+            db.files = [];
+            appState.filters.events = [];
+            appState.filters.seasons = [];
+            renderApp();
             saveAuto();
+            closeTopModal();
+        }
+    }
+
+    function normalizeName(name) {
+        return name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+    }
+
+    function getDistance(a, b) {
+        if(a.length === 0) return b.length; 
+        if(b.length === 0) return a.length; 
+        const matrix = [];
+        for(let i = 0; i <= b.length; i++) matrix[i] = [i];
+        for(let j = 0; j <= a.length; j++) matrix[0][j] = j;
+        for(let i = 1; i <= b.length; i++){
+            for(let j = 1; j <= a.length; j++){
+                if(b.charAt(i-1) == a.charAt(j-1)) matrix[i][j] = matrix[i-1][j-1];
+                else matrix[i][j] = Math.min(matrix[i-1][j-1] + 1, matrix[i][j-1] + 1, matrix[i-1][j] + 1);
+            }
+        }
+        return matrix[b.length][a.length];
+    }
+    // --- Data Processing & Statistics ---
+
+    function getActiveFiles() {
+        let files = db.files;
+
+        // 1. Filter Tour
+        if (!appState.filters.tours.includes('ALL')) {
+            files = files.filter(f => appState.filters.tours.includes(f.type));
         }
 
-        function handleFiles(files) {
-            Array.from(files).forEach(file => {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    parseTxt(file.name, e.target.result);
-                    renderApp();
-                    saveAuto();
-                };
-                reader.readAsText(file);
-            });
-            document.getElementById('fileInput').value = ''; 
+        // 2. Filter Events (Multiselect)
+        if (appState.filters.events.length > 0) {
+            files = files.filter(f => appState.filters.events.includes(f.eventName));
         }
 
-        function parseTxt(filename, text) {
-            const parts = filename.replace('.txt', '').split(' ');
-            let typeKey = 'UNKNOWN';
-            let season = '00';
-            let week = '0';
+        // 3. Filter Seasons (Multiselect)
+        if (appState.filters.seasons.length > 0) {
+            files = files.filter(f => appState.filters.seasons.includes(f.season));
+        }
 
-            if (parts.length >= 2) {
-                const namePart = parts[0].toUpperCase();
-                if (namePart.includes('PRIPRAVA') || namePart.includes('PRÍPRAVA')) typeKey = 'PRIPRAVA';
-                else if (namePart.includes('KFT')) typeKey = 'KFT';
-                else if (namePart.includes('PGA')) typeKey = 'PGA';
+        return files;
+    }
 
-                const numParts = parts[1].split('-');
-                if (numParts.length === 2) {
-                    season = numParts[0];
-                    week = numParts[1];
-                }
-            }
+    // Pomocná funkcia na inteligentné radenie súborov (Sezóna -> Číslo turnaja -> Týždeň)
+    function compareFiles(a, b) {
+        // 1. Sezóna (Ascending)
+        if (parseInt(a.season) !== parseInt(b.season)) return parseInt(a.season) - parseInt(b.season);
+        // 2. Číslo turnaja (Ascending)
+        if (a.eventNum !== b.eventNum) return a.eventNum - b.eventNum;
+        // 3. Týždeň (Ascending)
+        if (a.week !== b.week) return a.week - b.week;
+        // 4. Timestamp (Fallback)
+        return a.timestamp - b.timestamp;
+    }
 
-            const lines = text.split('\n').map(l => l.trim()).filter(l => l);
-            const players = [];
-            for (let i = 0; i < lines.length; i++) {
-                if (lines[i].startsWith('[source')) continue;
-                if (lines[i].startsWith('}')) continue; 
+    function getAggregatedStats() {
+        const files = getActiveFiles();
+        const playerMap = {};
 
-                let name = lines[i];
-                if (!lines[i+1]) break; 
-
-                let par = lines[i+1];
-                let r1 = lines[i+2];
-                let r2 = lines[i+3];
-                let r3 = lines[i+4];
-                let r4 = lines[i+5];
-                let pts = lines[i+6];
-
-                if (pts === undefined) break; 
-
-                players.push({
-                    name: name,
-                    par: parseInt(par) || 0,
-                    r1: r1, r2: r2, r3: r3, r4: r4,
-                    points: parseFloat(pts) || 0,
-                    fileRank: 0 
-                });
-
-                i += 6; 
-            }
-
-            let sortedPlayers = [...players].sort((a, b) => {
-                if (a.par !== b.par) return a.par - b.par;
-                return b.points - a.points;
-            });
-
-            sortedPlayers.forEach((p, index) => {
-                let rank = index + 1;
-                if (index > 0) {
-                    let prev = sortedPlayers[index-1];
-                    if (prev.par === p.par && prev.points === p.points) {
-                        rank = prev.fileRank;
+        files.forEach(file => {
+            file.content.forEach(p => {
+                let targetName = p.name;
+                const normNew = normalizeName(targetName);
+                for (let existingName in playerMap) {
+                    const normExisting = normalizeName(existingName);
+                    if (normNew === normExisting || getDistance(normNew, normExisting) <= 1) {
+                        targetName = existingName;
+                        break;
                     }
                 }
-                p.fileRank = rank;
-            });
-            
-            db.files = db.files.filter(f => f.name !== filename);
 
-            db.files.push({
-                id: Date.now() + Math.random(),
-                name: filename,
-                type: typeKey,
-                season: season,
-                week: parseInt(week),
-                content: players
-            });
-        }
-
-        function getActiveFiles() {
-            let files = db.files;
-            
-            if (!appState.filters.tours.includes('ALL')) {
-                files = files.filter(f => appState.filters.tours.includes(f.type));
-            }
-
-            if (!appState.filters.seasons.includes('ALL')) {
-                files = files.filter(f => appState.filters.seasons.includes(f.season));
-            }
-
-            return files;
-        }
-
-        function normalizeName(name) {
-            return name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
-        }
-
-        function getDistance(a, b) {
-            const matrix = [];
-            for (let i = 0; i <= b.length; i++) matrix[i] = [i];
-            for (let j = 0; j <= a.length; j++) matrix[0][j] = j;
-            for (let i = 1; i <= b.length; i++) {
-                for (let j = 1; j <= a.length; j++) {
-                    if (b.charAt(i - 1) === a.charAt(j - 1)) matrix[i][j] = matrix[i - 1][j - 1];
-                    else matrix[i][j] = Math.min(matrix[i - 1][j - 1] + 1, matrix[i][j - 1] + 1, matrix[i - 1][j] + 1);
+                if (!playerMap[targetName]) {
+                    playerMap[targetName] = {
+                        name: targetName,
+                        totalPar: 0,
+                        totalPoints: 0,
+                        totalStrokes: 0,
+                        totalHoles: 0,
+                        rounds: [],
+                        bestRound: 999,
+                        worstRound: -999,
+                        weeksPlayed: 0
+                    };
                 }
+
+                const entry = playerMap[targetName];
+                entry.totalPar += p.par;
+                entry.totalPoints += p.points;
+                entry.weeksPlayed++;
+
+                [p.r1, p.r2, p.r3, p.r4].forEach(r => {
+                    if (r !== 'NA') {
+                        const val = parseInt(r);
+                        entry.totalStrokes += val;
+                        entry.totalHoles += 18;
+                        entry.rounds.push(val);
+                        if (val < entry.bestRound) entry.bestRound = val;
+                        if (val > entry.worstRound) entry.worstRound = val;
+                    }
+                });
+            });
+        });
+
+        let arr = Object.values(playerMap);
+        arr = sortData(arr);
+        
+        // Ranking v tabuľke
+        const rankedArr = [...arr].sort((a, b) => b.totalPoints - a.totalPoints);
+        const rankMap = {};
+        rankedArr.forEach((p, i) => {
+            if (i > 0 && p.totalPoints === rankedArr[i-1].totalPoints) {
+                rankMap[p.name] = rankMap[rankedArr[i-1].name];
+            } else {
+                rankMap[p.name] = i + 1;
             }
-            return matrix[b.length][a.length];
-        }
+        });
 
-        function getAggregatedStats() {
-            const files = getActiveFiles();
-            const playerMap = {};
+        arr.forEach(p => p.tableRank = rankMap[p.name]);
+        return arr;
+    }
 
-            files.forEach(file => {
+    function sortData(data) {
+        const col = appState.sort.column;
+        const dir = appState.sort.dir === 'asc' ? 1 : -1;
+
+        return data.sort((a, b) => {
+            let valA = a[col];
+            let valB = b[col];
+
+            if (col === 'bestRound' && valA === 999) valA = Infinity;
+            if (col === 'bestRound' && valB === 999) valB = Infinity;
+            if (col === 'worstRound' && valA === -999) valA = -Infinity;
+            if (col === 'worstRound' && valB === -999) valB = -Infinity;
+
+            if (typeof valA === 'string') return valA.localeCompare(valB) * dir;
+            return (valA - valB) * dir;
+        });
+    }
+
+    // --- Ranking Algorithms ---
+
+    function getPGARankList() {
+        let pgaFiles = db.files.filter(f => f.type === 'PGA');
+        
+        // Radenie od najnovšieho pre výpočet ranku (Descending)
+        pgaFiles.sort((a, b) => compareFiles(b, a));
+
+        const last40 = pgaFiles.slice(0, 40);
+        const playerPoints = {};
+
+        last40.forEach((file, index) => {
+            let recencyCoeff = 1.25;
+            if (index < 10) recencyCoeff = 2.0;
+            else if (index < 20) recencyCoeff = 1.75;
+            else if (index < 30) recencyCoeff = 1.5;
+
+            let importanceCoeff = 1;
+            if (file.isImportant) importanceCoeff = 5;
+            else if (file.isSignificant) importanceCoeff = 2;
+
+            const totalMultiplier = recencyCoeff * importanceCoeff;
+
+            file.content.forEach(p => {
+                let name = normalizePlayerName(p.name, playerPoints);
+                if (!playerPoints[name]) playerPoints[name] = 0;
+                playerPoints[name] += (p.points * totalMultiplier);
+            });
+        });
+
+        return createRankedList(playerPoints);
+    }
+
+    function getWorldRankList() {
+        if (db.files.length < 20) return null;
+        const playerPoints = {};
+        db.files.forEach(file => {
+            file.content.forEach(p => {
+                let name = normalizePlayerName(p.name, playerPoints);
+                if (!playerPoints[name]) playerPoints[name] = 0;
+                playerPoints[name] += p.points;
+            });
+        });
+        return createRankedList(playerPoints);
+    }
+
+    function getTourRankList() {
+        const playerPoints = {};
+        db.files.forEach(file => {
+            let coeff = 0;
+            if (file.isImportant) coeff = 2;
+            else if (file.isSignificant) coeff = 1;
+
+            if (coeff > 0) {
                 file.content.forEach(p => {
-                    let targetName = p.name;
-                    const normNew = normalizeName(targetName);
-
-                    for (let existingName in playerMap) {
-                        const normExisting = normalizeName(existingName);
-                        if (normNew === normExisting || getDistance(normNew, normExisting) <= 1) {
-                            targetName = existingName; 
-                            break;
-                        }
-                    }
-
-                    if (!playerMap[targetName]) {
-                        playerMap[targetName] = {
-                            name: targetName,
-                            totalPar: 0,
-                            weeksPlayed: 0, 
-                            tournaments: new Set(), 
-                            totalPoints: 0,
-                            totalHoles: 0
-                        };
-                    }
-                    playerMap[targetName].totalPar += p.par;
-                    playerMap[targetName].totalPoints += p.points;
-                    playerMap[targetName].weeksPlayed += 1;
-                    
-                    if (file.type !== 'PRIPRAVA') {
-                        playerMap[targetName].tournaments.add(file.type + '-' + file.season);
-                    }
-
-                    let roundCount = 0;
-                    if (p.r1 !== 'NA') roundCount++;
-                    if (p.r2 !== 'NA') roundCount++;
-                    if (p.r3 !== 'NA') roundCount++;
-                    if (p.r4 !== 'NA') roundCount++;
-                    playerMap[targetName].totalHoles += (roundCount * 18);
+                    let name = normalizePlayerName(p.name, playerPoints);
+                    if (!playerPoints[name]) playerPoints[name] = 0;
+                    playerPoints[name] += (p.points * coeff);
                 });
-            });
+            }
+        });
+        return createRankedList(playerPoints);
+    }
+
+    function normalizePlayerName(name, existingMap) {
+        const normNew = normalizeName(name);
+        for (let key in existingMap) {
+            if (normalizeName(key) === normNew || getDistance(normNew, normalizeName(key)) <= 1) {
+                return key;
+            }
+        }
+        return name;
+    }
+
+    function createRankedList(pointsMap) {
+        const arr = Object.entries(pointsMap).map(([name, points]) => ({ name, points }));
+        arr.sort((a, b) => b.points - a.points);
+        let currentRank = 1;
+        arr.forEach((p, i) => {
+            if (i > 0 && p.points === arr[i-1].points) {
+                p.rank = arr[i-1].rank;
+            } else {
+                p.rank = i + 1;
+            }
+        });
+        return arr;
+    }
+
+    // --- Render Functions ---
+
+    function renderApp() {
+        renderFilters();
+        renderTable();
+    }
+
+    function renderFilters() {
+        // Tour filter
+        ['ALL', 'KFT', 'PGA'].forEach(t => {
+            const btn = document.getElementById(`btn-tour-${t}`);
+            if(btn) {
+                if (t === 'ALL') btn.className = `filter-btn ${appState.filters.tours.includes('ALL') ? 'active' : ''}`;
+                else btn.className = `filter-btn ${appState.filters.tours.includes(t) ? 'active' : ''}`;
+            }
+        });
+
+        // Event Dropdown - Inteligentné radenie (Season -> EventNum -> Week)
+        const eventDropdown = document.getElementById('eventDropdown');
+        eventDropdown.innerHTML = '';
+        
+        // Zoradiť všetky súbory podľa novej hierarchie (chronologicky)
+        const sortedFiles = [...db.files].sort(compareFiles);
+        const uniqueEvents = [];
+        const seenEvents = new Set();
+        
+        sortedFiles.forEach(f => {
+            if (!seenEvents.has(f.eventName)) {
+                seenEvents.add(f.eventName);
+                uniqueEvents.push(f.eventName);
+            }
+        });
+
+        uniqueEvents.forEach(evt => {
+            const btn = document.createElement('button');
+            const isActive = appState.filters.events.includes(evt);
+            btn.className = `filter-btn ${isActive ? 'active' : ''}`;
+            btn.style.width = '100%';
+            btn.style.marginBottom = '5px';
+            btn.innerText = evt;
+            btn.onclick = (e) => { e.stopPropagation(); toggleEventFilter(evt); };
+            eventDropdown.appendChild(btn);
+        });
+        
+        const eventLabel = document.getElementById('eventFilterLabel');
+        if (appState.filters.events.length === 0) eventLabel.innerText = "Všetky turnaje";
+        else if (appState.filters.events.length === 1) eventLabel.innerText = appState.filters.events[0];
+        else eventLabel.innerText = `Vybrané (${appState.filters.events.length})`;
+
+        if (appState.ui.eventDropdownOpen) eventDropdown.classList.add('show');
+        else eventDropdown.classList.remove('show');
+
+        // Season Filter
+        const seasonContainer = document.getElementById('seasonFilterContainer');
+        seasonContainer.innerHTML = '';
+        
+        const availableSeasons = [...new Set(db.files.map(f => f.season))].filter(s => s !== '00').sort((a,b) => parseInt(a) - parseInt(b));
+        
+        const allSeasonsBtn = document.createElement('button');
+        allSeasonsBtn.className = `filter-btn ${appState.filters.seasons.length === 0 ? 'active' : ''}`;
+        allSeasonsBtn.innerText = 'All';
+        allSeasonsBtn.onclick = () => { appState.filters.seasons = []; renderApp(); saveAuto(); };
+        seasonContainer.appendChild(allSeasonsBtn);
+
+        availableSeasons.forEach(s => {
+            const btn = document.createElement('button');
+            const isActive = appState.filters.seasons.includes(s);
+            btn.className = `filter-btn ${isActive ? 'active' : ''}`;
+            btn.innerText = s;
+            btn.onclick = () => toggleSeasonFilter(s);
+            seasonContainer.appendChild(btn);
+        });
+
+        // Week Buttons
+        const weeksContainer = document.getElementById('weeksContainer');
+        const weekToggleBtn = document.getElementById('weekToggleBtn');
+        
+        if (appState.ui.showWeeks) {
+            weeksContainer.style.display = 'flex';
+            weeksContainer.innerHTML = '';
+            weekToggleBtn.innerText = 'Skryť konkrétne týždne';
+            weekToggleBtn.classList.add('active');
+
+            // Pre zobrazenie týždňov radíme od najnovšieho (Descending)
+            const weekFiles = [...getActiveFiles()].sort((a, b) => compareFiles(b, a));
             
-            Object.values(playerMap).forEach(player => {
-                player.tournamentCount = player.tournaments.size;
+            weekFiles.forEach(f => {
+                const btn = document.createElement('button');
+                const isActive = appState.filters.activeWeek === f.id;
+                let label = f.name.replace('.txt', '');
+                
+                // Vizuálne odlíšenie
+                if (f.isImportant) {
+                    label = '★ ' + label;
+                    btn.classList.add('important-tour');
+                } else if (f.isSignificant) {
+                    label = '= ' + label;
+                    btn.classList.add('significant-tour');
+                }
+
+                btn.className = `filter-btn ${isActive ? 'active' : ''}`;
+                if (f.isImportant) btn.classList.add('important-tour');
+                else if (f.isSignificant) btn.classList.add('significant-tour');
+                
+                btn.style.fontSize = '0.8rem';
+                btn.innerText = label;
+                btn.onclick = () => toggleWeekSelection(f.id);
+                weeksContainer.appendChild(btn);
             });
-
-            let arr = Object.values(playerMap);
-            return sortData(arr);
+        } else {
+            weeksContainer.style.display = 'none';
+            weekToggleBtn.innerText = 'Zobraziť konkrétne týždne (Súbory)';
+            weekToggleBtn.classList.remove('active');
         }
+    }
 
-        function getWeekStats(fileId) {
-            const file = db.files.find(f => f.id === fileId);
-            if (!file) return [];
-            return sortData(file.content.map(p => ({...p})), true); 
-        }
+    function renderTable() {
+        const thead = document.querySelector('#mainTable thead');
+        const tbody = document.querySelector('#mainTable tbody');
+        thead.innerHTML = '';
+        tbody.innerHTML = '';
 
-        function sortData(data, isWeek = false) {
+        let columns = [];
+        let data = [];
+
+        if (appState.filters.activeWeek && appState.ui.showWeeks) {
+            const file = db.files.find(f => f.id === appState.filters.activeWeek);
+            if (!file) return;
+            data = [...file.content]; 
+            
             const col = appState.sort.column;
             const dir = appState.sort.dir === 'asc' ? 1 : -1;
-
-            return data.sort((a, b) => {
-                let valA = a[col];
-                let valB = b[col];
-
-                if (typeof valA === 'string' && col !== 'r1' && col !== 'r2' && col !== 'r3' && col !== 'r4') {
-                    return valA.localeCompare(valB) * dir;
-                }
-                
-                if (['r1','r2','r3','r4'].includes(col)) {
+            data.sort((a,b) => {
+                 let valA = a[col] || 0; let valB = b[col] || 0;
+                 if (['r1','r2','r3','r4'].includes(col)) {
                     valA = valA === 'NA' ? 999 : parseInt(valA);
                     valB = valB === 'NA' ? 999 : parseInt(valB);
-                }
-
-                return (valA - valB) * dir;
+                 }
+                 if(col === 'name') return valA.localeCompare(valB) * dir;
+                 return (valA - valB) * dir;
             });
-        }
 
-        function assignRanks(data) {
-            let rank = 1;
-            for (let i = 0; i < data.length; i++) {
-                if (i > 0) {
-                    const prev = data[i-1];
-                    const curr = data[i];
-                    if (prev[appState.sort.column] !== curr[appState.sort.column]) {
-                        rank = i + 1;
-                    }
-                }
-                data[i].rank = rank;
-            }
-            return data;
-        }
-
-        function renderApp() {
-            renderFilters();
-            renderTable();
-        }
-
-        function renderFilters() {
-            const mainContainer = document.getElementById('filterContainer');
-            mainContainer.innerHTML = '';
-            
-            const tourSection = document.createElement('div');
-            tourSection.className = 'filter-section';
-            
-            const allToursBtn = document.createElement('button');
-            const allToursActive = appState.filters.tours.includes('ALL');
-            const hasDataTour = db.files.length > 0;
-            allToursBtn.className = `filter-btn btn-full-width ${allToursActive ? 'active' : 'inactive'} ${!hasDataTour ? 'empty' : ''}`;
-            allToursBtn.innerText = 'Všetky turnaje';
-            allToursBtn.onclick = () => toggleTourFilter('ALL');
-            tourSection.appendChild(allToursBtn);
-
-            const tourRow = document.createElement('div');
-            tourRow.className = 'filter-row';
-            const tourOpts = [
-                { id: 'PRIPRAVA', label: 'Príprava' },
-                { id: 'KFT', label: 'Korn Ferry Tour' },
-                { id: 'PGA', label: 'PGA Tour' }
+            columns = [
+                { key: 'rank', label: 'Poz.' },
+                { key: 'name', label: 'Meno' },
+                { key: 'par', label: 'Par' },
+                { key: 'r1', label: 'R1' },
+                { key: 'r2', label: 'R2' },
+                { key: 'r3', label: 'R3' },
+                { key: 'r4', label: 'R4' },
+                { key: 'points', label: 'Body' }
             ];
-
-            tourOpts.forEach(opt => {
-                const btn = document.createElement('button');
-                const hasData = db.files.some(f => f.type === opt.id);
-                const isActive = appState.filters.tours.includes(opt.id);
-                btn.className = `filter-btn ${isActive ? 'active' : 'inactive'} ${!hasData ? 'empty' : ''}`;
-                btn.innerText = opt.label;
-                btn.onclick = () => toggleTourFilter(opt.id);
-                tourRow.appendChild(btn);
-            });
-            tourSection.appendChild(tourRow);
-            mainContainer.appendChild(tourSection);
-
-            const seasonSection = document.createElement('div');
-            seasonSection.className = 'filter-section';
-            
-            const allSeasonsBtn = document.createElement('button');
-            const allSeasonsActive = appState.filters.seasons.includes('ALL');
-            let relevantFilesForSeasons = db.files;
-            if (!appState.filters.tours.includes('ALL')) relevantFilesForSeasons = relevantFilesForSeasons.filter(f => appState.filters.tours.includes(f.type));
-            const hasDataSeasons = relevantFilesForSeasons.length > 0;
-            
-            allSeasonsBtn.className = `filter-btn btn-full-width ${allSeasonsActive ? 'active' : 'inactive'} ${!hasDataSeasons ? 'empty' : ''}`;
-            allSeasonsBtn.innerText = 'Všetky sezóny';
-            allSeasonsBtn.onclick = () => toggleSeasonFilter('ALL');
-            seasonSection.appendChild(allSeasonsBtn);
-
-            const seasonGrid = document.createElement('div');
-            seasonGrid.className = 'filter-grid-6';
-            const seasons = [...new Set(db.files.map(f => f.season))].sort();
-            
-            seasons.forEach(s => {
-                const btn = document.createElement('button');
-                const hasDataS = relevantFilesForSeasons.some(f => f.season === s);
-                const isActiveS = appState.filters.seasons.includes(s);
-                btn.className = `filter-btn ${isActiveS ? 'active' : 'inactive'} ${!hasDataS ? 'empty' : ''}`;
-                btn.innerText = s; 
-                btn.onclick = () => toggleSeasonFilter(s);
-                seasonGrid.appendChild(btn);
-            });
-            seasonSection.appendChild(seasonGrid);
-            mainContainer.appendChild(seasonSection);
-
-            const weekSection = document.createElement('div');
-            weekSection.className = 'filter-section';
-
-            if (!appState.ui.showWeeks) {
-                const showWeeksBtn = document.createElement('button');
-                showWeeksBtn.className = 'filter-btn btn-full-width inactive';
-                showWeeksBtn.style.marginTop = '15px';
-                showWeeksBtn.innerText = 'Zobraziť konkrétne týždne';
-                showWeeksBtn.onclick = () => {
-                    appState.ui.showWeeks = true;
-                    saveAuto();
-                    renderFilters(); 
-                };
-                weekSection.appendChild(showWeeksBtn);
-            } else {
-                const hideWeeksBtn = document.createElement('button');
-                hideWeeksBtn.className = 'filter-btn btn-full-width active';
-                hideWeeksBtn.style.marginTop = '15px';
-                hideWeeksBtn.innerText = 'Skryť konkrétne týždne';
-                hideWeeksBtn.onclick = () => {
-                    appState.ui.showWeeks = false;
-                    appState.filters.activeWeek = null; 
-                    renderApp(); 
-                    saveAuto();
-                };
-                weekSection.appendChild(hideWeeksBtn);
-
-                const weekContainer = document.createElement('div');
-                weekContainer.className = 'week-filter-container';
-                
-                let displayFiles = getActiveFiles();
-                const typeOrder = { 'PRIPRAVA': 1, 'KFT': 2, 'PGA': 3, 'UNKNOWN': 4 };
-                displayFiles.sort((a, b) => {
-                    if (typeOrder[a.type] !== typeOrder[b.type]) return typeOrder[a.type] - typeOrder[b.type];
-                    if (a.season !== b.season) return parseInt(a.season) - parseInt(b.season);
-                    return a.week - b.week;
-                });
-
-                displayFiles.forEach(f => {
-                    const btn = document.createElement('button');
-                    const isActive = appState.filters.activeWeek === f.id;
-                    btn.className = `filter-btn ${isActive ? 'active' : 'inactive'}`;
-                    btn.style.fontSize = '0.9rem';
-                    btn.innerText = f.name.replace('.txt', '');
-                    btn.onclick = () => toggleWeekFilter(f.id);
-                    weekContainer.appendChild(btn);
-                });
-                weekSection.appendChild(weekContainer);
-            }
-            mainContainer.appendChild(weekSection);
+        } else {
+            data = getAggregatedStats();
+            columns = [
+                { key: 'tableRank', label: 'Poz.' },
+                { key: 'name', label: 'Meno' },
+                { key: 'totalPar', label: 'Par' },
+                { key: 'totalPoints', label: 'Body' },
+                { key: 'totalStrokes', label: 'Odpalov' },
+                { key: 'totalHoles', label: 'Jamky' },
+                { key: 'bestRound', label: 'Naj. Kolo' },
+                { key: 'worstRound', label: 'Najh. Kolo' }
+            ];
         }
 
-        function toggleTourFilter(id) {
-            pushInternalHistory();
-            if (id === 'ALL') {
-                appState.filters.tours = ['ALL'];
-            } else {
-                appState.filters.tours = appState.filters.tours.filter(t => t !== 'ALL');
-                if (appState.filters.tours.includes(id)) {
-                    appState.filters.tours = appState.filters.tours.filter(t => t !== id);
-                } else {
-                    appState.filters.tours.push(id);
-                }
-                if (appState.filters.tours.length === 0) appState.filters.tours = ['ALL'];
+        const trH = document.createElement('tr');
+        columns.forEach(col => {
+            const th = document.createElement('th');
+            th.innerText = col.label;
+            if (appState.sort.column === col.key) {
+                th.innerText += appState.sort.dir === 'asc' ? ' ▲' : ' ▼';
             }
-            renderApp();
-        }
+            th.onclick = () => changeSort(col.key);
+            trH.appendChild(th);
+        });
+        thead.appendChild(trH);
 
-        function toggleSeasonFilter(id) {
-            pushInternalHistory();
-            if (id === 'ALL') {
-                appState.filters.seasons = ['ALL'];
-            } else {
-                appState.filters.seasons = appState.filters.seasons.filter(s => s !== 'ALL');
-                if (appState.filters.seasons.includes(id)) {
-                    appState.filters.seasons = appState.filters.seasons.filter(s => s !== id);
-                } else {
-                    appState.filters.seasons.push(id);
-                }
-                if (appState.filters.seasons.length === 0) appState.filters.seasons = ['ALL'];
-            }
-            renderApp();
-        }
+        data.forEach(row => {
+            const tr = document.createElement('tr');
+            tr.className = 'player-row';
+            tr.onclick = () => openPlayerProfile(row.name);
 
-        function toggleWeekFilter(id) {
-            pushInternalHistory();
-            if (appState.filters.activeWeek === id) {
-                appState.filters.activeWeek = null; 
-            } else {
-                appState.filters.activeWeek = id;
-            }
-            appState.sort = { column: 'points', dir: 'desc' };
-            renderApp();
-        }
-
-        function renderTable() {
-            const thead = document.querySelector('#mainTable thead');
-            const tbody = document.querySelector('#mainTable tbody');
-            tbody.innerHTML = '';
-            thead.innerHTML = '';
-
-            let data;
-            let columns;
-
-            if (appState.filters.activeWeek) {
-                data = getWeekStats(appState.filters.activeWeek);
-                columns = [
-                    { key: 'rank', label: 'Poz.' },
-                    { key: 'name', label: 'Meno' },
-                    { key: 'par', label: 'Par' },
-                    { key: 'r1', label: 'R1' },
-                    { key: 'r2', label: 'R2' },
-                    { key: 'r3', label: 'R3' },
-                    { key: 'r4', label: 'R4' },
-                    { key: 'points', label: 'Body' }
-                ];
-            } else {
-                data = getAggregatedStats();
-                columns = [
-                    { key: 'rank', label: 'Poz.' },
-                    { key: 'name', label: 'Meno' },
-                    { key: 'totalPar', label: 'Par (Súčet)' },
-                    { key: 'weeksPlayed', label: 'Týždne (Celkom)' },
-                    { key: 'totalHoles', label: 'Jamky' },
-                    { key: 'tournamentCount', label: 'Turnaje' },
-                    { key: 'totalPoints', label: 'Body (Súčet)' }
-                ];
-            }
-
-            data = assignRanks(data);
-
-            const trHead = document.createElement('tr');
             columns.forEach(col => {
-                const th = document.createElement('th');
-                th.innerText = col.label;
-                if (appState.sort.column === col.key) {
-                    const arrow = document.createElement('span');
-                    arrow.className = 'sort-arrow';
-                    arrow.innerText = appState.sort.dir === 'asc' ? '▲' : '▼';
-                    th.appendChild(arrow);
-                }
-                th.onclick = () => changeSort(col.key);
-                trHead.appendChild(th);
+                const td = document.createElement('td');
+                let val = row[col.key];
+                if (col.key.toLowerCase().includes('points')) val = val.toFixed(3);
+                if (col.key === 'bestRound' && val === 999) val = '-';
+                if (col.key === 'worstRound' && val === -999) val = '-';
+                td.innerText = val !== undefined ? val : '-';
+                tr.appendChild(td);
             });
-            thead.appendChild(trHead);
+            tbody.appendChild(tr);
+        });
+    }
 
-            data.forEach(row => {
-                const tr = document.createElement('tr');
-                tr.className = 'player-row';
-                tr.onclick = () => openPlayerProfile(row.name);
+    // --- UI Actions ---
+
+    function changeSort(col) {
+        if (appState.sort.column === col) {
+            appState.sort.dir = appState.sort.dir === 'asc' ? 'desc' : 'asc';
+        } else {
+            appState.sort.column = col;
+            appState.sort.dir = 'desc'; 
+            if (['rank', 'tableRank', 'par', 'totalPar', 'bestRound', 'totalStrokes'].includes(col)) {
+                appState.sort.dir = 'asc'; 
+            }
+        }
+        renderTable();
+    }
+
+    function setTourFilter(mode) {
+        if (mode === 'ALL') appState.filters.tours = ['ALL'];
+        else {
+            if (appState.filters.tours.includes('ALL')) appState.filters.tours = [];
+            const idx = appState.filters.tours.indexOf(mode);
+            if (idx > -1) appState.filters.tours.splice(idx, 1);
+            else appState.filters.tours.push(mode);
+            if (appState.filters.tours.length === 0) appState.filters.tours = ['ALL'];
+        }
+        renderApp();
+        saveAuto();
+    }
+
+    function toggleEventDropdown() {
+        appState.ui.eventDropdownOpen = !appState.ui.eventDropdownOpen;
+        renderFilters();
+    }
+
+    function toggleEventFilter(evtName) {
+        const idx = appState.filters.events.indexOf(evtName);
+        if (idx > -1) appState.filters.events.splice(idx, 1);
+        else appState.filters.events.push(evtName);
+        renderApp();
+        saveAuto();
+    }
+
+    function toggleSeasonFilter(s) {
+        const idx = appState.filters.seasons.indexOf(s);
+        if (idx > -1) appState.filters.seasons.splice(idx, 1);
+        else appState.filters.seasons.push(s);
+        renderApp();
+        saveAuto();
+    }
+
+    function toggleWeekView() {
+        appState.ui.showWeeks = !appState.ui.showWeeks;
+        appState.filters.activeWeek = null;
+        renderApp();
+        saveAuto();
+    }
+
+    function toggleWeekSelection(id) {
+        if (appState.filters.activeWeek === id) appState.filters.activeWeek = null;
+        else appState.filters.activeWeek = id;
+        appState.sort = { column: 'points', dir: 'desc' };
+        renderTable();
+        renderFilters();
+    }
+
+    function handleSearch(val) {
+        const results = document.getElementById('searchResults');
+        if (!val) { results.style.display = 'none'; return; }
+
+        const normVal = normalizeName(val);
+        const players = new Set();
+        db.files.forEach(f => f.content.forEach(p => players.add(p.name)));
+        
+        const matches = [...players].filter(name => normalizeName(name).includes(normVal));
+        
+        results.innerHTML = '';
+        if (matches.length > 0) {
+            results.style.display = 'block';
+            matches.slice(0, 10).forEach(m => {
+                const div = document.createElement('div');
+                div.className = 'search-item';
+                div.innerText = m;
+                div.onclick = () => {
+                    openPlayerProfile(m);
+                    results.style.display = 'none';
+                    document.getElementById('playerSearch').value = '';
+                };
+                results.appendChild(div);
+            });
+        } else {
+            results.style.display = 'none';
+        }
+    }
+
+    // --- Player Profile ---
+
+    function openPlayerProfile(playerName) {
+        const modalId = 'profile-' + Date.now();
+        const html = generateProfileHtml(playerName, 'ALL', modalId, [], []);
+        createModal(html, modalId);
+    }
+
+    window.updateProfileFilters = function(modalId, playerName, tab, eventsString, seasonsString) {
+        const events = eventsString ? JSON.parse(decodeURIComponent(eventsString)) : [];
+        const seasons = seasonsString ? JSON.parse(decodeURIComponent(seasonsString)) : [];
+        const contentDiv = document.getElementById(modalId);
+        if(contentDiv) {
+            const modalBody = generateProfileHtml(playerName, tab, modalId, events, seasons, true);
+            contentDiv.innerHTML = modalBody;
+        }
+    }
+
+    function generateProfileHtml(playerName, tab, modalId, activeEvents = [], activeSeasons = [], innerOnly = false) {
+        let relevantFiles = db.files;
+        if (tab !== 'ALL') relevantFiles = relevantFiles.filter(f => f.type === tab);
+        if (activeEvents.length > 0) relevantFiles = relevantFiles.filter(f => activeEvents.includes(f.eventName));
+        if (activeSeasons.length > 0) relevantFiles = relevantFiles.filter(f => activeSeasons.includes(f.season));
+
+        const normPlayer = normalizeName(playerName);
+        let stats = {
+            totalHoles: 0, totalStrokes: 0, totalPar: 0, totalPoints: 0,
+            tournamentCount: 0, majorCount: 0, majorPoints: 0,
+            bestRank: 999, rankSum: 0, rankCount: 0,
+            bestRound: 999, worstRound: -999,
+            top50: 0, top20: 0, top5: 0, wins: 0,
+            r1Sum: 0, r1Count: 0, r2Sum: 0, r2Count: 0,
+            r3Sum: 0, r3Count: 0, r4Sum: 0, r4Count: 0,
+            history: []
+        };
+        
+        // Sady na sledovanie unikátnych turnajov pre výpočet počtu turnajov
+        let uniqueEvents = new Set();
+        let uniqueMajors = new Set();
+
+        const worldRankHistory = getWorldRankList(); 
+        let bestWorldRank = 'NA';
+        if (worldRankHistory) {
+             const pEntry = worldRankHistory.find(p => normalizeName(p.name) === normPlayer);
+             if (pEntry) bestWorldRank = pEntry.rank + '.';
+        }
+
+        const pgaList = getPGARankList();
+        const tourList = getTourRankList();
+        const worldList = getWorldRankList();
+        
+        const getRank = (list) => {
+            if (!list) return 'NA';
+            const found = list.find(p => normalizeName(p.name) === normPlayer);
+            return found ? found.rank + '.' : '-';
+        }
+
+        const pgaRankVal = getRank(pgaList);
+        const tourRankVal = getRank(tourList);
+        const worldRankVal = getRank(worldList);
+
+        // Radenie histórie: Najnovšie navrchu (Descending)
+        relevantFiles.sort((a,b) => compareFiles(b, a));
+
+        relevantFiles.forEach(f => {
+            const p = f.content.find(pl => {
+                const n = normalizeName(pl.name);
+                return n === normPlayer || getDistance(n, normPlayer) <= 1;
+            });
+
+            if (p) {
+                // Výpočet unikátnych turnajov
+                // Identifikátor turnaja: Sezóna + Názov Turnaja (aby sa odlíšili rovnaké turnaje v rôznych sezónach)
+                const eventKey = `${f.season}_${f.eventName}`;
                 
-                columns.forEach(col => {
-                    const td = document.createElement('td');
-                    td.innerText = row[col.key] !== undefined ? row[col.key] : '-';
-                    tr.appendChild(td);
-                });
-                tbody.appendChild(tr);
-            });
-        }
-
-        function changeSort(key) {
-            pushInternalHistory();
-            if (appState.sort.column === key) {
-                appState.sort.dir = appState.sort.dir === 'asc' ? 'desc' : 'asc';
-            } else {
-                appState.sort.column = key;
-                appState.sort.dir = 'desc'; 
-            }
-            renderTable();
-        }
-
-        function handleSearch(query) {
-            const resultsDiv = document.getElementById('searchResults');
-            if (!query) {
-                resultsDiv.style.display = 'none';
-                return;
-            }
-
-            const normQuery = query.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-            
-            const allPlayers = [];
-            db.files.forEach(f => f.content.forEach(p => {
-                const normNew = normalizeName(p.name);
-                if (!allPlayers.some(existing => {
-                    const normEx = normalizeName(existing);
-                    return normNew === normEx || getDistance(normNew, normEx) <= 1;
-                })) {
-                    allPlayers.push(p.name);
+                if (!uniqueEvents.has(eventKey)) {
+                    stats.tournamentCount++;
+                    uniqueEvents.add(eventKey);
                 }
-            }));
-            
-             const matches = allPlayers.filter(name => {
-                const normName = name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-                return normName.includes(normQuery);
-            });
 
-            resultsDiv.innerHTML = '';
-            if (matches.length > 0) {
-                resultsDiv.style.display = 'block';
-                matches.forEach(name => {
-                    const div = document.createElement('div');
-                    div.className = 'search-item';
-                    div.innerText = name;
-                    div.onclick = () => {
-                        openPlayerProfile(name);
-                        resultsDiv.style.display = 'none';
-                        document.getElementById('playerSearch').value = '';
-                    };
-                    resultsDiv.appendChild(div);
-                });
-            } else {
-                resultsDiv.style.display = 'none';
-            }
-        }
-
-        let modalStack = [];
-
-        function createModal(contentHtml) {
-            const layer = document.getElementById('popupsLayer');
-            const overlay = document.createElement('div');
-            overlay.className = 'modal-overlay';
-            overlay.style.zIndex = 1000 + modalStack.length; 
-            
-            overlay.innerHTML = `
-                <div class="modal">
-                    ${contentHtml}
-                </div>
-            `;
-            
-            overlay.addEventListener('click', (e) => {
-                if (e.target === overlay) closeTopModal();
-            });
-
-            layer.appendChild(overlay);
-            overlay.style.display = 'flex';
-            modalStack.push(overlay);
-            
-            window.history.pushState({ modal: true }, "");
-            saveAuto();
-        }
-
-        function closeTopModal(popHistory = true) {
-            if (modalStack.length === 0) return;
-            
-            if (popHistory) {
-                window.history.back(); 
-            } else {
-                const overlay = modalStack.pop();
-                if (overlay) overlay.remove();
-                if (modalStack.length === 0) document.body.style.overflow = 'auto';
-            }
-        }
-
-        function openPlayerProfile(playerName) {
-            const containerId = 'profile-' + Date.now();
-            createModal(`<div id="${containerId}">${generateProfileHtml(playerName, 'ALL', containerId)}</div>`);
-        }
-
-        window.updateProfileView = function(containerId, playerName, filter, specificSeason = null) {
-            const container = document.getElementById(containerId);
-            container.innerHTML = generateProfileHtml(playerName, filter, containerId, specificSeason);
-        }
-
-        function getLatestTourRank(playerName, tourType) {
-            const tourFiles = db.files.filter(f => f.type === tourType);
-            if (tourFiles.length === 0) return 'N/A';
-
-            const latestSeason = Math.max(...tourFiles.map(f => parseInt(f.season)));
-            const currentSeasonFiles = tourFiles.filter(f => parseInt(f.season) === latestSeason);
-
-            const seasonStats = {};
-            currentSeasonFiles.forEach(file => {
-                file.content.forEach(p => {
-                    let targetName = p.name;
-                    const normNew = normalizeName(targetName);
-                    
-                    for (let existingName in seasonStats) {
-                        const normExisting = normalizeName(existingName);
-                        if (normNew === normExisting || getDistance(normNew, normExisting) <= 1) {
-                            targetName = existingName;
-                            break;
-                        }
-                    }
-                    
-                    if (!seasonStats[targetName]) seasonStats[targetName] = 0;
-                    seasonStats[targetName] += p.points;
-                });
-            });
-
-            const leaderboard = Object.entries(seasonStats)
-                .map(([name, points]) => ({ name, points }))
-                .sort((a, b) => b.points - a.points);
-            
-            let currentRank = 1;
-            for(let i=0; i<leaderboard.length; i++) {
-                if (i > 0 && leaderboard[i].points < leaderboard[i-1].points) {
-                    currentRank = i + 1;
-                }
-                leaderboard[i].rank = currentRank;
-            }
-
-            const normSearch = normalizeName(playerName);
-            const entry = leaderboard.find(e => {
-                const normEntry = normalizeName(e.name);
-                return normSearch === normEntry || getDistance(normSearch, normEntry) <= 1;
-            });
-
-            return entry ? entry.rank + '.' : 'N/A';
-        }
-
-        function getSeasonRankStats(playerName, tourType, season) {
-            const files = db.files.filter(f => f.type === tourType && f.season === season);
-            if(files.length === 0) return null;
-
-            const seasonPlayers = {};
-            files.forEach(f => {
-                f.content.forEach(p => {
-                    let targetName = p.name;
-                    const normNew = normalizeName(targetName);
-                    for (let existingName in seasonPlayers) {
-                         const normExisting = normalizeName(existingName);
-                         if (normNew === normExisting || getDistance(normNew, normExisting) <= 1) {
-                             targetName = existingName;
-                             break;
-                         }
-                    }
-                    
-                    if(!seasonPlayers[targetName]) {
-                        seasonPlayers[targetName] = { points: 0, par: 0, holes: 0, best: 999 };
-                    }
-                    seasonPlayers[targetName].points += p.points;
-                    seasonPlayers[targetName].par += p.par;
-                    
-                    [p.r1, p.r2, p.r3, p.r4].forEach(r => {
-                        if(r !== 'NA') {
-                            const val = parseInt(r);
-                            seasonPlayers[targetName].holes += 18;
-                            if(val < seasonPlayers[targetName].best) seasonPlayers[targetName].best = val;
-                        }
-                    });
-                });
-            });
-
-            const leaderboard = Object.entries(seasonPlayers)
-                .map(([name, stats]) => ({ name, ...stats }))
-                .sort((a,b) => b.points - a.points);
-            
-            let currentRank = 1;
-            for(let i=0; i<leaderboard.length; i++) {
-                if (i > 0 && leaderboard[i].points < leaderboard[i-1].points) {
-                    currentRank = i + 1;
-                }
-                leaderboard[i].rank = currentRank;
-            }
+                stats.totalPoints += p.points;
+                stats.totalPar += p.par;
                 
-            const normSearch = normalizeName(playerName);
-            const entry = leaderboard.find(e => {
-                const normEntry = normalizeName(e.name);
-                return normSearch === normEntry || getDistance(normSearch, normEntry) <= 1;
-            });
-
-            return entry;
-        }
-
-
-        function generateProfileHtml(playerName, filter, containerId, specificSeason = null) {
-            let fileFilter = filter === 'TURNAJE' ? 'ALL' : filter;
-            let filteredFiles = db.files.filter(f => fileFilter === 'ALL' || f.type === fileFilter);
-            
-            const normSearch = normalizeName(playerName);
-
-            let availableSeasons = [];
-            if (['KFT', 'PGA', 'PRIPRAVA'].includes(filter)) {
-                const relevantForSeasons = db.files.filter(f => f.type === filter);
-                const playerSeasons = new Set();
-                relevantForSeasons.forEach(f => {
-                    const hasPlayer = f.content.some(p => {
-                         const normFile = normalizeName(p.name);
-                         return normSearch === normFile || getDistance(normSearch, normFile) <= 1;
-                    });
-                    if (hasPlayer) playerSeasons.add(f.season);
-                });
-                availableSeasons = [...playerSeasons].sort();
-            }
-
-            if (specificSeason) {
-                filteredFiles = filteredFiles.filter(f => f.season === specificSeason);
-            }
-
-            let p_par = 0, p_points = 0, p_holes = 0;
-            let p_rounds = [], r1s = [], r2s = [], r3s = [], r4s = [];
-            let p_ranks = [];
-            let uniqueTournaments = new Set();
-            let historyHtml = '';
-            let tableHead = `<tr><th>Turnaj</th><th>Poz.</th><th>Par</th><th>R1</th><th>R2</th><th>R3</th><th>R4</th><th>Body</th></tr>`;
-            
-            let s_participation = 0;
-            let s_top20 = 0;
-            let s_top5 = 0;
-            let s_wins = 0;
-
-            filteredFiles.forEach(f => {
-                const data = f.content.find(p => {
-                    const normFile = normalizeName(p.name);
-                    return normSearch === normFile || getDistance(normSearch, normFile) <= 1;
-                });
-
-                if (data) {
-                    p_par += data.par; 
-                    p_points += data.points;
-                    if (data.fileRank) {
-                        p_ranks.push(data.fileRank);
-                        
-                        if (filter !== 'TURNAJE') {
-                            s_participation++; 
-                            if(data.fileRank <= 20) s_top20++;
-                            if(data.fileRank <= 5) s_top5++;
-                            if(data.fileRank === 1) s_wins++;
-                        }
+                if (f.isImportant || f.isSignificant) {
+                    if (!uniqueMajors.has(eventKey)) {
+                         stats.majorCount++;
+                         uniqueMajors.add(eventKey);
                     }
-                    
-                    if (f.type !== 'PRIPRAVA') {
-                        uniqueTournaments.add(f.type + '-' + f.season);
-                    } else {
-                        uniqueTournaments.add('PRIPRAVA-' + f.id); 
-                    }
-
-                    [data.r1, data.r2, data.r3, data.r4].forEach((r, idx) => {
-                        if (r !== 'NA') {
-                            const val = parseInt(r);
-                            p_rounds.push(val);
-                            p_holes += 18;
-                            if(idx===0)r1s.push(val); if(idx===1)r2s.push(val); 
-                            if(idx===2)r3s.push(val); if(idx===3)r4s.push(val);
-                        }
-                    });
-
-                    if (filter !== 'TURNAJE') {
-                        historyHtml += `<tr><td>${f.name}</td><td>${data.fileRank}</td><td>${data.par}</td><td>${data.r1}</td><td>${data.r2}</td><td>${data.r3}</td><td>${data.r4}</td><td>${data.points}</td></tr>`;
-                    }
+                    stats.majorPoints += p.points;
                 }
-            });
 
-            if (filter === 'TURNAJE') {
-                tableHead = `<tr><th>Turnaj</th><th>Poz.</th><th>Par</th><th>Jamky</th><th>Najlepšie</th><th>Body</th></tr>`;
-                
-                let seasonGroups = new Set();
-                db.files.forEach(f => {
-                    if (f.type !== 'UNKNOWN') {
-                        seasonGroups.add(f.type + '|' + f.season);
+                if (p.rank < stats.bestRank) stats.bestRank = p.rank;
+                stats.rankSum += p.rank;
+                stats.rankCount++;
+
+                if (p.rank <= 50) stats.top50++;
+                if (p.rank <= 20) stats.top20++;
+                if (p.rank <= 5) stats.top5++;
+                if (p.rank === 1) stats.wins++;
+
+                [p.r1, p.r2, p.r3, p.r4].forEach((r, i) => {
+                    if (r !== 'NA') {
+                        const val = parseInt(r);
+                        stats.totalStrokes += val;
+                        stats.totalHoles += 18;
+                        if (val < stats.bestRound) stats.bestRound = val;
+                        if (val > stats.worstRound) stats.worstRound = val;
+                        if(i===0) { stats.r1Sum += val; stats.r1Count++; }
+                        if(i===1) { stats.r2Sum += val; stats.r2Count++; }
+                        if(i===2) { stats.r3Sum += val; stats.r3Count++; }
+                        if(i===3) { stats.r4Sum += val; stats.r4Count++; }
                     }
                 });
 
-                let groupArray = Array.from(seasonGroups).map(str => {
-                    const [type, season] = str.split('|');
-                    return { type, season };
-                });
-
-                const typeOrder = { 'KFT': 1, 'PGA': 2, 'PRIPRAVA': 3 };
-                groupArray.sort((a, b) => {
-                    if (typeOrder[a.type] !== typeOrder[b.type]) return (typeOrder[a.type]||99) - (typeOrder[b.type]||99);
-                    return parseInt(a.season) - parseInt(b.season);
-                });
-
-                groupArray.forEach(group => {
-                    const stats = getSeasonRankStats(playerName, group.type, group.season);
-                    if (stats) { 
-                        s_participation++;
-                        if(stats.rank <= 20) s_top20++;
-                        if(stats.rank <= 5) s_top5++;
-                        if(stats.rank === 1) s_wins++;
-
-                        historyHtml += `<tr>
-                            <td>${group.type} ${group.season}</td>
-                            <td>${stats.rank}</td>
-                            <td>${stats.par}</td>
-                            <td>${stats.holes}</td>
-                            <td>${stats.best}</td>
-                            <td>${stats.points.toFixed(3)}</td>
-                        </tr>`;
-                    }
-                });
-            } else {
-                 historyHtml = '';
-                 const typeOrder = { 'PRIPRAVA': 1, 'KFT': 2, 'PGA': 3, 'UNKNOWN': 4 };
-                 filteredFiles.sort((a, b) => {
-                     if (typeOrder[a.type] !== typeOrder[b.type]) return typeOrder[a.type] - typeOrder[b.type];
-                     if (a.season !== b.season) return parseInt(a.season) - parseInt(b.season);
-                     return a.week - b.week;
-                 });
-                 filteredFiles.forEach(f => {
-                    const data = f.content.find(p => {
-                        const normFile = normalizeName(p.name);
-                        return normSearch === normFile || getDistance(normSearch, normFile) <= 1;
-                    });
-                    if(data) {
-                        historyHtml += `<tr><td>${f.name}</td><td>${data.fileRank}</td><td>${data.par}</td><td>${data.r1}</td><td>${data.r2}</td><td>${data.r3}</td><td>${data.r4}</td><td>${data.points}</td></tr>`;
-                    }
-                 });
-            }
-
-            const avg = arr => arr.length ? Math.round(arr.reduce((a,b)=>a+b,0)/arr.length) : '-';
-            const best = p_rounds.length ? Math.min(...p_rounds) : '-';
-            const worst = p_rounds.length ? Math.max(...p_rounds) : '-';
-            const bestFinish = p_ranks.length ? Math.min(...p_ranks) : '-';
-            
-            let rankLabel = "PGA";
-            let rankValue = "N/A";
-            
-            let checkTour = (filter === 'KFT') ? 'KFT' : 'PGA';
-            if (specificSeason) {
-                const sRankStats = getSeasonRankStats(playerName, checkTour, specificSeason);
-                rankLabel = `${checkTour} ${specificSeason}`;
-                rankValue = sRankStats ? sRankStats.rank + '.' : 'N/A';
-            } else {
-                if (filter === 'KFT') {
-                    rankLabel = "KFT";
-                    rankValue = getLatestTourRank(playerName, 'KFT');
-                } else {
-                    rankLabel = "PGA";
-                    rankValue = getLatestTourRank(playerName, 'PGA');
+                let displayName = f.name.replace('.txt', '');
+                let rowClass = '';
+                // Odlíšenie aj v histórii hráča
+                if (f.isImportant) { 
+                    displayName = '★ ' + displayName; 
+                    rowClass = 'important-row'; 
+                } else if (f.isSignificant) { 
+                    displayName = '= ' + displayName; 
+                    rowClass = 'significant-row'; 
                 }
-            }
 
-            let seasonTagsHtml = '';
-            if (availableSeasons.length > 0) {
-                seasonTagsHtml += `<div class="season-tags">`;
-                availableSeasons.forEach(s => {
-                    const isAct = (s === specificSeason);
-                    seasonTagsHtml += `<span class="season-tag ${isAct ? 'active' : ''}" onclick="updateProfileView('${containerId}', '${playerName}', '${filter}', '${isAct ? '' : s}')">${s}</span>`;
-                });
-                seasonTagsHtml += `</div>`;
+                stats.history.push(`
+                    <tr class="${rowClass}">
+                        <td>${displayName}</td>
+                        <td>${p.rank}.</td>
+                        <td>${p.par}</td>
+                        <td>${p.r1}</td><td>${p.r2}</td><td>${p.r3}</td><td>${p.r4}</td>
+                        <td>${p.points}</td>
+                    </tr>
+                `);
             }
+        });
 
-            return `
+        const avg = (sum, count) => count ? (sum / count).toFixed(1) : '-';
+        // Oprava výpočtu Priemer úderov: Total Strokes / Total Holes
+        const avgStrokes = stats.totalHoles ? (stats.totalStrokes / stats.totalHoles).toFixed(2) : '-';
+        const avgRank = stats.rankCount ? (stats.rankSum / stats.rankCount).toFixed(1) : '-';
+        const bestR = stats.bestRound === 999 ? '-' : stats.bestRound;
+        const worstR = stats.worstRound === -999 ? '-' : stats.worstRound;
+        const bestPos = stats.bestRank === 999 ? '-' : stats.bestRank + '.';
+
+        // Dropdown options
+        const playerFilesAll = db.files.filter(f => {
+             const hasPlayer = f.content.some(pl => normalizeName(pl.name) === normPlayer || getDistance(normalizeName(pl.name), normPlayer)<=1);
+             return hasPlayer && (tab === 'ALL' || f.type === tab);
+        });
+        
+        // Zoradiť eventy pre dropdown chronologicky
+        playerFilesAll.sort(compareFiles);
+        const availEvents = [...new Set(playerFilesAll.map(f => f.eventName))];
+        const availSeasons = [...new Set(playerFilesAll.map(f => f.season))].filter(s=>s!=='00').sort((a,b)=>parseInt(a)-parseInt(b));
+
+        const update = (newEvents, newSeasons) => {
+            const eStr = encodeURIComponent(JSON.stringify(newEvents));
+            const sStr = encodeURIComponent(JSON.stringify(newSeasons));
+            return `updateProfileFilters('${modalId}', '${playerName}', '${tab}', '${eStr}', '${sStr}')`;
+        };
+
+        const renderMultiSelect = (items, active, type) => {
+             if (items.length === 0) return '<div class="filter-btn empty">Žiadne dáta</div>';
+             let html = `<div style="display:flex; flex-wrap:wrap; gap:5px; max-height:100px; overflow-y:auto; margin-bottom:5px;">`;
+             items.forEach(item => {
+                 let newActive = [...active];
+                 if (newActive.includes(item)) newActive = newActive.filter(x => x !== item);
+                 else newActive.push(item);
+                 const isActive = active.includes(item);
+                 const clickFn = type === 'event' ? update(newActive, activeSeasons) : update(activeEvents, newActive);
+                 html += `<button class="btn btn-sm ${isActive ? 'btn-green' : 'btn-grey'}" onclick="${clickFn}">${item}</button>`;
+             });
+             html += `</div>`;
+             return html;
+        };
+
+        const bodyContent = `
+            <div class="profile-tabs">
+                <div class="profile-tab ${tab==='ALL'?'active':''}" onclick="updateProfileFilters('${modalId}', '${playerName}', 'ALL', '[]', '[]')">Celkovo</div>
+                <div class="profile-tab ${tab==='KFT'?'active':''}" onclick="updateProfileFilters('${modalId}', '${playerName}', 'KFT', '[]', '[]')">KFT</div>
+                <div class="profile-tab ${tab==='PGA'?'active':''}" onclick="updateProfileFilters('${modalId}', '${playerName}', 'PGA', '[]', '[]')">PGA</div>
+            </div>
+
+            <div class="profile-filters-area">
+                <small style="color:#888; display:block; margin-bottom:5px;">Filter Turnajov:</small>
+                ${renderMultiSelect(availEvents, activeEvents, 'event')}
+                <small style="color:#888; display:block; margin-bottom:5px; margin-top:5px;">Filter Sezón:</small>
+                ${renderMultiSelect(availSeasons, activeSeasons, 'season')}
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-box highlight" onclick="showRankTable('PGA')"><div class="stat-label">PGA Rank</div><div class="stat-value gold rank-clickable">${pgaRankVal}</div></div>
+                <div class="stat-box highlight" onclick="showRankTable('World')"><div class="stat-label">Svetový Rank</div><div class="stat-value blue rank-clickable">${worldRankVal}</div></div>
+                <div class="stat-box highlight" onclick="showRankTable('Tour')"><div class="stat-label">Tour Rank</div><div class="stat-value rank-clickable">${tourRankVal}</div></div>
+                <div class="stat-box highlight"><div class="stat-label">Naj. Sv. Rank</div><div class="stat-value">${bestWorldRank}</div></div>
+
+                <div class="stat-box"><div class="stat-label">Jamiek</div><div class="stat-value green">${stats.totalHoles}</div></div>
+                <div class="stat-box"><div class="stat-label">Odpalov</div><div class="stat-value">${stats.totalStrokes}</div></div>
+                <div class="stat-box"><div class="stat-label">Priemer Úderov</div><div class="stat-value">${avgStrokes}</div></div>
+                <div class="stat-box"><div class="stat-label">Par</div><div class="stat-value">${stats.totalPar}</div></div>
+
+                <div class="stat-box"><div class="stat-label">Turnajov</div><div class="stat-value">${stats.tournamentCount}</div></div>
+                <div class="stat-box"><div class="stat-label">Bodov</div><div class="stat-value">${stats.totalPoints.toFixed(2)}</div></div>
+                <div class="stat-box"><div class="stat-label">Final Tour</div><div class="stat-value">${stats.majorCount}</div></div>
+                <div class="stat-box"><div class="stat-label">Body Final</div><div class="stat-value">${stats.majorPoints.toFixed(2)}</div></div>
+
+                <div class="stat-box"><div class="stat-label">Naj. Pozícia</div><div class="stat-value green">${bestPos}</div></div>
+                <div class="stat-box"><div class="stat-label">Priem. Pozícia</div><div class="stat-value">${avgRank}</div></div>
+                <div class="stat-box"><div class="stat-label">Naj. Kolo</div><div class="stat-value green">${bestR}</div></div>
+                <div class="stat-box"><div class="stat-label" style="color:var(--accent-red)">Najh. Kolo</div><div class="stat-value" style="color:var(--accent-red)">${worstR}</div></div>
+
+                <div class="stat-box"><div class="stat-label">Top 50</div><div class="stat-value">${stats.top50}</div></div>
+                <div class="stat-box"><div class="stat-label">Top 20</div><div class="stat-value">${stats.top20}</div></div>
+                <div class="stat-box"><div class="stat-label">Top 5</div><div class="stat-value blue">${stats.top5}</div></div>
+                <div class="stat-box"><div class="stat-label">Výhry</div><div class="stat-value gold">${stats.wins}</div></div>
+
+                <div class="stat-box"><div class="stat-label">Priemer R1</div><div class="stat-value">${avg(stats.r1Sum, stats.r1Count)}</div></div>
+                <div class="stat-box"><div class="stat-label">Priemer R2</div><div class="stat-value">${avg(stats.r2Sum, stats.r2Count)}</div></div>
+                <div class="stat-box"><div class="stat-label">Priemer R3</div><div class="stat-value">${avg(stats.r3Sum, stats.r3Count)}</div></div>
+                <div class="stat-box"><div class="stat-label">Priemer R4</div><div class="stat-value">${avg(stats.r4Sum, stats.r4Count)}</div></div>
+            </div>
+
+            <h3 style="margin-top:20px; border-bottom:1px solid #444; padding-bottom:5px;">História zápasov (${stats.history.length})</h3>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr><th>Turnaj</th><th>Poz.</th><th>Par</th><th>R1</th><th>R2</th><th>R3</th><th>R4</th><th>Body</th></tr>
+                    </thead>
+                    <tbody>${stats.history.join('')}</tbody>
+                </table>
+            </div>
+        `;
+
+        if (innerOnly) return bodyContent;
+
+        return `
+            <div id="${modalId}">
                 <div class="modal-header">
                     <h2>${playerName}</h2>
                     <button class="close-btn" onclick="closeTopModal()">&times;</button>
                 </div>
-                <div style="margin-bottom:15px;">
-                    <div class="profile-filter-row">
-                        <button class="filter-btn ${filter === 'ALL' ? 'active' : 'inactive'}" onclick="updateProfileView('${containerId}', '${playerName}', 'ALL')">Celá história</button>
-                        <button class="filter-btn ${filter === 'TURNAJE' ? 'active' : 'inactive'}" onclick="updateProfileView('${containerId}', '${playerName}', 'TURNAJE')">Turnaje</button>
-                    </div>
-                    <div class="profile-filter-row">
-                        <button class="filter-btn ${filter === 'PRIPRAVA' ? 'active' : 'inactive'}" onclick="updateProfileView('${containerId}', '${playerName}', 'PRIPRAVA')">Príprava</button>
-                        <button class="filter-btn ${filter === 'KFT' ? 'active' : 'inactive'}" onclick="updateProfileView('${containerId}', '${playerName}', 'KFT')">KFT</button>
-                        <button class="filter-btn ${filter === 'PGA' ? 'active' : 'inactive'}" onclick="updateProfileView('${containerId}', '${playerName}', 'PGA')">PGA</button>
-                    </div>
+                <div class="modal-body">
+                    ${bodyContent}
                 </div>
-                ${seasonTagsHtml}
-                <div class="profile-stats-grid">
-                    <div class="stat-box"><div class="stat-label" style="color:var(--accent-green)">Počet jamiek</div><div class="stat-value">${p_holes}</div></div>
-                    <div class="stat-box"><div class="stat-label">Body</div><div class="stat-value">${p_points.toFixed(3)}</div></div>
-                    <div class="stat-box"><div class="stat-label">Par</div><div class="stat-value">${p_par}</div></div>
-                    <div class="stat-box"><div class="stat-label">Najlepšie kolo</div><div class="stat-value">${best}</div></div>
-                    <div class="stat-box"><div class="stat-label">Najhoršie kolo</div><div class="stat-value">${worst}</div></div>
-                    <div class="stat-box"><div class="stat-label">Najlepšie umiestnenie</div><div class="stat-value">${bestFinish}</div></div>
-                    <div class="stat-box"><div class="stat-label" style="color:var(--accent-green)">Turnajov</div><div class="stat-value">${uniqueTournaments.size}</div></div>
-                    <div class="stat-box"><div class="stat-label" style="color:var(--accent-green)">${rankLabel}</div><div class="stat-value">${rankValue}</div></div>
-                </div>
-                
-                <div class="profile-stats-grid">
-                     <div class="stat-box"><div class="stat-label" style="color:#3498db">Účasť</div><div class="stat-value">${s_participation}</div></div>
-                     <div class="stat-box"><div class="stat-label" style="color:#3498db">Top 20</div><div class="stat-value">${s_top20}</div></div>
-                     <div class="stat-box"><div class="stat-label" style="color:#3498db">Top 5</div><div class="stat-value">${s_top5}</div></div>
-                     <div class="stat-box"><div class="stat-label" style="color:#3498db">Wins</div><div class="stat-value">${s_wins}</div></div>
-                </div>
+            </div>
+        `;
+    }
 
-                ${(filter !== 'ALL' && filter !== 'TURNAJE') ? `
-                <div class="profile-stats-grid">
-                    <div class="stat-box"><div class="stat-label">Ø R1</div><div class="stat-value">${avg(r1s)}</div></div>
-                    <div class="stat-box"><div class="stat-label">Ø R2</div><div class="stat-value">${avg(r2s)}</div></div>
-                    <div class="stat-box"><div class="stat-label">Ø R3</div><div class="stat-value">${avg(r3s)}</div></div>
-                    <div class="stat-box"><div class="stat-label">Ø R4</div><div class="stat-value">${avg(r4s)}</div></div>
-                </div>` : ''}
+    // --- Global Rank Tables ---
+    window.showRankTable = function(type) {
+        let list = [];
+        let title = '';
+        
+        if (type === 'PGA') { list = getPGARankList(); title = 'PGA Rank (Top 40 PGA Turnajov)'; }
+        if (type === 'World') { list = getWorldRankList(); title = 'Svetový Rank (All Time)'; }
+        if (type === 'Tour') { list = getTourRankList(); title = 'Tour Rank (Major/Important)'; }
+
+        if (!list) { alert('Nedostatok dát pre výpočet (min 20 turnajov pre World Rank).'); return; }
+
+        let rows = list.map(p => `
+            <tr onclick="openPlayerProfile('${p.name}')" style="cursor:pointer">
+                <td><b style="color:${p.rank===1?'gold':'white'}">${p.rank}.</b></td>
+                <td>${p.name}</td>
+                <td style="text-align:right">${p.points.toFixed(3)}</td>
+            </tr>
+        `).join('');
+
+        const html = `
+            <div class="modal-header">
+                <h2>${title}</h2>
+                <button class="close-btn" onclick="closeTopModal()">&times;</button>
+            </div>
+            <div class="modal-body">
                 <div class="table-container">
                     <table>
-                        <thead>${tableHead}</thead>
-                        <tbody>${historyHtml}</tbody>
+                        <thead><tr><th>#</th><th>Hráč</th><th style="text-align:right">Body</th></tr></thead>
+                        <tbody>${rows}</tbody>
                     </table>
                 </div>
-            `;
-        }
+            </div>
+        `;
+        createModal(html);
+    }
 
-        function openSettings() {
-            const html = `
-                <div class="modal-header">
-                    <h2>Nastavenia</h2>
-                    <button class="close-btn" onclick="closeTopModal()">&times;</button>
-                </div>
-                <div class="settings-top-actions">
+    // --- Settings & Utils ---
+
+    function createModal(contentHtml, id = null) {
+        const layer = document.getElementById('popupsLayer');
+        const overlay = document.createElement('div');
+        overlay.className = 'modal-overlay';
+        overlay.style.zIndex = 1000 + modalStack.length * 10;
+        if (id) overlay.id = id + '-overlay';
+        overlay.innerHTML = `<div class="modal">${contentHtml}</div>`;
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) closeTopModal();
+        });
+        layer.appendChild(overlay);
+        modalStack.push(overlay);
+        document.body.style.overflow = 'hidden';
+        window.history.pushState({ modal: true }, "");
+    }
+
+    function closeTopModal(backHistory = true) {
+        if (modalStack.length === 0) return;
+        const overlay = modalStack.pop();
+        overlay.remove();
+        if (modalStack.length === 0) document.body.style.overflow = 'auto';
+        if (backHistory) window.history.back();
+    }
+
+    function toggleZoom() {
+        appState.settings.zoom = !appState.settings.zoom;
+        applyZoom(appState.settings.zoom);
+        saveAuto();
+    }
+
+    function applyZoom(enable) {
+        const meta = document.getElementById('viewportMeta');
+        if (enable) meta.setAttribute('content', 'width=1200, initial-scale=0.5');
+        else meta.setAttribute('content', 'width=device-width, initial-scale=1.0');
+        const btn = document.querySelector('button[title="Zoom Mode"]');
+        if(btn) btn.style.color = enable ? 'var(--accent-green)' : 'var(--text-main)';
+    }
+
+    function openSettings() {
+        let themeBtns = '';
+        Object.keys(colorSchemes).forEach(k => {
+            const sch = colorSchemes[k];
+            themeBtns += `<div class="theme-btn" style="background:${sch.bg}; border-color:${appState.settings.theme===k?'#fff':sch.accent}" onclick="changeTheme('${k}')">${k}</div>`;
+        });
+
+        const html = `
+            <div class="modal-header">
+                <h2>Nastavenia</h2>
+                <button class="close-btn" onclick="closeTopModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <h3>Nástroje</h3>
+                <div style="display:flex; gap:10px; flex-wrap:wrap;">
                     <button class="btn btn-green" onclick="document.getElementById('fileInput').click()">Vložiť .txt</button>
-                    <button class="btn btn-grey" onclick="openFileManager()">Správca súborov</button>
-                    <button class="btn btn-red" onclick="clearDB()">Vymazať databázu</button>
+                    <button class="btn btn-blue" onclick="openFileManager()">Správca súborov</button>
+                    <button class="btn btn-red" onclick="clearDB()">Vymazať DB</button>
+                    <button class="btn btn-grey" onclick="toggleZoomInSettings()">${appState.settings.zoom ? 'Vypnúť' : 'Zapnúť'} Zoom</button>
                 </div>
-                <h3>Uložené pozície</h3>
+                <h3>Témy</h3>
+                <div class="theme-grid">${themeBtns}</div>
+                <h3>Sloty (Uložiť / Načítať)</h3>
                 <div class="slot-grid" id="slotContainer"></div>
-            `;
-            createModal(html);
-            renderSlots();
-        }
+            </div>
+        `;
+        createModal(html);
+        renderSlots();
+    }
 
-        function openFileManager() {
-            const files = [...db.files].sort((a, b) => {
-                const typeOrder = { 'PRIPRAVA': 1, 'KFT': 2, 'PGA': 3, 'UNKNOWN': 4 };
-                if (typeOrder[a.type] !== typeOrder[b.type]) return typeOrder[a.type] - typeOrder[b.type];
-                return a.name.localeCompare(b.name);
-            });
+    function toggleZoomInSettings() {
+        toggleZoom();
+        closeTopModal();
+        openSettings();
+    }
 
-            let listHtml = '';
-            files.forEach(f => {
-                listHtml += `<li><span>${f.name}</span><button class="btn btn-red" style="padding:2px 8px;" onclick="deleteFile(${f.id})">Del</button></li>`;
-            });
+    function changeTheme(name) {
+        appState.settings.theme = name;
+        applyTheme(name);
+        saveAuto();
+        closeTopModal();
+        openSettings();
+    }
 
-            createModal(`<div class="modal-header"><h2>Správca súborov</h2><button class="close-btn" onclick="closeTopModal()">&times;</button></div><ul class="file-list">${listHtml}</ul>`);
-        }
+    function applyTheme(name) {
+        const t = colorSchemes[name] || colorSchemes['Default'];
+        const root = document.documentElement;
+        root.style.setProperty('--bg-color', t.bg);
+        root.style.setProperty('--card-bg', t.card);
+        root.style.setProperty('--text-main', t.text);
+        root.style.setProperty('--accent-green', t.accent);
+    }
 
-        function deleteFile(id) {
-            db.files = db.files.filter(f => f.id !== id);
-            closeTopModal(); 
-            openFileManager(); 
-            renderApp();
-        }
-
-        function clearDB() {
-            if(confirm('Naozaj vymazať všetky načítané dáta?')) {
-                db.files = [];
-                renderApp();
-                closeTopModal();
+    function openFileManager() {
+        // Zoradenie (inteligentná logika: Sezóna ASC -> EventNum ASC -> Týždeň ASC)
+        const files = [...db.files].sort(compareFiles);
+        
+        const list = files.map(f => {
+            let label = f.name;
+            let style = '';
+            // Vizuálne odlíšenie v správcovi
+            if (f.isImportant) {
+                label = '★ ' + label;
+                style = 'color: var(--highlight-gold); font-weight: bold;';
+            } else if (f.isSignificant) {
+                label = '= ' + label;
+                style = 'color: var(--accent-blue);';
             }
-        }
 
-        function initSlots() {}
+            return `
+            <div style="display:flex; justify-content:space-between; background:#222; padding:8px; margin-bottom:5px; border-radius:4px; align-items:center;">
+                <span style="${style}">${label}</span>
+                <button class="btn btn-red btn-sm" onclick="deleteFile(${f.id})">X</button>
+            </div>
+        `}).join('');
 
-        function renderSlots() {
-            const container = document.getElementById('slotContainer');
-            if(!container) return;
-            container.innerHTML = '';
-            for (let i = 1; i <= 4; i++) {
-                const key = `ArciWeb_Slot_${i}`;
-                const data = localStorage.getItem(key);
-                const hasData = !!data;
-                const div = document.createElement('div');
-                div.className = 'slot-card';
-                div.innerHTML = `
-                    <span class="slot-title" style="color: ${hasData ? 'var(--accent-green)' : 'var(--accent-red)'}">Slot ${i}</span>
-                    <div class="slot-actions">
-                        <button class="btn btn-green" onclick="saveToSlot(${i})">Uložiť</button>
-                        <button class="btn btn-grey" onclick="loadFromSlot(${i})" ${!hasData ? 'disabled' : ''}>Načítať</button>
-                        <button class="btn btn-red" onclick="deleteSlot(${i})" ${!hasData ? 'disabled' : ''}>Vymazať</button>
+        const html = `
+            <div class="modal-header">
+                <h2>Správca súborov (${files.length})</h2>
+                <button class="close-btn" onclick="closeTopModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                ${list || 'Žiadne súbory.'}
+            </div>
+        `;
+        createModal(html);
+    }
+
+    function deleteFile(id) {
+        db.files = db.files.filter(f => f.id !== id);
+        saveAuto();
+        closeTopModal();
+        openFileManager();
+        renderApp();
+    }
+
+    function renderSlots() {
+        const container = document.getElementById('slotContainer');
+        if(!container) return;
+        container.innerHTML = '';
+        for (let i = 1; i <= 4; i++) {
+            const key = `ArciWeb_Slot_${i}`;
+            const exists = localStorage.getItem(key) !== null;
+            const div = document.createElement('div');
+            div.className = 'slot-card';
+            div.innerHTML = `
+                <strong style="color:${exists?'var(--accent-green)':'#555'}">Slot ${i}</strong>
+                <div style="margin-top:5px; display:flex; flex-direction:column; gap:4px;">
+                    <button class="btn btn-sm btn-green" onclick="saveToSlot(${i})">Uložiť</button>
+                    <button class="btn btn-sm btn-grey" onclick="loadFromSlot(${i})" ${!exists?'disabled':''}>Načítať</button>
+                    <button class="btn btn-sm btn-red" onclick="deleteSlot(${i})" ${!exists?'disabled':''}>Zmazať</button>
+                    <div style="display:flex; gap:2px;">
+                        <button class="btn btn-sm btn-blue" style="flex:1" onclick="downloadSlot(${i})" ${!exists?'disabled':''}>⬇</button>
+                        <button class="btn btn-sm btn-blue" style="flex:1" onclick="uploadSlotTrigger(${i})">⬆</button>
                     </div>
-                `;
-                container.appendChild(div);
-            }
+                </div>
+            `;
+            container.appendChild(div);
         }
+    }
 
-        function saveToSlot(i) {
-            localStorage.setItem(`ArciWeb_Slot_${i}`, JSON.stringify({ db: db, appState: appState }));
-            renderSlots();
-        }
+    function saveToSlot(i) {
+        const data = JSON.stringify({ db, appState });
+        localStorage.setItem(`ArciWeb_Slot_${i}`, data);
+        renderSlots();
+    }
 
-        function loadFromSlot(i) {
-            loadStateFromSlot(`ArciWeb_Slot_${i}`);
+    function loadFromSlot(i) {
+        const data = localStorage.getItem(`ArciWeb_Slot_${i}`);
+        if(data) {
+            const parsed = JSON.parse(data);
+            db = parsed.db;
+            appState = parsed.appState;
+            appState.ui.eventDropdownOpen = false; 
+            applyTheme(appState.settings.theme);
+            applyZoom(appState.settings.zoom);
+            renderApp();
+            saveAuto();
             closeTopModal();
         }
+    }
 
-        function deleteSlot(i) {
-            localStorage.removeItem(`ArciWeb_Slot_${i}`);
-            renderSlots();
-        }
+    function deleteSlot(i) {
+        localStorage.removeItem(`ArciWeb_Slot_${i}`);
+        renderSlots();
+    }
 
-        function saveAuto() {
-            localStorage.setItem('autosave', JSON.stringify({ db: db, appState: appState }));
-        }
+    function saveAuto() {
+        localStorage.setItem('autosave_v191', JSON.stringify({ db, appState }));
+    }
 
-        function loadStateFromSlot(key, silent = false) {
-            const data = localStorage.getItem(key);
-            if (data) {
-                try {
-                    const parsed = JSON.parse(data);
+    function loadAutoSave() {
+        const data = localStorage.getItem('autosave_v191');
+        if(data) {
+            try {
+                const parsed = JSON.parse(data);
+                if(parsed.db && parsed.appState) {
                     db = parsed.db;
                     appState = parsed.appState;
-                    if(!appState.ui) appState.ui = { showWeeks: false }; 
-                    appState.history = []; 
-                    if (!silent) renderApp();
-                } catch (e) {}
-            }
+                }
+            } catch(e) {}
         }
+    }
 
-    </script>
+    function downloadSlot(i) {
+        const data = localStorage.getItem(`ArciWeb_Slot_${i}`);
+        if (!data) return;
+        const blob = new Blob([data], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `ArciWeb_Slot_${i}_Backup.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+    }
+
+    function uploadSlotTrigger(i) {
+        slotToUpload = i;
+        document.getElementById('slotFileInput').click();
+    }
+
+    function finishSlotUpload(files) {
+        if (files.length === 0 || slotToUpload === null) return;
+        const file = files[0];
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                JSON.parse(e.target.result);
+                localStorage.setItem(`ArciWeb_Slot_${slotToUpload}`, e.target.result);
+                renderSlots();
+            } catch (err) { alert('Neplatný JSON súbor!'); }
+            slotToUpload = null;
+            document.getElementById('slotFileInput').value = '';
+        };
+        reader.readAsText(file);
+    }
+
+</script>
 </body>
 </html>
