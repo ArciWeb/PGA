@@ -1,4 +1,461 @@
-﻿        // --- Data Processing & Statistics ---
+﻿
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+    <meta charset="UTF-8">
+    <meta id="viewportMeta" name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ArciWeb PGA StatsKeeper v1.92.4</title>
+    <style>
+        :root {
+            --bg-color: #1e1e1e;
+            --card-bg: #2d2d2d;
+            --text-main: #ffffff;
+            --text-muted: #b0b0b0;
+            --accent-green: #2ecc71;
+            --accent-blue: #3498db;
+            --accent-red: #e74c3c;
+            --highlight-gold: #f1c40f;
+            --border-radius: 12px;
+            --transition: 0.2s ease;
+            --font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            --modal-z: 1000;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 20px;
+            overflow-x: hidden;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        /* --- Header & Layout --- */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #444;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .header-left { display: flex; flex-direction: column; gap: 5px; }
+        h1 { margin: 0; font-size: 1.4rem; font-weight: 700; }
+        .version { font-size: 0.7rem; color: var(--text-muted); margin-left: 5px; vertical-align: middle; }
+
+        .header-ranks { display: flex; gap: 15px; margin-top: 5px; }
+        .header-rank-link {
+            font-size: 0.85rem; color: var(--accent-green); cursor: pointer;
+            text-decoration: none; border-bottom: 1px dotted var(--accent-green);
+            transition: var(--transition);
+        }
+        .header-rank-link:hover { color: var(--highlight-gold); border-bottom-color: var(--highlight-gold); }
+
+        .header-icons { display: flex; gap: 15px; }
+        .icon-btn {
+            background: none; border: none; color: var(--text-main);
+            font-size: 1.4rem; cursor: pointer; transition: var(--transition);
+            display: flex; align-items: center; justify-content: center;
+        }
+        .icon-btn:hover { transform: scale(1.1); color: var(--accent-green); }
+
+        /* --- Search --- */
+        .search-container { margin-bottom: 15px; position: relative; }
+        #playerSearch {
+            width: 100%; padding: 12px 15px; border-radius: var(--border-radius);
+            border: 1px solid #444; background-color: var(--card-bg);
+            color: var(--text-main); font-size: 1rem; box-sizing: border-box;
+        }
+        #searchResults {
+            position: absolute; top: 100%; left: 0; width: 100%;
+            background-color: var(--card-bg); border-radius: 0 0 var(--border-radius) var(--border-radius);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5); z-index: 100;
+            max-height: 250px; overflow-y: auto; display: none; border: 1px solid #555;
+        }
+        .search-item { padding: 12px 15px; border-bottom: 1px solid #444; cursor: pointer; }
+        .search-item:hover { background-color: #444; }
+
+        /* --- Filters --- */
+        #filterContainer { display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; }
+        .filter-section { width: 100%; }
+        .filter-label { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 5px; display: block; text-transform: uppercase; letter-spacing: 1px; }
+        .filter-row { display: flex; flex-wrap: wrap; gap: 8px; width: 100%; }
+        .btn-full-width { width: 100%; display: block; text-align: center; }
+
+        .filter-btn {
+            padding: 8px 12px; border-radius: 8px; border: 1px solid #444;
+            cursor: pointer; font-weight: 600; font-size: 0.85rem;
+            transition: var(--transition); display: flex; align-items: center;
+            justify-content: center; user-select: none;
+            background-color: var(--card-bg); color: var(--text-muted); flex: 1;
+        }
+        .filter-btn:hover { background-color: #3d3d3d; }
+        .filter-btn.active { background-color: var(--accent-green); color: #000; border-color: var(--accent-green); }
+        .filter-btn.empty { opacity: 0.4; pointer-events: none; }
+        
+        .filter-btn.important-tour { border: 1px solid var(--highlight-gold); color: var(--highlight-gold); box-shadow: 0 0 5px rgba(241, 196, 15, 0.2); }
+        .filter-btn.important-tour.active { background-color: var(--highlight-gold); color: #000; box-shadow: 0 0 10px rgba(241, 196, 15, 0.5); }
+        .filter-btn.significant-tour { border: 1px dashed var(--accent-blue); color: var(--accent-blue); }
+        .filter-btn.significant-tour.active { background-color: var(--accent-blue); color: #fff; }
+
+        .dropdown-filter {
+            width: 100%; background: var(--card-bg); border: 1px solid #444;
+            color: white; padding: 10px; border-radius: 8px; text-align: left;
+            position: relative; cursor: pointer;
+        }
+        .dropdown-content {
+            display: none; flex-wrap: wrap; gap: 5px; padding: 10px;
+            background: #252525; border: 1px solid #444; border-radius: 8px;
+            margin-top: 5px; max-height: 200px; overflow-y: auto;
+        }
+        .dropdown-content.show { display: flex; }
+
+        /* --- Table --- */
+        .table-container {
+            overflow-x: auto; background-color: var(--card-bg);
+            border-radius: var(--border-radius); padding: 5px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        table { width: 100%; border-collapse: collapse; min-width: 350px; }
+        th, td { padding: 10px 8px; text-align: center; border-bottom: 1px solid #444; font-size: 0.9rem; }
+        td:nth-child(2), th:nth-child(2) { text-align: left; }
+        th { cursor: pointer; color: var(--text-muted); font-weight: 600; text-transform: uppercase; font-size: 0.75rem; }
+        th:hover { color: var(--text-main); text-decoration: underline; }
+        .player-row:hover { background-color: rgba(255,255,255,0.05); cursor: pointer; }
+        .important-row { background-color: rgba(241, 196, 15, 0.15); color: var(--highlight-gold); font-weight: 500; }
+        .significant-row { background-color: rgba(52, 152, 219, 0.15); color: var(--accent-blue); }
+        
+        /* --- Modal --- */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(5px);
+            display: flex; justify-content: center; align-items: center;
+            opacity: 0; animation: fadeIn 0.2s forwards;
+        }
+        .modal {
+            background-color: #1a1a1a; border-radius: 16px;
+            width: 95%; max-width: 850px; max-height: 92vh;
+            overflow-y: auto; position: relative;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.7);
+            border: 1px solid #333; display: flex; flex-direction: column;
+        }
+        @keyframes fadeIn { to { opacity: 1; } }
+        .modal-header {
+            padding: 15px 20px; border-bottom: 1px solid #333;
+            display: flex; justify-content: space-between; align-items: center;
+            background: #222; position: sticky; top: 0; z-index: 10;
+        }
+        .modal-header h2 { margin: 0; font-size: 1.2rem; color: var(--text-main); display: flex; align-items: center; gap: 10px;}
+        .close-btn { background: none; border: none; color: #fff; font-size: 1.8rem; cursor: pointer; }
+        .modal-body { padding: 20px; overflow-y: auto; }
+
+        /* --- Profile & Stats --- */
+        .profile-tabs { display: flex; gap: 10px; margin-bottom: 15px; border-bottom: 1px solid #333; padding-bottom: 10px; }
+        .profile-tab { flex: 1; padding: 10px; text-align: center; background: var(--card-bg); border-radius: 8px; cursor: pointer; border: 1px solid transparent; color: #aaa; }
+        .profile-tab.active { background: var(--accent-green); color: #000; font-weight: bold; }
+        .profile-filters-area { margin-bottom: 20px; background: #222; padding: 10px; border-radius: 8px; }
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 20px; }
+        .stat-box { background: var(--card-bg); padding: 12px 5px; border-radius: 8px; text-align: center; display: flex; flex-direction: column; justify-content: center; border: 1px solid #3d3d3d; min-height: 70px; }
+        .stat-box.highlight { border-color: var(--highlight-gold); background: rgba(241, 196, 15, 0.05); }
+        .stat-label { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px; letter-spacing: 0.5px; }
+        .stat-value { font-size: 1.1rem; font-weight: 700; color: #fff; }
+        .stat-value.gold { color: var(--highlight-gold); }
+        .stat-value.green { color: var(--accent-green); }
+        .stat-value.blue { color: var(--accent-blue); }
+        .rank-clickable { cursor: pointer; text-decoration: underline; text-decoration-style: dotted; }
+        .rank-clickable:hover { color: var(--accent-green); }
+
+        /* --- Settings, Auth & Slots --- */
+        .slot-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-top: 15px; }
+        .slot-card { background: var(--card-bg); padding: 10px; border-radius: 8px; border: 1px solid #444; text-align: center; }
+        .theme-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 8px; margin-top: 10px; }
+        .theme-btn { padding: 8px; border-radius: 6px; cursor: pointer; text-align: center; font-size: 0.75rem; border: 2px solid transparent; color: #fff; }
+        .theme-btn.active { border-color: #fff; transform: scale(1.05); }
+        .btn { padding: 8px 15px; border: none; border-radius: 6px; cursor: pointer; font-size: 0.9rem; color: white; transition: 0.2s; }
+        .btn-green { background: var(--accent-green); color: #000; }
+        .btn-red { background: var(--accent-red); }
+        .btn-grey { background: #555; }
+        .btn-blue { background: var(--accent-blue); }
+        .btn-outline { background: transparent; border: 1px solid var(--accent-green); color: var(--accent-green); }
+        .btn:hover { filter: brightness(1.1); }
+        .btn-sm { padding: 4px 8px; font-size: 0.8rem; margin: 2px; }
+        
+        .input-group { margin-bottom: 15px; text-align: left; }
+        .input-group label { display: block; margin-bottom: 5px; font-size: 0.85rem; color: #ccc; }
+        .input-group input { width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #444; background: #252525; color: white; box-sizing: border-box; }
+        .auth-status { background: #2a2a2a; padding: 10px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid var(--accent-green); }
+
+        @media (max-width: 600px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } th, td { font-size: 0.8rem; padding: 8px 4px; } .modal-header h2 { font-size: 1rem; } }
+        #fileInput, #slotFileInput { display: none; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-left">
+            <h1>ArciWeb <span class="version">v1.92.4</span></h1>
+            <div class="header-ranks">
+                <span class="header-rank-link" onclick="window.showRankTable('PGA')">PGA Rank</span>
+                <span class="header-rank-link" onclick="window.showRankTable('World')">Svetový Rank</span>
+                <span class="header-rank-link" onclick="window.showRankTable('Tour')">Tour Rank</span>
+            </div>
+        </div>
+        <div class="header-icons">
+            <button class="icon-btn" onclick="window.toggleZoom()" title="Zoom Mode">🔍</button>
+            <button class="icon-btn" onclick="window.openSettings()" title="Nastavenia">&#9881;</button>
+        </div>
+    </header>
+
+    <div class="search-container">
+        <input type="text" id="playerSearch" placeholder="Vyhľadať hráča..." oninput="window.handleSearch(this.value)">
+        <div id="searchResults"></div>
+    </div>
+
+    <div id="filterContainer">
+        <div class="filter-section">
+            <span class="filter-label">Tour</span>
+            <div class="filter-row">
+                <button class="filter-btn active" id="btn-tour-all" onclick="window.setTourFilter('ALL')">Všetky</button>
+                <button class="filter-btn" id="btn-tour-KFT" onclick="window.setTourFilter('KFT')">KFT</button>
+                <button class="filter-btn" id="btn-tour-PGA" onclick="window.setTourFilter('PGA')">PGA</button>
+            </div>
+        </div>
+        <div class="filter-section"><span class="filter-label">Sezóna</span><div class="filter-row" id="seasonFilterContainer"></div></div>
+        <div class="filter-section">
+             <span class="filter-label">Turnaje</span>
+             <div class="dropdown-filter" onclick="window.toggleEventDropdown()">
+                 <span id="eventFilterLabel">Všetky turnaje</span><span style="float:right">▼</span>
+             </div>
+             <div id="eventDropdown" class="dropdown-content"></div>
+        </div>
+        <div class="filter-section">
+             <button class="filter-btn btn-full-width" id="weekToggleBtn" onclick="window.toggleWeekView()">Zobraziť konkrétne týždne (Súbory)</button>
+             <div id="weeksContainer" class="filter-row" style="display:none; margin-top:10px;"></div>
+        </div>
+    </div>
+
+    <div class="table-container"><table id="mainTable"><thead></thead><tbody></tbody></table></div>
+    <input type="file" id="fileInput" accept=".txt" multiple onchange="window.handleFiles(this.files)">
+    <input type="file" id="slotFileInput" accept=".json" onchange="window.finishSlotUpload(this.files)">
+    <div id="popupsLayer"></div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut, sendPasswordResetEmail, deleteUser } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteField } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCecCsv3cssJvp24LK7f5ujYuI3vGqmOLI",
+            authDomain: "arciapps-portal.firebaseapp.com",
+            projectId: "arciapps-portal",
+            storageBucket: "arciapps-portal.firebasestorage.app",
+            messagingSenderId: "186149546972",
+            appId: "1:186149546972:web:17e70af0e951398401fd19",
+            measurementId: "G-YYSGFTYWKH"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const dbFirestore = getFirestore(app);
+        
+        let currentUser = null;
+
+        onAuthStateChanged(auth, (user) => {
+            currentUser = user;
+            // Update Settings modal if open
+            if(document.querySelector('.modal h2') && document.querySelector('.modal h2').innerText.includes('Nastavenia')) {
+                window.openSettings();
+            }
+        });
+
+        // --- Auth Functions ---
+        window.doLogin = async (email, pass) => {
+            try { 
+                await signInWithEmailAndPassword(auth, email, pass); 
+                alert("Prihlásený!");
+                window.closeTopModal();
+                window.openCloudSlotsModal(); // Open Cloud Slots immediately after login
+            } catch(e) { alert("Chyba: " + e.message); }
+        };
+        window.doRegister = async (email, pass) => {
+            try { 
+                await createUserWithEmailAndPassword(auth, email, pass); 
+                alert("Účet vytvorený!");
+                window.closeTopModal();
+                window.openCloudSlotsModal();
+            } catch(e) { alert("Chyba: " + e.message); }
+        };
+        window.doLogout = async () => { await signOut(auth); alert("Odhlásený."); window.openSettings(); };
+        window.doResetPass = async (email) => {
+            if(!email) return alert("Zadajte email!");
+            try { await sendPasswordResetEmail(auth, email); alert("Email odoslaný."); }
+            catch(e) { alert("Chyba: " + e.message); }
+        };
+
+        // --- Cloud Logic Helpers ---
+        window.openCloudSlotsModal = async () => {
+            if(!currentUser) return;
+            const html = `
+                <div class="modal-header"><h2>Cloudové Sloty</h2><button class="close-btn" onclick="window.closeTopModal()">&times;</button></div>
+                <div class="modal-body">
+                    <div class="auth-status">Prihlásený ako: <strong>${currentUser.email}</strong></div>
+                    <div class="slot-grid" id="modalCloudContainer">Načítavam...</div>
+                </div>
+            `;
+            window.createModal(html);
+            await window.renderCloudSlotsInModal();
+        }
+
+        window.renderCloudSlotsInModal = async () => {
+            const container = document.getElementById('modalCloudContainer');
+            if(!container) return;
+            try {
+                const docSnap = await getDoc(doc(dbFirestore, "saves", currentUser.uid));
+                const data = docSnap.exists() ? docSnap.data() : {};
+                let html = '';
+                for(let i=1; i<=4; i++) {
+                    const slot = data[`slot${i}`];
+                    if (slot) {
+                        html += `
+                            <div class="slot-card" style="border-color:var(--accent-blue)">
+                                <strong style="color:var(--accent-blue)">Cloud Slot ${i}</strong>
+                                <div style="font-size:0.8rem; color:#aaa; margin:5px 0;">${slot.name}</div>
+                                <div style="display:flex; flex-direction:column; gap:4px;">
+                                    <button class="btn btn-sm btn-blue" onclick="window.loadFromCloudSlot(${i})">Načítať</button>
+                                    <button class="btn btn-sm btn-green" onclick="window.saveToCloudSlot(${i})">Prepísať</button>
+                                    <button class="btn btn-sm btn-red" onclick="window.deleteFromCloudSlot(${i})">Zmazať</button>
+                                    <div style="display:flex; gap:2px;">
+                                        <button class="btn btn-sm btn-blue" style="flex:1" onclick="window.downloadCloudSlotContent(${i})">⬇</button>
+                                        <button class="btn btn-sm btn-blue" style="flex:1" onclick="window.uploadSlotTrigger(${i}, true)">⬆</button>
+                                    </div>
+                                </div>
+                            </div>`;
+                    } else {
+                        html += `
+                            <div class="slot-card" style="border-color:#444; opacity:0.7">
+                                <strong style="color:#888">Cloud Slot ${i}</strong>
+                                <div style="font-size:0.8rem; color:#666; margin:5px 0;">Prázdny</div>
+                                <button class="btn btn-sm btn-green" onclick="window.saveToCloudSlot(${i})" style="width:100%">Uložiť</button>
+                                <button class="btn btn-sm btn-blue" onclick="window.uploadSlotTrigger(${i}, true)" style="width:100%; margin-top:4px;">Upload</button>
+                            </div>`;
+                    }
+                }
+                container.innerHTML = html;
+            } catch(e) { container.innerHTML = '<p style="color:red">Chyba.</p>'; }
+        };
+
+        window.saveToCloudSlot = async (i) => {
+            const data = JSON.stringify({ db: db, appState: appState });
+            const timestamp = new Date().toLocaleString('sk-SK');
+            try {
+                await setDoc(doc(dbFirestore, "saves", currentUser.uid), { 
+                    [`slot${i}`]: { name: `StatsKeeper ${timestamp}`, content: data } 
+                }, { merge: true });
+                alert(`Uložené do Cloud Slotu ${i}`);
+                window.renderCloudSlotsInModal();
+            } catch(e) { alert("Chyba: " + e.message); }
+        };
+
+        window.loadFromCloudSlot = async (i) => {
+            try {
+                const docSnap = await getDoc(doc(dbFirestore, "saves", currentUser.uid));
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    const slot = data[`slot${i}`];
+                    if (slot && slot.content) {
+                        const parsed = JSON.parse(slot.content);
+                        if(parsed.db && parsed.appState) {
+                            db = parsed.db; appState = parsed.appState;
+                            appState.ui.eventDropdownOpen = false;
+                            window.applyTheme(appState.settings.theme);
+                            window.applyZoom(appState.settings.zoom);
+                            window.renderApp(); window.saveAuto(); window.closeTopModal();
+                            alert("Načítané z Cloudu!");
+                        } else alert("Chybné dáta.");
+                    } else alert("Slot prázdny.");
+                }
+            } catch(e) { alert("Chyba: " + e.message); }
+        };
+
+        window.deleteFromCloudSlot = async (i) => {
+            if (!confirm(`Vymazať Cloud Slot ${i}?`)) return;
+            try {
+                await updateDoc(doc(dbFirestore, "saves", currentUser.uid), { [`slot${i}`]: deleteField() });
+                window.renderCloudSlotsInModal();
+            } catch(e) { alert("Chyba: " + e.message); }
+        };
+
+        window.downloadCloudSlotContent = async (i) => {
+             const docSnap = await getDoc(doc(dbFirestore, "saves", currentUser.uid));
+             if(docSnap.exists()) {
+                 const data = docSnap.data()[`slot${i}`];
+                 if(data) {
+                     const blob = new Blob([data.content], { type: 'application/json' });
+                     const url = URL.createObjectURL(blob);
+                     const a = document.createElement('a'); a.href = url; a.download = `${data.name}.json`;
+                     document.body.appendChild(a); a.click(); document.body.removeChild(a);
+                 }
+             }
+        }
+
+        // --- Core App Logic ---
+        const colorSchemes = { 'Default': { bg: '#1e1e1e', card: '#2d2d2d', text: '#ffffff', accent: '#2ecc71' }, 'Midnight': { bg: '#0f172a', card: '#1e293b', text: '#f1f5f9', accent: '#38bdf8' }, 'Gold': { bg: '#000000', card: '#1c1c1c', text: '#ffd700', accent: '#ffec8b' }, 'Forest': { bg: '#1a2f1a', card: '#2f4f2f', text: '#dbebdb', accent: '#90ee90' }, 'Cherry': { bg: '#2b0000', card: '#420000', text: '#ffcccc', accent: '#ff4d4d' }, 'Ocean': { bg: '#001f3f', card: '#003366', text: '#7FDBFF', accent: '#39CCCC' } };
+        let db = { files: [] };
+        let appState = { filters: { tours: ['ALL'], events: [], seasons: [], activeWeek: null }, ui: { showWeeks: false, eventDropdownOpen: false }, sort: { column: 'points', dir: 'desc' }, settings: { zoom: false, theme: 'Default' }, history: [] };
+        let modalStack = [];
+        let slotToUpload = null;
+        let isCloudUpload = false;
+        window.currentUser = currentUser;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            window.loadAutoSave(); window.applyTheme(appState.settings.theme); window.applyZoom(appState.settings.zoom); window.renderApp();
+            window.onpopstate = function(event) { if (modalStack.length > 0) window.closeTopModal(false); };
+        });
+
+        window.handleFiles = function(files) { Array.from(files).forEach(file => { const reader = new FileReader(); reader.onload = (e) => { window.parseTxt(file.name, e.target.result); window.renderApp(); window.saveAuto(); }; reader.readAsText(file); }); document.getElementById('fileInput').value = ''; }
+        window.parseTxt = function(filename, text) {
+            if (filename.toUpperCase().includes('PRIPRAVA') || filename.toUpperCase().includes('PRÍPRAVA')) return;
+            let cleanName = filename.replace('.txt', '').trim();
+            let isImportant = false; let isSignificant = false;
+            if (cleanName.includes('!')) { isImportant = true; cleanName = cleanName.replace('!', '').trim(); }
+            if (cleanName.includes('=')) { isSignificant = true; cleanName = cleanName.replace('=', '').trim(); }
+            const parts = cleanName.split(' ');
+            if (parts.length < 2) return;
+            let type = parts[0].toUpperCase();
+            if (type !== 'KFT' && type !== 'PGA') return;
+            let season = '00'; let eventNum = 0; let week = 0; let eventName = 'Unknown';
+            const datePart = parts[1];
+            if (datePart.includes('-')) {
+                const d = datePart.split('-');
+                season = d[0];
+                if (d.length >= 3) { eventNum = parseInt(d[1]); week = parseInt(d[2]); } else if (d.length === 2) { week = parseInt(d[1]); }
+            }
+            if (parts.length > 2) eventName = parts.slice(2).join(' '); else eventName = `${type} ${season}-${week}`;
+            if (isImportant) eventName += '!'; else if (isSignificant) eventName += '=';
+            const lines = text.split('\n').map(l => l.trim()).filter(l => l);
+            const players = [];
+            for (let i = 0; i < lines.length; i++) {
+                if (lines[i].startsWith('[source') || lines[i].startsWith('}')) continue;
+                let name = lines[i];
+                if (!lines[i+1] || isNaN(parseInt(lines[i+1]))) { if(i + 6 >= lines.length) break; }
+                let par = parseInt(lines[i+1]) || 0; let r1 = lines[i+2]; let r2 = lines[i+3]; let r3 = lines[i+4]; let r4 = lines[i+5]; let pts = parseFloat(lines[i+6]) || 0;
+                if (pts === undefined) break;
+                players.push({ name: name, par: par, r1: r1, r2: r2, r3: r3, r4: r4, points: pts, rank: 0 });
+                i += 6;
+            }
+            players.sort((a, b) => { if (a.points !== b.points) return b.points - a.points; return a.par - b.par; });
+            for (let i = 0; i < players.length; i++) { if (i > 0 && players[i].points === players[i-1].points) players[i].rank = players[i-1].rank; else players[i].rank = i + 1; }
+            db.files = db.files.filter(f => f.name !== filename);
+            db.files.push({ id: Date.now() + Math.random(), name: filename, type: type, season: season, week: week, eventNum: eventNum, eventName: eventName, isImportant: isImportant, isSignificant: isSignificant, timestamp: Date.now(), content: players });
+        }
+        window.clearDB = function() { if(confirm('Naozaj vymazať celú databázu?')) { db.files = []; appState.filters.events = []; appState.filters.seasons = []; window.renderApp(); window.saveAuto(); window.closeTopModal(); } }
+        window.normalizeName = function(name) { return name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim(); }
+        window.getDistance = function(a, b) { if(a.length === 0) return b.length; if(b.length === 0) return a.length; const matrix = []; for(let i = 0; i <= b.length; i++) matrix[i] = [i]; for(let j = 0; j <= a.length; j++) matrix[0][j] = j; for(let i = 1; i <= b.length; i++){ for(let j = 1; j <= a.length; j++){ if(b.charAt(i-1) == a.charAt(j-1)) matrix[i][j] = matrix[i-1][j-1]; else matrix[i][j] = Math.min(matrix[i-1][j-1] + 1, matrix[i][j-1] + 1, matrix[i-1][j] + 1); } } return matrix[b.length][a.length]; }
+        // --- Data Processing & Statistics ---
 
         window.getActiveFiles = function() {
             let files = db.files;
@@ -958,459 +1415,3 @@
     </script>
 </body>
 </html>
-<!DOCTYPE html>
-<html lang="sk">
-<head>
-    <meta charset="UTF-8">
-    <meta id="viewportMeta" name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ArciWeb PGA StatsKeeper v1.92.4</title>
-    <style>
-        :root {
-            --bg-color: #1e1e1e;
-            --card-bg: #2d2d2d;
-            --text-main: #ffffff;
-            --text-muted: #b0b0b0;
-            --accent-green: #2ecc71;
-            --accent-blue: #3498db;
-            --accent-red: #e74c3c;
-            --highlight-gold: #f1c40f;
-            --border-radius: 12px;
-            --transition: 0.2s ease;
-            --font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            --modal-z: 1000;
-        }
-
-        body {
-            font-family: var(--font-family);
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            margin: 0;
-            padding: 20px;
-            overflow-x: hidden;
-            transition: background-color 0.3s, color 0.3s;
-        }
-
-        /* --- Header & Layout --- */
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid #444;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-
-        .header-left { display: flex; flex-direction: column; gap: 5px; }
-        h1 { margin: 0; font-size: 1.4rem; font-weight: 700; }
-        .version { font-size: 0.7rem; color: var(--text-muted); margin-left: 5px; vertical-align: middle; }
-
-        .header-ranks { display: flex; gap: 15px; margin-top: 5px; }
-        .header-rank-link {
-            font-size: 0.85rem; color: var(--accent-green); cursor: pointer;
-            text-decoration: none; border-bottom: 1px dotted var(--accent-green);
-            transition: var(--transition);
-        }
-        .header-rank-link:hover { color: var(--highlight-gold); border-bottom-color: var(--highlight-gold); }
-
-        .header-icons { display: flex; gap: 15px; }
-        .icon-btn {
-            background: none; border: none; color: var(--text-main);
-            font-size: 1.4rem; cursor: pointer; transition: var(--transition);
-            display: flex; align-items: center; justify-content: center;
-        }
-        .icon-btn:hover { transform: scale(1.1); color: var(--accent-green); }
-
-        /* --- Search --- */
-        .search-container { margin-bottom: 15px; position: relative; }
-        #playerSearch {
-            width: 100%; padding: 12px 15px; border-radius: var(--border-radius);
-            border: 1px solid #444; background-color: var(--card-bg);
-            color: var(--text-main); font-size: 1rem; box-sizing: border-box;
-        }
-        #searchResults {
-            position: absolute; top: 100%; left: 0; width: 100%;
-            background-color: var(--card-bg); border-radius: 0 0 var(--border-radius) var(--border-radius);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.5); z-index: 100;
-            max-height: 250px; overflow-y: auto; display: none; border: 1px solid #555;
-        }
-        .search-item { padding: 12px 15px; border-bottom: 1px solid #444; cursor: pointer; }
-        .search-item:hover { background-color: #444; }
-
-        /* --- Filters --- */
-        #filterContainer { display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; }
-        .filter-section { width: 100%; }
-        .filter-label { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 5px; display: block; text-transform: uppercase; letter-spacing: 1px; }
-        .filter-row { display: flex; flex-wrap: wrap; gap: 8px; width: 100%; }
-        .btn-full-width { width: 100%; display: block; text-align: center; }
-
-        .filter-btn {
-            padding: 8px 12px; border-radius: 8px; border: 1px solid #444;
-            cursor: pointer; font-weight: 600; font-size: 0.85rem;
-            transition: var(--transition); display: flex; align-items: center;
-            justify-content: center; user-select: none;
-            background-color: var(--card-bg); color: var(--text-muted); flex: 1;
-        }
-        .filter-btn:hover { background-color: #3d3d3d; }
-        .filter-btn.active { background-color: var(--accent-green); color: #000; border-color: var(--accent-green); }
-        .filter-btn.empty { opacity: 0.4; pointer-events: none; }
-        
-        .filter-btn.important-tour { border: 1px solid var(--highlight-gold); color: var(--highlight-gold); box-shadow: 0 0 5px rgba(241, 196, 15, 0.2); }
-        .filter-btn.important-tour.active { background-color: var(--highlight-gold); color: #000; box-shadow: 0 0 10px rgba(241, 196, 15, 0.5); }
-        .filter-btn.significant-tour { border: 1px dashed var(--accent-blue); color: var(--accent-blue); }
-        .filter-btn.significant-tour.active { background-color: var(--accent-blue); color: #fff; }
-
-        .dropdown-filter {
-            width: 100%; background: var(--card-bg); border: 1px solid #444;
-            color: white; padding: 10px; border-radius: 8px; text-align: left;
-            position: relative; cursor: pointer;
-        }
-        .dropdown-content {
-            display: none; flex-wrap: wrap; gap: 5px; padding: 10px;
-            background: #252525; border: 1px solid #444; border-radius: 8px;
-            margin-top: 5px; max-height: 200px; overflow-y: auto;
-        }
-        .dropdown-content.show { display: flex; }
-
-        /* --- Table --- */
-        .table-container {
-            overflow-x: auto; background-color: var(--card-bg);
-            border-radius: var(--border-radius); padding: 5px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-        table { width: 100%; border-collapse: collapse; min-width: 350px; }
-        th, td { padding: 10px 8px; text-align: center; border-bottom: 1px solid #444; font-size: 0.9rem; }
-        td:nth-child(2), th:nth-child(2) { text-align: left; }
-        th { cursor: pointer; color: var(--text-muted); font-weight: 600; text-transform: uppercase; font-size: 0.75rem; }
-        th:hover { color: var(--text-main); text-decoration: underline; }
-        .player-row:hover { background-color: rgba(255,255,255,0.05); cursor: pointer; }
-        .important-row { background-color: rgba(241, 196, 15, 0.15); color: var(--highlight-gold); font-weight: 500; }
-        .significant-row { background-color: rgba(52, 152, 219, 0.15); color: var(--accent-blue); }
-        
-        /* --- Modal --- */
-        .modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(5px);
-            display: flex; justify-content: center; align-items: center;
-            opacity: 0; animation: fadeIn 0.2s forwards;
-        }
-        .modal {
-            background-color: #1a1a1a; border-radius: 16px;
-            width: 95%; max-width: 850px; max-height: 92vh;
-            overflow-y: auto; position: relative;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.7);
-            border: 1px solid #333; display: flex; flex-direction: column;
-        }
-        @keyframes fadeIn { to { opacity: 1; } }
-        .modal-header {
-            padding: 15px 20px; border-bottom: 1px solid #333;
-            display: flex; justify-content: space-between; align-items: center;
-            background: #222; position: sticky; top: 0; z-index: 10;
-        }
-        .modal-header h2 { margin: 0; font-size: 1.2rem; color: var(--text-main); display: flex; align-items: center; gap: 10px;}
-        .close-btn { background: none; border: none; color: #fff; font-size: 1.8rem; cursor: pointer; }
-        .modal-body { padding: 20px; overflow-y: auto; }
-
-        /* --- Profile & Stats --- */
-        .profile-tabs { display: flex; gap: 10px; margin-bottom: 15px; border-bottom: 1px solid #333; padding-bottom: 10px; }
-        .profile-tab { flex: 1; padding: 10px; text-align: center; background: var(--card-bg); border-radius: 8px; cursor: pointer; border: 1px solid transparent; color: #aaa; }
-        .profile-tab.active { background: var(--accent-green); color: #000; font-weight: bold; }
-        .profile-filters-area { margin-bottom: 20px; background: #222; padding: 10px; border-radius: 8px; }
-        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 20px; }
-        .stat-box { background: var(--card-bg); padding: 12px 5px; border-radius: 8px; text-align: center; display: flex; flex-direction: column; justify-content: center; border: 1px solid #3d3d3d; min-height: 70px; }
-        .stat-box.highlight { border-color: var(--highlight-gold); background: rgba(241, 196, 15, 0.05); }
-        .stat-label { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px; letter-spacing: 0.5px; }
-        .stat-value { font-size: 1.1rem; font-weight: 700; color: #fff; }
-        .stat-value.gold { color: var(--highlight-gold); }
-        .stat-value.green { color: var(--accent-green); }
-        .stat-value.blue { color: var(--accent-blue); }
-        .rank-clickable { cursor: pointer; text-decoration: underline; text-decoration-style: dotted; }
-        .rank-clickable:hover { color: var(--accent-green); }
-
-        /* --- Settings, Auth & Slots --- */
-        .slot-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-top: 15px; }
-        .slot-card { background: var(--card-bg); padding: 10px; border-radius: 8px; border: 1px solid #444; text-align: center; }
-        .theme-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 8px; margin-top: 10px; }
-        .theme-btn { padding: 8px; border-radius: 6px; cursor: pointer; text-align: center; font-size: 0.75rem; border: 2px solid transparent; color: #fff; }
-        .theme-btn.active { border-color: #fff; transform: scale(1.05); }
-        .btn { padding: 8px 15px; border: none; border-radius: 6px; cursor: pointer; font-size: 0.9rem; color: white; transition: 0.2s; }
-        .btn-green { background: var(--accent-green); color: #000; }
-        .btn-red { background: var(--accent-red); }
-        .btn-grey { background: #555; }
-        .btn-blue { background: var(--accent-blue); }
-        .btn-outline { background: transparent; border: 1px solid var(--accent-green); color: var(--accent-green); }
-        .btn:hover { filter: brightness(1.1); }
-        .btn-sm { padding: 4px 8px; font-size: 0.8rem; margin: 2px; }
-        
-        .input-group { margin-bottom: 15px; text-align: left; }
-        .input-group label { display: block; margin-bottom: 5px; font-size: 0.85rem; color: #ccc; }
-        .input-group input { width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #444; background: #252525; color: white; box-sizing: border-box; }
-        .auth-status { background: #2a2a2a; padding: 10px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid var(--accent-green); }
-
-        @media (max-width: 600px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } th, td { font-size: 0.8rem; padding: 8px 4px; } .modal-header h2 { font-size: 1rem; } }
-        #fileInput, #slotFileInput { display: none; }
-    </style>
-</head>
-<body>
-
-    <header>
-        <div class="header-left">
-            <h1>ArciWeb <span class="version">v1.92.4</span></h1>
-            <div class="header-ranks">
-                <span class="header-rank-link" onclick="window.showRankTable('PGA')">PGA Rank</span>
-                <span class="header-rank-link" onclick="window.showRankTable('World')">Svetový Rank</span>
-                <span class="header-rank-link" onclick="window.showRankTable('Tour')">Tour Rank</span>
-            </div>
-        </div>
-        <div class="header-icons">
-            <button class="icon-btn" onclick="window.toggleZoom()" title="Zoom Mode">🔍</button>
-            <button class="icon-btn" onclick="window.openSettings()" title="Nastavenia">&#9881;</button>
-        </div>
-    </header>
-
-    <div class="search-container">
-        <input type="text" id="playerSearch" placeholder="Vyhľadať hráča..." oninput="window.handleSearch(this.value)">
-        <div id="searchResults"></div>
-    </div>
-
-    <div id="filterContainer">
-        <div class="filter-section">
-            <span class="filter-label">Tour</span>
-            <div class="filter-row">
-                <button class="filter-btn active" id="btn-tour-all" onclick="window.setTourFilter('ALL')">Všetky</button>
-                <button class="filter-btn" id="btn-tour-KFT" onclick="window.setTourFilter('KFT')">KFT</button>
-                <button class="filter-btn" id="btn-tour-PGA" onclick="window.setTourFilter('PGA')">PGA</button>
-            </div>
-        </div>
-        <div class="filter-section"><span class="filter-label">Sezóna</span><div class="filter-row" id="seasonFilterContainer"></div></div>
-        <div class="filter-section">
-             <span class="filter-label">Turnaje</span>
-             <div class="dropdown-filter" onclick="window.toggleEventDropdown()">
-                 <span id="eventFilterLabel">Všetky turnaje</span><span style="float:right">▼</span>
-             </div>
-             <div id="eventDropdown" class="dropdown-content"></div>
-        </div>
-        <div class="filter-section">
-             <button class="filter-btn btn-full-width" id="weekToggleBtn" onclick="window.toggleWeekView()">Zobraziť konkrétne týždne (Súbory)</button>
-             <div id="weeksContainer" class="filter-row" style="display:none; margin-top:10px;"></div>
-        </div>
-    </div>
-
-    <div class="table-container"><table id="mainTable"><thead></thead><tbody></tbody></table></div>
-    <input type="file" id="fileInput" accept=".txt" multiple onchange="window.handleFiles(this.files)">
-    <input type="file" id="slotFileInput" accept=".json" onchange="window.finishSlotUpload(this.files)">
-    <div id="popupsLayer"></div>
-
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut, sendPasswordResetEmail, deleteUser } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteField } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyCecCsv3cssJvp24LK7f5ujYuI3vGqmOLI",
-            authDomain: "arciapps-portal.firebaseapp.com",
-            projectId: "arciapps-portal",
-            storageBucket: "arciapps-portal.firebasestorage.app",
-            messagingSenderId: "186149546972",
-            appId: "1:186149546972:web:17e70af0e951398401fd19",
-            measurementId: "G-YYSGFTYWKH"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const dbFirestore = getFirestore(app);
-        
-        let currentUser = null;
-
-        onAuthStateChanged(auth, (user) => {
-            currentUser = user;
-            // Update Settings modal if open
-            if(document.querySelector('.modal h2') && document.querySelector('.modal h2').innerText.includes('Nastavenia')) {
-                window.openSettings();
-            }
-        });
-
-        // --- Auth Functions ---
-        window.doLogin = async (email, pass) => {
-            try { 
-                await signInWithEmailAndPassword(auth, email, pass); 
-                alert("Prihlásený!");
-                window.closeTopModal();
-                window.openCloudSlotsModal(); // Open Cloud Slots immediately after login
-            } catch(e) { alert("Chyba: " + e.message); }
-        };
-        window.doRegister = async (email, pass) => {
-            try { 
-                await createUserWithEmailAndPassword(auth, email, pass); 
-                alert("Účet vytvorený!");
-                window.closeTopModal();
-                window.openCloudSlotsModal();
-            } catch(e) { alert("Chyba: " + e.message); }
-        };
-        window.doLogout = async () => { await signOut(auth); alert("Odhlásený."); window.openSettings(); };
-        window.doResetPass = async (email) => {
-            if(!email) return alert("Zadajte email!");
-            try { await sendPasswordResetEmail(auth, email); alert("Email odoslaný."); }
-            catch(e) { alert("Chyba: " + e.message); }
-        };
-
-        // --- Cloud Logic Helpers ---
-        window.openCloudSlotsModal = async () => {
-            if(!currentUser) return;
-            const html = `
-                <div class="modal-header"><h2>Cloudové Sloty</h2><button class="close-btn" onclick="window.closeTopModal()">&times;</button></div>
-                <div class="modal-body">
-                    <div class="auth-status">Prihlásený ako: <strong>${currentUser.email}</strong></div>
-                    <div class="slot-grid" id="modalCloudContainer">Načítavam...</div>
-                </div>
-            `;
-            window.createModal(html);
-            await window.renderCloudSlotsInModal();
-        }
-
-        window.renderCloudSlotsInModal = async () => {
-            const container = document.getElementById('modalCloudContainer');
-            if(!container) return;
-            try {
-                const docSnap = await getDoc(doc(dbFirestore, "saves", currentUser.uid));
-                const data = docSnap.exists() ? docSnap.data() : {};
-                let html = '';
-                for(let i=1; i<=4; i++) {
-                    const slot = data[`slot${i}`];
-                    if (slot) {
-                        html += `
-                            <div class="slot-card" style="border-color:var(--accent-blue)">
-                                <strong style="color:var(--accent-blue)">Cloud Slot ${i}</strong>
-                                <div style="font-size:0.8rem; color:#aaa; margin:5px 0;">${slot.name}</div>
-                                <div style="display:flex; flex-direction:column; gap:4px;">
-                                    <button class="btn btn-sm btn-blue" onclick="window.loadFromCloudSlot(${i})">Načítať</button>
-                                    <button class="btn btn-sm btn-green" onclick="window.saveToCloudSlot(${i})">Prepísať</button>
-                                    <button class="btn btn-sm btn-red" onclick="window.deleteFromCloudSlot(${i})">Zmazať</button>
-                                    <div style="display:flex; gap:2px;">
-                                        <button class="btn btn-sm btn-blue" style="flex:1" onclick="window.downloadCloudSlotContent(${i})">⬇</button>
-                                        <button class="btn btn-sm btn-blue" style="flex:1" onclick="window.uploadSlotTrigger(${i}, true)">⬆</button>
-                                    </div>
-                                </div>
-                            </div>`;
-                    } else {
-                        html += `
-                            <div class="slot-card" style="border-color:#444; opacity:0.7">
-                                <strong style="color:#888">Cloud Slot ${i}</strong>
-                                <div style="font-size:0.8rem; color:#666; margin:5px 0;">Prázdny</div>
-                                <button class="btn btn-sm btn-green" onclick="window.saveToCloudSlot(${i})" style="width:100%">Uložiť</button>
-                                <button class="btn btn-sm btn-blue" onclick="window.uploadSlotTrigger(${i}, true)" style="width:100%; margin-top:4px;">Upload</button>
-                            </div>`;
-                    }
-                }
-                container.innerHTML = html;
-            } catch(e) { container.innerHTML = '<p style="color:red">Chyba.</p>'; }
-        };
-
-        window.saveToCloudSlot = async (i) => {
-            const data = JSON.stringify({ db: db, appState: appState });
-            const timestamp = new Date().toLocaleString('sk-SK');
-            try {
-                await setDoc(doc(dbFirestore, "saves", currentUser.uid), { 
-                    [`slot${i}`]: { name: `StatsKeeper ${timestamp}`, content: data } 
-                }, { merge: true });
-                alert(`Uložené do Cloud Slotu ${i}`);
-                window.renderCloudSlotsInModal();
-            } catch(e) { alert("Chyba: " + e.message); }
-        };
-
-        window.loadFromCloudSlot = async (i) => {
-            try {
-                const docSnap = await getDoc(doc(dbFirestore, "saves", currentUser.uid));
-                if (docSnap.exists()) {
-                    const data = docSnap.data();
-                    const slot = data[`slot${i}`];
-                    if (slot && slot.content) {
-                        const parsed = JSON.parse(slot.content);
-                        if(parsed.db && parsed.appState) {
-                            db = parsed.db; appState = parsed.appState;
-                            appState.ui.eventDropdownOpen = false;
-                            window.applyTheme(appState.settings.theme);
-                            window.applyZoom(appState.settings.zoom);
-                            window.renderApp(); window.saveAuto(); window.closeTopModal();
-                            alert("Načítané z Cloudu!");
-                        } else alert("Chybné dáta.");
-                    } else alert("Slot prázdny.");
-                }
-            } catch(e) { alert("Chyba: " + e.message); }
-        };
-
-        window.deleteFromCloudSlot = async (i) => {
-            if (!confirm(`Vymazať Cloud Slot ${i}?`)) return;
-            try {
-                await updateDoc(doc(dbFirestore, "saves", currentUser.uid), { [`slot${i}`]: deleteField() });
-                window.renderCloudSlotsInModal();
-            } catch(e) { alert("Chyba: " + e.message); }
-        };
-
-        window.downloadCloudSlotContent = async (i) => {
-             const docSnap = await getDoc(doc(dbFirestore, "saves", currentUser.uid));
-             if(docSnap.exists()) {
-                 const data = docSnap.data()[`slot${i}`];
-                 if(data) {
-                     const blob = new Blob([data.content], { type: 'application/json' });
-                     const url = URL.createObjectURL(blob);
-                     const a = document.createElement('a'); a.href = url; a.download = `${data.name}.json`;
-                     document.body.appendChild(a); a.click(); document.body.removeChild(a);
-                 }
-             }
-        }
-
-        // --- Core App Logic ---
-        const colorSchemes = { 'Default': { bg: '#1e1e1e', card: '#2d2d2d', text: '#ffffff', accent: '#2ecc71' }, 'Midnight': { bg: '#0f172a', card: '#1e293b', text: '#f1f5f9', accent: '#38bdf8' }, 'Gold': { bg: '#000000', card: '#1c1c1c', text: '#ffd700', accent: '#ffec8b' }, 'Forest': { bg: '#1a2f1a', card: '#2f4f2f', text: '#dbebdb', accent: '#90ee90' }, 'Cherry': { bg: '#2b0000', card: '#420000', text: '#ffcccc', accent: '#ff4d4d' }, 'Ocean': { bg: '#001f3f', card: '#003366', text: '#7FDBFF', accent: '#39CCCC' } };
-        let db = { files: [] };
-        let appState = { filters: { tours: ['ALL'], events: [], seasons: [], activeWeek: null }, ui: { showWeeks: false, eventDropdownOpen: false }, sort: { column: 'points', dir: 'desc' }, settings: { zoom: false, theme: 'Default' }, history: [] };
-        let modalStack = [];
-        let slotToUpload = null;
-        let isCloudUpload = false;
-        window.currentUser = currentUser;
-
-        document.addEventListener('DOMContentLoaded', () => {
-            window.loadAutoSave(); window.applyTheme(appState.settings.theme); window.applyZoom(appState.settings.zoom); window.renderApp();
-            window.onpopstate = function(event) { if (modalStack.length > 0) window.closeTopModal(false); };
-        });
-
-        window.handleFiles = function(files) { Array.from(files).forEach(file => { const reader = new FileReader(); reader.onload = (e) => { window.parseTxt(file.name, e.target.result); window.renderApp(); window.saveAuto(); }; reader.readAsText(file); }); document.getElementById('fileInput').value = ''; }
-        window.parseTxt = function(filename, text) {
-            if (filename.toUpperCase().includes('PRIPRAVA') || filename.toUpperCase().includes('PRÍPRAVA')) return;
-            let cleanName = filename.replace('.txt', '').trim();
-            let isImportant = false; let isSignificant = false;
-            if (cleanName.includes('!')) { isImportant = true; cleanName = cleanName.replace('!', '').trim(); }
-            if (cleanName.includes('=')) { isSignificant = true; cleanName = cleanName.replace('=', '').trim(); }
-            const parts = cleanName.split(' ');
-            if (parts.length < 2) return;
-            let type = parts[0].toUpperCase();
-            if (type !== 'KFT' && type !== 'PGA') return;
-            let season = '00'; let eventNum = 0; let week = 0; let eventName = 'Unknown';
-            const datePart = parts[1];
-            if (datePart.includes('-')) {
-                const d = datePart.split('-');
-                season = d[0];
-                if (d.length >= 3) { eventNum = parseInt(d[1]); week = parseInt(d[2]); } else if (d.length === 2) { week = parseInt(d[1]); }
-            }
-            if (parts.length > 2) eventName = parts.slice(2).join(' '); else eventName = `${type} ${season}-${week}`;
-            if (isImportant) eventName += '!'; else if (isSignificant) eventName += '=';
-            const lines = text.split('\n').map(l => l.trim()).filter(l => l);
-            const players = [];
-            for (let i = 0; i < lines.length; i++) {
-                if (lines[i].startsWith('[source') || lines[i].startsWith('}')) continue;
-                let name = lines[i];
-                if (!lines[i+1] || isNaN(parseInt(lines[i+1]))) { if(i + 6 >= lines.length) break; }
-                let par = parseInt(lines[i+1]) || 0; let r1 = lines[i+2]; let r2 = lines[i+3]; let r3 = lines[i+4]; let r4 = lines[i+5]; let pts = parseFloat(lines[i+6]) || 0;
-                if (pts === undefined) break;
-                players.push({ name: name, par: par, r1: r1, r2: r2, r3: r3, r4: r4, points: pts, rank: 0 });
-                i += 6;
-            }
-            players.sort((a, b) => { if (a.points !== b.points) return b.points - a.points; return a.par - b.par; });
-            for (let i = 0; i < players.length; i++) { if (i > 0 && players[i].points === players[i-1].points) players[i].rank = players[i-1].rank; else players[i].rank = i + 1; }
-            db.files = db.files.filter(f => f.name !== filename);
-            db.files.push({ id: Date.now() + Math.random(), name: filename, type: type, season: season, week: week, eventNum: eventNum, eventName: eventName, isImportant: isImportant, isSignificant: isSignificant, timestamp: Date.now(), content: players });
-        }
-        window.clearDB = function() { if(confirm('Naozaj vymazať celú databázu?')) { db.files = []; appState.filters.events = []; appState.filters.seasons = []; window.renderApp(); window.saveAuto(); window.closeTopModal(); } }
-        window.normalizeName = function(name) { return name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim(); }
-        window.getDistance = function(a, b) { if(a.length === 0) return b.length; if(b.length === 0) return a.length; const matrix = []; for(let i = 0; i <= b.length; i++) matrix[i] = [i]; for(let j = 0; j <= a.length; j++) matrix[0][j] = j; for(let i = 1; i <= b.length; i++){ for(let j = 1; j <= a.length; j++){ if(b.charAt(i-1) == a.charAt(j-1)) matrix[i][j] = matrix[i-1][j-1]; else matrix[i][j] = Math.min(matrix[i-1][j-1] + 1, matrix[i][j-1] + 1, matrix[i-1][j] + 1); } } return matrix[b.length][a.length]; }
