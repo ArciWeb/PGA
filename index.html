@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta id="viewportMeta" name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ArciWeb PGA StatsKeeper v1.91.8</title>
+    <title>ArciWeb PGA StatsKeeper v1.91.9</title>
     <style>
         :root {
             --bg-color: #1e1e1e;
@@ -112,6 +112,7 @@
         .filter-btn.active { background-color: var(--accent-green); color: #000; border-color: var(--accent-green); }
         .filter-btn.empty { opacity: 0.4; pointer-events: none; }
         
+        /* Štýly pre dôležité a významné turnaje */
         .filter-btn.important-tour { 
             border: 1px solid var(--highlight-gold); 
             color: var(--highlight-gold); 
@@ -257,7 +258,7 @@
 
     <header>
         <div class="header-left">
-            <h1>ArciWeb <span class="version">v1.91.8</span></h1>
+            <h1>ArciWeb <span class="version">v1.91.9</span></h1>
             <div class="header-ranks">
                 <span class="header-rank-link" onclick="showRankTable('PGA')">PGA Rank</span>
                 <span class="header-rank-link" onclick="showRankTable('World')">Svetový Rank</span>
@@ -393,12 +394,10 @@
         if (datePart.includes('-')) {
             const d = datePart.split('-');
             season = d[0];
-            // Ak máme 3 časti, tak druhá je EventNum a tretia je Week
             if (d.length >= 3) {
                 eventNum = parseInt(d[1]);
                 week = parseInt(d[2]);
             } else if (d.length === 2) {
-                // Fallback ak by bol starý formát alebo chyba
                 week = parseInt(d[1]);
             }
         }
@@ -409,6 +408,10 @@
         } else {
             eventName = `${type} ${season}-${week}`;
         }
+
+        // Pridanie príznaku späť do názvu turnaja pre zobrazenie a filtrovanie
+        if (isImportant) eventName += '!';
+        else if (isSignificant) eventName += '=';
 
         const lines = text.split('\n').map(l => l.trim()).filter(l => l);
         const players = [];
@@ -732,20 +735,27 @@
         const seenEvents = new Set();
         
         sortedFiles.forEach(f => {
+            // Názov f.eventName už obsahuje príznak (! alebo =) z parseTxt
             if (!seenEvents.has(f.eventName)) {
                 seenEvents.add(f.eventName);
-                uniqueEvents.push(f.eventName);
+                uniqueEvents.push({ name: f.eventName, isImp: f.isImportant, isSig: f.isSignificant });
             }
         });
 
-        uniqueEvents.forEach(evt => {
+        uniqueEvents.forEach(evtObj => {
             const btn = document.createElement('button');
-            const isActive = appState.filters.events.includes(evt);
-            btn.className = `filter-btn ${isActive ? 'active' : ''}`;
+            const isActive = appState.filters.events.includes(evtObj.name);
+            
+            // Štýlovanie tlačidiel v dropdown filtri
+            let classes = `filter-btn ${isActive ? 'active' : ''}`;
+            if (evtObj.isImp) classes += ' important-tour';
+            else if (evtObj.isSig) classes += ' significant-tour';
+            
+            btn.className = classes;
             btn.style.width = '100%';
             btn.style.marginBottom = '5px';
-            btn.innerText = evt;
-            btn.onclick = (e) => { e.stopPropagation(); toggleEventFilter(evt); };
+            btn.innerText = evtObj.name;
+            btn.onclick = (e) => { e.stopPropagation(); toggleEventFilter(evtObj.name); };
             eventDropdown.appendChild(btn);
         });
         
@@ -1030,7 +1040,6 @@
             history: []
         };
         
-        // Sady na sledovanie unikátnych turnajov pre výpočet počtu turnajov
         let uniqueEvents = new Set();
         let uniqueMajors = new Set();
 
@@ -1065,7 +1074,7 @@
             });
 
             if (p) {
-                // Výpočet unikátnych turnajov
+                // Unikátne turnaje (Sezóna + Názov)
                 const eventKey = `${f.season}_${f.eventName}`;
                 
                 if (!uniqueEvents.has(eventKey)) {
@@ -1131,7 +1140,6 @@
         });
 
         const avg = (sum, count) => count ? (sum / count).toFixed(1) : '-';
-        // Oprava výpočtu Priemer úderov: Total Strokes / Total Holes
         const avgStrokes = stats.totalHoles ? (stats.totalStrokes / stats.totalHoles).toFixed(2) : '-';
         const avgRank = stats.rankCount ? (stats.rankSum / stats.rankCount).toFixed(1) : '-';
         const bestR = stats.bestRound === 999 ? '-' : stats.bestRound;
