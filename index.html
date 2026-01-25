@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta id="viewportMeta" name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ArciWeb PGA StatsKeeper v1.92.2</title>
+    <title>ArciWeb PGA StatsKeeper v1.92.3</title>
     <style>
         :root {
             --bg-color: #1e1e1e;
@@ -42,12 +42,7 @@
             gap: 10px;
         }
 
-        .header-left {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-        }
-
+        .header-left { display: flex; flex-direction: column; gap: 5px; }
         h1 { margin: 0; font-size: 1.4rem; font-weight: 700; }
         .version { font-size: 0.7rem; color: var(--text-muted); margin-left: 5px; vertical-align: middle; }
 
@@ -162,12 +157,8 @@
         .profile-tab { flex: 1; padding: 10px; text-align: center; background: var(--card-bg); border-radius: 8px; cursor: pointer; border: 1px solid transparent; color: #aaa; }
         .profile-tab.active { background: var(--accent-green); color: #000; font-weight: bold; }
         .profile-filters-area { margin-bottom: 20px; background: #222; padding: 10px; border-radius: 8px; }
-        
         .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 20px; }
-        .stat-box {
-            background: var(--card-bg); padding: 12px 5px; border-radius: 8px; text-align: center;
-            display: flex; flex-direction: column; justify-content: center; border: 1px solid #3d3d3d; min-height: 70px;
-        }
+        .stat-box { background: var(--card-bg); padding: 12px 5px; border-radius: 8px; text-align: center; display: flex; flex-direction: column; justify-content: center; border: 1px solid #3d3d3d; min-height: 70px; }
         .stat-box.highlight { border-color: var(--highlight-gold); background: rgba(241, 196, 15, 0.05); }
         .stat-label { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px; letter-spacing: 0.5px; }
         .stat-value { font-size: 1.1rem; font-weight: 700; color: #fff; }
@@ -180,11 +171,9 @@
         /* --- Settings, Auth & Slots --- */
         .slot-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-top: 15px; }
         .slot-card { background: var(--card-bg); padding: 10px; border-radius: 8px; border: 1px solid #444; text-align: center; }
-        
         .theme-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 8px; margin-top: 10px; }
         .theme-btn { padding: 8px; border-radius: 6px; cursor: pointer; text-align: center; font-size: 0.75rem; border: 2px solid transparent; color: #fff; }
         .theme-btn.active { border-color: #fff; transform: scale(1.05); }
-
         .btn { padding: 8px 15px; border: none; border-radius: 6px; cursor: pointer; font-size: 0.9rem; color: white; transition: 0.2s; }
         .btn-green { background: var(--accent-green); color: #000; }
         .btn-red { background: var(--accent-red); }
@@ -193,22 +182,13 @@
         .btn-outline { background: transparent; border: 1px solid var(--accent-green); color: var(--accent-green); }
         .btn:hover { filter: brightness(1.1); }
         .btn-sm { padding: 4px 8px; font-size: 0.8rem; margin: 2px; }
-
-        /* Auth Styles */
+        
         .input-group { margin-bottom: 15px; text-align: left; }
         .input-group label { display: block; margin-bottom: 5px; font-size: 0.85rem; color: #ccc; }
-        .input-group input { 
-            width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #444;
-            background: #252525; color: white; box-sizing: border-box; 
-        }
+        .input-group input { width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #444; background: #252525; color: white; box-sizing: border-box; }
         .auth-status { background: #2a2a2a; padding: 10px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid var(--accent-green); }
 
-        @media (max-width: 600px) {
-            .stats-grid { grid-template-columns: repeat(2, 1fr); }
-            th, td { font-size: 0.8rem; padding: 8px 4px; }
-            .modal-header h2 { font-size: 1rem; }
-        }
-
+        @media (max-width: 600px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } th, td { font-size: 0.8rem; padding: 8px 4px; } .modal-header h2 { font-size: 1rem; } }
         #fileInput, #slotFileInput { display: none; }
     </style>
 </head>
@@ -216,7 +196,7 @@
 
     <header>
         <div class="header-left">
-            <h1>ArciWeb <span class="version">v1.92.2</span></h1>
+            <h1>ArciWeb <span class="version">v1.92.3</span></h1>
             <div class="header-ranks">
                 <span class="header-rank-link" onclick="window.showRankTable('PGA')">PGA Rank</span>
                 <span class="header-rank-link" onclick="window.showRankTable('World')">Svetový Rank</span>
@@ -243,37 +223,23 @@
                 <button class="filter-btn" id="btn-tour-PGA" onclick="window.setTourFilter('PGA')">PGA</button>
             </div>
         </div>
-
-        <div class="filter-section">
-            <span class="filter-label">Sezóna</span>
-            <div class="filter-row" id="seasonFilterContainer"></div>
-        </div>
-
+        <div class="filter-section"><span class="filter-label">Sezóna</span><div class="filter-row" id="seasonFilterContainer"></div></div>
         <div class="filter-section">
              <span class="filter-label">Turnaje</span>
              <div class="dropdown-filter" onclick="window.toggleEventDropdown()">
-                 <span id="eventFilterLabel">Všetky turnaje</span>
-                 <span style="float:right">▼</span>
+                 <span id="eventFilterLabel">Všetky turnaje</span><span style="float:right">▼</span>
              </div>
              <div id="eventDropdown" class="dropdown-content"></div>
         </div>
-        
         <div class="filter-section">
              <button class="filter-btn btn-full-width" id="weekToggleBtn" onclick="window.toggleWeekView()">Zobraziť konkrétne týždne (Súbory)</button>
              <div id="weeksContainer" class="filter-row" style="display:none; margin-top:10px;"></div>
         </div>
     </div>
 
-    <div class="table-container">
-        <table id="mainTable">
-            <thead></thead>
-            <tbody></tbody>
-        </table>
-    </div>
-
+    <div class="table-container"><table id="mainTable"><thead></thead><tbody></tbody></table></div>
     <input type="file" id="fileInput" accept=".txt" multiple onchange="window.handleFiles(this.files)">
     <input type="file" id="slotFileInput" accept=".json" onchange="window.finishSlotUpload(this.files)">
-    
     <div id="popupsLayer"></div>
 
     <script type="module">
@@ -281,7 +247,6 @@
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut, sendPasswordResetEmail, deleteUser } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteField } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        // Firebase Config (Portal)
         const firebaseConfig = {
             apiKey: "AIzaSyCecCsv3cssJvp24LK7f5ujYuI3vGqmOLI",
             authDomain: "arciapps-portal.firebaseapp.com",
@@ -300,6 +265,9 @@
 
         onAuthStateChanged(auth, (user) => {
             currentUser = user;
+            if(currentUser) { 
+                // Auto load last cloud save logic could go here if implemented, for now we just allow loading manually
+            }
             if(document.querySelector('.modal h2') && document.querySelector('.modal h2').innerText.includes('Nastavenia')) {
                 window.openSettings();
             }
@@ -310,30 +278,25 @@
             try { await signInWithEmailAndPassword(auth, email, pass); alert("Prihlásený!"); } 
             catch(e) { alert("Chyba: " + e.message); }
         };
-        
         window.doRegister = async (email, pass) => {
             try { await createUserWithEmailAndPassword(auth, email, pass); alert("Účet vytvorený!"); }
             catch(e) { alert("Chyba: " + e.message); }
         };
-
-        window.doLogout = async () => {
-            await signOut(auth);
-            alert("Odhlásený.");
-        };
-
+        window.doLogout = async () => { await signOut(auth); alert("Odhlásený."); };
         window.doResetPass = async (email) => {
             if(!email) return alert("Zadajte email!");
             try { await sendPasswordResetEmail(auth, email); alert("Email odoslaný."); }
             catch(e) { alert("Chyba: " + e.message); }
         };
 
-        // --- Cloud Save/Load Functions ---
+        // --- Cloud Logic Helpers ---
         window.saveToCloudSlot = async (i) => {
             if (!currentUser) return alert("Musíte byť prihlásený!");
             const data = JSON.stringify({ db: db, appState: appState });
+            const timestamp = new Date().toLocaleString('sk-SK');
             try {
                 await setDoc(doc(dbFirestore, "saves", currentUser.uid), { 
-                    [`slot${i}`]: { name: `StatsKeeper_Slot_${i}`, content: data } 
+                    [`slot${i}`]: { name: `StatsKeeper ${timestamp}`, content: data } 
                 }, { merge: true });
                 alert(`Uložené do Cloud Slotu ${i}`);
                 window.renderCloudSlots();
@@ -360,9 +323,7 @@
                                 window.saveAuto();
                                 window.closeTopModal();
                                 alert("Načítané z Cloudu!");
-                            } else {
-                                alert("Tento slot neobsahuje dáta StatsKeepera.");
-                            }
+                            } else { alert("Tento slot neobsahuje správne dáta."); }
                         } catch(jsonErr) { alert("Chyba formátu dát."); }
                     } else { alert("Slot je prázdny."); }
                 }
@@ -379,173 +340,78 @@
             } catch(e) { alert("Chyba mazania: " + e.message); }
         };
 
-        // --- Main App Logic (Global Scope Bindings) ---
-        const colorSchemes = {
-            'Default': { bg: '#1e1e1e', card: '#2d2d2d', text: '#ffffff', accent: '#2ecc71' },
-            'Midnight': { bg: '#0f172a', card: '#1e293b', text: '#f1f5f9', accent: '#38bdf8' },
-            'Gold': { bg: '#000000', card: '#1c1c1c', text: '#ffd700', accent: '#ffec8b' },
-            'Forest': { bg: '#1a2f1a', card: '#2f4f2f', text: '#dbebdb', accent: '#90ee90' },
-            'Cherry': { bg: '#2b0000', card: '#420000', text: '#ffcccc', accent: '#ff4d4d' },
-            'Ocean': { bg: '#001f3f', card: '#003366', text: '#7FDBFF', accent: '#39CCCC' },
-        };
+        window.renderCloudSlots = async () => {
+            const container = document.getElementById('cloudSlotContainer');
+            if(!container) return;
+            container.innerHTML = 'Načítavam...';
+            try {
+                const docSnap = await getDoc(doc(dbFirestore, "saves", currentUser.uid));
+                const data = docSnap.exists() ? docSnap.data() : {};
+                let html = '';
+                for(let i=1; i<=4; i++) {
+                    const slot = data[`slot${i}`];
+                    if (slot) {
+                        html += `<div class="slot-card" style="border-color:var(--accent-blue)"><strong style="color:var(--accent-blue)">Cloud Slot ${i}</strong><div style="font-size:0.8rem; color:#aaa; margin:5px 0;">${slot.name}</div><div style="display:flex; flex-direction:column; gap:4px;"><button class="btn btn-sm btn-blue" onclick="window.loadFromCloudSlot(${i})">Načítať</button><button class="btn btn-sm btn-green" onclick="window.saveToCloudSlot(${i})">Prepísať</button><button class="btn btn-sm btn-red" onclick="window.deleteFromCloudSlot(${i})">Zmazať</button></div></div>`;
+                    } else {
+                        html += `<div class="slot-card" style="border-color:#444; opacity:0.7"><strong style="color:#888">Cloud Slot ${i}</strong><div style="font-size:0.8rem; color:#666; margin:5px 0;">Prázdny</div><button class="btn btn-sm btn-green" onclick="window.saveToCloudSlot(${i})" style="width:100%">Uložiť</button></div>`;
+                    }
+                }
+                container.innerHTML = html;
+            } catch(e) { container.innerHTML = '<p style="color:red">Chyba načítania slotov.</p>'; }
+        }
 
+        // --- Core App Logic ---
+        const colorSchemes = { 'Default': { bg: '#1e1e1e', card: '#2d2d2d', text: '#ffffff', accent: '#2ecc71' }, 'Midnight': { bg: '#0f172a', card: '#1e293b', text: '#f1f5f9', accent: '#38bdf8' }, 'Gold': { bg: '#000000', card: '#1c1c1c', text: '#ffd700', accent: '#ffec8b' }, 'Forest': { bg: '#1a2f1a', card: '#2f4f2f', text: '#dbebdb', accent: '#90ee90' }, 'Cherry': { bg: '#2b0000', card: '#420000', text: '#ffcccc', accent: '#ff4d4d' }, 'Ocean': { bg: '#001f3f', card: '#003366', text: '#7FDBFF', accent: '#39CCCC' } };
         let db = { files: [] };
-        let appState = {
-            filters: { tours: ['ALL'], events: [], seasons: [], activeWeek: null },
-            ui: { showWeeks: false, eventDropdownOpen: false },
-            sort: { column: 'points', dir: 'desc' },
-            settings: { zoom: false, theme: 'Default' },
-            history: []
-        };
-        
+        let appState = { filters: { tours: ['ALL'], events: [], seasons: [], activeWeek: null }, ui: { showWeeks: false, eventDropdownOpen: false }, sort: { column: 'points', dir: 'desc' }, settings: { zoom: false, theme: 'Default' }, history: [] };
         let modalStack = [];
         let slotToUpload = null;
-
         window.currentUser = currentUser;
 
         document.addEventListener('DOMContentLoaded', () => {
-            window.loadAutoSave();
-            window.applyTheme(appState.settings.theme);
-            window.applyZoom(appState.settings.zoom);
-            window.renderApp();
-
-            window.onpopstate = function(event) {
-                if (modalStack.length > 0) window.closeTopModal(false);
-            };
+            window.loadAutoSave(); window.applyTheme(appState.settings.theme); window.applyZoom(appState.settings.zoom); window.renderApp();
+            window.onpopstate = function(event) { if (modalStack.length > 0) window.closeTopModal(false); };
         });
 
-        window.handleFiles = function(files) {
-            Array.from(files).forEach(file => {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    window.parseTxt(file.name, e.target.result);
-                    window.renderApp();
-                    window.saveAuto();
-                };
-                reader.readAsText(file);
-            });
-            document.getElementById('fileInput').value = ''; 
-        }
-
+        window.handleFiles = function(files) { Array.from(files).forEach(file => { const reader = new FileReader(); reader.onload = (e) => { window.parseTxt(file.name, e.target.result); window.renderApp(); window.saveAuto(); }; reader.readAsText(file); }); document.getElementById('fileInput').value = ''; }
         window.parseTxt = function(filename, text) {
             if (filename.toUpperCase().includes('PRIPRAVA') || filename.toUpperCase().includes('PRÍPRAVA')) return;
-
             let cleanName = filename.replace('.txt', '').trim();
-            let isImportant = false; 
-            let isSignificant = false; 
-            
+            let isImportant = false; let isSignificant = false;
             if (cleanName.includes('!')) { isImportant = true; cleanName = cleanName.replace('!', '').trim(); }
             if (cleanName.includes('=')) { isSignificant = true; cleanName = cleanName.replace('=', '').trim(); }
-
             const parts = cleanName.split(' ');
-            if (parts.length < 2) return; 
-
+            if (parts.length < 2) return;
             let type = parts[0].toUpperCase();
             if (type !== 'KFT' && type !== 'PGA') return;
-
-            let season = '00';
-            let eventNum = 0;
-            let week = 0;
-            let eventName = 'Unknown';
-
+            let season = '00'; let eventNum = 0; let week = 0; let eventName = 'Unknown';
             const datePart = parts[1];
             if (datePart.includes('-')) {
                 const d = datePart.split('-');
                 season = d[0];
-                if (d.length >= 3) {
-                    eventNum = parseInt(d[1]);
-                    week = parseInt(d[2]);
-                } else if (d.length === 2) {
-                    week = parseInt(d[1]);
-                }
+                if (d.length >= 3) { eventNum = parseInt(d[1]); week = parseInt(d[2]); } else if (d.length === 2) { week = parseInt(d[1]); }
             }
-
-            if (parts.length > 2) eventName = parts.slice(2).join(' ');
-            else eventName = `${type} ${season}-${week}`;
-
-            if (isImportant) eventName += '!';
-            else if (isSignificant) eventName += '=';
-
+            if (parts.length > 2) eventName = parts.slice(2).join(' '); else eventName = `${type} ${season}-${week}`;
+            if (isImportant) eventName += '!'; else if (isSignificant) eventName += '=';
             const lines = text.split('\n').map(l => l.trim()).filter(l => l);
             const players = [];
-
             for (let i = 0; i < lines.length; i++) {
-                if (lines[i].startsWith('[source')) continue;
-                if (lines[i].startsWith('}')) continue;
-
+                if (lines[i].startsWith('[source') || lines[i].startsWith('}')) continue;
                 let name = lines[i];
-                if (!lines[i+1] || isNaN(parseInt(lines[i+1]))) {
-                     if(i + 6 >= lines.length) break;
-                }
-
-                let par = parseInt(lines[i+1]) || 0;
-                let r1 = lines[i+2]; let r2 = lines[i+3]; let r3 = lines[i+4]; let r4 = lines[i+5];
-                let pts = parseFloat(lines[i+6]) || 0;
-
+                if (!lines[i+1] || isNaN(parseInt(lines[i+1]))) { if(i + 6 >= lines.length) break; }
+                let par = parseInt(lines[i+1]) || 0; let r1 = lines[i+2]; let r2 = lines[i+3]; let r3 = lines[i+4]; let r4 = lines[i+5]; let pts = parseFloat(lines[i+6]) || 0;
                 if (pts === undefined) break;
-
-                players.push({
-                    name: name, par: par, r1: r1, r2: r2, r3: r3, r4: r4, points: pts, rank: 0
-                });
+                players.push({ name: name, par: par, r1: r1, r2: r2, r3: r3, r4: r4, points: pts, rank: 0 });
                 i += 6;
             }
-
-            players.sort((a, b) => {
-                if (a.points !== b.points) return b.points - a.points;
-                return a.par - b.par;
-            });
-
-            for (let i = 0; i < players.length; i++) {
-                if (i > 0 && players[i].points === players[i-1].points) players[i].rank = players[i-1].rank;
-                else players[i].rank = i + 1;
-            }
-
-            db.files = db.files.filter(f => f.name !== filename); 
-            
-            db.files.push({
-                id: Date.now() + Math.random(),
-                name: filename,
-                type: type,
-                season: season,
-                week: week,
-                eventNum: eventNum,
-                eventName: eventName,
-                isImportant: isImportant,
-                isSignificant: isSignificant,
-                timestamp: Date.now(), 
-                content: players
-            });
+            players.sort((a, b) => { if (a.points !== b.points) return b.points - a.points; return a.par - b.par; });
+            for (let i = 0; i < players.length; i++) { if (i > 0 && players[i].points === players[i-1].points) players[i].rank = players[i-1].rank; else players[i].rank = i + 1; }
+            db.files = db.files.filter(f => f.name !== filename);
+            db.files.push({ id: Date.now() + Math.random(), name: filename, type: type, season: season, week: week, eventNum: eventNum, eventName: eventName, isImportant: isImportant, isSignificant: isSignificant, timestamp: Date.now(), content: players });
         }
-
-        window.clearDB = function() {
-            if(confirm('Naozaj vymazať celú databázu?')) {
-                db.files = [];
-                appState.filters.events = [];
-                appState.filters.seasons = [];
-                window.renderApp();
-                window.saveAuto();
-                window.closeTopModal();
-            }
-        }
-
-        window.normalizeName = function(name) {
-            return name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
-        }
-
-        window.getDistance = function(a, b) {
-            if(a.length === 0) return b.length; 
-            if(b.length === 0) return a.length; 
-            const matrix = [];
-            for(let i = 0; i <= b.length; i++) matrix[i] = [i];
-            for(let j = 0; j <= a.length; j++) matrix[0][j] = j;
-            for(let i = 1; i <= b.length; i++){
-                for(let j = 1; j <= a.length; j++){
-                    if(b.charAt(i-1) == a.charAt(j-1)) matrix[i][j] = matrix[i-1][j-1];
-                    else matrix[i][j] = Math.min(matrix[i-1][j-1] + 1, matrix[i][j-1] + 1, matrix[i-1][j] + 1);
-                }
-            }
-            return matrix[b.length][a.length];
-        }
+        window.clearDB = function() { if(confirm('Naozaj vymazať celú databázu?')) { db.files = []; appState.filters.events = []; appState.filters.seasons = []; window.renderApp(); window.saveAuto(); window.closeTopModal(); } }
+        window.normalizeName = function(name) { return name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim(); }
+        window.getDistance = function(a, b) { if(a.length === 0) return b.length; if(b.length === 0) return a.length; const matrix = []; for(let i = 0; i <= b.length; i++) matrix[i] = [i]; for(let j = 0; j <= a.length; j++) matrix[0][j] = j; for(let i = 1; i <= b.length; i++){ for(let j = 1; j <= a.length; j++){ if(b.charAt(i-1) == a.charAt(j-1)) matrix[i][j] = matrix[i-1][j-1]; else matrix[i][j] = Math.min(matrix[i-1][j-1] + 1, matrix[i][j-1] + 1, matrix[i-1][j] + 1); } } return matrix[b.length][a.length]; }
         // --- Data Processing & Statistics ---
 
         window.getActiveFiles = function() {
@@ -754,7 +620,6 @@
             const seenEvents = new Set();
             
             sortedFiles.forEach(f => {
-                // EventName already has !/= flags
                 if (!seenEvents.has(f.eventName)) {
                     seenEvents.add(f.eventName);
                     uniqueEvents.push({ name: f.eventName, isImp: f.isImportant, isSig: f.isSignificant });
@@ -1257,18 +1122,22 @@
                 themeBtns += `<div class="theme-btn" style="background:${sch.bg}; border-color:${appState.settings.theme===k?'#fff':sch.accent}" onclick="window.changeTheme('${k}')">${k}</div>`;
             });
 
-            // Auth UI
+            // Auth UI Logic
             let authContent = '';
             if (window.currentUser) {
+                // If logged in: Show Email, Logout Btn, and Cloud Slots
                 authContent = `
                     <div class="auth-status">
-                        <strong>Prihlásený:</strong> ${window.currentUser.email}<br>
-                        <button class="btn btn-sm btn-red" onclick="window.doLogout()" style="margin-top:5px">Odhlásiť sa</button>
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <span><strong>Prihlásený:</strong> ${window.currentUser.email}</span>
+                            <button class="btn btn-sm btn-red" onclick="window.doLogout()">Odhlásiť sa</button>
+                        </div>
                     </div>
                     <h3>Cloud Slots (Online)</h3>
                     <div class="slot-grid" id="cloudSlotContainer">Načítavam...</div>
                 `;
             } else {
+                // If not logged in: Show Login/Register Forms
                 authContent = `
                     <div class="auth-status" style="border-left-color:var(--accent-blue)">
                         <h3>Prihlásenie / Registrácia</h3>
@@ -1287,6 +1156,7 @@
                 <div class="modal-header"><h2>Nastavenia</h2><button class="close-btn" onclick="window.closeTopModal()">&times;</button></div>
                 <div class="modal-body">
                     ${authContent}
+                    
                     <h3>Nástroje</h3>
                     <div style="display:flex; gap:10px; flex-wrap:wrap;">
                         <button class="btn btn-green" onclick="document.getElementById('fileInput').click()">Vložiť .txt</button>
@@ -1294,8 +1164,10 @@
                         <button class="btn btn-red" onclick="window.clearDB()">Vymazať DB</button>
                         <button class="btn btn-grey" onclick="window.toggleZoomInSettings()">${appState.settings.zoom ? 'Vypnúť' : 'Zapnúť'} Zoom</button>
                     </div>
+
                     <h3>Témy</h3>
                     <div class="theme-grid">${themeBtns}</div>
+
                     <div id="localSlotsArea" ${window.currentUser ? 'style="display:none"' : ''}>
                         <h3>Lokálne Sloty (Prehliadač)</h3>
                         <div class="slot-grid" id="slotContainer"></div>
@@ -1346,111 +1218,16 @@
             }
         }
 
-        // Cloud Slots Render & Logic
+        // Cloud Slots Render
         window.renderCloudSlots = async function() {
             const container = document.getElementById('cloudSlotContainer');
             if(!container) return;
-            container.innerHTML = '<p style="text-align:center">Načítavam sloty...</p>';
-            
-            // We need to fetch the doc to see what's occupied
-            // Note: Since this function is async, we can await getDoc
-            // But we can't import getDoc here directly inside the function if it wasn't exposed.
-            // Fortunately, in Part 1, we defined `dbFirestore` and `getDoc` etc are imported at the top level of the module script.
-            // However, this code block is appended text inside the script module, so it has access to imports.
-            
-            // Re-importing inside function is not standard, we rely on the top level imports from Part 1.
-            // But I cannot see Part 1's exact variable names for the imports if I don't recall them. 
-            // In Part 1 provided, I imported: getFirestore, doc, getDoc, setDoc, updateDoc, deleteField
-            // And initialized: const dbFirestore = getFirestore(app);
-            
-            // However, I need to make sure I use the imported functions.
-            // Since this is Part 2 of the code and it follows Part 1 in the SAME <script type="module">,
-            // all imports from Part 1 are available here.
-            
-            // BUT, `getDoc`, `doc` etc are not attached to window.
-            // To use them in this function which is attached to window, it works because of closure.
-            // BUT `window.renderCloudSlots` needs to access them.
-            // Since `window.renderCloudSlots` is defined INSIDE the module (in Part 2), it has access.
-            
-            // Problem: I need `doc`, `getDoc`, `dbFirestore` to be available.
-            // I will assume they are available from Part 1 context.
-            // Let's implement the logic.
-            
-            // Wait, I cannot use imports from Part 1 if I don't know if they were assigned to variables.
-            // In Part 1, I wrote: 
-            // import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteField } ...
-            // const dbFirestore = getFirestore(app);
-            
-            // So I can use them.
+            container.innerHTML = 'Načítavam...';
             
             try {
-                // I need to dynamically import or rely on Part 1. 
-                // Since this is a "continue" of the code in the same file, I use the variables from Part 1.
-                // But I need to be careful. I will use the imports.
-                
-                // Oops, I cannot access the imports if they are not exposed or if I'm not in the module scope.
-                // Both parts form ONE module script. So it is fine.
-                
-                // But I need to make sure `getDoc` etc are actually imported in Part 1.
-                // Looking at Part 1 again: 
-                // import { ... } from "...firebase-firestore.js";
-                // It IS imported.
-                
-                // However, there is a catch. The `window.renderCloudSlots` function needs to use them.
-                // The issue is that `doc`, `getDoc` are not global.
-                // I need to make sure `renderCloudSlots` is defined within the module scope (which it is).
-                
-                // Let's implement it using the imports.
-                // We need `doc`, `getDoc` and `dbFirestore` and `currentUser`.
-                
-                // Wait, `deleteField` was also imported in Part 1.
-                
-                // To be safe, I will implement a helper in the module scope that does the work, 
-                // and window.renderCloudSlots will just call it? 
-                // No, window.renderCloudSlots IS in the module scope.
-                
-                // One missing import in Part 1 might be `deleteField` if I didn't include it.
-                // In Part 1, I included: `getFirestore, doc, getDoc, setDoc`.
-                // I DID NOT include `updateDoc` or `deleteField` in the Part 1 response of the PREVIOUS turn (1.92.1).
-                // Wait, in 1.92.1 Part 1, I wrote:
-                // import { getFirestore, doc, getDoc, setDoc } ...
-                // I missed `updateDoc` and `deleteField`.
-                // BUT in 1.92.2 Part 1 (just generated), I wrote:
-                // import { ..., updateDoc, deleteField } ...
-                // So they ARE available in 1.92.2 Part 1. Good.
-                
-                const docRef = window.doc(window.dbFirestore, "saves", window.currentUser.uid);
-                // Wait, `doc` and `dbFirestore` are not on window. They are local consts.
-                // I must use the local consts.
-                // But `window.renderCloudSlots` is defined inside the module, so it captures them.
-                
-                // Wait, I cannot use `window.doc`. I must use `doc`.
-                // But `window.renderCloudSlots` is assigned to window.
-                // Can a function assigned to window capture module variables? YES.
-                
-                // So I will use `doc`, `dbFirestore`, `getDoc` directly.
-                
-                // BUT, to be 100% sure the user can paste this, I need to make sure `doc` etc are not undefined.
-                // In Part 1, I imported them.
-                // But wait, the user's previous code (1.92.1 Part 1) might have had them.
-                // The Part 1 of 1.92.2 I just wrote HAS them.
-                // So I can use `doc`, `getDoc` etc directly.
-                
-                // However, I need to access them via a workaround if I want to be safe? 
-                // No, direct usage is fine in module.
-                
-                // One issue: In Part 2, I don't see the imports. 
-                // I am writing Part 2. The imports are in Part 1.
-                // If I use `doc()` here, and it's not defined in THIS text block, it's fine as long as they are in the same file.
-                // But if I want to be safe, I should assign them to window in Part 1?
-                // No, standard module concatenation works.
-                
-                // Actually, I need to access the `dbFirestore` variable.
-                // I will assume it's available.
-                
-                // Let's implement `fetchCloudSlots` helper inside the module and call it.
-                
-                const docSnap = await getDoc(doc(dbFirestore, "saves", currentUser.uid));
+                // Using imported functions from Part 1
+                const docRef = doc(dbFirestore, "saves", currentUser.uid);
+                const docSnap = await getDoc(docRef);
                 const data = docSnap.exists() ? docSnap.data() : {};
                 
                 let html = '';
@@ -1487,21 +1264,6 @@
                 console.error(e);
             }
         }
-
-        // Expose renderCloudSlots to window (it was already done in the declaration above)
-        
-        // But wait, I need to make sure I am using the imported functions `getDoc`, `doc` etc.
-        // Since I cannot see Part 1 imports in this context (I am generating Part 2), 
-        // I must rely on them being there.
-        // In Part 1, I wrote: 
-        // import { ..., doc, getDoc, ... } ...
-        // So I can use them.
-        
-        // HOWEVER, there is a risk. `window.deleteFromCloudSlot` also needs them.
-        // `window.saveToCloudSlot` needs them.
-        // `window.loadFromCloudSlot` needs them.
-        
-        // I will implement these functions using the closure variables.
 
         window.saveToSlot = function(i) { localStorage.setItem(`ArciWeb_Slot_${i}`, JSON.stringify({ db, appState })); window.renderSlots(); }
         window.loadFromSlot = function(i) {
