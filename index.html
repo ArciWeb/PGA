@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta id="viewportMeta" name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ArciWeb PGA StatsKeeper v1.91.9</title>
+    <title>ArciWeb PGA StatsKeeper v1.93.1</title>
     <style>
         :root {
             --bg-color: #1e1e1e;
@@ -258,7 +258,7 @@
 
     <header>
         <div class="header-left">
-            <h1>ArciWeb <span class="version">v1.91.9</span></h1>
+            <h1>ArciWeb - PGA StatsKeeper <span class="version">v1.93.1</span></h1>
             <div class="header-ranks">
                 <span class="header-rank-link" onclick="showRankTable('PGA')">PGA Rank</span>
                 <span class="header-rank-link" onclick="showRankTable('World')">Svetový Rank</span>
@@ -729,8 +729,14 @@
         const eventDropdown = document.getElementById('eventDropdown');
         eventDropdown.innerHTML = '';
         
-        // Zoradiť všetky súbory podľa novej hierarchie (chronologicky)
-        const sortedFiles = [...db.files].sort(compareFiles);
+        // === ÚPRAVA: Filtrovanie súborov pre dropdown na základe vybranej Tour ===
+        let filesForDropdown = db.files;
+        if (!appState.filters.tours.includes('ALL')) {
+            filesForDropdown = filesForDropdown.filter(f => appState.filters.tours.includes(f.type));
+        }
+
+        // Zoradiť vyfiltrované súbory podľa novej hierarchie (chronologicky)
+        const sortedFiles = [...filesForDropdown].sort(compareFiles);
         const uniqueEvents = [];
         const seenEvents = new Set();
         
