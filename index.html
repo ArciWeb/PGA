@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta id="viewportMeta" name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ArciWeb PGA StatsKeeper v1.93.1</title>
+    <title>ArciWeb - PGA StatsKeeper v1.93.2</title>
     <style>
         :root {
             --bg-color: #1e1e1e;
@@ -53,6 +53,7 @@
 
         .header-ranks {
             display: flex;
+            flex-wrap: wrap;
             gap: 15px;
             margin-top: 5px;
         }
@@ -197,9 +198,9 @@
         .modal-body { padding: 20px; overflow-y: auto; }
 
         /* --- Profile Grid Layout --- */
-        .profile-tabs { display: flex; gap: 10px; margin-bottom: 15px; border-bottom: 1px solid #333; padding-bottom: 10px; }
+        .profile-tabs { display: flex; gap: 10px; margin-bottom: 15px; border-bottom: 1px solid #333; padding-bottom: 10px; overflow-x: auto; }
         .profile-tab {
-            flex: 1; padding: 10px; text-align: center; background: var(--card-bg);
+            flex: 1; min-width: 80px; padding: 10px; text-align: center; background: var(--card-bg);
             border-radius: 8px; cursor: pointer; border: 1px solid transparent; color: #aaa;
         }
         .profile-tab.active { background: var(--accent-green); color: #000; font-weight: bold; }
@@ -249,6 +250,7 @@
             .stats-grid { grid-template-columns: repeat(2, 1fr); }
             th, td { font-size: 0.8rem; padding: 8px 4px; }
             .modal-header h2 { font-size: 1rem; }
+            .profile-tabs { flex-wrap: wrap; }
         }
 
         #fileInput, #slotFileInput { display: none; }
@@ -258,11 +260,14 @@
 
     <header>
         <div class="header-left">
-            <h1>ArciWeb - PGA StatsKeeper <span class="version">v1.93.1</span></h1>
+            <h1>ArciWeb - PGA StatsKeeper <span class="version">v1.93.2</span></h1>
             <div class="header-ranks">
                 <span class="header-rank-link" onclick="showRankTable('PGA')">PGA Rank</span>
-                <span class="header-rank-link" onclick="showRankTable('World')">Svetový Rank</span>
+                <span class="header-rank-link" onclick="showRankTable('Official')">Official Rank</span>
                 <span class="header-rank-link" onclick="showRankTable('Tour')">Tour Rank</span>
+                <span class="header-rank-link" style="color:var(--accent-blue)" onclick="showRankTable('EA')">EA Rank</span>
+                <span class="header-rank-link" style="color:var(--accent-red)" onclick="showRankTable('Association')">Association Rank</span>
+                <span class="header-rank-link" style="color:var(--highlight-gold)" onclick="showRankTable('FEDEX')">FED EX Rank</span>
             </div>
         </div>
         <div class="header-icons">
@@ -283,6 +288,9 @@
                 <button class="filter-btn active" id="btn-tour-all" onclick="setTourFilter('ALL')">Všetky</button>
                 <button class="filter-btn" id="btn-tour-KFT" onclick="setTourFilter('KFT')">KFT</button>
                 <button class="filter-btn" id="btn-tour-PGA" onclick="setTourFilter('PGA')">PGA</button>
+                <button class="filter-btn" id="btn-tour-EA SPORTS" onclick="setTourFilter('EA SPORTS')">EA Sports</button>
+                <button class="filter-btn" id="btn-tour-THE PLAYERS" onclick="setTourFilter('THE PLAYERS')">The Players</button>
+                <button class="filter-btn" id="btn-tour-MAIN" onclick="setTourFilter('MAIN')">Main</button>
             </div>
         </div>
 
@@ -341,6 +349,7 @@
     
     let modalStack = [];
     let slotToUpload = null;
+    const VALID_TOURS = ['KFT', 'PGA', 'EA SPORTS', 'THE PLAYERS', 'MAIN'];
 
     document.addEventListener('DOMContentLoaded', () => {
         loadAutoSave();
@@ -381,8 +390,18 @@
         const parts = cleanName.split(' ');
         if (parts.length < 2) return; 
 
-        let type = parts[0].toUpperCase();
-        if (type !== 'KFT' && type !== 'PGA') return;
+        // Rozšírené parsovanie typu turnaja (viacslovné názvy)
+        let datePartIndex = parts.findIndex(p => p.includes('-') && /\d/.test(p));
+        if (datePartIndex === -1 && parts.length >= 2) datePartIndex = 1; // Fallback
+
+        let typeRaw = parts.slice(0, datePartIndex).join(' ').toUpperCase();
+        
+        // Normalizácia názvov pre nové tour
+        let type = typeRaw;
+        if (type === 'EA') type = 'EA SPORTS';
+        if (type === 'PLAYERS') type = 'THE PLAYERS';
+        
+        if (!VALID_TOURS.includes(type)) return;
 
         let season = '00';
         let eventNum = 0;
@@ -390,8 +409,8 @@
         let eventName = 'Unknown';
 
         // Parse: Season-EventNum-Week (e.g., 01-01-1)
-        const datePart = parts[1];
-        if (datePart.includes('-')) {
+        const datePart = parts[datePartIndex];
+        if (datePart && datePart.includes('-')) {
             const d = datePart.split('-');
             season = d[0];
             if (d.length >= 3) {
@@ -403,8 +422,8 @@
         }
 
         // Zvyšok je názov turnaja
-        if (parts.length > 2) {
-            eventName = parts.slice(2).join(' ');
+        if (parts.length > datePartIndex + 1) {
+            eventName = parts.slice(datePartIndex + 1).join(' ');
         } else {
             eventName = `${type} ${season}-${week}`;
         }
@@ -624,9 +643,7 @@
 
     function getPGARankList() {
         let pgaFiles = db.files.filter(f => f.type === 'PGA');
-        
-        // Radenie od najnovšieho pre výpočet ranku (Descending)
-        pgaFiles.sort((a, b) => compareFiles(b, a));
+        pgaFiles.sort((a, b) => compareFiles(b, a)); // Descending
 
         const last40 = pgaFiles.slice(0, 40);
         const playerPoints = {};
@@ -653,8 +670,8 @@
         return createRankedList(playerPoints);
     }
 
-    function getWorldRankList() {
-        if (db.files.length < 20) return null;
+    function getOfficialRankList() { // Premenované z WorldRank
+        if (db.files.length < 5) return null; // Znížený limit aby sa zobrazoval skôr
         const playerPoints = {};
         db.files.forEach(file => {
             file.content.forEach(p => {
@@ -680,6 +697,62 @@
                     playerPoints[name] += (p.points * coeff);
                 });
             }
+        });
+        return createRankedList(playerPoints);
+    }
+
+    function getEARankList() {
+        // Body z EA SPORTS a MAIN
+        const relevantFiles = db.files.filter(f => f.type === 'EA SPORTS' || f.type === 'MAIN');
+        const playerPoints = {};
+        relevantFiles.forEach(file => {
+            file.content.forEach(p => {
+                let name = normalizePlayerName(p.name, playerPoints);
+                if (!playerPoints[name]) playerPoints[name] = 0;
+                playerPoints[name] += p.points;
+            });
+        });
+        return createRankedList(playerPoints);
+    }
+
+    function getAssociationRankList() {
+        // Body z THE PLAYERS (posledných 10 turnajov)
+        let relevantFiles = db.files.filter(f => f.type === 'THE PLAYERS');
+        relevantFiles.sort((a, b) => compareFiles(b, a)); // Najnovšie prvé
+        relevantFiles = relevantFiles.slice(0, 10);
+
+        const playerPoints = {};
+        relevantFiles.forEach(file => {
+            file.content.forEach(p => {
+                let name = normalizePlayerName(p.name, playerPoints);
+                if (!playerPoints[name]) playerPoints[name] = 0;
+                playerPoints[name] += p.points;
+            });
+        });
+        return createRankedList(playerPoints);
+    }
+
+    function getFedExRankList() {
+        // PGA, EA SPORTS, THE PLAYERS, MAIN za POSLEDNÚ SEZÓNU
+        const validTypes = ['PGA', 'EA SPORTS', 'THE PLAYERS', 'MAIN'];
+        
+        // Zistiť poslednú sezónu
+        const seasons = db.files.map(f => parseInt(f.season));
+        if (seasons.length === 0) return null;
+        const maxSeason = Math.max(...seasons);
+
+        const relevantFiles = db.files.filter(f => 
+            validTypes.includes(f.type) && 
+            parseInt(f.season) === maxSeason
+        );
+
+        const playerPoints = {};
+        relevantFiles.forEach(file => {
+            file.content.forEach(p => {
+                let name = normalizePlayerName(p.name, playerPoints);
+                if (!playerPoints[name]) playerPoints[name] = 0;
+                playerPoints[name] += p.points;
+            });
         });
         return createRankedList(playerPoints);
     }
@@ -716,8 +789,8 @@
     }
 
     function renderFilters() {
-        // Tour filter
-        ['ALL', 'KFT', 'PGA'].forEach(t => {
+        // Tour filter - Update active class
+        ['ALL', 'KFT', 'PGA', 'EA SPORTS', 'THE PLAYERS', 'MAIN'].forEach(t => {
             const btn = document.getElementById(`btn-tour-${t}`);
             if(btn) {
                 if (t === 'ALL') btn.className = `filter-btn ${appState.filters.tours.includes('ALL') ? 'active' : ''}`;
@@ -725,23 +798,20 @@
             }
         });
 
-        // Event Dropdown - Inteligentné radenie (Season -> EventNum -> Week)
+        // Event Dropdown
         const eventDropdown = document.getElementById('eventDropdown');
         eventDropdown.innerHTML = '';
         
-        // === ÚPRAVA: Filtrovanie súborov pre dropdown na základe vybranej Tour ===
         let filesForDropdown = db.files;
         if (!appState.filters.tours.includes('ALL')) {
             filesForDropdown = filesForDropdown.filter(f => appState.filters.tours.includes(f.type));
         }
 
-        // Zoradiť vyfiltrované súbory podľa novej hierarchie (chronologicky)
         const sortedFiles = [...filesForDropdown].sort(compareFiles);
         const uniqueEvents = [];
         const seenEvents = new Set();
         
         sortedFiles.forEach(f => {
-            // Názov f.eventName už obsahuje príznak (! alebo =) z parseTxt
             if (!seenEvents.has(f.eventName)) {
                 seenEvents.add(f.eventName);
                 uniqueEvents.push({ name: f.eventName, isImp: f.isImportant, isSig: f.isSignificant });
@@ -751,8 +821,6 @@
         uniqueEvents.forEach(evtObj => {
             const btn = document.createElement('button');
             const isActive = appState.filters.events.includes(evtObj.name);
-            
-            // Štýlovanie tlačidiel v dropdown filtri
             let classes = `filter-btn ${isActive ? 'active' : ''}`;
             if (evtObj.isImp) classes += ' important-tour';
             else if (evtObj.isSig) classes += ' significant-tour';
@@ -804,7 +872,6 @@
             weekToggleBtn.innerText = 'Skryť konkrétne týždne';
             weekToggleBtn.classList.add('active');
 
-            // Pre zobrazenie týždňov radíme od najnovšieho (Descending)
             const weekFiles = [...getActiveFiles()].sort((a, b) => compareFiles(b, a));
             
             weekFiles.forEach(f => {
@@ -812,7 +879,6 @@
                 const isActive = appState.filters.activeWeek === f.id;
                 let label = f.name.replace('.txt', '');
                 
-                // Vizuálne odlíšenie
                 if (f.isImportant) {
                     label = '★ ' + label;
                     btn.classList.add('important-tour');
@@ -1041,6 +1107,7 @@
             bestRank: 999, rankSum: 0, rankCount: 0,
             bestRound: 999, worstRound: -999,
             top50: 0, top20: 0, top5: 0, wins: 0,
+            trophies: 0,
             r1Sum: 0, r1Count: 0, r2Sum: 0, r2Count: 0,
             r3Sum: 0, r3Count: 0, r4Sum: 0, r4Count: 0,
             history: []
@@ -1049,16 +1116,13 @@
         let uniqueEvents = new Set();
         let uniqueMajors = new Set();
 
-        const worldRankHistory = getWorldRankList(); 
-        let bestWorldRank = 'NA';
-        if (worldRankHistory) {
-             const pEntry = worldRankHistory.find(p => normalizeName(p.name) === normPlayer);
-             if (pEntry) bestWorldRank = pEntry.rank + '.';
-        }
-
+        // Výpočet rebríčkov
         const pgaList = getPGARankList();
+        const officialList = getOfficialRankList();
         const tourList = getTourRankList();
-        const worldList = getWorldRankList();
+        const eaList = getEARankList();
+        const assocList = getAssociationRankList();
+        const fedexList = getFedExRankList();
         
         const getRank = (list) => {
             if (!list) return 'NA';
@@ -1067,10 +1131,20 @@
         }
 
         const pgaRankVal = getRank(pgaList);
+        const officialRankVal = getRank(officialList);
         const tourRankVal = getRank(tourList);
-        const worldRankVal = getRank(worldList);
+        const eaRankVal = getRank(eaList);
+        const assocRankVal = getRank(assocList);
+        const fedexRankVal = getRank(fedexList);
+        
+        // Best Official Rank calculation (Historical)
+        let bestOfficialRank = 'NA';
+        if (officialList) {
+             const pEntry = officialList.find(p => normalizeName(p.name) === normPlayer);
+             if (pEntry) bestOfficialRank = pEntry.rank + '.';
+        }
 
-        // Radenie histórie: Najnovšie navrchu (Descending)
+        // Radenie histórie
         relevantFiles.sort((a,b) => compareFiles(b, a));
 
         relevantFiles.forEach(f => {
@@ -1080,7 +1154,6 @@
             });
 
             if (p) {
-                // Unikátne turnaje (Sezóna + Názov)
                 const eventKey = `${f.season}_${f.eventName}`;
                 
                 if (!uniqueEvents.has(eventKey)) {
@@ -1107,6 +1180,9 @@
                 if (p.rank <= 20) stats.top20++;
                 if (p.rank <= 5) stats.top5++;
                 if (p.rank === 1) stats.wins++;
+                
+                // Trophies logic (Wins in MAIN)
+                if (f.type === 'MAIN' && p.rank === 1) stats.trophies++;
 
                 [p.r1, p.r2, p.r3, p.r4].forEach((r, i) => {
                     if (r !== 'NA') {
@@ -1124,7 +1200,6 @@
 
                 let displayName = f.name.replace('.txt', '');
                 let rowClass = '';
-                // Odlíšenie aj v histórii hráča
                 if (f.isImportant) { 
                     displayName = '★ ' + displayName; 
                     rowClass = 'important-row'; 
@@ -1144,6 +1219,15 @@
                 `);
             }
         });
+        
+        // Globálny výpočet trophies (bez ohľadu na aktuálny tab filter, aby to svietilo správne)
+        let totalTrophies = 0;
+        db.files.forEach(f => {
+            if (f.type === 'MAIN') {
+                const p = f.content.find(pl => normalizeName(pl.name) === normPlayer || getDistance(normalizeName(pl.name), normPlayer)<=1);
+                if(p && p.rank === 1) totalTrophies++;
+            }
+        });
 
         const avg = (sum, count) => count ? (sum / count).toFixed(1) : '-';
         const avgStrokes = stats.totalHoles ? (stats.totalStrokes / stats.totalHoles).toFixed(2) : '-';
@@ -1158,7 +1242,6 @@
              return hasPlayer && (tab === 'ALL' || f.type === tab);
         });
         
-        // Zoradiť eventy pre dropdown chronologicky
         playerFilesAll.sort(compareFiles);
         const availEvents = [...new Set(playerFilesAll.map(f => f.eventName))];
         const availSeasons = [...new Set(playerFilesAll.map(f => f.season))].filter(s=>s!=='00').sort((a,b)=>parseInt(a)-parseInt(b));
@@ -1189,6 +1272,9 @@
                 <div class="profile-tab ${tab==='ALL'?'active':''}" onclick="updateProfileFilters('${modalId}', '${playerName}', 'ALL', '[]', '[]')">Celkovo</div>
                 <div class="profile-tab ${tab==='KFT'?'active':''}" onclick="updateProfileFilters('${modalId}', '${playerName}', 'KFT', '[]', '[]')">KFT</div>
                 <div class="profile-tab ${tab==='PGA'?'active':''}" onclick="updateProfileFilters('${modalId}', '${playerName}', 'PGA', '[]', '[]')">PGA</div>
+                <div class="profile-tab ${tab==='EA SPORTS'?'active':''}" onclick="updateProfileFilters('${modalId}', '${playerName}', 'EA SPORTS', '[]', '[]')">EA Sports</div>
+                <div class="profile-tab ${tab==='THE PLAYERS'?'active':''}" onclick="updateProfileFilters('${modalId}', '${playerName}', 'THE PLAYERS', '[]', '[]')">The Players</div>
+                <div class="profile-tab ${tab==='MAIN'?'active':''}" onclick="updateProfileFilters('${modalId}', '${playerName}', 'MAIN', '[]', '[]')">Main</div>
             </div>
 
             <div class="profile-filters-area">
@@ -1200,9 +1286,14 @@
 
             <div class="stats-grid">
                 <div class="stat-box highlight" onclick="showRankTable('PGA')"><div class="stat-label">PGA Rank</div><div class="stat-value gold rank-clickable">${pgaRankVal}</div></div>
-                <div class="stat-box highlight" onclick="showRankTable('World')"><div class="stat-label">Svetový Rank</div><div class="stat-value blue rank-clickable">${worldRankVal}</div></div>
+                <div class="stat-box highlight" onclick="showRankTable('Official')"><div class="stat-label">Official Rank</div><div class="stat-value blue rank-clickable">${officialRankVal}</div></div>
                 <div class="stat-box highlight" onclick="showRankTable('Tour')"><div class="stat-label">Tour Rank</div><div class="stat-value rank-clickable">${tourRankVal}</div></div>
-                <div class="stat-box highlight"><div class="stat-label">Naj. Sv. Rank</div><div class="stat-value">${bestWorldRank}</div></div>
+                <div class="stat-box highlight"><div class="stat-label">Best Official</div><div class="stat-value">${bestOfficialRank}</div></div>
+                
+                <div class="stat-box highlight" onclick="showRankTable('FEDEX')"><div class="stat-label" style="color:var(--highlight-gold)">FED EX Rank</div><div class="stat-value gold rank-clickable">${fedexRankVal}</div></div>
+                <div class="stat-box highlight" onclick="showRankTable('EA')"><div class="stat-label" style="color:var(--accent-blue)">EA Rank</div><div class="stat-value blue rank-clickable">${eaRankVal}</div></div>
+                <div class="stat-box highlight" onclick="showRankTable('Association')"><div class="stat-label" style="color:var(--accent-red)">Association</div><div class="stat-value rank-clickable" style="color:var(--accent-red)">${assocRankVal}</div></div>
+                <div class="stat-box highlight"><div class="stat-label">Trophies (Main)</div><div class="stat-value gold">🏆 ${totalTrophies}</div></div>
 
                 <div class="stat-box"><div class="stat-label">Jamiek</div><div class="stat-value green">${stats.totalHoles}</div></div>
                 <div class="stat-box"><div class="stat-label">Odpalov</div><div class="stat-value">${stats.totalStrokes}</div></div>
@@ -1262,10 +1353,13 @@
         let title = '';
         
         if (type === 'PGA') { list = getPGARankList(); title = 'PGA Rank (Top 40 PGA Turnajov)'; }
-        if (type === 'World') { list = getWorldRankList(); title = 'Svetový Rank (All Time)'; }
+        if (type === 'Official') { list = getOfficialRankList(); title = 'Official Rank (All Time)'; }
         if (type === 'Tour') { list = getTourRankList(); title = 'Tour Rank (Major/Important)'; }
+        if (type === 'EA') { list = getEARankList(); title = 'EA Rank (EA Sports + Main)'; }
+        if (type === 'Association') { list = getAssociationRankList(); title = 'Association Rank (The Players - Last 10)'; }
+        if (type === 'FEDEX') { list = getFedExRankList(); title = 'FED EX Rank (Posledná sezóna - All Tours)'; }
 
-        if (!list) { alert('Nedostatok dát pre výpočet (min 20 turnajov pre World Rank).'); return; }
+        if (!list) { alert('Nedostatok dát pre výpočet.'); return; }
 
         let rows = list.map(p => `
             <tr onclick="openPlayerProfile('${p.name}')" style="cursor:pointer">
