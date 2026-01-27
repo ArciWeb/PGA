@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta id="viewportMeta" name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ArciWeb - PGA StatsKeeper v1.93.2</title>
+    <title>ArciWeb - PGA StatsKeeper v1.93.3</title>
     <style>
         :root {
             --bg-color: #1e1e1e;
@@ -671,7 +671,7 @@
     }
 
     function getOfficialRankList() { // Premenované z WorldRank
-        if (db.files.length < 5) return null; // Znížený limit aby sa zobrazoval skôr
+        if (db.files.length <= 20) return null; // Podmienka: Spustí sa až po viac ako 20 turnajoch
         const playerPoints = {};
         db.files.forEach(file => {
             file.content.forEach(p => {
@@ -1359,7 +1359,7 @@
         if (type === 'Association') { list = getAssociationRankList(); title = 'Association Rank (The Players - Last 10)'; }
         if (type === 'FEDEX') { list = getFedExRankList(); title = 'FED EX Rank (Posledná sezóna - All Tours)'; }
 
-        if (!list) { alert('Nedostatok dát pre výpočet.'); return; }
+        if (!list) { alert('Nedostatok dát pre výpočet (min 20 turnajov pre Official Rank).'); return; }
 
         let rows = list.map(p => `
             <tr onclick="openPlayerProfile('${p.name}')" style="cursor:pointer">
@@ -1627,3 +1627,4 @@
 </script>
 </body>
 </html>
+
