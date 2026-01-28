@@ -260,7 +260,7 @@
 
     <header>
         <div class="header-left">
-            <h1>ArciWeb - PGA StatsKeeper <span class="version">v1.93.2</span></h1>
+            <h1>ArciWeb - PGA StatsKeeper <span class="version">v1.93.3</span></h1>
             <div class="header-ranks">
                 <span class="header-rank-link" onclick="showRankTable('PGA')">PGA Rank</span>
                 <span class="header-rank-link" onclick="showRankTable('Official')">Official Rank</span>
@@ -343,7 +343,7 @@
         filters: { tours: ['ALL'], events: [], seasons: [], activeWeek: null },
         ui: { showWeeks: false, eventDropdownOpen: false },
         sort: { column: 'points', dir: 'desc' },
-        settings: { zoom: false, theme: 'Default' },
+        settings: { zoom: 0, theme: 'Default' }, // zoom: 0=Mobile, 1=Desktop, 2=Hybrid
         history: []
     };
     
@@ -353,8 +353,13 @@
 
     document.addEventListener('DOMContentLoaded', () => {
         loadAutoSave();
+        // Spätná kompatibilita pre Zoom (ak bolo boolean, zmení na číslo)
+        if (typeof appState.settings.zoom === 'boolean') {
+            appState.settings.zoom = appState.settings.zoom ? 1 : 0;
+        }
+
         applyTheme(appState.settings.theme);
-        applyZoom(appState.settings.zoom);
+        updateViewport(); // Aplikovanie zoomu pri štarte
         renderApp();
 
         window.onpopstate = function(event) {
@@ -643,7 +648,7 @@
 
     function getPGARankList() {
         let pgaFiles = db.files.filter(f => f.type === 'PGA');
-        pgaFiles.sort((a, b) => compareFiles(b, a)); // Descending
+        pgaFiles.sort((a, b) => compareFiles(b, a)); 
 
         const last40 = pgaFiles.slice(0, 40);
         const playerPoints = {};
@@ -670,8 +675,10 @@
         return createRankedList(playerPoints);
     }
 
-    function getOfficialRankList() { // Premenované z WorldRank
-        if (db.files.length <= 20) return null; // Podmienka: Spustí sa až po viac ako 20 turnajoch
+    function getOfficialRankList() {
+        // Podmienka: Spustí sa až po viac ako 20 turnajoch
+        if (db.files.length <= 20) return null; 
+        
         const playerPoints = {};
         db.files.forEach(file => {
             file.content.forEach(p => {
@@ -702,7 +709,6 @@
     }
 
     function getEARankList() {
-        // Body z EA SPORTS a MAIN
         const relevantFiles = db.files.filter(f => f.type === 'EA SPORTS' || f.type === 'MAIN');
         const playerPoints = {};
         relevantFiles.forEach(file => {
@@ -716,9 +722,8 @@
     }
 
     function getAssociationRankList() {
-        // Body z THE PLAYERS (posledných 10 turnajov)
         let relevantFiles = db.files.filter(f => f.type === 'THE PLAYERS');
-        relevantFiles.sort((a, b) => compareFiles(b, a)); // Najnovšie prvé
+        relevantFiles.sort((a, b) => compareFiles(b, a)); 
         relevantFiles = relevantFiles.slice(0, 10);
 
         const playerPoints = {};
@@ -733,10 +738,8 @@
     }
 
     function getFedExRankList() {
-        // PGA, EA SPORTS, THE PLAYERS, MAIN za POSLEDNÚ SEZÓNU
         const validTypes = ['PGA', 'EA SPORTS', 'THE PLAYERS', 'MAIN'];
         
-        // Zistiť poslednú sezónu
         const seasons = db.files.map(f => parseInt(f.season));
         if (seasons.length === 0) return null;
         const maxSeason = Math.max(...seasons);
@@ -789,7 +792,6 @@
     }
 
     function renderFilters() {
-        // Tour filter - Update active class
         ['ALL', 'KFT', 'PGA', 'EA SPORTS', 'THE PLAYERS', 'MAIN'].forEach(t => {
             const btn = document.getElementById(`btn-tour-${t}`);
             if(btn) {
@@ -798,7 +800,6 @@
             }
         });
 
-        // Event Dropdown
         const eventDropdown = document.getElementById('eventDropdown');
         eventDropdown.innerHTML = '';
         
@@ -841,7 +842,6 @@
         if (appState.ui.eventDropdownOpen) eventDropdown.classList.add('show');
         else eventDropdown.classList.remove('show');
 
-        // Season Filter
         const seasonContainer = document.getElementById('seasonFilterContainer');
         seasonContainer.innerHTML = '';
         
@@ -862,7 +862,6 @@
             seasonContainer.appendChild(btn);
         });
 
-        // Week Buttons
         const weeksContainer = document.getElementById('weeksContainer');
         const weekToggleBtn = document.getElementById('weekToggleBtn');
         
@@ -1116,7 +1115,6 @@
         let uniqueEvents = new Set();
         let uniqueMajors = new Set();
 
-        // Výpočet rebríčkov
         const pgaList = getPGARankList();
         const officialList = getOfficialRankList();
         const tourList = getTourRankList();
@@ -1137,14 +1135,12 @@
         const assocRankVal = getRank(assocList);
         const fedexRankVal = getRank(fedexList);
         
-        // Best Official Rank calculation (Historical)
         let bestOfficialRank = 'NA';
         if (officialList) {
              const pEntry = officialList.find(p => normalizeName(p.name) === normPlayer);
              if (pEntry) bestOfficialRank = pEntry.rank + '.';
         }
 
-        // Radenie histórie
         relevantFiles.sort((a,b) => compareFiles(b, a));
 
         relevantFiles.forEach(f => {
@@ -1181,7 +1177,6 @@
                 if (p.rank <= 5) stats.top5++;
                 if (p.rank === 1) stats.wins++;
                 
-                // Trophies logic (Wins in MAIN)
                 if (f.type === 'MAIN' && p.rank === 1) stats.trophies++;
 
                 [p.r1, p.r2, p.r3, p.r4].forEach((r, i) => {
@@ -1220,7 +1215,6 @@
             }
         });
         
-        // Globálny výpočet trophies (bez ohľadu na aktuálny tab filter, aby to svietilo správne)
         let totalTrophies = 0;
         db.files.forEach(f => {
             if (f.type === 'MAIN') {
@@ -1402,6 +1396,9 @@
         modalStack.push(overlay);
         document.body.style.overflow = 'hidden';
         window.history.pushState({ modal: true }, "");
+
+        // Hybridný režim: Keď sa otvorí modal, prepni na desktop zobrazenie
+        if (appState.settings.zoom === 2) updateViewport();
     }
 
     function closeTopModal(backHistory = true) {
@@ -1410,20 +1407,45 @@
         overlay.remove();
         if (modalStack.length === 0) document.body.style.overflow = 'auto';
         if (backHistory) window.history.back();
+
+        // Hybridný režim: Ak nie je otvorený žiadny modal, vráť sa na mobilné zobrazenie
+        if (appState.settings.zoom === 2) updateViewport();
     }
 
     function toggleZoom() {
-        appState.settings.zoom = !appState.settings.zoom;
-        applyZoom(appState.settings.zoom);
+        // Cyklovanie: 0 (Mobil) -> 1 (Desktop) -> 2 (Hybrid) -> 0 ...
+        appState.settings.zoom = (appState.settings.zoom + 1) % 3;
+        updateViewport();
         saveAuto();
     }
 
-    function applyZoom(enable) {
+    function updateViewport() {
+        applyZoom(appState.settings.zoom);
+    }
+
+    function applyZoom(mode) {
         const meta = document.getElementById('viewportMeta');
-        if (enable) meta.setAttribute('content', 'width=1200, initial-scale=0.5');
-        else meta.setAttribute('content', 'width=device-width, initial-scale=1.0');
         const btn = document.querySelector('button[title="Zoom Mode"]');
-        if(btn) btn.style.color = enable ? 'var(--accent-green)' : 'var(--text-main)';
+        
+        let targetContent = 'width=device-width, initial-scale=1.0';
+        let btnColor = 'var(--text-main)';
+        // let btnIcon = '🔍'; // Ikonu nemeníme, iba farbu
+
+        if (mode === 1) { // Desktop
+            targetContent = 'width=1200, initial-scale=0.5';
+            btnColor = 'var(--accent-green)';
+        } else if (mode === 2) { // Hybrid
+            btnColor = 'var(--accent-blue)';
+            // V hybride závisí zobrazenie od toho, či je otvorený modal (profil/tabuľka)
+            if (modalStack.length > 0) {
+                 targetContent = 'width=1200, initial-scale=0.5';
+            } else {
+                 targetContent = 'width=device-width, initial-scale=1.0';
+            }
+        }
+        
+        meta.setAttribute('content', targetContent);
+        if(btn) btn.style.color = btnColor;
     }
 
     function openSettings() {
@@ -1432,6 +1454,10 @@
             const sch = colorSchemes[k];
             themeBtns += `<div class="theme-btn" style="background:${sch.bg}; border-color:${appState.settings.theme===k?'#fff':sch.accent}" onclick="changeTheme('${k}')">${k}</div>`;
         });
+
+        // Text pre tlačidlo Zoom v nastaveniach
+        const zoomLabels = ['Mobilný', 'Desktop', 'Hybridný'];
+        const currentZoomLabel = zoomLabels[appState.settings.zoom] || 'Mobilný';
 
         const html = `
             <div class="modal-header">
@@ -1444,7 +1470,7 @@
                     <button class="btn btn-green" onclick="document.getElementById('fileInput').click()">Vložiť .txt</button>
                     <button class="btn btn-blue" onclick="openFileManager()">Správca súborov</button>
                     <button class="btn btn-red" onclick="clearDB()">Vymazať DB</button>
-                    <button class="btn btn-grey" onclick="toggleZoomInSettings()">${appState.settings.zoom ? 'Vypnúť' : 'Zapnúť'} Zoom</button>
+                    <button class="btn btn-grey" onclick="toggleZoomInSettings()">Režim: ${currentZoomLabel}</button>
                 </div>
                 <h3>Témy</h3>
                 <div class="theme-grid">${themeBtns}</div>
@@ -1480,13 +1506,11 @@
     }
 
     function openFileManager() {
-        // Zoradenie (inteligentná logika: Sezóna ASC -> EventNum ASC -> Týždeň ASC)
         const files = [...db.files].sort(compareFiles);
         
         const list = files.map(f => {
             let label = f.name;
             let style = '';
-            // Vizuálne odlíšenie v správcovi
             if (f.isImportant) {
                 label = '★ ' + label;
                 style = 'color: var(--highlight-gold); font-weight: bold;';
@@ -1561,7 +1585,11 @@
             appState = parsed.appState;
             appState.ui.eventDropdownOpen = false; 
             applyTheme(appState.settings.theme);
-            applyZoom(appState.settings.zoom);
+            // Oprava pre staré verzie slotov (kde zoom bol boolean)
+            if (typeof appState.settings.zoom === 'boolean') {
+                 appState.settings.zoom = appState.settings.zoom ? 1 : 0;
+            }
+            updateViewport();
             renderApp();
             saveAuto();
             closeTopModal();
@@ -1627,4 +1655,3 @@
 </script>
 </body>
 </html>
-
