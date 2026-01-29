@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta id="viewportMeta" name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ArciWeb - PGA StatsKeeper v1.93.6</title>
+    <title>ArciWeb - PGA StatsKeeper v1.94 (Season Update)</title>
     <style>
         :root {
             --bg-color: #1e1e1e;
@@ -113,7 +113,6 @@
         .filter-btn.active { background-color: var(--accent-green); color: #000; border-color: var(--accent-green); }
         .filter-btn.empty { opacity: 0.4; pointer-events: none; }
         
-        /* Štýly pre dôležité a významné turnaje */
         .filter-btn.important-tour { 
             border: 1px solid var(--highlight-gold); 
             color: var(--highlight-gold); 
@@ -177,6 +176,7 @@
             background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(5px);
             display: flex; justify-content: center; align-items: center;
             opacity: 0; animation: fadeIn 0.2s forwards;
+            z-index: 1000;
         }
         .modal {
             background-color: #1a1a1a; border-radius: 16px;
@@ -221,6 +221,8 @@
             border: 1px solid #3d3d3d; min-height: 70px;
         }
         .stat-box.highlight { border-color: var(--highlight-gold); background: rgba(241, 196, 15, 0.05); }
+        .stat-box.season-highlight { border-color: var(--accent-blue); background: rgba(52, 152, 219, 0.05); }
+        
         .stat-label { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px; letter-spacing: 0.5px; }
         .stat-value { font-size: 1.1rem; font-weight: 700; color: #fff; }
         .stat-value.gold { color: var(--highlight-gold); }
@@ -253,14 +255,14 @@
             .profile-tabs { flex-wrap: wrap; }
         }
 
-        #fileInput, #slotFileInput { display: none; }
+        #fileInput, #slotFileInput, #seasonFileInput { display: none; }
     </style>
 </head>
 <body>
 
     <header>
         <div class="header-left">
-            <h1>ArciWeb - PGA StatsKeeper <span class="version">v1.93.6</span></h1>
+            <h1>ArciWeb - PGA StatsKeeper <span class="version">v1.94</span></h1>
             <div class="header-ranks">
                 <span class="header-rank-link" onclick="showRankTable('PGA')">PGA Rank</span>
                 <span class="header-rank-link" onclick="showRankTable('Official')">Official Rank</span>
@@ -339,6 +341,7 @@
 
     <input type="file" id="fileInput" accept=".txt" multiple onchange="handleFiles(this.files)">
     <input type="file" id="slotFileInput" accept=".json" onchange="finishSlotUpload(this.files)">
+    <input type="file" id="seasonFileInput" accept=".txt" multiple onchange="handleSeasonFiles(this.files)">
     
     <div id="popupsLayer"></div>
 
@@ -350,9 +353,19 @@
         'Forest': { bg: '#1a2f1a', card: '#2f4f2f', text: '#dbebdb', accent: '#90ee90' },
         'Cherry': { bg: '#2b0000', card: '#420000', text: '#ffcccc', accent: '#ff4d4d' },
         'Ocean': { bg: '#001f3f', card: '#003366', text: '#7FDBFF', accent: '#39CCCC' },
+        // New Modern Themes
+        'Cyberpunk': { bg: '#050505', card: '#121212', text: '#fcee0a', accent: '#00fff5' },
+        'Synthwave': { bg: '#1a0b2e', card: '#2b1055', text: '#fff', accent: '#ff007f' },
+        'Dracula': { bg: '#282a36', card: '#44475a', text: '#f8f8f2', accent: '#bd93f9' },
+        'Nordic': { bg: '#2e3440', card: '#3b4252', text: '#d8dee9', accent: '#88c0d0' },
+        'Solarized': { bg: '#002b36', card: '#073642', text: '#839496', accent: '#b58900' },
+        'Slate': { bg: '#272b33', card: '#3b404d', text: '#ffffff', accent: '#d08770' },
+        'Lavender': { bg: '#201a23', card: '#2e2532', text: '#ffffff', accent: '#a663cc' },
+        'Matrix': { bg: '#000000', card: '#0a140a', text: '#00ff00', accent: '#00cc00' },
+        'Sunset': { bg: '#1a1010', card: '#331a1a', text: '#ffffff', accent: '#ff6b6b' },
+        'Coffee': { bg: '#1f1a17', card: '#362f2b', text: '#e6dace', accent: '#cd853f' }
     };
-
-    let db = { files: [] };
+    let db = { files: [], seasonStats: [] }; // Pridané pole pre sezónne štatistiky
     let appState = {
         filters: { tours: ['ALL'], events: [], seasons: [], importance: 'ALL', activeWeek: null },
         ui: { showWeeks: false, eventDropdownOpen: false, seasonDropdownOpen: false, importanceDropdownOpen: false },
@@ -372,6 +385,7 @@
             appState.settings.zoom = appState.settings.zoom ? 1 : 0;
         }
         if (!appState.filters.importance) appState.filters.importance = 'ALL';
+        if (!db.seasonStats) db.seasonStats = []; // Spätná kompatibilita
 
         applyTheme(appState.settings.theme);
         updateViewport();
@@ -382,6 +396,7 @@
         };
     });
 
+    // --- File Handling (Standard Tournaments) ---
     function handleFiles(files) {
         Array.from(files).forEach(file => {
             const reader = new FileReader();
@@ -399,7 +414,6 @@
         if (filename.toUpperCase().includes('PRIPRAVA') || filename.toUpperCase().includes('PRÍPRAVA')) return;
 
         // Formát: [Type] [Season]-[EventNum]-[Week] [EventName] [Flags]
-        
         let cleanName = filename.replace('.txt', '').trim();
         let isImportant = false; 
         let isSignificant = false; 
@@ -507,9 +521,89 @@
         });
     }
 
+    // --- NEW: Season Stats File Handling ---
+    function handleSeasonFiles(files) {
+        Array.from(files).forEach(file => {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                parseSeasonTxt(file.name, e.target.result);
+                saveAuto();
+                alert(`Sezónne štatistiky z "${file.name}" boli úspešne nahrané.`);
+                if (modalStack.length > 0) {
+                     // Ak je otvorené nastavenie, refreshneme ho
+                     closeTopModal();
+                     openSettings();
+                }
+            };
+            reader.readAsText(file);
+        });
+        document.getElementById('seasonFileInput').value = '';
+    }
+
+    function parseSeasonTxt(filename, text) {
+        // Skusime zistit sezonu z nazvu suboru (napr. "Sezona 1.txt")
+        // Ak sa nepodari, defaultne dame 0 alebo 1, ale idealne by mal nazov obsahovat cislo
+        let season = '0';
+        const match = filename.match(/(\d+)/);
+        if (match) {
+            season = match[1];
+        }
+
+        const lines = text.split('\n').map(l => l.trim()).filter(l => l);
+        const seasonPlayers = [];
+
+        // Format:
+        // Name
+        // Aces
+        // Double Eagles
+        // Eagles
+        // Birdies
+        // Pars
+        // Bogeys
+        // Double Bogeys
+        
+        let i = 0;
+        while (i < lines.length) {
+            if (lines[i].startsWith('[source') || lines[i].startsWith('}')) {
+                i++; continue;
+            }
+            
+            // Kontrola či máme dostatok riadkov pre jedného hráča (Meno + 7 stats)
+            if (i + 7 >= lines.length) break;
+
+            const name = lines[i];
+            const aces = parseInt(lines[i+1]) || 0;
+            const doubleEagles = parseInt(lines[i+2]) || 0;
+            const eagles = parseInt(lines[i+3]) || 0;
+            const birdies = parseInt(lines[i+4]) || 0;
+            const pars = parseInt(lines[i+5]) || 0;
+            const bogeys = parseInt(lines[i+6]) || 0;
+            const doubleBogeys = parseInt(lines[i+7]) || 0;
+
+            seasonPlayers.push({
+                name: name,
+                stats: {
+                    aces, doubleEagles, eagles, birdies, pars, bogeys, doubleBogeys
+                }
+            });
+
+            i += 8;
+        }
+
+        // Odstranime staru verziu tejto sezony ak existuje
+        db.seasonStats = db.seasonStats.filter(s => s.season !== season);
+        
+        db.seasonStats.push({
+            season: season,
+            filename: filename,
+            content: seasonPlayers
+        });
+    }
+
     function clearDB() {
-        if(confirm('Naozaj vymazať celú databázu?')) {
+        if(confirm('Naozaj vymazať celú databázu (vrátane sezónnych štatistík)?')) {
             db.files = [];
+            db.seasonStats = [];
             appState.filters.events = [];
             appState.filters.seasons = [];
             appState.filters.importance = 'ALL';
@@ -537,6 +631,7 @@
         }
         return matrix[b.length][a.length];
     }
+    
     // --- Data Processing & Statistics ---
 
     function getActiveFiles() {
@@ -557,7 +652,7 @@
             files = files.filter(f => appState.filters.seasons.includes(f.season));
         }
 
-        // 4. Filter Importance (Single Select: ALL, CLASSIC, IMPORTANT, SIGNIFICANT)
+        // 4. Filter Importance (Single Select)
         if (appState.filters.importance && appState.filters.importance !== 'ALL') {
             if (appState.filters.importance === 'CLASSIC') {
                 files = files.filter(f => !f.isImportant && !f.isSignificant);
@@ -571,15 +666,10 @@
         return files;
     }
 
-    // Pomocná funkcia na inteligentné radenie súborov (Sezóna -> Číslo turnaja -> Týždeň)
     function compareFiles(a, b) {
-        // 1. Sezóna (Ascending)
         if (parseInt(a.season) !== parseInt(b.season)) return parseInt(a.season) - parseInt(b.season);
-        // 2. Číslo turnaja (Ascending)
         if (a.eventNum !== b.eventNum) return a.eventNum - b.eventNum;
-        // 3. Týždeň (Ascending)
         if (a.week !== b.week) return a.week - b.week;
-        // 4. Timestamp (Fallback)
         return a.timestamp - b.timestamp;
     }
 
@@ -634,7 +724,6 @@
         let arr = Object.values(playerMap);
         arr = sortData(arr);
         
-        // Ranking v tabuľke
         const rankedArr = [...arr].sort((a, b) => b.totalPoints - a.totalPoints);
         const rankMap = {};
         rankedArr.forEach((p, i) => {
@@ -730,7 +819,6 @@
     }
 
     function getEARankList() {
-        // EA Sports + FED EX
         const relevantFiles = db.files.filter(f => f.type === 'EA SPORTS' || f.type === 'FED EX');
         const playerPoints = {};
         relevantFiles.forEach(file => {
@@ -761,7 +849,6 @@
 
     function getFedExRankList() {
         const validTypes = ['PGA', 'EA SPORTS', 'THE PLAYERS', 'FED EX'];
-        
         const seasons = db.files.map(f => parseInt(f.season));
         if (seasons.length === 0) return null;
         const maxSeason = Math.max(...seasons);
@@ -805,7 +892,6 @@
         });
         return arr;
     }
-
     // --- Render Functions ---
 
     function renderApp() {
@@ -860,7 +946,12 @@
         const seasonDropdown = document.getElementById('seasonDropdown');
         seasonDropdown.innerHTML = '';
         
-        const availableSeasons = [...new Set(db.files.map(f => f.season))].filter(s => s !== '00').sort((a,b) => parseInt(a) - parseInt(b));
+        // Získame sezóny z bežných súborov AJ zo sezónnych súborov
+        const fileSeasons = db.files.map(f => f.season);
+        const statsSeasons = db.seasonStats.map(s => s.season);
+        const allSeasonsSet = new Set([...fileSeasons, ...statsSeasons]);
+        
+        const availableSeasons = [...allSeasonsSet].filter(s => s !== '00' && s !== '0').sort((a,b) => parseInt(a) - parseInt(b));
         
         // Button "Všetky"
         const allSeasonsBtn = document.createElement('button');
@@ -1092,25 +1183,20 @@
         saveAuto();
     }
 
-    // === UPRAVENÉ FUNKCIE PRE DROPDOWNY (NEZÁVISLÉ OTVÁRANIE) ===
     function toggleEventDropdown() {
         appState.ui.eventDropdownOpen = !appState.ui.eventDropdownOpen;
-        // Ostatné filtre nechávame tak
         renderFilters();
     }
 
     function toggleSeasonDropdown() {
         appState.ui.seasonDropdownOpen = !appState.ui.seasonDropdownOpen;
-        // Ostatné filtre nechávame tak
         renderFilters();
     }
 
     function toggleImportanceDropdown() {
         appState.ui.importanceDropdownOpen = !appState.ui.importanceDropdownOpen;
-        // Ostatné filtre nechávame tak
         renderFilters();
     }
-    // ===============================================================
 
     function toggleEventFilter(evtName) {
         const idx = appState.filters.events.indexOf(evtName);
@@ -1197,6 +1283,7 @@
     }
 
     function generateProfileHtml(playerName, tab, modalId, activeEvents = [], activeSeasons = [], innerOnly = false) {
+        // --- Standard Stats Calculation (Classic files) ---
         let relevantFiles = db.files;
         if (tab !== 'ALL') relevantFiles = relevantFiles.filter(f => f.type === tab);
         if (activeEvents.length > 0) relevantFiles = relevantFiles.filter(f => activeEvents.includes(f.eventName));
@@ -1218,6 +1305,7 @@
         let uniqueEvents = new Set();
         let uniqueMajors = new Set();
 
+        // Calculate Rankings
         const pgaList = getPGARankList();
         const officialList = getOfficialRankList();
         const tourList = getTourRankList();
@@ -1227,7 +1315,7 @@
         
         const getRank = (list) => {
             if (!list) return 'NA';
-            const found = list.find(p => normalizeName(p.name) === normPlayer);
+            const found = list.find(p => normalizeName(p.name) === normPlayer || getDistance(normalizeName(p.name), normPlayer) <= 1);
             return found ? found.rank + '.' : '-';
         }
 
@@ -1244,6 +1332,7 @@
              if (pEntry) bestOfficialRank = pEntry.rank + '.';
         }
 
+        // --- Stats from standard tournament files ---
         relevantFiles.sort((a,b) => compareFiles(b, a));
 
         relevantFiles.forEach(f => {
@@ -1254,7 +1343,6 @@
 
             if (p) {
                 const eventKey = `${f.season}_${f.eventName}`;
-                
                 if (!uniqueEvents.has(eventKey)) {
                     stats.tournamentCount++;
                     uniqueEvents.add(eventKey);
@@ -1280,7 +1368,6 @@
                 if (p.rank <= 5) stats.top5++;
                 if (p.rank === 1) stats.wins++;
                 
-                // Trophies logic (Wins in FED EX)
                 if (f.type === 'FED EX' && p.rank === 1) stats.trophies++;
 
                 [p.r1, p.r2, p.r3, p.r4].forEach((r, i) => {
@@ -1326,6 +1413,38 @@
                 if(p && p.rank === 1) totalTrophies++;
             }
         });
+
+        // --- NEW: Season Stats Calculation ---
+        let sStats = {
+            games: 0, aces: 0, de: 0, eagles: 0, birdies: 0, pars: 0, bogeys: 0, db: 0
+        };
+
+        // Filter season stats files - iba podla aktivnej sezony (ak je vybrana)
+        // Ignorujeme tab (Tour) a event filter pre tieto udaje, ako bolo pozadovane
+        const seasonFilesToUse = db.seasonStats.filter(sFile => {
+            if (activeSeasons.length === 0) return true; // Ak nie je filter, berieme vsetky
+            return activeSeasons.includes(sFile.season);
+        });
+
+        seasonFilesToUse.forEach(sFile => {
+             const sPlayer = sFile.content.find(p => {
+                 const n = normalizeName(p.name);
+                 return n === normPlayer || getDistance(n, normPlayer) <= 1;
+             });
+
+             if (sPlayer) {
+                 sStats.aces += sPlayer.stats.aces;
+                 sStats.de += sPlayer.stats.doubleEagles;
+                 sStats.eagles += sPlayer.stats.eagles;
+                 sStats.birdies += sPlayer.stats.birdies;
+                 sStats.pars += sPlayer.stats.pars;
+                 sStats.bogeys += sPlayer.stats.bogeys;
+                 sStats.db += sPlayer.stats.doubleBogeys;
+             }
+        });
+        // Games = sucet vsetkych 7 statistik
+        sStats.games = sStats.aces + sStats.de + sStats.eagles + sStats.birdies + sStats.pars + sStats.bogeys + sStats.db;
+
 
         const avg = (sum, count) => count ? (sum / count).toFixed(1) : '-';
         const avgStrokes = stats.totalHoles ? (stats.totalStrokes / stats.totalHoles).toFixed(2) : '-';
@@ -1392,6 +1511,15 @@
                 <div class="stat-box highlight" onclick="showRankTable('EA')"><div class="stat-label" style="color:var(--accent-blue)">EA Rank</div><div class="stat-value blue rank-clickable">${eaRankVal}</div></div>
                 <div class="stat-box highlight" onclick="showRankTable('Association')"><div class="stat-label" style="color:var(--accent-red)">Association</div><div class="stat-value rank-clickable" style="color:var(--accent-red)">${assocRankVal}</div></div>
                 <div class="stat-box highlight"><div class="stat-label">Trophies</div><div class="stat-value gold">🏆 ${totalTrophies}</div></div>
+
+                <div class="stat-box season-highlight"><div class="stat-label" style="font-weight:bold; color:var(--text-main)">Games</div><div class="stat-value white">${sStats.games}</div></div>
+                <div class="stat-box season-highlight"><div class="stat-label">Aces</div><div class="stat-value green">${sStats.aces}</div></div>
+                <div class="stat-box season-highlight"><div class="stat-label">D. Eagles</div><div class="stat-value green">${sStats.de}</div></div>
+                <div class="stat-box season-highlight"><div class="stat-label">Eagles</div><div class="stat-value green">${sStats.eagles}</div></div>
+                <div class="stat-box season-highlight"><div class="stat-label">Birdies</div><div class="stat-value blue">${sStats.birdies}</div></div>
+                <div class="stat-box season-highlight"><div class="stat-label">Pars</div><div class="stat-value">${sStats.pars}</div></div>
+                <div class="stat-box season-highlight"><div class="stat-label">Bogeys</div><div class="stat-value" style="color:#e67e22">${sStats.bogeys}</div></div>
+                <div class="stat-box season-highlight"><div class="stat-label">D. Bogeys</div><div class="stat-value" style="color:var(--accent-red)">${sStats.db}</div></div>
 
                 <div class="stat-box"><div class="stat-label">Jamiek</div><div class="stat-value green">${stats.totalHoles}</div></div>
                 <div class="stat-box"><div class="stat-label">Odpalov</div><div class="stat-value">${stats.totalStrokes}</div></div>
@@ -1566,7 +1694,8 @@
                 <h3>Nástroje</h3>
                 <div style="display:flex; gap:10px; flex-wrap:wrap;">
                     <button class="btn btn-green" onclick="document.getElementById('fileInput').click()">Vložiť .txt</button>
-                    <button class="btn btn-blue" onclick="openFileManager()">Správca súborov</button>
+                    <button class="btn btn-blue" onclick="document.getElementById('seasonFileInput').click()">Vložiť Sezónu</button>
+                    <button class="btn btn-grey" onclick="openFileManager()">Správca súborov</button>
                     <button class="btn btn-red" onclick="clearDB()">Vymazať DB</button>
                     <button class="btn btn-grey" onclick="toggleZoomInSettings()">Režim: ${currentZoomLabel}</button>
                 </div>
@@ -1606,6 +1735,7 @@
     function openFileManager() {
         const files = [...db.files].sort(compareFiles);
         
+        // Show Standard Files
         const list = files.map(f => {
             let label = f.name;
             let style = '';
@@ -1616,7 +1746,6 @@
                 label = '= ' + label;
                 style = 'color: var(--accent-blue);';
             }
-
             return `
             <div style="display:flex; justify-content:space-between; background:#222; padding:8px; margin-bottom:5px; border-radius:4px; align-items:center;">
                 <span style="${style}">${label}</span>
@@ -1624,13 +1753,24 @@
             </div>
         `}).join('');
 
+        // Show Season Files
+        const seasonList = db.seasonStats.map(s => `
+            <div style="display:flex; justify-content:space-between; background:#1a3a3a; padding:8px; margin-bottom:5px; border-radius:4px; align-items:center; border:1px solid #2ecc71">
+                <span>SEZÓNA ${s.season} (${s.filename})</span>
+                <button class="btn btn-red btn-sm" onclick="deleteSeasonFile('${s.season}')">X</button>
+            </div>
+        `).join('');
+
         const html = `
             <div class="modal-header">
-                <h2>Správca súborov (${files.length})</h2>
+                <h2>Správca súborov</h2>
                 <button class="close-btn" onclick="closeTopModal()">&times;</button>
             </div>
             <div class="modal-body">
-                ${list || 'Žiadne súbory.'}
+                <h3>Sezónne Štatistiky</h3>
+                ${seasonList || '<small>Žiadne sezónne súbory.</small>'}
+                <h3 style="margin-top:15px">Turnajové Súbory (${files.length})</h3>
+                ${list || '<small>Žiadne turnaje.</small>'}
             </div>
         `;
         createModal(html);
@@ -1638,6 +1778,14 @@
 
     function deleteFile(id) {
         db.files = db.files.filter(f => f.id !== id);
+        saveAuto();
+        closeTopModal();
+        openFileManager();
+        renderApp();
+    }
+
+    function deleteSeasonFile(season) {
+        db.seasonStats = db.seasonStats.filter(s => s.season !== season);
         saveAuto();
         closeTopModal();
         openFileManager();
@@ -1680,6 +1828,7 @@
         if(data) {
             const parsed = JSON.parse(data);
             db = parsed.db;
+            if(!db.seasonStats) db.seasonStats = []; // Backwards compatibility
             appState = parsed.appState;
             appState.ui.eventDropdownOpen = false;
             appState.ui.seasonDropdownOpen = false;
@@ -1711,6 +1860,7 @@
                 const parsed = JSON.parse(data);
                 if(parsed.db && parsed.appState) {
                     db = parsed.db;
+                    if(!db.seasonStats) db.seasonStats = [];
                     appState = parsed.appState;
                 }
             } catch(e) {}
@@ -1741,8 +1891,12 @@
         const reader = new FileReader();
         reader.onload = (e) => {
             try {
-                JSON.parse(e.target.result);
-                localStorage.setItem(`ArciWeb_Slot_${slotToUpload}`, e.target.result);
+                const json = JSON.parse(e.target.result);
+                // Basic validation
+                if(!json.db) throw new Error('Invalid format');
+                if(!json.db.seasonStats) json.db.seasonStats = [];
+                
+                localStorage.setItem(`ArciWeb_Slot_${slotToUpload}`, JSON.stringify(json));
                 renderSlots();
             } catch (err) { alert('Neplatný JSON súbor!'); }
             slotToUpload = null;
