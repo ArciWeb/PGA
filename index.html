@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta id="viewportMeta" name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ArciWeb - PGA StatsKeeper v1.95 (CUT Update)</title>
+    <title>ArciWeb - PGA StatsKeeper v1.96 (60 Themes Update)</title>
     <style>
         :root {
             --bg-color: #1e1e1e;
@@ -239,6 +239,9 @@
         .theme-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 8px; margin-top: 10px; }
         .theme-btn { padding: 8px; border-radius: 6px; cursor: pointer; text-align: center; font-size: 0.75rem; border: 2px solid transparent; color: #fff; }
         .theme-btn.active { border-color: #fff; transform: scale(1.05); }
+        
+        /* New: Hide Themes Container by default */
+        #themeContainer { display: none; }
 
         .btn { padding: 8px 15px; border: none; border-radius: 6px; cursor: pointer; font-size: 0.9rem; color: white; transition: 0.2s; }
         .btn-green { background: var(--accent-green); color: #000; }
@@ -262,7 +265,7 @@
 
     <header>
         <div class="header-left">
-            <h1>ArciWeb - PGA StatsKeeper <span class="version">v1.95</span></h1>
+            <h1>ArciWeb - PGA StatsKeeper <span class="version">v1.96</span></h1>
             <div class="header-ranks">
                 <span class="header-rank-link" style="color:var(--highlight-gold)" onclick="showRankTable('PGA')">PGA Rank</span>
                 <span class="header-rank-link" style="color:var(--accent-blue)" onclick="showRankTable('Official')">Official Rank</span>
@@ -346,14 +349,15 @@
     <div id="popupsLayer"></div>
 <script>
     const colorSchemes = {
-        // Klasické témy
+        // --- 1. Klasické (Original) ---
         'Default': { bg: '#1e1e1e', card: '#2d2d2d', text: '#ffffff', accent: '#2ecc71' },
         'Midnight': { bg: '#0f172a', card: '#1e293b', text: '#f1f5f9', accent: '#38bdf8' },
         'Gold': { bg: '#000000', card: '#1c1c1c', text: '#ffd700', accent: '#ffec8b' },
         'Forest': { bg: '#1a2f1a', card: '#2f4f2f', text: '#dbebdb', accent: '#90ee90' },
         'Cherry': { bg: '#2b0000', card: '#420000', text: '#ffcccc', accent: '#ff4d4d' },
         'Ocean': { bg: '#001f3f', card: '#003366', text: '#7FDBFF', accent: '#39CCCC' },
-        // Moderné témy (predchádzajúce)
+        
+        // --- 2. Moderné (v1.94) ---
         'Cyberpunk': { bg: '#050505', card: '#121212', text: '#fcee0a', accent: '#00fff5' },
         'Synthwave': { bg: '#1a0b2e', card: '#2b1055', text: '#fff', accent: '#ff007f' },
         'Dracula': { bg: '#282a36', card: '#44475a', text: '#f8f8f2', accent: '#bd93f9' },
@@ -364,7 +368,8 @@
         'Matrix': { bg: '#000000', card: '#0a140a', text: '#00ff00', accent: '#00cc00' },
         'Sunset': { bg: '#1a1010', card: '#331a1a', text: '#ffffff', accent: '#ff6b6b' },
         'Coffee': { bg: '#1f1a17', card: '#362f2b', text: '#e6dace', accent: '#cd853f' },
-        // NOVÉ Extra Farebné témy (Vibrant & Modern)
+
+        // --- 3. Vibrant & Elements (v1.95) ---
         'Neon': { bg: '#000000', card: '#111111', text: '#ffffff', accent: '#39ff14' },
         'Galaxy': { bg: '#0f0c29', card: '#302b63', text: '#ffffff', accent: '#ff00cc' },
         'Retro': { bg: '#2c3e50', card: '#34495e', text: '#ecf0f1', accent: '#e67e22' },
@@ -374,7 +379,49 @@
         'DeepSea': { bg: '#001a23', card: '#00303d', text: '#e0f7fa', accent: '#00bcd4' },
         'Volcanic': { bg: '#120505', card: '#260a0a', text: '#ffdddd', accent: '#ff3333' },
         'Toxic': { bg: '#0d1f0d', card: '#1a3d1a', text: '#ccffcc', accent: '#adff2f' },
-        'Frozen': { bg: '#0c1b29', card: '#152d42', text: '#d0efff', accent: '#00a8ff' }
+        'Frozen': { bg: '#0c1b29', card: '#152d42', text: '#d0efff', accent: '#00a8ff' },
+
+        // --- 4. Drahokamy & Kovy (NEW) ---
+        'Emerald': { bg: '#00260e', card: '#004d1c', text: '#e6ffe6', accent: '#50c878' },
+        'Ruby': { bg: '#2b0000', card: '#520000', text: '#ffe6e6', accent: '#e0115f' },
+        'Sapphire': { bg: '#00002b', card: '#000052', text: '#e6e6ff', accent: '#0f52ba' },
+        'Amethyst': { bg: '#1a001a', card: '#330033', text: '#f2e6ff', accent: '#9966cc' },
+        'Citrine': { bg: '#2b2200', card: '#4d3d00', text: '#fff9e6', accent: '#e4d00a' },
+        'Pearl': { bg: '#2f353b', card: '#4a525a', text: '#ffffff', accent: '#eae0c8' },
+        'Carbon': { bg: '#111111', card: '#222222', text: '#aaaaaa', accent: '#555555' },
+        'Steel': { bg: '#191f26', card: '#2c3642', text: '#dfe4ea', accent: '#70a1ff' },
+        'Bronze': { bg: '#1a120b', card: '#302113', text: '#e8dace', accent: '#cd7f32' },
+        'Copper': { bg: '#261109', card: '#421d0f', text: '#ffe0d6', accent: '#b87333' },
+
+        // --- 5. Príroda & Elementy (NEW) ---
+        'Fire': { bg: '#1a0500', card: '#330a00', text: '#ffebd9', accent: '#ff4500' },
+        'Ice': { bg: '#00151a', card: '#002b33', text: '#e6ffff', accent: '#a5f2f3' },
+        'Earth': { bg: '#1c1612', card: '#332821', text: '#e8e0d6', accent: '#8b4513' },
+        'Wind': { bg: '#1a2226', card: '#2c3a40', text: '#f0f8ff', accent: '#87ceeb' },
+        'Storm': { bg: '#12121a', card: '#242433', text: '#e6e6fa', accent: '#483d8b' },
+        'Desert': { bg: '#2b1d0e', card: '#4a3318', text: '#ffefd5', accent: '#f4a460' },
+        'Jungle': { bg: '#0a1a0a', card: '#143314', text: '#d9f2d9', accent: '#228b22' },
+        'Autumn': { bg: '#261400', card: '#422400', text: '#ffecd9', accent: '#d2691e' },
+        
+        // --- 6. Abstraktné & Výrazné (NEW) ---
+        'Electric': { bg: '#00001a', card: '#000033', text: '#ffffff', accent: '#00ffff' },
+        'Acid': { bg: '#1a1a00', card: '#333300', text: '#ffffcc', accent: '#bfff00' },
+        'HotPink': { bg: '#1a000d', card: '#33001a', text: '#ffe6f2', accent: '#ff69b4' },
+        'BrightYel': { bg: '#1a1a00', card: '#333300', text: '#ffffff', accent: '#ffff00' },
+        'UltraViolet': { bg: '#120026', card: '#24004d', text: '#eaddff', accent: '#6f00ff' },
+        'HighContrast': { bg: '#000000', card: '#000000', text: '#ffffff', accent: '#ffffff', border: '#ffffff' },
+        'Blueprint': { bg: '#001a33', card: '#003366', text: '#ffffff', accent: '#4da6ff' },
+        'Sepia': { bg: '#2b221a', card: '#423529', text: '#e6d9cc', accent: '#c2b280' },
+        'Grayscale': { bg: '#1a1a1a', card: '#333333', text: '#e6e6e6', accent: '#999999' },
+        'NightMode': { bg: '#050505', card: '#0f0f0f', text: '#cccccc', accent: '#444444' },
+
+        // --- 7. Ovocné & Zábavné (NEW) ---
+        'Bubblegum': { bg: '#1f0a14', card: '#3d1428', text: '#ffe6f7', accent: '#ffadd6' },
+        'Lime': { bg: '#0d1a00', card: '#1a3300', text: '#f2ffe6', accent: '#32cd32' },
+        'Orange': { bg: '#261400', card: '#4d2900', text: '#fff0e6', accent: '#ffa500' },
+        'Berry': { bg: '#1a001a', card: '#330033', text: '#ffe6ff', accent: '#cc00cc' },
+        'Grape': { bg: '#12001a', card: '#240033', text: '#f3e6ff', accent: '#800080' },
+        'Lemon': { bg: '#1a1a00', card: '#333300', text: '#ffffe6', accent: '#fff700' }
     };
 
     let db = { files: [], seasonStats: [] }; 
@@ -382,7 +429,7 @@
         filters: { tours: ['ALL'], events: [], seasons: [], importance: 'ALL', activeWeek: null },
         ui: { showWeeks: false, eventDropdownOpen: false, seasonDropdownOpen: false, importanceDropdownOpen: false },
         sort: { column: 'points', dir: 'desc' },
-        settings: { zoom: 0, theme: 'Default' }, 
+        settings: { zoom: 0, theme: 'Default', themesOpen: false }, 
         history: []
     };
     
@@ -407,7 +454,7 @@
         };
     });
 
-    // --- File Handling (Standard Tournaments) ---
+    // --- File Handling ---
     function handleFiles(files) {
         Array.from(files).forEach(file => {
             const reader = new FileReader();
@@ -531,7 +578,6 @@
         });
     }
 
-    // --- Season Stats File Handling ---
     function handleSeasonFiles(files) {
         Array.from(files).forEach(file => {
             const reader = new FileReader();
@@ -1250,7 +1296,6 @@
     }
 
     function generateProfileHtml(playerName, tab, modalId, activeEvents = [], activeSeasons = [], innerOnly = false) {
-        // --- Standard Stats Calculation (Classic files) ---
         let relevantFiles = db.files;
         if (tab !== 'ALL') relevantFiles = relevantFiles.filter(f => f.type === tab);
         if (activeEvents.length > 0) relevantFiles = relevantFiles.filter(f => activeEvents.includes(f.eventName));
@@ -1262,7 +1307,7 @@
             tournamentCount: 0, majorCount: 0, majorPoints: 0,
             bestRank: 999, rankSum: 0, rankCount: 0,
             bestRound: 999, worstRound: -999,
-            cut: 0, // UPDATED: Replaced top50 with cut
+            cut: 0, 
             top20: 0, top5: 0, wins: 0,
             trophies: 0,
             r1Sum: 0, r1Count: 0, r2Sum: 0, r2Count: 0,
@@ -1273,7 +1318,6 @@
         let uniqueEvents = new Set();
         let uniqueMajors = new Set();
 
-        // Calculate Rankings
         const pgaList = getPGARankList();
         const officialList = getOfficialRankList();
         const tourList = getTourRankList();
@@ -1300,7 +1344,6 @@
              if (pEntry) bestOfficialRank = pEntry.rank + '.';
         }
 
-        // --- Stats from standard tournament files ---
         relevantFiles.sort((a,b) => compareFiles(b, a));
 
         relevantFiles.forEach(f => {
@@ -1331,7 +1374,6 @@
                 stats.rankSum += p.rank;
                 stats.rankCount++;
 
-                // UPDATED LOGIC: CUT = Points > 0
                 if (p.points > 0) stats.cut++;
                 
                 if (p.rank <= 20) stats.top20++;
@@ -1643,14 +1685,21 @@
     }
 
     function openSettings() {
+        // Vygenerovanie tlačidiel pre všetky témy
         let themeBtns = '';
         Object.keys(colorSchemes).forEach(k => {
             const sch = colorSchemes[k];
-            themeBtns += `<div class="theme-btn" style="background:${sch.bg}; border-color:${appState.settings.theme===k?'#fff':sch.accent}" onclick="changeTheme('${k}')">${k}</div>`;
+            // Ak má téma definovaný border, použijeme ho, inak accent, inak transparent
+            const borderColor = (appState.settings.theme === k) ? '#fff' : (sch.border || sch.accent || 'transparent');
+            themeBtns += `<div class="theme-btn" style="background:${sch.bg}; border-color:${borderColor}; color:${sch.text}" onclick="changeTheme('${k}')">${k}</div>`;
         });
 
         const zoomLabels = ['Mobilný', 'Desktop', 'Hybridný'];
         const currentZoomLabel = zoomLabels[appState.settings.zoom] || 'Mobilný';
+        
+        // Zistenie stavu zobrazenia tém (či sú otvorené alebo zatvorené)
+        const themesDisplay = appState.settings.themesOpen ? 'grid' : 'none';
+        const toggleBtnText = appState.settings.themesOpen ? 'Skryť Témy (60)' : 'Zobraziť Témy (60)';
 
         const html = `
             <div class="modal-header">
@@ -1666,14 +1715,32 @@
                     <button class="btn btn-red" onclick="clearDB()">Vymazať DB</button>
                     <button class="btn btn-grey" onclick="toggleZoomInSettings()">Režim: ${currentZoomLabel}</button>
                 </div>
-                <h3>Témy</h3>
-                <div class="theme-grid">${themeBtns}</div>
+                
+                <h3>Vzhľad</h3>
+                <button class="btn btn-full-width btn-grey" onclick="toggleThemes(this)" style="margin-bottom:10px;">${toggleBtnText}</button>
+                <div class="theme-grid" id="themeContainer" style="display:${themesDisplay};">
+                    ${themeBtns}
+                </div>
+
                 <h3>Sloty (Uložiť / Načítať)</h3>
                 <div class="slot-grid" id="slotContainer"></div>
             </div>
         `;
         createModal(html);
         renderSlots();
+    }
+
+    function toggleThemes(btn) {
+        appState.settings.themesOpen = !appState.settings.themesOpen;
+        const container = document.getElementById('themeContainer');
+        if (appState.settings.themesOpen) {
+            container.style.display = 'grid';
+            btn.innerText = 'Skryť Témy (60)';
+        } else {
+            container.style.display = 'none';
+            btn.innerText = 'Zobraziť Témy (60)';
+        }
+        saveAuto(); // Uložíme stav otvorenosti
     }
 
     function toggleZoomInSettings() {
@@ -1686,6 +1753,7 @@
         appState.settings.theme = name;
         applyTheme(name);
         saveAuto();
+        // Po zmene témy len prekreslíme modal nastavení, aby sme videli aktívny border
         closeTopModal();
         openSettings();
     }
@@ -1800,6 +1868,9 @@
             appState.ui.eventDropdownOpen = false;
             appState.ui.seasonDropdownOpen = false;
             appState.ui.importanceDropdownOpen = false;
+            // Reset témy otvorenia pri načítaní
+            appState.settings.themesOpen = false; 
+            
             applyTheme(appState.settings.theme);
             if (typeof appState.settings.zoom === 'boolean') {
                  appState.settings.zoom = appState.settings.zoom ? 1 : 0;
