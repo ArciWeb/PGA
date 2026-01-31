@@ -448,18 +448,122 @@
 
 <script>
     const colorSchemes = {
+        // --- 1. KOVY & LUXUS (Metals & Luxury) ---
         'Gold': { bg: '#000000', card: '#1c1c1c', text: '#ffd700', accent: '#ffec8b' },
-        'Silver': { bg: '#2c3e50', card: '#bdc3c7', text: '#2c3e50', accent: '#ecf0f1' },
+        'Silver': { bg: '#2c3e50', card: '#bdc3c7', text: '#2c3e50', accent: '#ecf0f1' }, // Tmavé pozadie, strieborné karty
         'Bronze': { bg: '#1a120b', card: '#302113', text: '#e8dace', accent: '#cd7f32' },
+        'Copper': { bg: '#261109', card: '#421d0f', text: '#ffe0d6', accent: '#b87333' },
         'Platinum': { bg: '#1a1a1a', card: '#333333', text: '#e5e4e2', accent: '#00bfff' },
+        'Titanium': { bg: '#1c1c20', card: '#2b2b30', text: '#dcdcdc', accent: '#708090' },
+        'Carbon': { bg: '#0d0d0d', card: '#1a1a1a', text: '#cccccc', accent: '#d32f2f' },
+        'Steel': { bg: '#191f26', card: '#2c3642', text: '#dfe4ea', accent: '#70a1ff' },
+        'RoseGold': { bg: '#29181b', card: '#42242b', text: '#ffc2cd', accent: '#b76e79' },
+        'Onyx': { bg: '#050505', card: '#141414', text: '#ffffff', accent: '#7f8c8d' },
         'Diamond': { bg: '#0f151c', card: '#1a2633', text: '#b9f2ff', accent: '#00ffff' },
-        'Midnight': { bg: '#0f172a', card: '#1e293b', text: '#f1f5f9', accent: '#38bdf8' },
-        'Forest': { bg: '#1a2f1a', card: '#2f4f2f', text: '#dbebdb', accent: '#90ee90' },
+
+        // --- 2. ŽLTÉ & ORANŽOVÉ (Yellow & Orange - Vivid) ---
+        'Sun': { bg: '#ffcc00', card: '#ffe066', text: '#000000', accent: '#d35400' },
+        'Bumblebee': { bg: '#1a1a00', card: '#333300', text: '#ffff00', accent: '#ffffff' },
+        'Banana': { bg: '#2e2e00', card: '#4a4a00', text: '#ffffe0', accent: '#ffe135' },
+        'Lemon': { bg: '#1a1a00', card: '#333300', text: '#ffffe6', accent: '#fff700' },
+        'GoldRush': { bg: '#1a1200', card: '#332400', text: '#ffebcd', accent: '#daa520' },
+        'Orange': { bg: '#331400', card: '#662900', text: '#fff0e6', accent: '#ffa500' },
+        'Tangerine': { bg: '#e65100', card: '#ff833a', text: '#000000', accent: '#ffe0b2' },
+        'Tiger': { bg: '#1a0d00', card: '#331a00', text: '#ff9900', accent: '#ffcc00' },
+        'Amber': { bg: '#2b1d00', card: '#4d3300', text: '#ffbf00', accent: '#ffdb4d' },
+        'Halloween': { bg: '#1a0500', card: '#2b0e00', text: '#ff6600', accent: '#993300' },
+        'Apricot': { bg: '#2b1608', card: '#4a260e', text: '#ffccb3', accent: '#fbceb1' },
+
+        // --- 3. ČERVENÉ & OHNIVÉ (Red & Fire) ---
+        'Ferrari': { bg: '#330000', card: '#cc0000', text: '#ffffff', accent: '#ffff00' },
+        'Lava': { bg: '#1a0500', card: '#330a00', text: '#ffebd9', accent: '#ff4500' },
+        'Ruby': { bg: '#2b0000', card: '#520000', text: '#ffe6e6', accent: '#e0115f' },
         'Crimson': { bg: '#330000', card: '#4d0000', text: '#ffcccc', accent: '#dc143c' },
+        'Cherry': { bg: '#2b0000', card: '#420000', text: '#ffcccc', accent: '#ff4d4d' },
+        'Brick': { bg: '#2b1100', card: '#4d1f00', text: '#ffcc99', accent: '#b22222' },
+        'Wine': { bg: '#1a000d', card: '#33001a', text: '#e6ccff', accent: '#722f37' },
+        'Blood': { bg: '#1a0000', card: '#330000', text: '#ff0000', accent: '#800000' },
+        'Mars': { bg: '#2b0a05', card: '#4a1209', text: '#ffcccb', accent: '#bc2732' },
+        'Inferno': { bg: '#140500', card: '#290a00', text: '#ff4500', accent: '#ffa500' },
+        'Volcanic': { bg: '#120505', card: '#260a0a', text: '#ffdddd', accent: '#ff3333' },
+
+        // --- 4. FIALOVÉ & RUŽOVÉ (Purple & Pink) ---
+        'Magenta': { bg: '#1a001a', card: '#330033', text: '#ff00ff', accent: '#ff00ff' },
+        'Amethyst': { bg: '#1a001a', card: '#330033', text: '#f2e6ff', accent: '#9966cc' },
+        'Velvet': { bg: '#1a001a', card: '#2e002e', text: '#ffccff', accent: '#800080' },
+        'Indigo': { bg: '#0f001a', card: '#1f0033', text: '#e6ccff', accent: '#4b0082' },
+        'Plum': { bg: '#1a051a', card: '#2e0a2e', text: '#ffe6ff', accent: '#dda0dd' },
+        'HotPink': { bg: '#1a000d', card: '#33001a', text: '#ffe6f2', accent: '#ff69b4' },
+        'Bubblegum': { bg: '#1f0a14', card: '#3d1428', text: '#ffe6f7', accent: '#ffadd6' },
+        'Orchid': { bg: '#1a0d1a', card: '#2e1a2e', text: '#f2e6ff', accent: '#da70d6' },
+        'Grape': { bg: '#12001a', card: '#240033', text: '#f3e6ff', accent: '#800080' },
+        'Lavender': { bg: '#201a23', card: '#2e2532', text: '#ffffff', accent: '#a663cc' },
+        'Barbie': { bg: '#330019', card: '#660033', text: '#ffccdd', accent: '#e0218a' },
+
+        // --- 5. MODRÉ (Blue) ---
+        'Electric': { bg: '#00001a', card: '#000033', text: '#ffffff', accent: '#00ffff' },
         'Ocean': { bg: '#001f3f', card: '#003366', text: '#7FDBFF', accent: '#39CCCC' },
-        'Matrix': { bg: '#000000', card: '#0a140a', text: '#00ff00', accent: '#00cc00', border: '#00ff00' },
+        'Sapphire': { bg: '#00002b', card: '#000052', text: '#e6e6ff', accent: '#0f52ba' },
+        'Sky': { bg: '#00264d', card: '#004080', text: '#e6f2ff', accent: '#3399ff' },
+        'Cobalt': { bg: '#001a33', card: '#003366', text: '#ffffff', accent: '#0047ab' },
+        'Frozen': { bg: '#0c1b29', card: '#152d42', text: '#d0efff', accent: '#00a8ff' },
+        'DeepSea': { bg: '#001a23', card: '#00303d', text: '#e0f7fa', accent: '#00bcd4' },
+        'Midnight': { bg: '#0f172a', card: '#1e293b', text: '#f1f5f9', accent: '#38bdf8' },
+        'Azure': { bg: '#003333', card: '#006666', text: '#e0ffff', accent: '#00ffff' },
+        'Blueprint': { bg: '#001a33', card: '#003366', text: '#ffffff', accent: '#4da6ff' },
+        'Navy': { bg: '#00001a', card: '#000040', text: '#ccccff', accent: '#000080' },
+
+        // --- 6. ZELENÉ (Green) ---
+        'Toxic': { bg: '#0d1f0d', card: '#1a3d1a', text: '#ccffcc', accent: '#adff2f' },
+        'Matrix': { bg: '#000000', card: '#0a140a', text: '#00ff00', accent: '#00cc00' },
+        'Emerald': { bg: '#00260e', card: '#004d1c', text: '#e6ffe6', accent: '#50c878' },
+        'Lime': { bg: '#0d1a00', card: '#1a3300', text: '#f2ffe6', accent: '#32cd32' },
+        'Forest': { bg: '#1a2f1a', card: '#2f4f2f', text: '#dbebdb', accent: '#90ee90' },
+        'Mint': { bg: '#182f2a', card: '#254a43', text: '#e0f2f1', accent: '#00b894' },
+        'Jungle': { bg: '#0a1a0a', card: '#143314', text: '#d9f2d9', accent: '#228b22' },
+        'Olive': { bg: '#1a1a00', card: '#333300', text: '#ffffcc', accent: '#808000' },
+        'Alien': { bg: '#051405', card: '#0f290f', text: '#39ff14', accent: '#00ff00' },
+        'Cactus': { bg: '#0f1a0f', card: '#1f331f', text: '#e0f2e0', accent: '#5f9ea0' },
+        'Grass': { bg: '#001a00', card: '#003300', text: '#ccffcc', accent: '#008000' },
+
+        // --- 7. NEÓNOVÉ & CYBER (Neon & Cyberpunk) ---
         'Cyberpunk': { bg: '#050505', card: '#121212', text: '#fcee0a', accent: '#00fff5' },
+        'Synthwave': { bg: '#1a0b2e', card: '#2b1055', text: '#fff', accent: '#ff007f' },
+        'NeonPink': { bg: '#1a0011', card: '#330022', text: '#ff0080', accent: '#ff1493' },
+        'NeonBlue': { bg: '#000a1a', card: '#001f4d', text: '#00ccff', accent: '#00ffff' },
+        'NeonGreen': { bg: '#001a05', card: '#00330a', text: '#39ff14', accent: '#00ff00' },
+        'Laser': { bg: '#0a0a0a', card: '#1f1f1f', text: '#ffffff', accent: '#ff3333' },
+        'Arcade': { bg: '#140014', card: '#290029', text: '#00ffcc', accent: '#ff00ff' },
+        'Glitch': { bg: '#0d0d0d', card: '#1a1a1a', text: '#00ff00', accent: '#ff0000' },
+        'Plasma': { bg: '#12001a', card: '#240033', text: '#e0ccff', accent: '#9933ff' },
+        'Tron': { bg: '#00111a', card: '#002233', text: '#ccf2ff', accent: '#00eeee' },
+        'Miami': { bg: '#001a1a', card: '#003333', text: '#ff66b2', accent: '#00cccc' },
+
+        // --- 8. OVOCNÉ & MIX (Fruit & Mixed) ---
+        'Berry': { bg: '#1a001a', card: '#330033', text: '#ffe6ff', accent: '#cc00cc' },
+        'Kiwi': { bg: '#111a00', card: '#223300', text: '#eeffee', accent: '#8ee53f' },
+        'Watermelon': { bg: '#001a0d', card: '#00331a', text: '#ffcccc', accent: '#ff6b6b' },
+        'DragonFruit': { bg: '#1a0011', card: '#330022', text: '#ffffff', accent: '#ff0055' },
+        'Peach': { bg: '#331a00', card: '#663300', text: '#ffe0b2', accent: '#ff9800' },
+        'Blueberry': { bg: '#00001a', card: '#000033', text: '#ccccff', accent: '#4682b4' },
+        'Candy': { bg: '#2c001e', card: '#4a0033', text: '#ffd1dc', accent: '#ff69b4' },
+        'Chocolate': { bg: '#1f1a17', card: '#362f2b', text: '#e6dace', accent: '#d2691e' },
+        'Coffee': { bg: '#1a110d', card: '#33221a', text: '#dcc6ba', accent: '#8b4513' },
+        'MintChoco': { bg: '#0a1a15', card: '#152b22', text: '#d9f2e6', accent: '#3eb489' },
+        'Rainbow': { bg: '#1a1a1a', card: '#2d2d2d', text: '#ffffff', accent: '#ff0000', border: '#00ff00' },
+
+        // --- 9. TMAVÉ KLASIKY (Dark Classics) ---
         'Default': { bg: '#1e1e1e', card: '#2d2d2d', text: '#ffffff', accent: '#2ecc71' },
+        'NightMode': { bg: '#050505', card: '#0f0f0f', text: '#cccccc', accent: '#444444' },
+        'Abyss': { bg: '#020202', card: '#0a0a0a', text: '#555555', accent: '#333333' },
+        'Shadow': { bg: '#121212', card: '#1f1f1f', text: '#a0a0a0', accent: '#606060' },
+        'Obsidian': { bg: '#141414', card: '#202020', text: '#e0e0e0', accent: '#6c5ce7' },
+        'Slate': { bg: '#272b33', card: '#3b404d', text: '#ffffff', accent: '#d08770' },
+        'Gothic': { bg: '#0d0d0d', card: '#1a1a1a', text: '#888888', accent: '#440000' },
+        'Storm': { bg: '#12121a', card: '#242433', text: '#e6e6fa', accent: '#483d8b' },
+        'Vampire': { bg: '#0a0000', card: '#1a0000', text: '#ff9999', accent: '#ff0000' },
+        'Ninja': { bg: '#111111', card: '#222222', text: '#33ff33', accent: '#000000' },
+        'Retro': { bg: '#2c3e50', card: '#34495e', text: '#ecf0f1', accent: '#e67e22' }
     };
 
     // --- ACHIEVEMENTS DEFINITION ---
