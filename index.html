@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta id="viewportMeta" name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ArciWeb - PGA StatsKeeper v3.73 (Player Cards Edition)</title>
+    <title>ArciWeb - PGA StatsKeeper v3.77 (Player Cards Edition)</title>
     <style>
         :root {
             --bg-color: #1e1e1e;
@@ -403,7 +403,7 @@
 
     <header>
         <div class="header-left">
-            <h1>ArciWeb - PGA StatsKeeper <span class="version">v3.73</span></h1>
+            <h1>ArciWeb - PGA StatsKeeper <span class="version">v3.77</span></h1>
             <div class="header-ranks">
                 <span class="header-rank-link" style="color:var(--highlight-gold)" onclick="showRankTable('PGA')">PGA Rank</span>
                 <span class="header-rank-link" style="color:var(--accent-blue)" onclick="showRankTable('Official')">Official Rank</span>
@@ -414,6 +414,8 @@
             </div>
         </div>
         <div class="header-icons">
+            <button class="icon-btn" onclick="showGlobalPlayerCards()" title="Rebríček Hráčov (Cards)">🃏</button>
+            <button class="icon-btn" onclick="openGlobalAchievementsList()" title="Zoznam Achievementov">🏅</button>
             <button class="icon-btn" onclick="openHallOfFame()" title="Sieň slávy">🏆</button>
             <button class="icon-btn" onclick="openComparator()" title="Porovnávač (Head-to-Head)">🆚</button>
             <button class="icon-btn" onclick="toggleZoom()" title="Zoom Mode">🔍</button>
@@ -2709,6 +2711,21 @@
                 <button class="close-btn" onclick="closeTopModal()">&times;</button>
             </div>
             <div class="modal-body">
+                <div style="background:#252525; padding:12px; border-radius:8px; border:1px solid #444; margin-bottom:15px; font-size:0.8rem; color:#bbb; line-height:1.4;">
+                    <strong style="color:var(--highlight-gold); display:block; margin-bottom:8px; font-size:0.9rem;">Vysvetlivky atribútov:</strong>
+                    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap:10px;">
+                        <div><strong style="color:#fff">1. PWR (Power):</strong> Sila útoku. Založené na pomere Birdies/Eagles a počte výhier. Čím viac skóruješ, tým vyššie PWR.</div>
+                        <div><strong style="color:#fff">2. ACC (Accuracy):</strong> Presnosť. Pomer Parov ku Bogey. Ukazuje schopnosť vyhýbať sa chybám.</div>
+                        <div><strong style="color:#fff">3. MNT (Mental):</strong> Psychika. Schopnosť zvládať tlak (4. kolo vs 1. kolo) + bonus za Top 5 a Majors.</div>
+                        <div><strong style="color:#fff">4. CON (Consistency):</strong> Konzistencia. Kombinácia % prejdených Cutov a umiestnení v Top 20.</div>
+                        <div><strong style="color:#fff">5. FRM (Form):</strong> Forma. Odráža priemerné umiestnenie v posledných 3 turnajoch.</div>
+                        <div><strong style="color:#fff">XP (Experience):</strong> Skúsenosti. Celkový počet odohraných turnajov v kariére.</div>
+                    </div>
+                    <div style="margin-top:10px; padding-top:5px; border-top:1px solid #444; color:#fff;">
+                        <strong style="color:var(--highlight-gold)">🏆 OVR (Overall):</strong> Výsledný priemer 5 hlavných hodnôt (PWR + ACC + MNT + CON + FRM).
+                    </div>
+                </div>
+
                 <div class="table-container">
                     <table>
                         <thead>
@@ -2737,6 +2754,7 @@
             createModal(html, 'cards-overlay');
         }
     }
+
 
     window.sortPlayerCards = function(col) {
         if (playerCardsSort.col === col) {
