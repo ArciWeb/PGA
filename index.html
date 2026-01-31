@@ -577,11 +577,11 @@
 
         { id: 'sub60', icon: '🔥', name: 'Sub-60 Club', desc: 'Zahral kolo pod 60 rán.', cat: 'special' },
         { id: 'scratch', icon: '🏌️', name: 'Scratch', desc: 'Celkový priemer úderov pod 67.0.', cat: 'special' },
-        { id: 'safe_play', icon: '🛡️', name: 'Safe Player', desc: 'Počet Parov je viac ako päťnásobok Bogeys.', cat: 'special' },
+        { id: 'safe_play', icon: '🛡️', name: 'Safe Player', desc: 'Počet Parov je viac ako dvadsatnásobok Bogeys.', cat: 'special' },
         { id: 'aggressive', icon: '⚔️', name: 'Aggressive', desc: 'Počet Birdies je vyšší ako počet Parov.', cat: 'special' },
         { id: 'player_badge', icon: '🧢', name: 'Player', desc: 'Zúčastnil sa turnaja Players.', cat: 'special' },
-        { id: 'under_par', icon: '📉', name: 'Under Par', desc: 'Hráč má celkové skóre Par v mínuse.', cat: 'special' },
-        { id: 'solid', icon: '🧱', name: 'Solid', desc: 'Priemer úderov menší ako 3.90.', cat: 'special' },
+        { id: 'under_par', icon: '📉', name: 'Deep Under Par', desc: 'Hráč má celkové skóre Par menej ako - 30.', cat: 'special' },
+        { id: 'solid', icon: '🧱', name: 'Solid', desc: 'Priemer úderov menší ako 3.80.', cat: 'special' },
         { id: 'never_back', icon: '💪', name: 'Never Back Down', desc: 'R1 >= 80, ale aj tak prešiel CUT.', cat: 'special' },
         { id: 'lucky7', icon: '🍀', name: 'Lucky 7', desc: '7 Achievementov + 7x Top 5.', cat: 'special' }
     ];
@@ -960,11 +960,11 @@
 
             check('sub60', stats.sub60);
             check('scratch', avgStrokes < 67.0);
-            check('safe_play', sStats.bogeys > 0 && sStats.pars >= (sStats.bogeys * 5));
+            check('safe_play', sStats.bogeys > 0 && sStats.pars >= (sStats.bogeys * 20));
             check('aggressive', sStats.birdies > sStats.pars);
             check('player_badge', stats.playersWin || (stats.tourneys >= 1 && db.files.some(f => f.type==='THE PLAYERS' && f.content.some(px=>normalizeName(px.name)===key))));
-            check('under_par', stats.pars < 0);
-            check('solid', avgPerHole < 3.90);
+            check('under_par', stats.pars < -50);
+            check('solid', avgPerHole < 3.80);
             check('never_back', stats.r1_80_cut);
             check('lucky7', stats.top5 >= 7 && stats.wins >= 1);
         });
