@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta id="viewportMeta" name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ArciWeb - PGA StatsKeeper v2.06 (Fixed Profile Edition)</title>
+    <title>ArciWeb - PGA StatsKeeper v3.5 (Ultimate Edition)</title>
     <style>
         :root {
             --bg-color: #1e1e1e;
@@ -70,11 +70,12 @@
             border-bottom-color: var(--highlight-gold);
         }
 
-        .header-icons { display: flex; gap: 15px; }
+        .header-icons { display: flex; gap: 15px; align-items: center; }
         .icon-btn {
             background: none; border: none; color: var(--text-main);
             font-size: 1.4rem; cursor: pointer; transition: var(--transition);
             display: flex; align-items: center; justify-content: center;
+            position: relative;
         }
         .icon-btn:hover { transform: scale(1.1); color: var(--accent-green); }
 
@@ -133,7 +134,6 @@
             color: #fff;
         }
 
-        /* Dropdown like filter */
         .dropdown-filter {
             width: 100%; background: var(--card-bg); border: 1px solid #444;
             color: white; padding: 10px; border-radius: 8px; text-align: left;
@@ -180,7 +180,7 @@
         }
         .modal {
             background-color: #1a1a1a; border-radius: 16px;
-            width: 95%; max-width: 850px; max-height: 92vh;
+            width: 95%; max-width: 900px; max-height: 92vh;
             overflow-y: auto; position: relative;
             box-shadow: 0 20px 50px rgba(0,0,0,0.7);
             border: 1px solid #333; display: flex; flex-direction: column;
@@ -228,10 +228,102 @@
         .stat-value.gold { color: var(--highlight-gold); }
         .stat-value.green { color: var(--accent-green); }
         .stat-value.blue { color: var(--accent-blue); }
-        .stat-value.white { color: #fff; }
         
         .rank-clickable { cursor: pointer; text-decoration: underline; text-decoration-style: dotted; }
         .rank-clickable:hover { color: var(--accent-green); }
+
+        /* --- GRAPH Styles --- */
+        .graph-section {
+            background: #222; border-radius: 8px; padding: 15px; margin-bottom: 20px; border: 1px solid #3d3d3d;
+        }
+        .graph-container { width: 100%; height: 200px; position: relative; }
+        .graph-tooltip {
+            position: absolute; background: rgba(0,0,0,0.9); color: #fff;
+            padding: 6px 12px; border-radius: 4px; font-size: 0.8rem;
+            pointer-events: none; display: none; z-index: 100;
+            white-space: nowrap; border: 1px solid var(--accent-green);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+        }
+        .graph-path {
+            fill: none; stroke: var(--highlight-gold); stroke-width: 2.5;
+            stroke-linecap: round; stroke-linejoin: round;
+            filter: drop-shadow(0 0 4px rgba(241, 196, 15, 0.4));
+            animation: drawLine 1s ease forwards;
+        }
+        .graph-dot {
+            fill: var(--card-bg); stroke: var(--accent-green); stroke-width: 2;
+            r: 3.5; transition: r 0.2s, fill 0.2s; cursor: pointer;
+        }
+        .graph-dot:hover { r: 6; fill: var(--accent-green); stroke: #fff; }
+        @keyframes drawLine {
+            from { stroke-dasharray: 1000; stroke-dashoffset: 1000; }
+            to { stroke-dasharray: 1000; stroke-dashoffset: 0; }
+        }
+
+        /* --- ACHIEVEMENTS Styles --- */
+        .achievements-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+            gap: 10px; margin-bottom: 20px; padding: 10px;
+            background: #222; border-radius: 8px;
+        }
+        .badge {
+            width: 100%; aspect-ratio: 1/1; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.5rem; cursor: pointer; position: relative;
+            transition: transform 0.2s; border: 2px solid transparent;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        }
+        .badge:hover { transform: scale(1.1); z-index: 2; }
+        .badge.locked {
+            background-color: #333; color: #555; filter: grayscale(100%);
+            border: 1px dashed #555;
+        }
+        .badge.unlocked {
+            background: linear-gradient(135deg, #f1c40f 0%, #b8860b 100%);
+            color: #000; border: 2px solid #fff;
+            box-shadow: 0 0 10px rgba(241, 196, 15, 0.4);
+            animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        @keyframes popIn { 0% { transform: scale(0); } 100% { transform: scale(1); } }
+        
+        /* --- ENHANCED COMPARATOR Styles --- */
+        .vs-container { display: flex; gap: 10px; margin-bottom: 15px; align-items: center; flex-wrap: wrap; }
+        .vs-select { flex: 1; padding: 12px; background: var(--card-bg); color: #fff; border: 1px solid #444; border-radius: 8px; font-size:1rem; min-width: 150px; }
+        .vs-badge { font-weight:bold; font-size:1.2rem; color:var(--accent-red); background:#222; padding:5px 15px; border-radius:20px; border:1px solid var(--accent-red); }
+        
+        .vs-filters { width: 100%; background: #222; padding: 10px; border-radius: 8px; margin-bottom: 15px; display: flex; gap: 5px; flex-wrap: wrap; }
+        
+        .vs-detailed-grid {
+            display: grid;
+            grid-template-columns: 1fr 1.5fr 1fr;
+            gap: 2px;
+            background: #333;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 15px;
+            border: 1px solid #444;
+        }
+        .vs-cell { padding: 10px 5px; text-align: center; background: var(--card-bg); display: flex; align-items: center; justify-content: center; font-size: 0.9rem; position: relative;}
+        .vs-label-cell { background: #222; color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px; padding: 10px 2px; }
+        .vs-header { grid-column: 1 / -1; background: #151515; padding: 10px; text-align: center; font-weight: bold; color: var(--highlight-gold); letter-spacing: 1px; border-bottom:1px solid #444; }
+        
+        .val-better { color: var(--accent-green); text-shadow: 0 0 5px rgba(46, 204, 113, 0.3); font-weight: bold; z-index: 1;}
+        .val-worse { color: var(--accent-red); opacity: 0.7; font-size: 0.85rem; }
+        .val-draw { color: var(--highlight-gold); opacity: 0.8; }
+        
+        /* Hall of Fame Record Box */
+        .record-box {
+            display: flex; align-items: center; background: var(--card-bg);
+            border: 1px solid #3d3d3d; border-radius: 8px; padding: 8px 12px;
+            cursor: pointer; transition: var(--transition);
+        }
+        .record-box:hover { background: #383838; border-color: var(--accent-green); }
+        .record-icon { font-size: 1.8rem; margin-right: 12px; min-width: 40px; text-align: center; }
+        .record-info { flex: 1; text-align: left; }
+        .record-title { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px; transition: color 0.2s; }
+        .record-title:hover { color: var(--highlight-gold); text-decoration: underline; }
+        .record-holder { font-size: 0.95rem; font-weight: bold; color: var(--highlight-gold); }
+        .record-val { font-size: 0.85rem; color: #fff; margin-top: 2px; }
 
         /* --- Settings & Slots --- */
         .slot-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-top: 15px; }
@@ -242,8 +334,6 @@
         .theme-btn:hover { transform: scale(1.05); z-index: 2; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
         .theme-btn.active { border-color: #fff; transform: scale(1.1); box-shadow: 0 0 10px rgba(255,255,255,0.5); }
         
-        #themeContainer { display: none; max-height: 400px; overflow-y: auto; padding-right: 5px; }
-
         .btn { padding: 8px 15px; border: none; border-radius: 6px; cursor: pointer; font-size: 0.9rem; color: white; transition: 0.2s; }
         .btn-green { background: var(--accent-green); color: #000; }
         .btn-red { background: var(--accent-red); }
@@ -252,103 +342,16 @@
         .btn:hover { filter: brightness(1.1); }
         .btn-sm { padding: 4px 8px; font-size: 0.8rem; margin: 2px; }
 
-        /* --- NEW: Achievements --- */
-        .achievements-grid { 
-            display: grid; grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)); 
-            gap: 12px; margin-top: 15px; padding: 15px; 
-            background: rgba(0,0,0,0.3); border-radius: 12px; border: 1px solid #333;
-        }
-        
-        /* Locked: Gray */
-        .achievement-badge { 
-            width: 100%; aspect-ratio: 1; display: flex; align-items: center; justify-content: center; 
-            border-radius: 50%; font-size: 1.5rem; 
-            background: #222; 
-            color: #555; 
-            border: 2px solid #333; 
-            cursor: pointer; position: relative; transition: all 0.3s ease;
-            filter: grayscale(100%); opacity: 0.4;
-        }
-
-        /* Unlocked: Gold */
-        .achievement-badge.unlocked { 
-            background: linear-gradient(135deg, #f1c40f 0%, #b7950b 100%);
-            color: #1a1a00; border-color: #fff;
-            filter: grayscale(0%); opacity: 1;
-            box-shadow: 0 0 15px rgba(241, 196, 15, 0.6);
-            transform: scale(1.05);
-        }
-        
-        .achievement-badge:hover { transform: scale(1.15); z-index: 10; }
-        
-        /* --- NEW: Graph --- */
-        .graph-container {
-            width: 100%; height: 200px; background: rgba(0,0,0,0.2); border-radius: 8px;
-            margin-bottom: 20px; padding: 10px; box-sizing: border-box; position: relative;
-            border: 1px solid #333; display: flex; flex-direction: column;
-        }
-        .graph-svg { width: 100%; height: 100%; overflow: visible; }
-        .graph-tooltip {
-            position: absolute; background: rgba(0,0,0,0.9); color: #fff; padding: 5px 10px;
-            border-radius: 4px; font-size: 0.75rem; pointer-events: none; opacity: 0; transition: opacity 0.2s;
-            border: 1px solid #555; z-index: 10; white-space: nowrap; transform: translate(-50%, -100%);
-        }
-        
-        /* --- NEW: Hall of Fame Cards --- */
-        .hof-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 10px; }
-        .hof-card {
-            background: linear-gradient(145deg, #252525, #1e1e1e); border: 1px solid #333;
-            border-radius: 12px; padding: 15px; display: flex; flex-direction: column; align-items: center;
-            text-align: center; position: relative; overflow: hidden;
-        }
-        .hof-card::before {
-            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: var(--accent-green);
-        }
-        .hof-icon { font-size: 2rem; margin-bottom: 10px; }
-        .hof-title { font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
-        .hof-player { font-size: 1.1rem; font-weight: bold; color: var(--text-main); margin: 5px 0; }
-        .hof-value { font-size: 1rem; color: var(--highlight-gold); font-family: monospace; }
-        
-        /* --- NEW: Comparator (VS) --- */
-        .vs-container { display: flex; flex-direction: column; gap: 15px; }
-        .vs-selectors { display: flex; justify-content: space-between; align-items: center; gap: 10px; background: #222; padding: 10px; border-radius: 8px; }
-        .vs-select { 
-            flex: 1; padding: 8px; background: #333; color: #fff; border: 1px solid #555; border-radius: 6px; 
-            max-width: 40%;
-        }
-        .vs-middle { font-weight: bold; color: var(--accent-red); font-size: 1.2rem; }
-        .vs-table-row {
-            display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #333;
-            align-items: center;
-        }
-        .vs-val { flex: 1; text-align: center; font-weight: bold; font-size: 1.1rem; }
-        .vs-label { flex: 1.5; text-align: center; font-size: 0.8rem; color: #aaa; text-transform: uppercase; }
-        .vs-win { color: var(--accent-green); text-shadow: 0 0 5px rgba(46, 204, 113, 0.3); }
-        .vs-lose { color: var(--accent-red); opacity: 0.8; }
-
-        /* Achievement Detail Popup */
-        .ach-popup-icon { font-size: 4rem; margin-bottom: 10px; }
-        .ach-popup-name { font-size: 1.5rem; font-weight: bold; color: var(--highlight-gold); margin-bottom: 10px; }
-        .ach-popup-desc { font-size: 1rem; color: #ddd; margin-bottom: 20px; line-height: 1.5; }
-        .ach-popup-status { padding: 5px 10px; border-radius: 4px; font-size: 0.8rem; display: inline-block; }
-        .status-locked { background: #333; color: #aaa; border: 1px solid #555; }
-        .status-unlocked { background: var(--highlight-gold); color: #000; font-weight: bold; box-shadow: 0 0 10px rgba(241, 196, 15, 0.5); }
-
-        .ach-list-item {
-            display: flex; align-items: center; gap: 10px; padding: 8px;
-            border-bottom: 1px solid #333;
-        }
-        .ach-list-icon { font-size: 1.5rem; width: 40px; text-align: center; }
-        .ach-list-info { display: flex; flex-direction: column; }
-        .ach-list-name { font-weight: bold; color: var(--highlight-gold); font-size: 0.9rem; }
-        .ach-list-desc { font-size: 0.75rem; color: #aaa; }
-
         @media (max-width: 600px) {
             .stats-grid { grid-template-columns: repeat(2, 1fr); }
             th, td { font-size: 0.75rem; padding: 6px 3px; }
             .modal-header h2 { font-size: 1rem; }
             .profile-tabs { flex-wrap: wrap; }
-            .hof-grid { grid-template-columns: 1fr; }
+            .achievements-grid { grid-template-columns: repeat(5, 1fr); }
+            .vs-container { flex-direction: column; gap:5px; }
+            .vs-select { width: 100%; }
+            .record-box { padding: 8px; }
+            .record-icon { font-size: 1.4rem; margin-right: 8px; }
         }
 
         #fileInput, #slotFileInput, #seasonFileInput { display: none; }
@@ -358,7 +361,7 @@
 
     <header>
         <div class="header-left">
-            <h1>ArciWeb - PGA StatsKeeper <span class="version">v2.06</span></h1>
+            <h1>ArciWeb - PGA StatsKeeper <span class="version">v3.5</span></h1>
             <div class="header-ranks">
                 <span class="header-rank-link" style="color:var(--highlight-gold)" onclick="showRankTable('PGA')">PGA Rank</span>
                 <span class="header-rank-link" style="color:var(--accent-blue)" onclick="showRankTable('Official')">Official Rank</span>
@@ -369,8 +372,8 @@
             </div>
         </div>
         <div class="header-icons">
-            <button class="icon-btn" onclick="showHallOfFame()" title="Sieň slávy">🏆</button>
-            <button class="icon-btn" onclick="showComparator()" title="Porovnávač">🆚</button>
+            <button class="icon-btn" onclick="openHallOfFame()" title="Sieň slávy">🏆</button>
+            <button class="icon-btn" onclick="openComparator()" title="Porovnávač (Head-to-Head)">🆚</button>
             <button class="icon-btn" onclick="toggleZoom()" title="Zoom Mode">🔍</button>
             <button class="icon-btn" onclick="openSettings()" title="Nastavenia">&#9881;</button>
         </div>
@@ -444,200 +447,120 @@
     <div id="popupsLayer"></div>
 
 <script>
-    /* --- CONFIG & DATA --- */
     const colorSchemes = {
         'Gold': { bg: '#000000', card: '#1c1c1c', text: '#ffd700', accent: '#ffec8b' },
         'Silver': { bg: '#2c3e50', card: '#bdc3c7', text: '#2c3e50', accent: '#ecf0f1' },
         'Bronze': { bg: '#1a120b', card: '#302113', text: '#e8dace', accent: '#cd7f32' },
-        'Copper': { bg: '#261109', card: '#421d0f', text: '#ffe0d6', accent: '#b87333' },
         'Platinum': { bg: '#1a1a1a', card: '#333333', text: '#e5e4e2', accent: '#00bfff' },
-        'Titanium': { bg: '#1c1c20', card: '#2b2b30', text: '#dcdcdc', accent: '#708090' },
-        'Carbon': { bg: '#0d0d0d', card: '#1a1a1a', text: '#cccccc', accent: '#d32f2f' },
-        'Steel': { bg: '#191f26', card: '#2c3642', text: '#dfe4ea', accent: '#70a1ff' },
-        'RoseGold': { bg: '#29181b', card: '#42242b', text: '#ffc2cd', accent: '#b76e79' },
-        'Onyx': { bg: '#050505', card: '#141414', text: '#ffffff', accent: '#7f8c8d' },
         'Diamond': { bg: '#0f151c', card: '#1a2633', text: '#b9f2ff', accent: '#00ffff' },
-        'Sun': { bg: '#ffcc00', card: '#ffe066', text: '#000000', accent: '#d35400' },
-        'Bumblebee': { bg: '#1a1a00', card: '#333300', text: '#ffff00', accent: '#ffffff' },
-        'Banana': { bg: '#2e2e00', card: '#4a4a00', text: '#ffffe0', accent: '#ffe135' },
-        'Lemon': { bg: '#1a1a00', card: '#333300', text: '#ffffe6', accent: '#fff700' },
-        'GoldRush': { bg: '#1a1200', card: '#332400', text: '#ffebcd', accent: '#daa520' },
-        'Orange': { bg: '#331400', card: '#662900', text: '#fff0e6', accent: '#ffa500' },
-        'Tangerine': { bg: '#e65100', card: '#ff833a', text: '#000000', accent: '#ffe0b2' },
-        'Tiger': { bg: '#1a0d00', card: '#331a00', text: '#ff9900', accent: '#ffcc00' },
-        'Amber': { bg: '#2b1d00', card: '#4d3300', text: '#ffbf00', accent: '#ffdb4d' },
-        'Halloween': { bg: '#1a0500', card: '#2b0e00', text: '#ff6600', accent: '#993300' },
-        'Apricot': { bg: '#2b1608', card: '#4a260e', text: '#ffccb3', accent: '#fbceb1' },
-        'Ferrari': { bg: '#330000', card: '#cc0000', text: '#ffffff', accent: '#ffff00' },
-        'Lava': { bg: '#1a0500', card: '#330a00', text: '#ffebd9', accent: '#ff4500' },
-        'Ruby': { bg: '#2b0000', card: '#520000', text: '#ffe6e6', accent: '#e0115f' },
-        'Crimson': { bg: '#330000', card: '#4d0000', text: '#ffcccc', accent: '#dc143c' },
-        'Cherry': { bg: '#2b0000', card: '#420000', text: '#ffcccc', accent: '#ff4d4d' },
-        'Brick': { bg: '#2b1100', card: '#4d1f00', text: '#ffcc99', accent: '#b22222' },
-        'Wine': { bg: '#1a000d', card: '#33001a', text: '#e6ccff', accent: '#722f37' },
-        'Blood': { bg: '#1a0000', card: '#330000', text: '#ff0000', accent: '#800000' },
-        'Mars': { bg: '#2b0a05', card: '#4a1209', text: '#ffcccb', accent: '#bc2732' },
-        'Inferno': { bg: '#140500', card: '#290a00', text: '#ff4500', accent: '#ffa500' },
-        'Volcanic': { bg: '#120505', card: '#260a0a', text: '#ffdddd', accent: '#ff3333' },
-        'Magenta': { bg: '#1a001a', card: '#330033', text: '#ff00ff', accent: '#ff00ff' },
-        'Amethyst': { bg: '#1a001a', card: '#330033', text: '#f2e6ff', accent: '#9966cc' },
-        'Velvet': { bg: '#1a001a', card: '#2e002e', text: '#ffccff', accent: '#800080' },
-        'Indigo': { bg: '#0f001a', card: '#1f0033', text: '#e6ccff', accent: '#4b0082' },
-        'Plum': { bg: '#1a051a', card: '#2e0a2e', text: '#ffe6ff', accent: '#dda0dd' },
-        'HotPink': { bg: '#1a000d', card: '#33001a', text: '#ffe6f2', accent: '#ff69b4' },
-        'Bubblegum': { bg: '#1f0a14', card: '#3d1428', text: '#ffe6f7', accent: '#ffadd6' },
-        'Orchid': { bg: '#1a0d1a', card: '#2e1a2e', text: '#f2e6ff', accent: '#da70d6' },
-        'Grape': { bg: '#12001a', card: '#240033', text: '#f3e6ff', accent: '#800080' },
-        'Lavender': { bg: '#201a23', card: '#2e2532', text: '#ffffff', accent: '#a663cc' },
-        'Barbie': { bg: '#330019', card: '#660033', text: '#ffccdd', accent: '#e0218a' },
-        'Electric': { bg: '#00001a', card: '#000033', text: '#ffffff', accent: '#00ffff' },
-        'Ocean': { bg: '#001f3f', card: '#003366', text: '#7FDBFF', accent: '#39CCCC' },
-        'Sapphire': { bg: '#00002b', card: '#000052', text: '#e6e6ff', accent: '#0f52ba' },
-        'Sky': { bg: '#00264d', card: '#004080', text: '#e6f2ff', accent: '#3399ff' },
-        'Cobalt': { bg: '#001a33', card: '#003366', text: '#ffffff', accent: '#0047ab' },
-        'Frozen': { bg: '#0c1b29', card: '#152d42', text: '#d0efff', accent: '#00a8ff' },
-        'DeepSea': { bg: '#001a23', card: '#00303d', text: '#e0f7fa', accent: '#00bcd4' },
         'Midnight': { bg: '#0f172a', card: '#1e293b', text: '#f1f5f9', accent: '#38bdf8' },
-        'Azure': { bg: '#003333', card: '#006666', text: '#e0ffff', accent: '#00ffff' },
-        'Blueprint': { bg: '#001a33', card: '#003366', text: '#ffffff', accent: '#4da6ff' },
-        'Navy': { bg: '#00001a', card: '#000040', text: '#ccccff', accent: '#000080' },
-        'Toxic': { bg: '#0d1f0d', card: '#1a3d1a', text: '#ccffcc', accent: '#adff2f' },
-        'Matrix': { bg: '#000000', card: '#0a140a', text: '#00ff00', accent: '#00cc00' },
-        'Emerald': { bg: '#00260e', card: '#004d1c', text: '#e6ffe6', accent: '#50c878' },
-        'Lime': { bg: '#0d1a00', card: '#1a3300', text: '#f2ffe6', accent: '#32cd32' },
         'Forest': { bg: '#1a2f1a', card: '#2f4f2f', text: '#dbebdb', accent: '#90ee90' },
-        'Mint': { bg: '#182f2a', card: '#254a43', text: '#e0f2f1', accent: '#00b894' },
-        'Jungle': { bg: '#0a1a0a', card: '#143314', text: '#d9f2d9', accent: '#228b22' },
-        'Olive': { bg: '#1a1a00', card: '#333300', text: '#ffffcc', accent: '#808000' },
-        'Alien': { bg: '#051405', card: '#0f290f', text: '#39ff14', accent: '#00ff00' },
-        'Cactus': { bg: '#0f1a0f', card: '#1f331f', text: '#e0f2e0', accent: '#5f9ea0' },
-        'Grass': { bg: '#001a00', card: '#003300', text: '#ccffcc', accent: '#008000' },
+        'Crimson': { bg: '#330000', card: '#4d0000', text: '#ffcccc', accent: '#dc143c' },
+        'Ocean': { bg: '#001f3f', card: '#003366', text: '#7FDBFF', accent: '#39CCCC' },
+        'Matrix': { bg: '#000000', card: '#0a140a', text: '#00ff00', accent: '#00cc00', border: '#00ff00' },
         'Cyberpunk': { bg: '#050505', card: '#121212', text: '#fcee0a', accent: '#00fff5' },
-        'Synthwave': { bg: '#1a0b2e', card: '#2b1055', text: '#fff', accent: '#ff007f' },
-        'NeonPink': { bg: '#1a0011', card: '#330022', text: '#ff0080', accent: '#ff1493' },
-        'NeonBlue': { bg: '#000a1a', card: '#001f4d', text: '#00ccff', accent: '#00ffff' },
-        'NeonGreen': { bg: '#001a05', card: '#00330a', text: '#39ff14', accent: '#00ff00' },
-        'Laser': { bg: '#0a0a0a', card: '#1f1f1f', text: '#ffffff', accent: '#ff3333' },
-        'Arcade': { bg: '#140014', card: '#290029', text: '#00ffcc', accent: '#ff00ff' },
-        'Glitch': { bg: '#0d0d0d', card: '#1a1a1a', text: '#00ff00', accent: '#ff0000' },
-        'Plasma': { bg: '#12001a', card: '#240033', text: '#e0ccff', accent: '#9933ff' },
-        'Tron': { bg: '#00111a', card: '#002233', text: '#ccf2ff', accent: '#00eeee' },
-        'Miami': { bg: '#001a1a', card: '#003333', text: '#ff66b2', accent: '#00cccc' },
-        'Berry': { bg: '#1a001a', card: '#330033', text: '#ffe6ff', accent: '#cc00cc' },
-        'Kiwi': { bg: '#111a00', card: '#223300', text: '#eeffee', accent: '#8ee53f' },
-        'Watermelon': { bg: '#001a0d', card: '#00331a', text: '#ffcccc', accent: '#ff6b6b' },
-        'DragonFruit': { bg: '#1a0011', card: '#330022', text: '#ffffff', accent: '#ff0055' },
-        'Peach': { bg: '#331a00', card: '#663300', text: '#ffe0b2', accent: '#ff9800' },
-        'Blueberry': { bg: '#00001a', card: '#000033', text: '#ccccff', accent: '#4682b4' },
-        'Candy': { bg: '#2c001e', card: '#4a0033', text: '#ffd1dc', accent: '#ff69b4' },
-        'Chocolate': { bg: '#1f1a17', card: '#362f2b', text: '#e6dace', accent: '#d2691e' },
-        'Coffee': { bg: '#1a110d', card: '#33221a', text: '#dcc6ba', accent: '#8b4513' },
-        'MintChoco': { bg: '#0a1a15', card: '#152b22', text: '#d9f2e6', accent: '#3eb489' },
-        'Rainbow': { bg: '#1a1a1a', card: '#2d2d2d', text: '#ffffff', accent: '#ff0000', border: '#00ff00' },
         'Default': { bg: '#1e1e1e', card: '#2d2d2d', text: '#ffffff', accent: '#2ecc71' },
-        'NightMode': { bg: '#050505', card: '#0f0f0f', text: '#cccccc', accent: '#444444' },
-        'Abyss': { bg: '#020202', card: '#0a0a0a', text: '#555555', accent: '#333333' },
-        'Shadow': { bg: '#121212', card: '#1f1f1f', text: '#a0a0a0', accent: '#606060' },
-        'Obsidian': { bg: '#141414', card: '#202020', text: '#e0e0e0', accent: '#6c5ce7' },
-        'Slate': { bg: '#272b33', card: '#3b404d', text: '#ffffff', accent: '#d08770' },
-        'Gothic': { bg: '#0d0d0d', card: '#1a1a1a', text: '#888888', accent: '#440000' },
-        'Storm': { bg: '#12121a', card: '#242433', text: '#e6e6fa', accent: '#483d8b' },
-        'Vampire': { bg: '#0a0000', card: '#1a0000', text: '#ff9999', accent: '#ff0000' },
-        'Ninja': { bg: '#111111', card: '#222222', text: '#33ff33', accent: '#000000' },
-        'Retro': { bg: '#2c3e50', card: '#34495e', text: '#ecf0f1', accent: '#e67e22' }
     };
 
     // --- ACHIEVEMENTS DEFINITION ---
-    const achievementsList = [
-        // Výhry a Dominancia
-        { id: 'shark', icon: '🦈', name: 'Shark', desc: '3 a viac výhier', check: (s) => s.wins >= 3 },
-        { id: 'dominator', icon: '👑', name: 'Dominator', desc: '10 a viac výhier', check: (s) => s.wins >= 10 },
-        { id: 'goat', icon: '🐐', name: 'GOAT', desc: '20 a viac výhier', check: (s) => s.wins >= 20 },
-        { id: 'important_man', icon: '⭐', name: 'Important Man', desc: 'Výhra v Dôležitom (!) turnaji', check: (s, h) => hasWinInType(h, 'isImportant') },
-        { id: 'major_man', icon: '💎', name: 'Major Man', desc: 'Výhra vo Významnom (=) turnaji', check: (s, h) => hasWinInType(h, 'isSignificant') },
-        { id: 'major_champ', icon: '💍', name: 'Major Champ', desc: 'Výhra v Dôležitom (!) aj Významnom (=) turnaji', check: (s, h) => hasWinInType(h, 'isImportant') && hasWinInType(h, 'isSignificant') },
-        { id: 'trophy_hunter', icon: '🏆', name: 'Trophy Hunter', desc: 'Získal FED EX trofej', check: (s) => s.trophies >= 1 },
-        { id: 'pga_king', icon: '🏌️', name: 'PGA King', desc: 'Vyhral 5 PGA turnajov', check: (s, h) => countWinsByType(h, 'PGA') >= 5 },
-        { id: 'ea_king', icon: '🎮', name: 'It\'s in the Game', desc: 'Vyhral EA Sports turnaj', check: (s, h) => countWinsByType(h, 'EA SPORTS') >= 1 },
-        { id: 'player_year', icon: '🌟', name: 'Player of the Year', desc: 'Vyhral Players Turnaj', check: (s, h) => countWinsByType(h, 'THE PLAYERS') >= 1 },
-        { id: 'world_no1', icon: '🌍', name: 'World No.1', desc: 'Dosiahol 1. miesto v Official Rankingu', check: (s) => s.isWorldNo1 === true },
-        { id: 'master_everything', icon: '🌌', name: 'Master of Everything', desc: 'Vyhral PGA, EA, Players aj FED EX', check: (s, h) => hasMasterSlam(h) },
-        { id: 'us_champ', icon: '🇺🇸', name: 'US Champ', desc: 'Vyhral US Open', check: (s, h) => hasWinEventName(h, 'US Open') },
-        { id: 'opener', icon: '🇬🇧', name: 'Opener', desc: 'Vyhral The Open', check: (s, h) => hasWinEventName(h, 'The Open') },
-        { id: 'defender', icon: '🛡️', name: 'Trophie Deffender', desc: 'Vyhral dva turnaje po sebe', check: (s, h) => hasBackToBackWins(h) },
-        { id: 'champion', icon: '🏅', name: 'Champion', desc: '1. miesto v PGA, Official aj FED EX Rank', check: (s) => s.isTripleCrown === true },
+    const achievementsDef = [
+        { id: 'shark', icon: '🦈', name: 'Shark', desc: '3 a viac výhier.', cat: 'wins' },
+        { id: 'dominator', icon: '👑', name: 'Dominator', desc: '10 a viac výhier.', cat: 'wins' },
+        { id: 'goat', icon: '🐐', name: 'GOAT', desc: '20 a viac výhier.', cat: 'wins' },
+        { id: 'imp_man', icon: '⭐', name: 'Important Man', desc: 'Výhra v Dôležitom (!) turnaji.', cat: 'wins' },
+        { id: 'maj_man', icon: '🎖️', name: 'Major Man', desc: 'Výhra vo Významnom (=) turnaji.', cat: 'wins' },
+        { id: 'maj_champ', icon: '🏆', name: 'Major Champ', desc: 'Výhra v Dôležitom (!) aj Významnom (=) turnaji.', cat: 'wins' },
+        { id: 'trophy_hunt', icon: '🪙', name: 'Trophy Hunter', desc: 'Získal FED EX trofej.', cat: 'wins' },
+        { id: 'pga_king', icon: '⛳', name: 'PGA King', desc: 'Vyhral 5 PGA turnajov.', cat: 'wins' },
+        { id: 'ea_game', icon: '🎮', name: "It's in the Game", desc: 'Vyhral EA Sports turnaj.', cat: 'wins' },
+        { id: 'poty', icon: '🕺', name: 'Player of the Year', desc: 'Vyhral Players Turnaj.', cat: 'wins' },
+        { id: 'world_1', icon: '🌍', name: 'World No.1', desc: 'Hráč dosiahol 1. miesto v Official Rankingu.', cat: 'wins' },
+        { id: 'master_all', icon: '🪐', name: 'Master of Everything', desc: 'Vyhral PGA, EA, Players aj FED EX turnaj.', cat: 'wins' },
+        { id: 'us_champ', icon: '🗽', name: 'US Champ', desc: 'Vyhral turnaj s názvom US Open!', cat: 'wins' },
+        { id: 'opener', icon: '🕰️', name: 'Opener', desc: 'Vyhral turnaj s názvom The Open!', cat: 'wins' },
+        { id: 'defender', icon: '🛡️', name: 'Trophy Defender', desc: 'Vyhral dva turnaje po sebe.', cat: 'wins' },
+        { id: 'champion', icon: '🏅', name: 'Champion', desc: 'Dosiahol 1. miesto v PGA Rank, Official Rank aj FED EX Rank.', cat: 'wins' },
 
-        // Body a Kariéra
-        { id: 'high_roller', icon: '💰', name: 'High Roller', desc: 'Zisk viac ako 5 000 bodov', check: (s) => s.totalPoints >= 5000 },
-        { id: 'tycoon', icon: '🏦', name: 'Tycoon', desc: 'Zisk viac ako 10 000 bodov', check: (s) => s.totalPoints >= 10000 },
-        { id: 'legend', icon: '🧛', name: 'Legend', desc: '10k+ bodov A 10+ výhier', check: (s) => s.totalPoints >= 10000 && s.wins >= 10 },
+        { id: 'high_roller', icon: '💰', name: 'High Roller', desc: 'Celkový zisk viac ako 5 000 bodov.', cat: 'points' },
+        { id: 'tycoon', icon: '🏦', name: 'Tycoon', desc: 'Celkový zisk viac ako 10 000 bodov.', cat: 'points' },
+        { id: 'legend', icon: '🧞', name: 'Legend', desc: 'Viac ako 10 000 bodov A aspoň 10 výhier.', cat: 'points' },
 
-        // Výdrž
-        { id: 'veteran', icon: '🎖️', name: 'Veteran', desc: '50+ turnajov', check: (s) => s.tournamentCount >= 50 },
-        { id: 'iron_man', icon: '🤖', name: 'Iron Man', desc: '100+ turnajov', check: (s) => s.tournamentCount >= 100 },
-        { id: 'immortal', icon: '🧟', name: 'Immortal', desc: '200+ turnajov', check: (s) => s.tournamentCount >= 200 },
-        { id: 'marathon', icon: '🏃', name: 'Marathon', desc: '5000+ jamiek', check: (s) => s.totalHoles >= 5000 },
-        { id: 'iron_hand', icon: '🦾', name: 'Iron Hand', desc: '20 000+ jamiek', check: (s) => s.totalHoles >= 20000 },
+        { id: 'veteran', icon: '🎖️', name: 'Veteran', desc: 'Odohraných 50+ turnajov.', cat: 'stamina' },
+        { id: 'iron_man', icon: '🤖', name: 'Iron Man', desc: 'Odohraných 100+ turnajov.', cat: 'stamina' },
+        { id: 'immortal', icon: '🧛', name: 'Immortal', desc: 'Odohraných 200+ turnajov.', cat: 'stamina' },
+        { id: 'marathon', icon: '🏃', name: 'Marathon', desc: 'Odohraných viac ako 5000 jamiek.', cat: 'stamina' },
+        { id: 'iron_hand', icon: '🦾', name: 'Iron Hand', desc: 'Odohraných viac ako 20 000 jamiek.', cat: 'stamina' },
 
-        // Sezónne (Presnosť)
-        { id: 'sniper', icon: '🎯', name: 'Sniper', desc: 'Aspoň 1 Ace', check: (s, h, season) => season.aces >= 1 },
-        { id: 'eagle_eye', icon: '👁️', name: 'Eagle Eye', desc: '20+ Eagles', check: (s, h, season) => season.eagles >= 20 },
-        { id: 'albatross', icon: '🦅', name: 'Albatross', desc: 'Aspoň 1 Double Eagle', check: (s, h, season) => season.de >= 1 },
-        { id: 'birdie_machine', icon: '🎰', name: 'Birdie Machine', desc: '100+ Birdies', check: (s, h, season) => season.birdies >= 100 },
-        { id: 'birdie_king', icon: '🐦', name: 'Birdie King', desc: '200+ Birdies', check: (s, h, season) => season.birdies >= 200 },
-        { id: 'par_master', icon: '⚖️', name: 'Par Master', desc: '1000+ Parov', check: (s, h, season) => season.pars >= 1000 },
+        { id: 'sniper', icon: '🎯', name: 'Sniper', desc: 'Aspoň 1 Ace (Hole-in-one).', cat: 'aim' },
+        { id: 'eagle_eye', icon: '🦅', name: 'Eagle Eye', desc: '20 a viac Eagles.', cat: 'aim' },
+        { id: 'albatross', icon: '🐦‍🔥', name: 'Albatross', desc: 'Aspoň 1 Double Eagle.', cat: 'aim' },
+        { id: 'birdie_mach', icon: '🐦', name: 'Birdie Machine', desc: '100 a viac Birdies.', cat: 'aim' },
+        { id: 'birdie_king', icon: '🦜', name: 'Birdie King', desc: '200 a viac Birdies.', cat: 'aim' },
+        { id: 'par_master', icon: '⚖️', name: 'Par Master', desc: '1000 a viac Parov.', cat: 'aim' },
 
-        // Konzistencia
-        { id: 'elite', icon: '🎩', name: 'Elite', desc: 'Top 5 aspoň 10x', check: (s) => s.top5 >= 10 },
-        { id: 'podium', icon: '🥉', name: 'Podium', desc: 'Top 5 aspoň 20x', check: (s) => s.top5 >= 20 },
-        { id: 'consistency', icon: '🧱', name: 'Consistency', desc: 'Top 20 aspoň 30x', check: (s) => s.top20 >= 30 },
-        { id: 'top10reg', icon: '🔟', name: 'Top 10 Reg', desc: 'Top 20 aspoň 50x', check: (s) => s.top20 >= 50 },
-        { id: 'cut_master', icon: '🔪', name: 'Cut Master', desc: 'Prešiel CUT 50x', check: (s) => s.cut >= 50 },
-        { id: 'survivor', icon: '🏝️', name: 'Survivor', desc: 'Prešiel CUT 100x', check: (s) => s.cut >= 100 },
+        { id: 'elite', icon: '🎩', name: 'Elite', desc: 'Top 5 aspoň 10-krát.', cat: 'consist' },
+        { id: 'podium', icon: '🥉', name: 'Podium', desc: 'Top 5 aspoň 20-krát.', cat: 'consist' },
+        { id: 'consistency', icon: '📉', name: 'Consistency', desc: 'Top 20 aspoň 30-krát.', cat: 'consist' },
+        { id: 'top10_reg', icon: '📊', name: 'Top 10 Reg', desc: 'Top 20 aspoň 50-krát.', cat: 'consist' },
+        { id: 'cut_master', icon: '✂️', name: 'Cut Master', desc: 'Prešiel cez CUT aspoň 50-krát.', cat: 'consist' },
+        { id: 'survivor', icon: '🏝️', name: 'Survivor', desc: 'Prešiel cez CUT aspoň 100-krát.', cat: 'consist' },
 
-        // Špeciálne
-        { id: 'sub60', icon: '🔥', name: 'Sub-60 Club', desc: 'Kolo pod 60', check: (s) => s.bestRound < 60 },
-        { id: 'scratch', icon: '✏️', name: 'Scratch', desc: 'Priemer pod 67.0', check: (s) => parseFloat(s.strokeAvg) < 67.0 && s.tournamentCount > 0 },
-        { id: 'safe_player', icon: '🛡️', name: 'Safe Player', desc: 'Parov 2x viac ako Bogeys', check: (s, h, season) => season.pars > (season.bogeys * 2) && season.pars > 10 },
-        { id: 'aggressive', icon: '⚔️', name: 'Aggressive', desc: 'Viac Birdies ako Parov', check: (s, h, season) => season.birdies > season.pars && season.birdies > 10 },
-        { id: 'player_trait', icon: '🧢', name: 'Player', desc: 'Hral na Players turnaji', check: (s, h) => hasPlayedType(h, 'THE PLAYERS') },
-        { id: 'under_par', icon: '📉', name: 'Under Par', desc: 'Celkový Par je záporný', check: (s) => s.totalPar < 0 },
-        { id: 'solid', icon: '✊', name: 'Solid', desc: 'Priem. úderov pod 3.90 (ak rátame na jamku) alebo < 70.2', check: (s) => parseFloat(s.strokeAvg) < 70.2 && s.tournamentCount > 0 }, // 3.9 * 18 = 70.2
-        { id: 'never_back_down', icon: '🏋️', name: 'Never Back Down', desc: 'R1 >= 80, ale prešiel CUT', check: (s, h) => hasRecovery(h) },
-        { id: 'lucky7', icon: '🍀', name: 'Lucky 7', desc: '7 Achievementov a 7x Top 5', check: (s, h, sea, count) => count >= 7 && s.top5 >= 7 }
+        { id: 'sub60', icon: '🔥', name: 'Sub-60 Club', desc: 'Zahral kolo pod 60 rán.', cat: 'special' },
+        { id: 'scratch', icon: '🏌️', name: 'Scratch', desc: 'Celkový priemer úderov pod 67.0.', cat: 'special' },
+        { id: 'safe_play', icon: '🛡️', name: 'Safe Player', desc: 'Počet Parov je viac ako dvojnásobok Bogeys.', cat: 'special' },
+        { id: 'aggressive', icon: '⚔️', name: 'Aggressive', desc: 'Počet Birdies je vyšší ako počet Parov.', cat: 'special' },
+        { id: 'player_badge', icon: '🧢', name: 'Player', desc: 'Zúčastnil sa turnaja Players.', cat: 'special' },
+        { id: 'under_par', icon: '📉', name: 'Under Par', desc: 'Hráč má celkové skóre Par v mínuse.', cat: 'special' },
+        { id: 'solid', icon: '🧱', name: 'Solid', desc: 'Priemer úderov menší ako 3.90.', cat: 'special' },
+        { id: 'never_back', icon: '💪', name: 'Never Back Down', desc: 'R1 >= 80, ale aj tak prešiel CUT.', cat: 'special' },
+        { id: 'lucky7', icon: '🍀', name: 'Lucky 7', desc: '7 Achievementov + 7x Top 5.', cat: 'special' }
     ];
 
-    /* --- HELPERS FOR ACHIEVEMENTS --- */
-    function hasWinInType(history, prop) {
-        return history.some(h => h.rank === 1 && h[prop]);
-    }
-    function countWinsByType(history, type) {
-        return history.filter(h => h.rank === 1 && h.type === type).length;
-    }
-    function hasWinEventName(history, nameFragment) {
-        return history.some(h => h.rank === 1 && h.eventName.includes(nameFragment));
-    }
-    function hasPlayedType(history, type) {
-        return history.some(h => h.type === type);
-    }
-    function hasMasterSlam(history) {
-        const wins = history.filter(h => h.rank === 1).map(h => h.type);
-        return wins.includes('PGA') && wins.includes('EA SPORTS') && wins.includes('THE PLAYERS') && wins.includes('FED EX');
-    }
-    function hasBackToBackWins(history) {
-        for (let i = 0; i < history.length - 1; i++) {
-            if (history[i].rank === 1 && history[i+1].rank === 1) return true;
-        }
-        return false;
-    }
-    function hasRecovery(history) {
-        return history.some(h => {
-            const r1 = parseInt(h.r1);
-            return !isNaN(r1) && r1 >= 80 && h.points > 0;
-        });
-    }
+    // --- HALL OF FAME RECORDS DEFINITION (35 rekordov s popismi) ---
+    const recordsDef = [
+        { id: 'most_wins', name: 'Najviac Výhier', desc: 'Celkový počet víťazstiev vo všetkých turnajoch.', icon: '🥇', format: (v) => `${v}x` },
+        { id: 'most_points', name: 'Najviac Bodov', desc: 'Celkový počet získaných bodov v kariére.', icon: '💰', format: (v) => v.toFixed(0) },
+        { id: 'iron_man', name: 'Iron Man (Turnaje)', desc: 'Najväčší počet odohraných turnajov.', icon: '🤖', format: (v) => `${v}` },
+        { id: 'lowest_rnd', name: 'Najnižšie Kolo', desc: 'Najnižšie zahrané skóre v jednom kole (18 jamiek).', icon: '🔥', format: (v) => v },
+        { id: 'avg_strokes', name: 'Priemer Úderov', desc: 'Celkový priemer úderov na jedno kolo (min. 5 turnajov).', icon: '🎯', format: (v) => v.toFixed(2) },
+        { id: 'most_cuts', name: 'Cut Master', desc: 'Počet turnajov, v ktorých hráč prešiel cutom (získal body).', icon: '🛡️', format: (v) => `${v}x` },
+        { id: 'most_top20', name: 'Top 20 Machine', desc: 'Počet umiestnení v najlepšej dvadsiatke.', icon: '💎', format: (v) => `${v}x` },
+        { id: 'top10_machine', name: 'Top 10 Elite', desc: 'Počet umiestnení v najlepšej desiatke.', icon: '🌟', format: (v) => `${v}x` },
+        { id: 'podium', name: 'Podium Finisher', desc: 'Počet umiestnení na stupni víťazov (Top 3).', icon: '🥉', format: (v) => `${v}x` },
+        
+        { id: 'birdie_king', name: 'Birdie King (Sezóna)', desc: 'Najviac Birdies v jednej sezóne (vyžaduje sezónne štatistiky).', icon: '🐦', format: (v) => `${v}` },
+        { id: 'sniper', name: 'Sniper (Aces)', desc: 'Celkový počet Hole-in-One (vyžaduje sezónne štatistiky).', icon: '⛳', format: (v) => `${v}` },
+        { id: 'eagle_master', name: 'Eagle Master', desc: 'Celkový počet Eagles v sezóne.', icon: '🦅', format: (v) => v },
+        { id: 'par_machine', name: 'Par Machine', desc: 'Najviac Parov v jednej sezóne.', icon: '⚖️', format: (v) => v },
 
-    /* --- APP STATE --- */
+        { id: 'mr_saturday', name: 'Mr. Saturday', desc: 'Najlepší priemer skóre v 3. kole (Moving Day).', icon: '📅', format: (v) => v.toFixed(2) },
+        { id: 'mr_sunday', name: 'Mr. Sunday', desc: 'Najlepší priemer skóre vo finálovom 4. kole.', icon: '🏆', format: (v) => v.toFixed(2) },
+        { id: 'slow_starter', name: 'Slow Starter', desc: 'Najhorší priemer skóre v 1. kole.', icon: '🐢', format: (v) => v.toFixed(2) },
+        { id: 'fast_starter', name: 'Rocket Start', desc: 'Najlepší priemer skóre v 1. kole.', icon: '🚀', format: (v) => v.toFixed(2) },
+        
+        { id: 'glass_chin', name: 'Glass Chin', desc: 'Najhoršie zahrané 4. kolo v kariére.', icon: '📉', format: (v) => v },
+        { id: 'finisher', name: 'The Finisher', desc: 'Najlepšie zahrané 4. kolo v kariére.', icon: '🏁', format: (v) => v },
+        
+        { id: 'major_hunter', name: 'Major Hunter', desc: 'Najviac výhier v Dôležitých (!) a Významných (=) turnajoch.', icon: '⭐', format: (v) => `${v}x` },
+        { id: 'major_avg', name: 'Big Game Player', desc: 'Najlepšie priemerné umiestnenie v Major turnajoch (min. 3 turnaje).', icon: '🦁', format: (v) => v.toFixed(1) },
+        
+        { id: 'runner_up', name: 'Silver Collector', desc: 'Najviac druhých miest.', icon: '🥈', format: (v) => `${v}x` },
+        { id: 'consistency_king', name: 'Mr. Consistent', desc: 'Najlepšie priemerné umiestnenie v kariére (min. 10 turnajov).', icon: '📊', format: (v) => v.toFixed(1) },
+        { id: 'marathon_man', name: 'Marathon Man', desc: 'Celkový počet odohraných jamiek.', icon: '🏃', format: (v) => v },
+        
+        { id: 'win_streak', name: 'Win Streak', desc: 'Najviac výhier v rade za sebou.', icon: '🔥', format: (v) => `${v}x` },
+        { id: 'best_weekend', name: 'Best Weekend', desc: 'Najnižší súčet skóre za víkend (R3 + R4).', icon: '🎉', format: (v) => v },
+        { id: 'worst_collapse', name: 'Worst Collapse', desc: 'Najväčšie zhoršenie skóre medzi R3 a R4 (R4 >> R3).', icon: '🥀', format: (v) => `+${v}` },
+        { id: 'comeback_kid', name: 'Comeback Kid', desc: 'Najväčšie zlepšenie skóre medzi R3 a R4 (R4 << R3).', icon: '🆙', format: (v) => `-${v}` },
+        
+        { id: 'scoring_machine', name: 'Sub-70 Machine', desc: 'Počet kôl zahraných pod 70 úderov.', icon: '🔫', format: (v) => `${v}x` },
+        { id: 'kft_king', name: 'KFT King', desc: 'Najviac bodov získaných na KFT Tour.', icon: '🚜', format: (v) => v.toFixed(0) },
+        { id: 'pga_dominator', name: 'PGA Dominator', desc: 'Najviac bodov získaných na PGA Tour.', icon: '🏙️', format: (v) => v.toFixed(0) },
+        { id: 'under_par_total', name: 'Red Numbers', desc: 'Celkové skóre voči Paru v kariére (čím nižšie, tým lepšie).', icon: '🔻', format: (v) => v > 0 ? `+${v}` : v },
+        { id: 'sub60_count', name: '59 Watch', desc: 'Počet kôl pod 60 úderov.', icon: '👽', format: (v) => `${v}x` },
+        { id: 'unique_winner', name: 'Global Winner', desc: 'Počet rôznych typov Tour, na ktorých hráč vyhral.', icon: '🌍', format: (v) => `${v}` }
+    ];
+
     let db = { files: [], seasonStats: [] }; 
     let appState = {
         filters: { tours: ['ALL'], events: [], seasons: [], importance: 'ALL', activeWeek: null },
@@ -666,16 +589,61 @@
         window.onpopstate = function(event) {
             if (modalStack.length > 0) closeTopModal(false);
         };
+
+        // --- DRAG & DROP IMPLEMENTATION ---
+        const body = document.body;
+        
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            body.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            body.addEventListener(eventName, () => body.style.borderColor = 'var(--accent-green)', false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            body.addEventListener(eventName, () => body.style.borderColor = 'transparent', false);
+        });
+
+        body.addEventListener('drop', handleDrop, false);
+
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            
+            const seasonFiles = [];
+            const tourFiles = [];
+            
+            Array.from(files).forEach(f => {
+                if (f.name.includes('stats') || /^\d+\.txt$/.test(f.name)) {
+                    seasonFiles.push(f);
+                } else if (f.name.endsWith('.txt')) {
+                    tourFiles.push(f);
+                }
+            });
+
+            if (tourFiles.length > 0) handleFiles(tourFiles);
+            if (seasonFiles.length > 0) handleSeasonFiles(seasonFiles);
+        }
     });
 
     // --- File Handling ---
     function handleFiles(files) {
+        let count = 0;
         Array.from(files).forEach(file => {
             const reader = new FileReader();
             reader.onload = (e) => {
                 parseTxt(file.name, e.target.result);
-                renderApp();
-                saveAuto();
+                count++;
+                if(count === files.length) {
+                    renderApp();
+                    saveAuto();
+                }
             };
             reader.readAsText(file);
         });
@@ -798,10 +766,6 @@
                 parseSeasonTxt(file.name, e.target.result);
                 saveAuto();
                 alert(`Sezónne štatistiky z "${file.name}" boli úspešne nahrané.`);
-                if (modalStack.length > 0) {
-                     closeTopModal();
-                     openSettings();
-                }
             };
             reader.readAsText(file);
         });
@@ -848,19 +812,6 @@
             filename: filename,
             content: seasonPlayers
         });
-    }
-
-    function clearDB() {
-        if(confirm('Naozaj vymazať celú databázu (vrátane sezónnych štatistík)?')) {
-            db.files = [];
-            db.seasonStats = [];
-            appState.filters.events = [];
-            appState.filters.seasons = [];
-            appState.filters.importance = 'ALL';
-            renderApp();
-            saveAuto();
-            closeTopModal();
-        }
     }
 
     function normalizeName(name) {
@@ -916,6 +867,9 @@
     function getAggregatedStats() {
         const files = getActiveFiles();
         const playerMap = {};
+        
+        const sortedFilesForForm = [...files].sort(compareFiles);
+        const latestFile = sortedFilesForForm[sortedFilesForForm.length - 1];
 
         files.forEach(file => {
             file.content.forEach(p => {
@@ -943,14 +897,21 @@
                         cut: 0,
                         top20: 0,
                         top5: 0,
-                        wins: 0
+                        wins: 0,
+                        lastRank: null, 
+                        ranks: [] 
                     };
                 }
 
                 const entry = playerMap[targetName];
                 entry.totalPar += p.par;
                 entry.totalPoints += p.points;
-                entry.weeksPlayed++; // Turnaje
+                entry.weeksPlayed++; 
+                entry.ranks.push(p.rank);
+
+                if (latestFile && file.id === latestFile.id) {
+                    entry.lastRank = p.rank;
+                }
 
                 if (p.points > 0) entry.cut++;
                 if (p.rank <= 20) entry.top20++;
@@ -973,7 +934,17 @@
         let arr = Object.values(playerMap);
         
         arr.forEach(p => {
-            p.strokeAvg = p.totalHoles > 0 ? (p.totalStrokes / p.totalHoles * 18).toFixed(2) : '-';
+            p.strokeAvg = p.totalHoles > 0 ? (p.totalStrokes / (p.totalHoles/18)).toFixed(2) : '-';
+            
+            if (p.lastRank !== null && p.ranks.length > 1) {
+                const sumRanks = p.ranks.reduce((a, b) => a + b, 0);
+                const avgRank = sumRanks / p.ranks.length;
+                if (p.lastRank < avgRank - 3) p.form = '⬆️'; 
+                else if (p.lastRank > avgRank + 3) p.form = '⬇️'; 
+                else p.form = '➡️';
+            } else {
+                p.form = '-';
+            }
         });
 
         arr = sortData(arr);
@@ -1006,100 +977,13 @@
                  valA = valA === '-' ? 999 : parseFloat(valA);
                  valB = valB === '-' ? 999 : parseFloat(valB);
             }
+            if (col === 'form') return (valA || '').localeCompare(valB || '') * dir;
+
             if (typeof valA === 'string') return valA.localeCompare(valB) * dir;
             return (valA - valB) * dir;
         });
     }
 
-    /* --- HALL OF FAME LOGIC --- */
-    function getHallOfFameData() {
-        const allStats = getAggregatedStats();
-        if(allStats.length === 0) return null;
-
-        // Sum Season Stats for Birdie King
-        const seasonSums = {};
-        db.seasonStats.forEach(sFile => {
-            sFile.content.forEach(p => {
-                let name = normalizePlayerName(p.name, seasonSums);
-                if(!seasonSums[name]) seasonSums[name] = { aces:0, birds:0, name: p.name };
-                seasonSums[name].aces += p.stats.aces;
-                seasonSums[name].birds += p.stats.birdies;
-            });
-        });
-        const seasonArr = Object.values(seasonSums);
-
-        const findMax = (arr, prop) => {
-            let maxVal = -Infinity;
-            arr.forEach(p => { if(p[prop] > maxVal) maxVal = p[prop]; });
-            const winners = arr.filter(p => p[prop] === maxVal);
-            return { val: maxVal, players: winners.map(w => w.name) };
-        };
-
-        const findMin = (arr, prop, minLimit = 0) => {
-            let minVal = Infinity;
-            arr.forEach(p => { 
-                let v = parseFloat(p[prop]);
-                if(v < minVal && v > minLimit && p.weeksPlayed >= 2) minVal = v; // Min 2 tournaments for Avg
-            });
-            if(minVal === Infinity) return null;
-            const winners = arr.filter(p => parseFloat(p[prop]) === minVal && p.weeksPlayed >= 2);
-            return { val: minVal, players: winners.map(w => w.name) };
-        };
-        
-        const findMinRound = (arr) => {
-            let minVal = Infinity;
-            arr.forEach(p => { if(p.bestRound < minVal) minVal = p.bestRound; });
-            const winners = arr.filter(p => p.bestRound === minVal);
-            return { val: minVal, players: winners.map(w => w.name) };
-        };
-
-        return {
-            wins: findMax(allStats, 'wins'),
-            points: findMax(allStats, 'totalPoints'),
-            iron: findMax(allStats, 'weeksPlayed'),
-            lowRound: findMinRound(allStats),
-            avg: findMin(allStats, 'strokeAvg'),
-            cut: findMax(allStats, 'cut'),
-            top20: findMax(allStats, 'top20'),
-            birdies: seasonArr.length ? findMax(seasonArr, 'birds') : null,
-            aces: seasonArr.length ? findMax(seasonArr, 'aces') : null
-        };
-    }
-    
-    function showHallOfFame() {
-        const hof = getHallOfFameData();
-        if(!hof) { alert('Žiadne dáta pre Sieň slávy.'); return; }
-        
-        const card = (title, icon, data, unit='') => `
-            <div class="hof-card">
-                <div class="hof-icon">${icon}</div>
-                <div class="hof-title">${title}</div>
-                <div class="hof-player">${data ? data.players.join(', ') : '-'}</div>
-                <div class="hof-value">${data ? data.val + unit : '-'}</div>
-            </div>
-        `;
-
-        const html = `
-            <div class="modal-header">
-                <h2>🏆 Sieň Slávy</h2>
-                <button class="close-btn" onclick="closeTopModal()">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div class="hof-grid">
-                    ${card('Najviac Výhier', '🥇', hof.wins)}
-                    ${card('Najviac Bodov', '💰', hof.points)}
-                    ${card('Iron Man (Turnaje)', '🤖', hof.iron)}
-                    ${card('Najnižšie Kolo', '🔥', hof.lowRound)}
-                    ${card('Priemer Úderov', '🎯', hof.avg)}
-                    ${card('Cut Master', '🛡️', hof.cut)}
-                    ${card('Top 20 Machine', '💎', hof.top20)}
-                    ${card('Birdie King (Sezóny)', '🐦', hof.birdies)}
-                    ${hof.aces && hof.aces.val > 0 ? card('Sniper (Aces)', '⛳', hof.aces) : ''}
-                </div>
-            </div>
-        `;
-        createModal(html);
-    }
     // --- Ranking Algorithms ---
     function getPGARankList() {
         let pgaFiles = db.files.filter(f => f.type === 'PGA');
@@ -1217,21 +1101,25 @@
     function createRankedList(pointsMap) {
         const arr = Object.entries(pointsMap).map(([name, points]) => ({ name, points }));
         arr.sort((a, b) => b.points - a.points);
+        let currentRank = 1;
         arr.forEach((p, i) => {
-            if (i > 0 && p.points === arr[i-1].points) p.rank = arr[i-1].rank;
-            else p.rank = i + 1;
+            if (i > 0 && p.points === arr[i-1].points) {
+                p.rank = arr[i-1].rank;
+            } else {
+                p.rank = i + 1;
+            }
         });
         return arr;
     }
 
     // --- Render Functions ---
+
     function renderApp() {
         renderFilters();
         renderTable();
     }
 
     function renderFilters() {
-        // 1. Tour Buttons
         ['ALL', 'KFT', 'PGA', 'EA SPORTS', 'THE PLAYERS', 'FED EX'].forEach(t => {
             const btn = document.getElementById(`btn-tour-${t}`);
             if(btn) {
@@ -1240,128 +1128,226 @@
             }
         });
 
-        // 2. Importance Dropdown
         const importanceDropdown = document.getElementById('importanceDropdown');
         importanceDropdown.innerHTML = '';
+        
         const importanceOptions = [
-            { key: 'ALL', label: 'Všetky' }, { key: 'CLASSIC', label: 'Klasické' },
-            { key: 'IMPORTANT', label: 'Dôležité (!)' }, { key: 'SIGNIFICANT', label: 'Významné (=)' }
+            { key: 'ALL', label: 'Všetky' },
+            { key: 'CLASSIC', label: 'Klasické' },
+            { key: 'IMPORTANT', label: 'Dôležité (!)' },
+            { key: 'SIGNIFICANT', label: 'Významné (=)' }
         ];
+
         importanceOptions.forEach(opt => {
             const btn = document.createElement('button');
-            btn.className = `filter-btn ${appState.filters.importance === opt.key ? 'active' : ''}`;
+            const isActive = appState.filters.importance === opt.key;
+            btn.className = `filter-btn ${isActive ? 'active' : ''}`;
             if (opt.key === 'IMPORTANT') btn.classList.add('important-tour');
             if (opt.key === 'SIGNIFICANT') btn.classList.add('significant-tour');
-            btn.style.width = '100%'; btn.style.marginBottom = '5px';
+            
+            btn.style.width = '100%';
+            btn.style.marginBottom = '5px';
             btn.innerText = opt.label;
             btn.onclick = (e) => { e.stopPropagation(); setImportanceFilter(opt.key); };
             importanceDropdown.appendChild(btn);
         });
-        document.getElementById('importanceFilterLabel').innerText = importanceOptions.find(o => o.key === appState.filters.importance)?.label || 'Všetky';
-        importanceDropdown.className = `dropdown-content ${appState.ui.importanceDropdownOpen ? 'show' : ''}`;
 
-        // 3. Season Dropdown
+        const impLabel = document.getElementById('importanceFilterLabel');
+        const activeImp = importanceOptions.find(o => o.key === appState.filters.importance);
+        impLabel.innerText = activeImp ? activeImp.label : 'Všetky';
+
+        if (appState.ui.importanceDropdownOpen) importanceDropdown.classList.add('show');
+        else importanceDropdown.classList.remove('show');
+
         const seasonDropdown = document.getElementById('seasonDropdown');
         seasonDropdown.innerHTML = '';
-        const allSeasons = [...new Set([...db.files.map(f => f.season), ...db.seasonStats.map(s => s.season)])]
-            .filter(s => s !== '00' && s !== '0').sort((a,b) => parseInt(a)-parseInt(b));
         
-        const allSBtn = document.createElement('button');
-        allSBtn.className = `filter-btn ${appState.filters.seasons.length === 0 ? 'active' : ''}`;
-        allSBtn.innerText = 'Všetky'; allSBtn.style.width = '100%'; allSBtn.style.marginBottom = '5px';
-        allSBtn.onclick = (e) => { e.stopPropagation(); appState.filters.seasons = []; renderApp(); saveAuto(); };
-        seasonDropdown.appendChild(allSBtn);
+        const fileSeasons = db.files.map(f => f.season);
+        const statsSeasons = db.seasonStats.map(s => s.season);
+        const allSeasonsSet = new Set([...fileSeasons, ...statsSeasons]);
+        
+        const availableSeasons = [...allSeasonsSet].filter(s => s !== '00' && s !== '0').sort((a,b) => parseInt(a) - parseInt(b));
+        
+        const allSeasonsBtn = document.createElement('button');
+        allSeasonsBtn.className = `filter-btn ${appState.filters.seasons.length === 0 ? 'active' : ''}`;
+        allSeasonsBtn.innerText = 'Všetky';
+        allSeasonsBtn.style.width = '100%';
+        allSeasonsBtn.style.marginBottom = '5px';
+        allSeasonsBtn.onclick = (e) => { e.stopPropagation(); appState.filters.seasons = []; renderApp(); saveAuto(); };
+        seasonDropdown.appendChild(allSeasonsBtn);
 
-        allSeasons.forEach(s => {
+        availableSeasons.forEach(s => {
             const btn = document.createElement('button');
-            btn.className = `filter-btn ${appState.filters.seasons.includes(s) ? 'active' : ''}`;
-            btn.innerText = `Sezóna ${s}`; btn.style.width = '100%'; btn.style.marginBottom = '5px';
+            const isActive = appState.filters.seasons.includes(s);
+            btn.className = `filter-btn ${isActive ? 'active' : ''}`;
+            btn.innerText = `Sezóna ${s}`;
+            btn.style.width = '100%';
+            btn.style.marginBottom = '5px';
             btn.onclick = (e) => { e.stopPropagation(); toggleSeasonFilter(s); };
             seasonDropdown.appendChild(btn);
         });
-        const sLabel = document.getElementById('seasonFilterLabel');
-        if (appState.filters.seasons.length === 0) sLabel.innerText = "Všetky";
-        else sLabel.innerText = `Vybrané (${appState.filters.seasons.length})`;
-        seasonDropdown.className = `dropdown-content ${appState.ui.seasonDropdownOpen ? 'show' : ''}`;
 
-        // 4. Event Dropdown
+        const seasonLabel = document.getElementById('seasonFilterLabel');
+        if (appState.filters.seasons.length === 0) seasonLabel.innerText = "Všetky";
+        else if (appState.filters.seasons.length === 1) seasonLabel.innerText = `Sezóna ${appState.filters.seasons[0]}`;
+        else seasonLabel.innerText = `Vybrané (${appState.filters.seasons.length})`;
+
+        if (appState.ui.seasonDropdownOpen) seasonDropdown.classList.add('show');
+        else seasonDropdown.classList.remove('show');
+
         const eventDropdown = document.getElementById('eventDropdown');
         eventDropdown.innerHTML = '';
-        let filesForDrop = getActiveFiles().sort(compareFiles);
-        const uniqueEvents = []; const seenE = new Set();
-        filesForDrop.forEach(f => {
-            if(!seenE.has(f.eventName)) {
-                seenE.add(f.eventName);
+        
+        let filesForDropdown = db.files;
+        if (!appState.filters.tours.includes('ALL')) {
+            filesForDropdown = filesForDropdown.filter(f => appState.filters.tours.includes(f.type));
+        }
+        
+        if (appState.filters.seasons.length > 0) {
+            filesForDropdown = filesForDropdown.filter(f => appState.filters.seasons.includes(f.season));
+        }
+        if (appState.filters.importance !== 'ALL') {
+             if (appState.filters.importance === 'CLASSIC') filesForDropdown = filesForDropdown.filter(f => !f.isImportant && !f.isSignificant);
+             else if (appState.filters.importance === 'IMPORTANT') filesForDropdown = filesForDropdown.filter(f => f.isImportant);
+             else if (appState.filters.importance === 'SIGNIFICANT') filesForDropdown = filesForDropdown.filter(f => f.isSignificant);
+        }
+
+        const sortedFiles = [...filesForDropdown].sort(compareFiles);
+        const uniqueEvents = [];
+        const seenEvents = new Set();
+        
+        sortedFiles.forEach(f => {
+            if (!seenEvents.has(f.eventName)) {
+                seenEvents.add(f.eventName);
                 uniqueEvents.push({ name: f.eventName, isImp: f.isImportant, isSig: f.isSignificant });
             }
         });
-        uniqueEvents.forEach(evt => {
+
+        uniqueEvents.forEach(evtObj => {
             const btn = document.createElement('button');
-            let cls = `filter-btn ${appState.filters.events.includes(evt.name) ? 'active' : ''}`;
-            if(evt.isImp) cls += ' important-tour'; else if(evt.isSig) cls += ' significant-tour';
-            btn.className = cls; btn.style.width = '100%'; btn.style.marginBottom = '5px';
-            btn.innerText = evt.name;
-            btn.onclick = (e) => { e.stopPropagation(); toggleEventFilter(evt.name); };
+            const isActive = appState.filters.events.includes(evtObj.name);
+            let classes = `filter-btn ${isActive ? 'active' : ''}`;
+            if (evtObj.isImp) classes += ' important-tour';
+            else if (evtObj.isSig) classes += ' significant-tour';
+            
+            btn.className = classes;
+            btn.style.width = '100%';
+            btn.style.marginBottom = '5px';
+            btn.innerText = evtObj.name;
+            btn.onclick = (e) => { e.stopPropagation(); toggleEventFilter(evtObj.name); };
             eventDropdown.appendChild(btn);
         });
-        const eLabel = document.getElementById('eventFilterLabel');
-        eLabel.innerText = appState.filters.events.length === 0 ? "Všetky turnaje" : `Vybrané (${appState.filters.events.length})`;
-        eventDropdown.className = `dropdown-content ${appState.ui.eventDropdownOpen ? 'show' : ''}`;
+        
+        const eventLabel = document.getElementById('eventFilterLabel');
+        if (appState.filters.events.length === 0) eventLabel.innerText = "Všetky turnaje";
+        else if (appState.filters.events.length === 1) eventLabel.innerText = appState.filters.events[0];
+        else eventLabel.innerText = `Vybrané (${appState.filters.events.length})`;
 
-        // 5. Weeks
-        const wCont = document.getElementById('weeksContainer');
-        const wBtn = document.getElementById('weekToggleBtn');
-        if(appState.ui.showWeeks) {
-            wCont.style.display = 'flex'; wCont.innerHTML = '';
-            wBtn.innerText = 'Skryť konkrétne týždne'; wBtn.classList.add('active');
-            getActiveFiles().sort((a,b)=>compareFiles(b,a)).forEach(f => {
+        if (appState.ui.eventDropdownOpen) eventDropdown.classList.add('show');
+        else eventDropdown.classList.remove('show');
+
+        const weeksContainer = document.getElementById('weeksContainer');
+        const weekToggleBtn = document.getElementById('weekToggleBtn');
+        
+        if (appState.ui.showWeeks) {
+            weeksContainer.style.display = 'flex';
+            weeksContainer.innerHTML = '';
+            weekToggleBtn.innerText = 'Skryť konkrétne týždne';
+            weekToggleBtn.classList.add('active');
+
+            const weekFiles = [...getActiveFiles()].sort((a, b) => compareFiles(b, a));
+            
+            weekFiles.forEach(f => {
                 const btn = document.createElement('button');
-                let lbl = f.name.replace('.txt','');
-                if(f.isImportant) { lbl='★ '+lbl; btn.classList.add('important-tour'); }
-                else if(f.isSignificant) { lbl='= '+lbl; btn.classList.add('significant-tour'); }
-                btn.className = `filter-btn ${appState.filters.activeWeek===f.id?'active':''} ${f.isImportant?'important-tour':''} ${f.isSignificant?'significant-tour':''}`;
-                btn.style.fontSize = '0.8rem'; btn.innerText = lbl;
+                const isActive = appState.filters.activeWeek === f.id;
+                let label = f.name.replace('.txt', '');
+                
+                if (f.isImportant) {
+                    label = '★ ' + label;
+                    btn.classList.add('important-tour');
+                } else if (f.isSignificant) {
+                    label = '= ' + label;
+                    btn.classList.add('significant-tour');
+                }
+
+                btn.className = `filter-btn ${isActive ? 'active' : ''}`;
+                if (f.isImportant) btn.classList.add('important-tour');
+                else if (f.isSignificant) btn.classList.add('significant-tour');
+                
+                btn.style.fontSize = '0.8rem';
+                btn.innerText = label;
                 btn.onclick = () => toggleWeekSelection(f.id);
-                wCont.appendChild(btn);
+                weeksContainer.appendChild(btn);
             });
         } else {
-            wCont.style.display = 'none'; wBtn.innerText = 'Zobraziť konkrétne týždne (Súbory)'; wBtn.classList.remove('active');
+            weeksContainer.style.display = 'none';
+            weekToggleBtn.innerText = 'Zobraziť konkrétne týždne (Súbory)';
+            weekToggleBtn.classList.remove('active');
         }
     }
 
     function renderTable() {
         const thead = document.querySelector('#mainTable thead');
         const tbody = document.querySelector('#mainTable tbody');
-        thead.innerHTML = ''; tbody.innerHTML = '';
-        let columns = [], data = [];
+        thead.innerHTML = '';
+        tbody.innerHTML = '';
+
+        let columns = [];
+        let data = [];
 
         if (appState.filters.activeWeek && appState.ui.showWeeks) {
             const file = db.files.find(f => f.id === appState.filters.activeWeek);
             if (!file) return;
-            data = [...file.content];
-            const col = appState.sort.column; const dir = appState.sort.dir === 'asc' ? 1 : -1;
+            data = [...file.content]; 
+            
+            const col = appState.sort.column;
+            const dir = appState.sort.dir === 'asc' ? 1 : -1;
             data.sort((a,b) => {
-                 let valA = a[col]||0, valB = b[col]||0;
-                 if(['r1','r2','r3','r4'].includes(col)) { valA=valA==='NA'?999:parseInt(valA); valB=valB==='NA'?999:parseInt(valB); }
-                 if(col==='name') return valA.localeCompare(valB)*dir;
-                 return (valA-valB)*dir;
+                 let valA = a[col] || 0; let valB = b[col] || 0;
+                 if (['r1','r2','r3','r4'].includes(col)) {
+                    valA = valA === 'NA' ? 999 : parseInt(valA);
+                    valB = valB === 'NA' ? 999 : parseInt(valB);
+                 }
+                 if(col === 'name') return valA.localeCompare(valB) * dir;
+                 return (valA - valB) * dir;
             });
-            columns = [{key:'rank',label:'Poz.'},{key:'name',label:'Meno'},{key:'par',label:'Par'},{key:'r1',label:'R1'},{key:'r2',label:'R2'},{key:'r3',label:'R3'},{key:'r4',label:'R4'},{key:'points',label:'Body'}];
+
+            columns = [
+                { key: 'rank', label: 'Poz.' },
+                { key: 'name', label: 'Meno' },
+                { key: 'par', label: 'Par' },
+                { key: 'r1', label: 'R1' },
+                { key: 'r2', label: 'R2' },
+                { key: 'r3', label: 'R3' },
+                { key: 'r4', label: 'R4' },
+                { key: 'points', label: 'Body' }
+            ];
         } else {
             data = getAggregatedStats();
             columns = [
-                {key:'tableRank',label:'Poz.'},{key:'name',label:'Meno'},{key:'totalPar',label:'Par'},
-                {key:'weeksPlayed',label:'Turnaje'},{key:'totalPoints',label:'Body'},
-                {key:'totalStrokes',label:'Odpaly'},{key:'totalHoles',label:'Jamky'},
-                {key:'strokeAvg',label:'Priem. Úd.'},{key:'cut',label:'Cut'},
-                {key:'top20',label:'Top 20'},{key:'top5',label:'Top 5'},{key:'wins',label:'Výhry'}
+                { key: 'tableRank', label: 'Poz.' },
+                { key: 'name', label: 'Meno' },
+                { key: 'form', label: 'Forma' },
+                { key: 'totalPar', label: 'Par' },
+                { key: 'weeksPlayed', label: 'Turnaje' },
+                { key: 'totalPoints', label: 'Body' },
+                { key: 'totalStrokes', label: 'Odpaly' },
+                { key: 'totalHoles', label: 'Jamky' },
+                { key: 'strokeAvg', label: 'Priem. Úd.' },
+                { key: 'cut', label: 'Cut' },
+                { key: 'top20', label: 'Top 20' },
+                { key: 'top5', label: 'Top 5' },
+                { key: 'wins', label: 'Výhry' }
             ];
         }
 
         const trH = document.createElement('tr');
         columns.forEach(col => {
             const th = document.createElement('th');
-            th.innerText = col.label + (appState.sort.column === col.key ? (appState.sort.dir === 'asc' ? ' ▲' : ' ▼') : '');
+            th.innerText = col.label;
+            if (appState.sort.column === col.key) {
+                th.innerText += appState.sort.dir === 'asc' ? ' ▲' : ' ▼';
+            }
             th.onclick = () => changeSort(col.key);
             trH.appendChild(th);
         });
@@ -1371,12 +1357,18 @@
             const tr = document.createElement('tr');
             tr.className = 'player-row';
             tr.onclick = () => openPlayerProfile(row.name);
+
             columns.forEach(col => {
                 const td = document.createElement('td');
                 let val = row[col.key];
-                if(col.key==='totalPoints') val=val.toFixed(3);
-                if(col.key==='wins' && val>0) td.style.color = 'var(--highlight-gold)';
-                if(col.key==='top5' && val>0) td.style.color = 'var(--accent-blue)';
+                
+                if (col.key === 'totalPoints') val = val.toFixed(3);
+                if (col.key === 'bestRound' && val === 999) val = '-';
+                if (col.key === 'worstRound' && val === -999) val = '-';
+                
+                if (col.key === 'wins' && val > 0) td.style.color = 'var(--highlight-gold)';
+                if (col.key === 'top5' && val > 0) td.style.color = 'var(--accent-blue)';
+                
                 td.innerText = val !== undefined ? val : '-';
                 tr.appendChild(td);
             });
@@ -1384,370 +1376,1394 @@
         });
     }
 
-    // --- Actions ---
+    // --- UI Actions ---
     function changeSort(col) {
-        if(appState.sort.column === col) appState.sort.dir = appState.sort.dir === 'asc' ? 'desc' : 'asc';
-        else {
+        if (appState.sort.column === col) {
+            appState.sort.dir = appState.sort.dir === 'asc' ? 'desc' : 'asc';
+        } else {
             appState.sort.column = col;
-            appState.sort.dir = ['rank','tableRank','par','totalPar','strokeAvg','bestRound'].includes(col) ? 'asc' : 'desc';
+            appState.sort.dir = 'desc'; 
+            if (['rank', 'tableRank', 'par', 'totalPar', 'strokeAvg', 'bestRound'].includes(col)) {
+                appState.sort.dir = 'asc'; 
+            }
         }
         renderTable();
     }
-    function setTourFilter(m) {
-        if(m==='ALL') appState.filters.tours=['ALL'];
+
+    function setTourFilter(mode) {
+        if (mode === 'ALL') appState.filters.tours = ['ALL'];
         else {
-            if(appState.filters.tours.includes('ALL')) appState.filters.tours=[];
-            const idx=appState.filters.tours.indexOf(m);
-            if(idx>-1) appState.filters.tours.splice(idx,1); else appState.filters.tours.push(m);
-            if(appState.filters.tours.length===0) appState.filters.tours=['ALL'];
+            if (appState.filters.tours.includes('ALL')) appState.filters.tours = [];
+            const idx = appState.filters.tours.indexOf(mode);
+            if (idx > -1) appState.filters.tours.splice(idx, 1);
+            else appState.filters.tours.push(mode);
+            if (appState.filters.tours.length === 0) appState.filters.tours = ['ALL'];
         }
-        renderApp(); saveAuto();
+        renderApp();
+        saveAuto();
     }
-    function toggleEventDropdown() { appState.ui.eventDropdownOpen = !appState.ui.eventDropdownOpen; renderFilters(); }
-    function toggleSeasonDropdown() { appState.ui.seasonDropdownOpen = !appState.ui.seasonDropdownOpen; renderFilters(); }
-    function toggleImportanceDropdown() { appState.ui.importanceDropdownOpen = !appState.ui.importanceDropdownOpen; renderFilters(); }
-    function toggleEventFilter(e) { const i=appState.filters.events.indexOf(e); if(i>-1)appState.filters.events.splice(i,1); else appState.filters.events.push(e); renderApp(); saveAuto(); }
-    function toggleSeasonFilter(s) { const i=appState.filters.seasons.indexOf(s); if(i>-1)appState.filters.seasons.splice(i,1); else appState.filters.seasons.push(s); renderApp(); saveAuto(); }
-    function setImportanceFilter(m) { appState.filters.importance = m; renderApp(); saveAuto(); }
-    function toggleWeekView() { appState.ui.showWeeks = !appState.ui.showWeeks; appState.filters.activeWeek = null; renderApp(); saveAuto(); }
-    function toggleWeekSelection(id) { appState.filters.activeWeek = appState.filters.activeWeek===id?null:id; appState.sort = {column:'points',dir:'desc'}; renderTable(); renderFilters(); }
-    
+
+    function toggleEventDropdown() {
+        appState.ui.eventDropdownOpen = !appState.ui.eventDropdownOpen;
+        renderFilters();
+    }
+
+    function toggleSeasonDropdown() {
+        appState.ui.seasonDropdownOpen = !appState.ui.seasonDropdownOpen;
+        renderFilters();
+    }
+
+    function toggleImportanceDropdown() {
+        appState.ui.importanceDropdownOpen = !appState.ui.importanceDropdownOpen;
+        renderFilters();
+    }
+
+    function toggleEventFilter(evtName) {
+        const idx = appState.filters.events.indexOf(evtName);
+        if (idx > -1) appState.filters.events.splice(idx, 1);
+        else appState.filters.events.push(evtName);
+        renderApp();
+        saveAuto();
+    }
+
+    function toggleSeasonFilter(s) {
+        const idx = appState.filters.seasons.indexOf(s);
+        if (idx > -1) appState.filters.seasons.splice(idx, 1);
+        else appState.filters.seasons.push(s);
+        renderApp();
+        saveAuto();
+    }
+
+    function setImportanceFilter(mode) {
+        appState.filters.importance = mode;
+        renderApp();
+        saveAuto();
+    }
+
+    function toggleWeekView() {
+        appState.ui.showWeeks = !appState.ui.showWeeks;
+        appState.filters.activeWeek = null;
+        renderApp();
+        saveAuto();
+    }
+
+    function toggleWeekSelection(id) {
+        if (appState.filters.activeWeek === id) appState.filters.activeWeek = null;
+        else appState.filters.activeWeek = id;
+        appState.sort = { column: 'points', dir: 'desc' };
+        renderTable();
+        renderFilters();
+    }
+
     function handleSearch(val) {
-        const res = document.getElementById('searchResults');
-        if(!val) { res.style.display = 'none'; return; }
-        const norm = normalizeName(val);
+        const results = document.getElementById('searchResults');
+        if (!val) { results.style.display = 'none'; return; }
+
+        const normVal = normalizeName(val);
         const players = new Set();
         db.files.forEach(f => f.content.forEach(p => players.add(p.name)));
-        const matches = [...players].filter(n => normalizeName(n).includes(norm)).slice(0,10);
-        res.innerHTML = '';
-        if(matches.length>0) {
-            res.style.display='block';
-            matches.forEach(m => {
-                const d = document.createElement('div'); d.className='search-item'; d.innerText=m;
-                d.onclick=()=>{ openPlayerProfile(m); res.style.display='none'; document.getElementById('playerSearch').value=''; };
-                res.appendChild(d);
+        
+        const matches = [...players].filter(name => normalizeName(name).includes(normVal));
+        
+        results.innerHTML = '';
+        if (matches.length > 0) {
+            results.style.display = 'block';
+            matches.slice(0, 10).forEach(m => {
+                const div = document.createElement('div');
+                div.className = 'search-item';
+                div.innerText = m;
+                div.onclick = () => {
+                    openPlayerProfile(m);
+                    results.style.display = 'none';
+                    document.getElementById('playerSearch').value = '';
+                };
+                results.appendChild(div);
             });
-        } else res.style.display='none';
+        } else {
+            results.style.display = 'none';
+        }
+    }
+    // --- Player Profile (Includes: Smooth Graph & Match History) ---
+
+    function openPlayerProfile(playerName) {
+        const modalId = 'profile-' + Date.now();
+        const html = generateProfileHtml(playerName, 'ALL', modalId, [], []);
+        createModal(html, modalId);
     }
 
-    // --- Profile & Graph & Achievements ---
-    function openPlayerProfile(name) {
-        const id = 'profile-' + Date.now();
-        createModal(generateProfileHtml(name, 'ALL', id, [], []), id);
+    window.updateProfileFilters = function(modalId, playerName, tab, eventsString, seasonsString) {
+        const events = eventsString ? JSON.parse(decodeURIComponent(eventsString)) : [];
+        const seasons = seasonsString ? JSON.parse(decodeURIComponent(seasonsString)) : [];
+        const contentDiv = document.getElementById(modalId);
+        if(contentDiv) {
+            const modalBody = generateProfileHtml(playerName, tab, modalId, events, seasons, true);
+            contentDiv.innerHTML = modalBody;
+        }
     }
 
-    window.updateProfileFilters = function(id, name, tab, evStr, sStr) {
-        const ev = JSON.parse(decodeURIComponent(evStr));
-        const se = JSON.parse(decodeURIComponent(sStr));
-        const div = document.getElementById(id);
-        if(div) div.innerHTML = generateProfileHtml(name, tab, id, ev, se, true);
-    }
+    // --- NOVÁ FUNKCIA: Otvorenie detailu konkrétneho turnaja ---
+    window.openTournamentDetails = function(fileId) {
+        const file = db.files.find(f => f.id == fileId);
+        if (!file) return;
 
-    // Popup for Achievement Detail
-    window.showAchievementPopup = function(achId, isUnlocked) {
-        const ach = achievementsList.find(a => a.id === achId);
-        if (!ach) return;
-        const statusClass = isUnlocked ? 'status-unlocked' : 'status-locked';
-        const statusText = isUnlocked ? 'Získané' : 'Uzamknuté';
-        const iconColor = isUnlocked ? 'var(--highlight-gold)' : '#555';
+        // Zoradenie hráčov v turnaji
+        let sortedPlayers = [...file.content];
+        sortedPlayers.sort((a, b) => {
+            if (a.rank !== b.rank) return a.rank - b.rank;
+            return b.points - a.points;
+        });
+
+        const rows = sortedPlayers.map(p => `
+            <tr class="${p.name === 'Tiger Woods' ? 'important-row' : ''}"> <td>${p.rank}.</td>
+                <td style="text-align:left; font-weight:bold;">${p.name}</td>
+                <td>${p.par}</td>
+                <td>${p.r1}</td><td>${p.r2}</td><td>${p.r3}</td><td>${p.r4}</td>
+                <td>${p.points}</td>
+            </tr>
+        `).join('');
+
         const html = `
-            <div class="modal-header"><h2>Detail Odznaku</h2><button class="close-btn" onclick="closeTopModal(false)">&times;</button></div>
-            <div class="modal-body" style="text-align:center; padding:30px;">
-                <div class="ach-popup-icon" style="color:${iconColor}">${ach.icon}</div>
-                <div class="ach-popup-name">${ach.name}</div>
-                <div class="ach-popup-desc">${ach.desc}</div>
-                <div class="ach-popup-status ${statusClass}">${statusText}</div>
-            </div>`;
+            <div class="modal-header">
+                <h2>${file.eventName} <span style="font-size:0.7em; color:#888;">(Sezóna ${file.season})</span></h2>
+                <button class="close-btn" onclick="closeTopModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr><th>Poz.</th><th>Hráč</th><th>Par</th><th>R1</th><th>R2</th><th>R3</th><th>R4</th><th>Body</th></tr>
+                        </thead>
+                        <tbody>${rows}</tbody>
+                    </table>
+                </div>
+            </div>
+        `;
+        createModal(html);
+    };
+
+    function generateProfileHtml(playerName, tab, modalId, activeEvents = [], activeSeasons = [], innerOnly = false) {
+        let relevantFiles = db.files;
+        if (tab !== 'ALL') relevantFiles = relevantFiles.filter(f => f.type === tab);
+        if (activeEvents.length > 0) relevantFiles = relevantFiles.filter(f => activeEvents.includes(f.eventName));
+        if (activeSeasons.length > 0) relevantFiles = relevantFiles.filter(f => activeSeasons.includes(f.season));
+
+        const normPlayer = normalizeName(playerName);
+        let stats = {
+            totalHoles: 0, totalStrokes: 0, totalPar: 0, totalPoints: 0,
+            tournamentCount: 0, majorCount: 0, majorPoints: 0,
+            bestRank: 999, rankSum: 0, rankCount: 0,
+            bestRound: 999, worstRound: -999,
+            cut: 0, 
+            top20: 0, top5: 0, wins: 0,
+            trophies: 0,
+            r1Sum: 0, r1Count: 0, r2Sum: 0, r2Count: 0,
+            r3Sum: 0, r3Count: 0, r4Sum: 0, r4Count: 0,
+            history: [],
+            winsDetails: [],
+            rounds: [],
+            top5Count: 0
+        };
+        
+        let uniqueEvents = new Set();
+        let uniqueMajors = new Set();
+        let graphData = [];
+
+        // Preload ranks...
+        const pgaList = getPGARankList();
+        const officialList = getOfficialRankList();
+        const tourList = getTourRankList();
+        const eaList = getEARankList();
+        const assocList = getAssociationRankList();
+        const fedexList = getFedExRankList();
+        
+        const getRank = (list) => {
+            if (!list) return 'NA';
+            const found = list.find(p => normalizeName(p.name) === normPlayer || getDistance(normalizeName(p.name), normPlayer) <= 1);
+            return found ? found.rank + '.' : '-';
+        }
+
+        const pgaRankVal = getRank(pgaList);
+        const officialRankVal = getRank(officialList);
+        const tourRankVal = getRank(tourList);
+        const eaRankVal = getRank(eaList);
+        const assocRankVal = getRank(assocList);
+        const fedexRankVal = getRank(fedexList);
+        
+        let bestOfficialRank = 'NA';
+        if (officialList) {
+             const pEntry = officialList.find(p => normalizeName(p.name) === normPlayer);
+             if (pEntry) bestOfficialRank = pEntry.rank + '.';
+        }
+
+        // Sorting for Graph and History (Newest first)
+        relevantFiles.sort((a,b) => compareFiles(b, a));
+
+        relevantFiles.forEach(f => {
+            const p = f.content.find(pl => {
+                const n = normalizeName(pl.name);
+                return n === normPlayer || getDistance(n, normPlayer) <= 1;
+            });
+
+            if (p) {
+                const eventKey = `${f.season}_${f.eventName}`;
+                if (!uniqueEvents.has(eventKey)) {
+                    stats.tournamentCount++;
+                    uniqueEvents.add(eventKey);
+                }
+
+                stats.totalPoints += p.points;
+                stats.totalPar += p.par;
+                
+                if (f.isImportant || f.isSignificant) {
+                    if (!uniqueMajors.has(eventKey)) {
+                         stats.majorCount++;
+                         uniqueMajors.add(eventKey);
+                    }
+                    stats.majorPoints += p.points;
+                }
+
+                if (p.rank < stats.bestRank) stats.bestRank = p.rank;
+                stats.rankSum += p.rank;
+                stats.rankCount++;
+
+                if (p.points > 0) stats.cut++;
+                
+                if (p.rank <= 20) stats.top20++;
+                if (p.rank <= 5) stats.top5++;
+                if (p.rank === 1) {
+                    stats.wins++;
+                    stats.winsDetails.push({ 
+                        type: f.type, 
+                        isImp: f.isImportant, 
+                        isSig: f.isSignificant,
+                        name: f.eventName 
+                    });
+                }
+                
+                if (f.type === 'FED EX' && p.rank === 1) stats.trophies++;
+
+                // Data for Graph (Name + Rank)
+                graphData.push({ name: f.eventName, rank: p.rank });
+
+                [p.r1, p.r2, p.r3, p.r4].forEach((r, i) => {
+                    if (r !== 'NA') {
+                        const val = parseInt(r);
+                        stats.totalStrokes += val;
+                        stats.totalHoles += 18;
+                        stats.rounds.push({ val: val, roundNum: i+1, cutPassed: p.points > 0 });
+                        if (val < stats.bestRound) stats.bestRound = val;
+                        if (val > stats.worstRound) stats.worstRound = val;
+                        if(i===0) { stats.r1Sum += val; stats.r1Count++; }
+                        if(i===1) { stats.r2Sum += val; stats.r2Count++; }
+                        if(i===2) { stats.r3Sum += val; stats.r3Count++; }
+                        if(i===3) { stats.r4Sum += val; stats.r4Count++; }
+                    }
+                });
+
+                let displayName = f.name.replace('.txt', '');
+                let rowClass = '';
+                if (f.isImportant) { 
+                    displayName = '★ ' + displayName; 
+                    rowClass = 'important-row'; 
+                } else if (f.isSignificant) { 
+                    displayName = '= ' + displayName; 
+                    rowClass = 'significant-row'; 
+                }
+
+                // PRIDANÉ: onclick event pre otvorenie detailu turnaja
+                stats.history.push(`
+                    <tr class="${rowClass}" onclick="openTournamentDetails('${f.id}')" title="Klikni pre detail turnaja">
+                        <td>${displayName}</td>
+                        <td>${p.rank}.</td>
+                        <td>${p.par}</td>
+                        <td>${p.r1}</td><td>${p.r2}</td><td>${p.r3}</td><td>${p.r4}</td>
+                        <td>${p.points}</td>
+                    </tr>
+                `);
+            }
+        });
+
+        // --- SMOOTH GRAPH GENERATION LOGIC ---
+        const graphPoints = graphData.slice(0, 15).reverse(); // Last 15, oldest to newest for graph
+        let graphHtml = '';
+        if (graphPoints.length > 1) {
+             const w = 100; // 100% width viewBox
+             const step = w / (graphPoints.length - 1);
+             
+             // Map data to coordinates
+             const coords = graphPoints.map((p, i) => {
+                 let r = p.rank > 50 ? 50 : p.rank; // Cap at 50 for visuals
+                 if (r < 1) r = 1;
+                 const y = 5 + ((r-1)/49) * 40; // y from 5 to 45
+                 return { x: i * step, y: y, data: p };
+             });
+
+             // Generate SVG Path (Simple Catmull-Rom or Quadratic approximation)
+             let d = `M ${coords[0].x},${coords[0].y}`;
+             for (let i = 0; i < coords.length - 1; i++) {
+                 const p0 = coords[i];
+                 const p1 = coords[i + 1];
+                 const midX = (p0.x + p1.x) / 2;
+                 // Control points for smooth bezier
+                 d += ` C ${midX},${p0.y} ${midX},${p1.y} ${p1.x},${p1.y}`;
+             }
+
+             const dots = coords.map((p) => {
+                 return `<circle cx="${p.x}" cy="${p.y}" class="graph-dot"
+                         onmouseover="showTooltip(evt, '${p.data.name} - ${p.data.rank}. miesto')" 
+                         onmouseout="hideTooltip()" />`;
+             }).join('');
+
+             graphHtml = `
+                <div class="graph-section">
+                    <h3 style="margin:0 0 10px 0; font-size:0.9rem; color:#aaa;">Graf vývoja (Posledných 15 turnajov)</h3>
+                    <div class="graph-container">
+                         <svg width="100%" height="100%" viewBox="0 0 100 50" preserveAspectRatio="none" style="overflow:visible;">
+                             <line x1="0" y1="5" x2="100" y2="5" stroke="#333" stroke-width="0.2" stroke-dasharray="2"/>
+                             <line x1="0" y1="25" x2="100" y2="25" stroke="#333" stroke-width="0.2" stroke-dasharray="2"/>
+                             <line x1="0" y1="45" x2="100" y2="45" stroke="#333" stroke-width="0.2" stroke-dasharray="2"/>
+                             
+                             <path d="${d}" class="graph-path" />
+                             ${dots}
+                         </svg>
+                         <div id="graphTooltip" class="graph-tooltip"></div>
+                    </div>
+                </div>
+             `;
+        } else {
+             graphHtml = `<div style="text-align:center; color:#555; padding:10px;">Nedostatok dát pre graf.</div>`;
+        }
+        
+        // --- Calculate Achievements ---
+        let totalTrophies = 0;
+        let pgaWins = 0, eaWins = 0, playersWins = 0, fedexWins = 0;
+        let usOpenWin = false, theOpenWin = false;
+        let consecutiveWins = 0;
+        let maxConsecutive = 0;
+
+        // Re-check wins globally for specific badges
+        db.files.sort(compareFiles); 
+        db.files.forEach(f => {
+             const p = f.content.find(pl => normalizeName(pl.name) === normPlayer || getDistance(normalizeName(pl.name), normPlayer)<=1);
+             if (p && p.rank === 1) {
+                 consecutiveWins++;
+                 if (consecutiveWins > maxConsecutive) maxConsecutive = consecutiveWins;
+                 if (f.type === 'PGA') pgaWins++;
+                 if (f.type === 'EA SPORTS') eaWins++;
+                 if (f.type === 'THE PLAYERS') playersWins++;
+                 if (f.type === 'FED EX') { fedexWins++; totalTrophies++; }
+                 if (f.eventName.includes('US Open')) usOpenWin = true;
+                 if (f.eventName.includes('The Open')) theOpenWin = true;
+             } else if (p) {
+                 consecutiveWins = 0;
+             }
+        });
+
+        // Season Stats Aggregation
+        let sStats = { games: 0, aces: 0, de: 0, eagles: 0, birdies: 0, pars: 0, bogeys: 0, db: 0 };
+        const seasonFilesToUse = db.seasonStats.filter(sFile => activeSeasons.length === 0 || activeSeasons.includes(sFile.season));
+        
+        seasonFilesToUse.forEach(sFile => {
+             const sPlayer = sFile.content.find(p => {
+                 const n = normalizeName(p.name);
+                 return n === normPlayer || getDistance(n, normPlayer) <= 1;
+             });
+             if (sPlayer) {
+                 sStats.aces += sPlayer.stats.aces;
+                 sStats.de += sPlayer.stats.doubleEagles;
+                 sStats.eagles += sPlayer.stats.eagles;
+                 sStats.birdies += sPlayer.stats.birdies;
+                 sStats.pars += sPlayer.stats.pars;
+                 sStats.bogeys += sPlayer.stats.bogeys;
+                 sStats.db += sPlayer.stats.doubleBogeys;
+             }
+        });
+        sStats.games = sStats.aces + sStats.de + sStats.eagles + sStats.birdies + sStats.pars + sStats.bogeys + sStats.db;
+
+        const unlockedBadges = [];
+        let globalStats = { wins: 0, points: 0, top5: 0, top20: 0, cut: 0, tourneys: 0, strokes: 0, holes: 0, sub60: false, scratch: false, r1_80_cut: false, pars:0, bogeys:0, birdies:0, underPar: false };
+        let hasPlayersParticipation = false;
+        
+        db.files.forEach(f => {
+            const p = f.content.find(pl => normalizeName(pl.name) === normPlayer || getDistance(normalizeName(pl.name), normPlayer)<=1);
+            if(p) {
+                globalStats.tourneys++;
+                globalStats.points += p.points;
+                globalStats.pars += p.par;
+                if(p.rank===1) globalStats.wins++;
+                if(p.rank<=5) globalStats.top5++;
+                if(p.rank<=20) globalStats.top20++;
+                if(p.points>0) globalStats.cut++;
+                if(f.type === 'THE PLAYERS') hasPlayersParticipation = true;
+                
+                [p.r1, p.r2, p.r3, p.r4].forEach((r, idx) => {
+                    if(r!=='NA') {
+                         let v = parseInt(r);
+                         globalStats.strokes += v;
+                         globalStats.holes += 18;
+                         if(v < 60) globalStats.sub60 = true;
+                         if(idx === 0 && v >= 80 && p.points > 0) globalStats.r1_80_cut = true;
+                    }
+                });
+            }
+        });
+        
+        if (globalStats.holes > 0 && (globalStats.strokes/(globalStats.holes/18)) < 67.0) globalStats.scratch = true;
+        let avgStrokesGlobal = globalStats.holes > 0 ? (globalStats.strokes / (globalStats.holes/18)).toFixed(2) : 99;
+        
+        // Badge Checks
+        if (globalStats.wins >= 3) unlockedBadges.push('shark');
+        if (globalStats.wins >= 10) unlockedBadges.push('dominator');
+        if (globalStats.wins >= 20) unlockedBadges.push('goat');
+        if (stats.winsDetails.some(w => w.isImp)) unlockedBadges.push('imp_man');
+        if (stats.winsDetails.some(w => w.isSig)) unlockedBadges.push('maj_man');
+        if (unlockedBadges.includes('imp_man') && unlockedBadges.includes('maj_man')) unlockedBadges.push('maj_champ');
+        if (fedexWins > 0) unlockedBadges.push('trophy_hunt');
+        if (pgaWins >= 5) unlockedBadges.push('pga_king');
+        if (eaWins > 0) unlockedBadges.push('ea_game');
+        if (playersWins > 0) unlockedBadges.push('poty');
+        if (bestOfficialRank === '1.') unlockedBadges.push('world_1');
+        if (pgaWins>0 && eaWins>0 && playersWins>0 && fedexWins>0) unlockedBadges.push('master_all');
+        if (usOpenWin) unlockedBadges.push('us_champ');
+        if (theOpenWin) unlockedBadges.push('opener');
+        if (maxConsecutive >= 2) unlockedBadges.push('defender');
+        if (pgaRankVal === '1.' && officialRankVal === '1.' && fedexRankVal === '1.') unlockedBadges.push('champion');
+        
+        if (globalStats.points > 5000) unlockedBadges.push('high_roller');
+        if (globalStats.points > 10000) unlockedBadges.push('tycoon');
+        if (globalStats.points > 10000 && globalStats.wins >= 10) unlockedBadges.push('legend');
+
+        if (globalStats.tourneys >= 50) unlockedBadges.push('veteran');
+        if (globalStats.tourneys >= 100) unlockedBadges.push('iron_man');
+        if (globalStats.tourneys >= 200) unlockedBadges.push('immortal');
+        if (globalStats.holes >= 5000) unlockedBadges.push('marathon');
+        if (globalStats.holes >= 20000) unlockedBadges.push('iron_hand');
+        
+        let totalAces = 0, totalEagles = 0, totalBirdies = 0, totalParsSeason = 0, totalDE = 0;
+        db.seasonStats.forEach(s => {
+            const sp = s.content.find(p => normalizeName(p.name) === normPlayer || getDistance(normalizeName(p.name), normPlayer)<=1);
+            if(sp) {
+                totalAces += sp.stats.aces;
+                totalEagles += sp.stats.eagles;
+                totalBirdies += sp.stats.birdies;
+                totalParsSeason += sp.stats.pars;
+                totalDE += sp.stats.doubleEagles;
+            }
+        });
+        
+        if (totalAces >= 1) unlockedBadges.push('sniper');
+        if (totalEagles >= 20) unlockedBadges.push('eagle_eye');
+        if (totalDE >= 1) unlockedBadges.push('albatross');
+        if (totalBirdies >= 100) unlockedBadges.push('birdie_mach');
+        if (totalBirdies >= 200) unlockedBadges.push('birdie_king');
+        if (totalParsSeason >= 1000) unlockedBadges.push('par_master');
+
+        if (globalStats.top5 >= 10) unlockedBadges.push('elite');
+        if (globalStats.top5 >= 20) unlockedBadges.push('podium');
+        if (globalStats.top20 >= 30) unlockedBadges.push('consistency');
+        if (globalStats.top20 >= 50) unlockedBadges.push('top10_reg');
+        if (globalStats.cut >= 50) unlockedBadges.push('cut_master');
+        if (globalStats.cut >= 100) unlockedBadges.push('survivor');
+
+        if (globalStats.sub60) unlockedBadges.push('sub60');
+        if (avgStrokesGlobal < 67.0) unlockedBadges.push('scratch');
+        if (sStats.bogeys > 0 && sStats.pars >= (sStats.bogeys * 2)) unlockedBadges.push('safe_play');
+        if (sStats.birdies > sStats.pars) unlockedBadges.push('aggressive');
+        if (hasPlayersParticipation) unlockedBadges.push('player_badge');
+        if (globalStats.pars < 0) unlockedBadges.push('under_par');
+        
+        let avgPerHole = globalStats.holes > 0 ? (globalStats.strokes / globalStats.holes) : 99;
+        if (avgPerHole < 3.90) unlockedBadges.push('solid');
+
+        if (globalStats.r1_80_cut) unlockedBadges.push('never_back');
+        if (unlockedBadges.length >= 7 && globalStats.top5 >= 7) unlockedBadges.push('lucky7');
+
+        const achievementsHtml = achievementsDef.map(def => {
+            const isUnlocked = unlockedBadges.includes(def.id);
+            const statusClass = isUnlocked ? 'unlocked' : 'locked';
+            return `<div class="badge ${statusClass}" title="${def.name}" onclick="alert('${def.name}: ${def.desc}')">${def.icon}</div>`;
+        }).join('');
+
+        // --- Stats formatting ---
+        const avg = (sum, count) => count ? (sum / count).toFixed(1) : '-';
+        const avgStrokes = stats.totalHoles ? (stats.totalStrokes / (stats.totalHoles/18)).toFixed(2) : '-';
+        const avgRank = stats.rankCount ? (stats.rankSum / stats.rankCount).toFixed(1) : '-';
+        const bestR = stats.bestRound === 999 ? '-' : stats.bestRound;
+        const worstR = stats.worstRound === -999 ? '-' : stats.worstRound;
+        const bestPos = stats.bestRank === 999 ? '-' : stats.bestRank + '.';
+
+        // Dropdown options for filter
+        const playerFilesAll = db.files.filter(f => {
+             const hasPlayer = f.content.some(pl => normalizeName(pl.name) === normPlayer || getDistance(normalizeName(pl.name), normPlayer)<=1);
+             return hasPlayer && (tab === 'ALL' || f.type === tab);
+        });
+        
+        playerFilesAll.sort(compareFiles);
+        const availEvents = [...new Set(playerFilesAll.map(f => f.eventName))];
+        const availSeasons = [...new Set(playerFilesAll.map(f => f.season))].filter(s=>s!=='00').sort((a,b)=>parseInt(a)-parseInt(b));
+
+        const update = (newEvents, newSeasons) => {
+            const eStr = encodeURIComponent(JSON.stringify(newEvents));
+            const sStr = encodeURIComponent(JSON.stringify(newSeasons));
+            return `updateProfileFilters('${modalId}', '${playerName}', '${tab}', '${eStr}', '${sStr}')`;
+        };
+
+        const renderMultiSelect = (items, active, type) => {
+             if (items.length === 0) return '<div class="filter-btn empty">Žiadne dáta</div>';
+             let html = `<div style="display:flex; flex-wrap:wrap; gap:5px; max-height:100px; overflow-y:auto; margin-bottom:5px;">`;
+             items.forEach(item => {
+                 let newActive = [...active];
+                 if (newActive.includes(item)) newActive = newActive.filter(x => x !== item);
+                 else newActive.push(item);
+                 const isActive = active.includes(item);
+                 const clickFn = type === 'event' ? update(newActive, activeSeasons) : update(activeEvents, newActive);
+                 html += `<button class="btn btn-sm ${isActive ? 'btn-green' : 'btn-grey'}" onclick="${clickFn}">${item}</button>`;
+             });
+             html += `</div>`;
+             return html;
+        };
+
+        const bodyContent = `
+            <div class="profile-tabs">
+                <div class="profile-tab ${tab==='ALL'?'active':''}" onclick="updateProfileFilters('${modalId}', '${playerName}', 'ALL', '[]', '[]')">Celkovo</div>
+                <div class="profile-tab ${tab==='KFT'?'active':''}" onclick="updateProfileFilters('${modalId}', '${playerName}', 'KFT', '[]', '[]')">KFT</div>
+                <div class="profile-tab ${tab==='PGA'?'active':''}" onclick="updateProfileFilters('${modalId}', '${playerName}', 'PGA', '[]', '[]')">PGA</div>
+                <div class="profile-tab ${tab==='EA SPORTS'?'active':''}" onclick="updateProfileFilters('${modalId}', '${playerName}', 'EA SPORTS', '[]', '[]')">EA Sports</div>
+                <div class="profile-tab ${tab==='THE PLAYERS'?'active':''}" onclick="updateProfileFilters('${modalId}', '${playerName}', 'THE PLAYERS', '[]', '[]')">The Players</div>
+                <div class="profile-tab ${tab==='FED EX'?'active':''}" onclick="updateProfileFilters('${modalId}', '${playerName}', 'FED EX', '[]', '[]')">FED EX</div>
+            </div>
+
+            <div class="profile-filters-area">
+                <small style="color:#888; display:block; margin-bottom:5px;">Filter Turnajov:</small>
+                ${renderMultiSelect(availEvents, activeEvents, 'event')}
+                <small style="color:#888; display:block; margin-bottom:5px; margin-top:5px;">Filter Sezón:</small>
+                ${renderMultiSelect(availSeasons, activeSeasons, 'season')}
+            </div>
+            
+            ${graphHtml}
+
+            <h3 style="margin:10px 0 5px 0; font-size:0.9rem; color:#aaa;">Odznaky & Úspechy</h3>
+            <div class="achievements-grid">
+                ${achievementsHtml}
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-box highlight" onclick="showRankTable('PGA')"><div class="stat-label">PGA Rank</div><div class="stat-value gold rank-clickable">${pgaRankVal}</div></div>
+                <div class="stat-box highlight" onclick="showRankTable('Official')"><div class="stat-label">Official Rank</div><div class="stat-value blue rank-clickable">${officialRankVal}</div></div>
+                <div class="stat-box highlight" onclick="showRankTable('Tour')"><div class="stat-label">Tour Rank</div><div class="stat-value rank-clickable">${tourRankVal}</div></div>
+                <div class="stat-box highlight"><div class="stat-label">Best Official</div><div class="stat-value">${bestOfficialRank}</div></div>
+                
+                <div class="stat-box highlight" onclick="showRankTable('FEDEX')"><div class="stat-label" style="color:var(--highlight-gold)">FED EX Rank</div><div class="stat-value gold rank-clickable">${fedexRankVal}</div></div>
+                <div class="stat-box highlight" onclick="showRankTable('EA')"><div class="stat-label" style="color:var(--accent-blue)">EA Rank</div><div class="stat-value blue rank-clickable">${eaRankVal}</div></div>
+                <div class="stat-box highlight" onclick="showRankTable('Association')"><div class="stat-label" style="color:var(--accent-red)">Association</div><div class="stat-value rank-clickable" style="color:var(--accent-red)">${assocRankVal}</div></div>
+                <div class="stat-box highlight"><div class="stat-label">Trophies</div><div class="stat-value gold">🏆 ${totalTrophies}</div></div>
+
+                <div class="stat-box season-highlight"><div class="stat-label" style="font-weight:bold; color:var(--text-main)">Games</div><div class="stat-value white">${sStats.games}</div></div>
+                <div class="stat-box season-highlight"><div class="stat-label">Aces</div><div class="stat-value green">${sStats.aces}</div></div>
+                <div class="stat-box season-highlight"><div class="stat-label">D. Eagles</div><div class="stat-value green">${sStats.de}</div></div>
+                <div class="stat-box season-highlight"><div class="stat-label">Eagles</div><div class="stat-value green">${sStats.eagles}</div></div>
+                <div class="stat-box season-highlight"><div class="stat-label">Birdies</div><div class="stat-value blue">${sStats.birdies}</div></div>
+                <div class="stat-box season-highlight"><div class="stat-label">Pars</div><div class="stat-value">${sStats.pars}</div></div>
+                <div class="stat-box season-highlight"><div class="stat-label">Bogeys</div><div class="stat-value" style="color:#e67e22">${sStats.bogeys}</div></div>
+                <div class="stat-box season-highlight"><div class="stat-label">D. Bogeys</div><div class="stat-value" style="color:var(--accent-red)">${sStats.db}</div></div>
+
+                <div class="stat-box"><div class="stat-label">Jamiek</div><div class="stat-value green">${stats.totalHoles}</div></div>
+                <div class="stat-box"><div class="stat-label">Odpalov</div><div class="stat-value">${stats.totalStrokes}</div></div>
+                <div class="stat-box"><div class="stat-label">Priemer Úderov</div><div class="stat-value">${avgStrokes}</div></div>
+                <div class="stat-box"><div class="stat-label">Par</div><div class="stat-value">${stats.totalPar}</div></div>
+
+                <div class="stat-box"><div class="stat-label">Turnajov</div><div class="stat-value">${stats.tournamentCount}</div></div>
+                <div class="stat-box"><div class="stat-label">Bodov</div><div class="stat-value">${stats.totalPoints.toFixed(2)}</div></div>
+                <div class="stat-box"><div class="stat-label">Final Tour</div><div class="stat-value">${stats.majorCount}</div></div>
+                <div class="stat-box"><div class="stat-label">Body Final</div><div class="stat-value">${stats.majorPoints.toFixed(2)}</div></div>
+
+                <div class="stat-box"><div class="stat-label">Naj. Pozícia</div><div class="stat-value green">${bestPos}</div></div>
+                <div class="stat-box"><div class="stat-label">Priem. Pozícia</div><div class="stat-value">${avgRank}</div></div>
+                <div class="stat-box"><div class="stat-label">Naj. Kolo</div><div class="stat-value green">${bestR}</div></div>
+                <div class="stat-box"><div class="stat-label" style="color:var(--accent-red)">Najh. Kolo</div><div class="stat-value" style="color:var(--accent-red)">${worstR}</div></div>
+
+                <div class="stat-box"><div class="stat-label">CUT</div><div class="stat-value">${stats.cut}</div></div>
+                <div class="stat-box"><div class="stat-label">Top 20</div><div class="stat-value">${stats.top20}</div></div>
+                <div class="stat-box"><div class="stat-label">Top 5</div><div class="stat-value blue">${stats.top5}</div></div>
+                <div class="stat-box"><div class="stat-label">Výhry</div><div class="stat-value gold">${stats.wins}</div></div>
+
+                <div class="stat-box"><div class="stat-label">Priemer R1</div><div class="stat-value">${avg(stats.r1Sum, stats.r1Count)}</div></div>
+                <div class="stat-box"><div class="stat-label">Priemer R2</div><div class="stat-value">${avg(stats.r2Sum, stats.r2Count)}</div></div>
+                <div class="stat-box"><div class="stat-label">Priemer R3</div><div class="stat-value">${avg(stats.r3Sum, stats.r3Count)}</div></div>
+                <div class="stat-box"><div class="stat-label">Priemer R4</div><div class="stat-value">${avg(stats.r4Sum, stats.r4Count)}</div></div>
+            </div>
+
+            <h3 style="margin-top:20px; border-bottom:1px solid #444; padding-bottom:5px;">História zápasov (${stats.history.length})</h3>
+            <small style="color:#888; margin-bottom:5px; display:block;">Kliknutím na riadok zobrazíte detail turnaja.</small>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr><th>Turnaj</th><th>Poz.</th><th>Par</th><th>R1</th><th>R2</th><th>R3</th><th>R4</th><th>Body</th></tr>
+                    </thead>
+                    <tbody>${stats.history.join('')}</tbody>
+                </table>
+            </div>
+        `;
+
+        if (innerOnly) return bodyContent;
+
+        return `
+            <div id="${modalId}">
+                <div class="modal-header">
+                    <h2>${playerName}</h2>
+                    <button class="close-btn" onclick="closeTopModal()">&times;</button>
+                </div>
+                <div class="modal-body">
+                    ${bodyContent}
+                </div>
+            </div>
+        `;
+    }
+
+    function showTooltip(evt, text) {
+        const tt = document.getElementById('graphTooltip');
+        tt.style.display = 'block';
+        tt.innerHTML = text;
+        tt.style.left = (evt.layerX + 15) + 'px';
+        tt.style.top = (evt.layerY - 30) + 'px';
+    }
+    function hideTooltip() {
+        document.getElementById('graphTooltip').style.display = 'none';
+    }
+
+    // --- Global Rank Tables ---
+    window.showRankTable = function(type) {
+        let list = [];
+        let title = '';
+        
+        if (type === 'PGA') { list = getPGARankList(); title = 'PGA Rank (Top 40 PGA Turnajov)'; }
+        if (type === 'Official') { list = getOfficialRankList(); title = 'Official Rank (All Time)'; }
+        if (type === 'Tour') { list = getTourRankList(); title = 'Tour Rank (Major/Important)'; }
+        if (type === 'EA') { list = getEARankList(); title = 'EA Rank (EA Sports + FED EX)'; }
+        if (type === 'Association') { list = getAssociationRankList(); title = 'Association Rank (The Players - Last 10)'; }
+        if (type === 'FEDEX') { list = getFedExRankList(); title = 'FED EX Rank (Posledná sezóna - All Tours)'; }
+
+        if (!list) { alert('Nedostatok dát pre výpočet (min 20 turnajov pre Official Rank).'); return; }
+
+        let rows = list.map(p => `
+            <tr onclick="openPlayerProfile('${p.name}')" style="cursor:pointer">
+                <td><b style="color:${p.rank===1?'gold':'white'}">${p.rank}.</b></td>
+                <td>${p.name}</td>
+                <td style="text-align:right">${p.points.toFixed(3)}</td>
+            </tr>
+        `).join('');
+
+        const html = `
+            <div class="modal-header">
+                <h2>${title}</h2>
+                <button class="close-btn" onclick="closeTopModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="table-container">
+                    <table>
+                        <thead><tr><th>#</th><th>Hráč</th><th style="text-align:right">Body</th></tr></thead>
+                        <tbody>${rows}</tbody>
+                    </table>
+                </div>
+            </div>
+        `;
+        createModal(html);
+    }
+    // --- Hall of Fame (Includes all 35+ records with descriptions) ---
+    window.openHallOfFame = function() {
+        const stats = {};
+        const seasonAgg = {};
+
+        // 1. Calc Basic + Round stats
+        db.files.forEach(f => {
+            f.content.forEach(p => {
+                const name = normalizeName(p.name);
+                if(!stats[name]) {
+                    stats[name] = { 
+                        realName: p.name, wins: 0, points: 0, tourneys: 0, 
+                        cuts: 0, top20: 0, top10:0, top5:0, strokes: 0, holes: 0, bestRound: 999,
+                        r1s:0, r1c:0, r3s:0, r3c:0, r4s:0, r4c:0,
+                        bestR4: 999, worstR4: -999,
+                        ranksSum: 0,
+                        secondPlaces: 0,
+                        majorWins: 0, majorSum:0, majorCount:0,
+                        r3_r4_diff_sum: 0, r3_r4_diff_count: 0,
+                        bestWeekend: 999,
+                        currentWinStreak: 0, maxWinStreak: 0,
+                        sub70: 0, sub60: 0,
+                        kftPoints: 0, pgaPoints: 0,
+                        underParTotal: 0,
+                        uniqueTours: new Set()
+                    };
+                }
+                const s = stats[name];
+                s.points += p.points;
+                s.tourneys++;
+                s.ranksSum += p.rank;
+                s.underParTotal += p.par; // Accumulate relative to par
+
+                if(f.type === 'KFT') s.kftPoints += p.points;
+                if(f.type === 'PGA') s.pgaPoints += p.points;
+                if(p.rank === 1) s.uniqueTours.add(f.type);
+
+                if(p.points > 0) s.cuts++;
+                if(p.rank === 1) { 
+                    s.wins++; 
+                    s.currentWinStreak++;
+                    if(s.currentWinStreak > s.maxWinStreak) s.maxWinStreak = s.currentWinStreak;
+                    if(f.isImportant || f.isSignificant) s.majorWins++;
+                } else {
+                    s.currentWinStreak = 0;
+                }
+                if(p.rank === 2) s.secondPlaces++;
+                if(p.rank <= 3) s.top5++; // Reusing variable for podium logic roughly
+                if(p.rank <= 10) s.top10++;
+                if(p.rank <= 20) s.top20++;
+                
+                if(f.isImportant || f.isSignificant) {
+                    s.majorSum += p.rank;
+                    s.majorCount++;
+                }
+
+                let r1v=null, r3v=null, r4v=null;
+
+                [p.r1, p.r2, p.r3, p.r4].forEach((r, idx) => {
+                    if(r !== 'NA') {
+                        const v = parseInt(r);
+                        s.strokes += v;
+                        s.holes += 18;
+                        if(v < 70) s.sub70++;
+                        if(v < 60) s.sub60++;
+                        if(v < s.bestRound) s.bestRound = v;
+                        
+                        if(idx === 0) { s.r1s += v; s.r1c++; r1v=v; }
+                        if(idx === 2) { s.r3s += v; s.r3c++; r3v=v; }
+                        if(idx === 3) { s.r4s += v; s.r4c++; r4v=v; if(v < s.bestR4) s.bestR4 = v; if(v > s.worstR4) s.worstR4 = v; }
+                    }
+                });
+
+                if(r3v !== null && r4v !== null) {
+                    s.r3_r4_diff_sum += (r4v - r3v);
+                    s.r3_r4_diff_count++;
+                    if((r3v + r4v) < s.bestWeekend) s.bestWeekend = (r3v + r4v);
+                }
+            });
+        });
+
+        // 2. Calc Season stats
+        db.seasonStats.forEach(f => {
+            f.content.forEach(p => {
+                 const name = normalizeName(p.name);
+                 if(!seasonAgg[name]) seasonAgg[name] = { realName: p.name, birdies: 0, aces: 0, eagles: 0, pars: 0 };
+                 seasonAgg[name].birdies += p.stats.birdies;
+                 seasonAgg[name].aces += p.stats.aces;
+                 seasonAgg[name].eagles += p.stats.eagles;
+                 seasonAgg[name].pars += p.stats.pars;
+            });
+        });
+
+        // 3. Finalize calculated stats (averages)
+        Object.values(stats).forEach(s => {
+            s.avgStrokes = s.holes > 0 ? (s.strokes / (s.holes/18)) : 999;
+            s.avgR1 = s.r1c > 0 ? (s.r1s / s.r1c) : 999;
+            s.avgR3 = s.r3c > 0 ? (s.r3s / s.r3c) : 999;
+            s.avgR4 = s.r4c > 0 ? (s.r4s / s.r4c) : 999;
+            s.avgRank = s.tourneys > 0 ? (s.ranksSum / s.tourneys) : 999;
+            s.avgMajor = s.majorCount > 0 ? (s.majorSum / s.majorCount) : 999;
+            s.avgCollapse = s.r3_r4_diff_count > 0 ? (s.r3_r4_diff_sum / s.r3_r4_diff_count) : -999;
+            s.uniqueWinsCount = s.uniqueTours.size;
+        });
+
+        const players = Object.values(stats);
+        const seasonPlayers = Object.values(seasonAgg);
+
+        const getWinner = (list, sortFn) => {
+            const sorted = [...list].sort(sortFn);
+            return sorted.length > 0 ? sorted[0] : null;
+        };
+
+        let boxesHtml = '';
+        recordsDef.forEach(rec => {
+            let p = null;
+            let val = '-';
+            
+            if(rec.id === 'most_wins') { p = getWinner(players, (a,b)=>b.wins - a.wins); val = p?.wins; }
+            if(rec.id === 'most_points') { p = getWinner(players, (a,b)=>b.points - a.points); val = p?.points; }
+            if(rec.id === 'iron_man') { p = getWinner(players, (a,b)=>b.tourneys - a.tourneys); val = p?.tourneys; }
+            if(rec.id === 'lowest_rnd') { p = getWinner(players.filter(x=>x.bestRound!==999), (a,b)=>a.bestRound - b.bestRound); val = p?.bestRound; }
+            if(rec.id === 'avg_strokes') { p = getWinner(players.filter(x=>x.tourneys>=5), (a,b)=>a.avgStrokes - b.avgStrokes); val = p?.avgStrokes; }
+            if(rec.id === 'most_cuts') { p = getWinner(players, (a,b)=>b.cuts - a.cuts); val = p?.cuts; }
+            if(rec.id === 'most_top20') { p = getWinner(players, (a,b)=>b.top20 - a.top20); val = p?.top20; }
+            if(rec.id === 'top10_machine') { p = getWinner(players, (a,b)=>b.top10 - a.top10); val = p?.top10; }
+            if(rec.id === 'podium') { p = getWinner(players, (a,b)=>b.top5 - a.top5); val = p?.top5; }
+
+            if(rec.id === 'birdie_king') { p = getWinner(seasonPlayers, (a,b)=>b.birdies - a.birdies); val = p?.birdies; }
+            if(rec.id === 'sniper') { p = getWinner(seasonPlayers.filter(x=>x.aces>0), (a,b)=>b.aces - a.aces); val = p?.aces; }
+            if(rec.id === 'eagle_master') { p = getWinner(seasonPlayers, (a,b)=>b.eagles - a.eagles); val = p?.eagles; }
+            if(rec.id === 'par_machine') { p = getWinner(seasonPlayers, (a,b)=>b.pars - a.pars); val = p?.pars; }
+
+            if(rec.id === 'mr_saturday') { p = getWinner(players.filter(x=>x.r3c>=3), (a,b)=>a.avgR3 - b.avgR3); val = p?.avgR3; }
+            if(rec.id === 'mr_sunday') { p = getWinner(players.filter(x=>x.r4c>=3), (a,b)=>a.avgR4 - b.avgR4); val = p?.avgR4; }
+            if(rec.id === 'slow_starter') { p = getWinner(players.filter(x=>x.r1c>=3), (a,b)=>b.avgR1 - a.avgR1); val = p?.avgR1; } 
+            if(rec.id === 'fast_starter') { p = getWinner(players.filter(x=>x.r1c>=3), (a,b)=>a.avgR1 - b.avgR1); val = p?.avgR1; }
+            
+            if(rec.id === 'glass_chin') { p = getWinner(players.filter(x=>x.worstR4!==-999), (a,b)=>b.worstR4 - a.worstR4); val = p?.worstR4; }
+            if(rec.id === 'finisher') { p = getWinner(players.filter(x=>x.bestR4!==999), (a,b)=>a.bestR4 - b.bestR4); val = p?.bestR4; }
+            
+            if(rec.id === 'major_hunter') { p = getWinner(players, (a,b)=>b.majorWins - a.majorWins); val = p?.majorWins; }
+            if(rec.id === 'major_avg') { p = getWinner(players.filter(x=>x.majorCount>=3), (a,b)=>a.avgMajor - b.avgMajor); val = p?.avgMajor; }
+            if(rec.id === 'runner_up') { p = getWinner(players, (a,b)=>b.secondPlaces - a.secondPlaces); val = p?.secondPlaces; }
+            if(rec.id === 'consistency_king') { p = getWinner(players.filter(x=>x.tourneys>=10), (a,b)=>a.avgRank - b.avgRank); val = p?.avgRank; }
+            if(rec.id === 'marathon_man') { p = getWinner(players, (a,b)=>b.holes - a.holes); val = p?.holes; }
+            
+            if(rec.id === 'win_streak') { p = getWinner(players, (a,b)=>b.maxWinStreak - a.maxWinStreak); val = p?.maxWinStreak; }
+            if(rec.id === 'best_weekend') { p = getWinner(players.filter(x=>x.bestWeekend!==999), (a,b)=>a.bestWeekend - b.bestWeekend); val = p?.bestWeekend; }
+            if(rec.id === 'worst_collapse') { p = getWinner(players.filter(x=>x.r3_r4_diff_count>=3), (a,b)=>b.avgCollapse - a.avgCollapse); val = p?.avgCollapse; } 
+            if(rec.id === 'comeback_kid') { p = getWinner(players.filter(x=>x.r3_r4_diff_count>=3), (a,b)=>a.avgCollapse - b.avgCollapse); val = p?.avgCollapse ? Math.abs(p.avgCollapse) : 0; }
+            
+            if(rec.id === 'scoring_machine') { p = getWinner(players, (a,b)=>b.sub70 - a.sub70); val = p?.sub70; }
+            if(rec.id === 'kft_king') { p = getWinner(players, (a,b)=>b.kftPoints - a.kftPoints); val = p?.kftPoints; }
+            if(rec.id === 'pga_dominator') { p = getWinner(players, (a,b)=>b.pgaPoints - a.pgaPoints); val = p?.pgaPoints; }
+            if(rec.id === 'under_par_total') { p = getWinner(players, (a,b)=>a.underParTotal - b.underParTotal); val = p?.underParTotal; }
+            if(rec.id === 'sub60_count') { p = getWinner(players, (a,b)=>b.sub60 - a.sub60); val = p?.sub60; }
+            if(rec.id === 'unique_winner') { p = getWinner(players, (a,b)=>b.uniqueWinsCount - a.uniqueWinsCount); val = p?.uniqueWinsCount; }
+
+            if(p && val !== undefined && val !== null && val !== 999 && val !== -999) {
+                // PRIDANÉ: alert s popisom pri kliknutí na record-box
+                boxesHtml += `
+                    <div class="record-box" onclick="alert('${rec.name}: ${rec.desc}')">
+                        <div class="record-icon">${rec.icon}</div>
+                        <div class="record-info">
+                            <div class="record-title">${rec.name}</div>
+                            <div class="record-holder" onclick="event.stopPropagation(); openPlayerProfile('${p.realName}')" style="cursor:pointer">${p.realName}</div>
+                            <div class="record-val">${rec.format(val)}</div>
+                        </div>
+                    </div>
+                `;
+            }
+        });
+
+        const html = `
+            <div class="modal-header">
+                <h2>Sieň Slávy (Rekordy)</h2>
+                <button class="close-btn" onclick="closeTopModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="stats-grid" style="grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap:10px;">
+                    ${boxesHtml}
+                </div>
+            </div>
+        `;
         createModal(html);
     }
 
-    function generateGraphHtml(historyArr) {
-        const data = historyArr.slice(0, 15).reverse();
-        if(data.length < 2) return '<div class="graph-container" style="justify-content:center; align-items:center; display:flex; color:#777;">Nedostatok dát pre graf</div>';
-        const maxRank = Math.max(...data.map(d => d.rank), 20); 
-        let points = ""; let circles = "";
-        data.forEach((d, i) => {
-            const x = (i / (data.length - 1)) * 100; 
-            const y = 10 + ((d.rank - 1) / (maxRank - 1)) * 80;
-            points += `${x},${y} `;
-            circles += `<circle cx="${x}%" cy="${y}%" r="4" fill="var(--accent-green)" stroke="#000" stroke-width="2" onmouseover="showGraphTooltip(evt, '${d.eventName}', ${d.rank})" onmouseout="hideGraphTooltip()" style="cursor:pointer; transition: r 0.2s" />`;
+    // --- Enhanced Comparator (Head-to-Head) with Filters ---
+    window.h2hState = { tour: 'ALL', season: 'ALL', event: 'ALL' };
+
+    window.openComparator = function() {
+        const uniqueNames = new Set();
+        db.files.forEach(f => f.content.forEach(p => uniqueNames.add(p.name)));
+        const sortedNames = [...uniqueNames].sort();
+        const options = sortedNames.map(n => `<option value="${n}">${n}</option>`).join('');
+
+        // Generovanie možností pre filtre
+        const tours = ['ALL', 'KFT', 'PGA', 'EA SPORTS', 'THE PLAYERS', 'FED EX'];
+        const seasons = ['ALL', ...new Set(db.files.map(f => f.season))].sort((a,b) => {
+            if(a==='ALL') return -1; if(b==='ALL') return 1; return parseInt(a)-parseInt(b);
         });
-        return `<div class="graph-container"><div style="position:absolute; top:5px; left:10px; font-size:0.7rem; color:#aaa;">Vývoj (Posledných 15)</div><svg class="graph-svg" preserveAspectRatio="none"><line x1="0" y1="10%" x2="100%" y2="10%" stroke="#444" stroke-dasharray="4" /><line x1="0" y1="90%" x2="100%" y2="90%" stroke="#444" stroke-dasharray="4" /><polyline points="${points}" fill="none" stroke="var(--accent-blue)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />${circles}</svg><div id="graphTooltip" class="graph-tooltip"></div></div>`;
-    }
+        const events = ['ALL', ...new Set(db.files.map(f => f.eventName))].sort();
 
-    window.showGraphTooltip = function(evt, name, rank) {
-        const tip = document.getElementById('graphTooltip');
-        tip.innerHTML = `<strong>${name}</strong><br>Pozícia: ${rank}.`;
-        tip.style.opacity = 1;
-        tip.style.left = evt.target.cx.baseVal.value + '%';
-        tip.style.top = (evt.target.cy.baseVal.value - 10) + '%';
-    };
-    window.hideGraphTooltip = function() { document.getElementById('graphTooltip').style.opacity = 0; };
+        const tourOpts = tours.map(t => `<option value="${t}">${t}</option>`).join('');
+        const seasonOpts = seasons.map(s => `<option value="${s}">${s === 'ALL' ? 'Všetky sezóny' : 'Sezóna '+s}</option>`).join('');
+        const eventOpts = events.map(e => `<option value="${e}">${e === 'ALL' ? 'Všetky turnaje' : e}</option>`).join('');
 
-    function generateProfileHtml(name, tab, modalId, activeEvents=[], activeSeasons=[], innerOnly=false) {
-        const normPlayer = normalizeName(name);
-        let relevantFiles = db.files.filter(f => {
-            if(tab!=='ALL' && f.type!==tab) return false;
-            if(activeEvents.length && !activeEvents.includes(f.eventName)) return false;
-            if(activeSeasons.length && !activeSeasons.includes(f.season)) return false;
-            return f.content.some(p => normalizeName(p.name) === normPlayer || getDistance(normalizeName(p.name), normPlayer) <= 1);
-        });
-        relevantFiles.sort((a,b) => compareFiles(b,a));
-
-        let s = {
-            totalHoles:0, totalStrokes:0, totalPar:0, totalPoints:0, tournamentCount:0,
-            majorCount:0, majorPoints:0, bestRank:999, rankSum:0, rankCount:0,
-            bestRound:999, worstRound:-999, cut:0, top20:0, top5:0, wins:0, trophies:0,
-            r1Sum:0, r1Count:0, r2Sum:0, r2Count:0, r3Sum:0, r3Count:0, r4Sum:0, r4Count:0,
-            historyArr: [], isTripleCrown: false, isWorldNo1: false
-        };
-
-        relevantFiles.forEach(f => {
-            const p = f.content.find(pl => { const n=normalizeName(pl.name); return n===normPlayer || getDistance(n,normPlayer)<=1; });
-            if(p) {
-                s.tournamentCount++; s.totalPoints += p.points; s.totalPar += p.par;
-                if(f.isImportant || f.isSignificant) { s.majorCount++; s.majorPoints += p.points; }
-                if(p.rank < s.bestRank) s.bestRank = p.rank;
-                s.rankSum += p.rank; s.rankCount++;
-                if(p.points > 0) s.cut++;
-                if(p.rank <= 20) s.top20++; if(p.rank <= 5) s.top5++; if(p.rank === 1) s.wins++;
-                if(f.type === 'FED EX' && p.rank === 1) s.trophies++;
-
-                [p.r1, p.r2, p.r3, p.r4].forEach((r, i) => {
-                    if(r !== 'NA') {
-                        const v = parseInt(r); s.totalStrokes += v; s.totalHoles += 18;
-                        if(v < s.bestRound) s.bestRound = v; if(v > s.worstRound) s.worstRound = v;
-                        if(i===0) { s.r1Sum+=v; s.r1Count++; } if(i===1) { s.r2Sum+=v; s.r2Count++; }
-                        if(i===2) { s.r3Sum+=v; s.r3Count++; } if(i===3) { s.r4Sum+=v; s.r4Count++; }
-                    }
-                });
-                s.historyArr.push({ eventName: f.eventName, rank: p.rank, par: p.par, r1: p.r1, r2: p.r2, r3: p.r3, r4: p.r4, points: p.points, type: f.type, isImportant: f.isImportant, isSignificant: f.isSignificant });
-            }
-        });
-
-        // Global Ranks
-        const pgaList = getPGARankList(); const offList = getOfficialRankList(); const fedList = getFedExRankList();
-        const getR = (l) => l ? (l.find(p=>normalizeName(p.name)===normPlayer)?.rank || '-') : '-';
-        const ranks = { pga: getR(pgaList), off: getR(offList), tour: getR(getTourRankList()), ea: getR(getEARankList()), assoc: getR(getAssociationRankList()), fedex: getR(fedList) };
-        if(ranks.pga === 1 && ranks.off === 1 && ranks.fedex === 1) s.isTripleCrown = true;
-        if(ranks.off === 1) s.isWorldNo1 = true;
-
-        // Season Stats
-        let seasStats = { aces:0, de:0, eagles:0, birdies:0, pars:0, bogeys:0, db:0, games:0 };
-        db.seasonStats.forEach(sf => {
-             const sp = sf.content.find(p => normalizeName(p.name)===normPlayer);
-             if(sp) {
-                 seasStats.aces += sp.stats.aces; seasStats.de += sp.stats.doubleEagles;
-                 seasStats.eagles += sp.stats.eagles; seasStats.birdies += sp.stats.birdies;
-                 seasStats.pars += sp.stats.pars; seasStats.bogeys += sp.stats.bogeys; seasStats.db += sp.stats.doubleBogeys;
-             }
-        });
-        seasStats.games = seasStats.aces + seasStats.de + seasStats.eagles + seasStats.birdies + seasStats.pars + seasStats.bogeys + seasStats.db;
-
-        // Achievements
-        let badgeHtml = ''; let unlockedCount = 0;
-        achievementsList.forEach(ach => {
-            const unlocked = ach.check(s, s.historyArr, seasStats, unlockedCount);
-            if(unlocked) unlockedCount++;
-            badgeHtml += `<div class="achievement-badge ${unlocked?'unlocked':''}" onclick="showAchievementPopup('${ach.id}', ${unlocked})">${ach.icon}</div>`;
-        });
-        s.strokeAvg = s.totalHoles ? (s.totalStrokes/s.totalHoles*18).toFixed(2) : '-';
-        const avg = (sum, c) => c ? (sum/c).toFixed(1) : '-';
-
-        const historyRows = s.historyArr.map(h => {
-             let cls = ''; let n = h.eventName;
-             if(h.isImportant) { cls='important-row'; n='★ '+n; } else if(h.isSignificant) { cls='significant-row'; n='= '+n; }
-             return `<tr class="${cls}"><td>${n}</td><td>${h.rank}.</td><td>${h.par}</td><td>${h.r1}</td><td>${h.r2}</td><td>${h.r3}</td><td>${h.r4}</td><td>${h.points}</td></tr>`;
-        }).join('');
-
-        const update = (ne, ns) => `updateProfileFilters('${modalId}','${name}','${tab}','${encodeURIComponent(JSON.stringify(ne))}','${encodeURIComponent(JSON.stringify(ns))}')`;
-        const renderBtns = (items, active, type) => {
-             if(!items.length) return '<div class="filter-btn empty">Žiadne dáta</div>';
-             let h = `<div style="display:flex; flex-wrap:wrap; gap:5px; max-height:100px; overflow-y:auto; margin-bottom:5px;">`;
-             items.forEach(i => {
-                 let nA = [...active]; if(nA.includes(i)) nA=nA.filter(x=>x!==i); else nA.push(i);
-                 h += `<button class="btn btn-sm ${active.includes(i)?'btn-green':'btn-grey'}" onclick="${type==='e'?update(nA,activeSeasons):update(activeEvents,nA)}">${i}</button>`;
-             });
-             return h + '</div>';
-        };
-        const allEvs = [...new Set(relevantFiles.map(f=>f.eventName))];
-        const allSeas = [...new Set(relevantFiles.map(f=>f.season))].sort((a,b)=>a-b);
-
-        const body = `
-            <div class="profile-tabs">
-                ${['ALL','KFT','PGA','EA SPORTS','THE PLAYERS','FED EX'].map(t=>`<div class="profile-tab ${tab===t?'active':''}" onclick="updateProfileFilters('${modalId}','${name}','${t}','[]','[]')">${t==='ALL'?'Celkovo':t}</div>`).join('')}
+        const html = `
+            <div class="modal-header">
+                <h2>Porovnávač (Head-to-Head)</h2>
+                <button class="close-btn" onclick="closeTopModal()">&times;</button>
             </div>
-            <div class="profile-filters-area">
-                <small style="color:#888;">Turnaje:</small>${renderBtns(allEvs,activeEvents,'e')}
-                <small style="color:#888;">Sezóny:</small>${renderBtns(allSeas,activeSeasons,'s')}
-            </div>
+            <div class="modal-body">
+                <div class="vs-filters">
+                    <select id="h2hTour" class="vs-select" style="min-width:100px; font-size:0.8rem;" onchange="updateH2HFilter('tour', this.value)">${tourOpts}</select>
+                    <select id="h2hSeason" class="vs-select" style="min-width:100px; font-size:0.8rem;" onchange="updateH2HFilter('season', this.value)">${seasonOpts}</select>
+                    <select id="h2hEvent" class="vs-select" style="min-width:150px; font-size:0.8rem;" onchange="updateH2HFilter('event', this.value)">${eventOpts}</select>
+                </div>
 
-            ${generateGraphHtml(s.historyArr)}
-            <div class="achievements-grid">${badgeHtml}</div>
-
-            <div class="stats-grid">
-                <div class="stat-box highlight" onclick="showRankTable('PGA')"><div class="stat-label">PGA Rank</div><div class="stat-value gold rank-clickable">${ranks.pga}.</div></div>
-                <div class="stat-box highlight" onclick="showRankTable('Official')"><div class="stat-label">Official Rank</div><div class="stat-value blue rank-clickable">${ranks.off}.</div></div>
-                <div class="stat-box highlight" onclick="showRankTable('Tour')"><div class="stat-label">Tour Rank</div><div class="stat-value">${ranks.tour}.</div></div>
-                <div class="stat-box highlight" onclick="showRankTable('FEDEX')"><div class="stat-label" style="color:var(--highlight-gold)">FED EX</div><div class="stat-value gold rank-clickable">${ranks.fedex}.</div></div>
-                
-                <div class="stat-box season-highlight"><div class="stat-label" style="font-weight:bold; color:var(--text-main)">Games</div><div class="stat-value white">${seasStats.games}</div></div>
-                <div class="stat-box season-highlight"><div class="stat-label">Aces</div><div class="stat-value green">${seasStats.aces}</div></div>
-                <div class="stat-box season-highlight"><div class="stat-label">D. Eagles</div><div class="stat-value green">${seasStats.de}</div></div>
-                <div class="stat-box season-highlight"><div class="stat-label">Eagles</div><div class="stat-value green">${seasStats.eagles}</div></div>
-                <div class="stat-box season-highlight"><div class="stat-label">Birdies</div><div class="stat-value blue">${seasStats.birdies}</div></div>
-                <div class="stat-box season-highlight"><div class="stat-label">Pars</div><div class="stat-value">${seasStats.pars}</div></div>
-                <div class="stat-box season-highlight"><div class="stat-label">Bogeys</div><div class="stat-value" style="color:#e67e22">${seasStats.bogeys}</div></div>
-                <div class="stat-box season-highlight"><div class="stat-label">D. Bogeys</div><div class="stat-value" style="color:var(--accent-red)">${seasStats.db}</div></div>
-
-                <div class="stat-box"><div class="stat-label">Jamiek</div><div class="stat-value green">${s.totalHoles}</div></div>
-                <div class="stat-box"><div class="stat-label">Odpalov</div><div class="stat-value">${s.totalStrokes}</div></div>
-                <div class="stat-box"><div class="stat-label">Priemer</div><div class="stat-value">${s.strokeAvg}</div></div>
-                <div class="stat-box"><div class="stat-label">Body</div><div class="stat-value">${s.totalPoints.toFixed(0)}</div></div>
-                
-                <div class="stat-box"><div class="stat-label">Turnajov</div><div class="stat-value">${s.tournamentCount}</div></div>
-                <div class="stat-box"><div class="stat-label">Výhry</div><div class="stat-value gold">${s.wins}</div></div>
-                <div class="stat-box"><div class="stat-label">Top 5</div><div class="stat-value blue">${s.top5}</div></div>
-                <div class="stat-box"><div class="stat-label">Cut</div><div class="stat-value">${s.cut}</div></div>
-
-                <div class="stat-box"><div class="stat-label">Naj. Kolo</div><div class="stat-value green">${s.bestRound===999?'-':s.bestRound}</div></div>
-                <div class="stat-box"><div class="stat-label">Naj. Poz</div><div class="stat-value green">${s.bestRank===999?'-':s.bestRank+'.'}</div></div>
-                <div class="stat-box"><div class="stat-label">Final Tour</div><div class="stat-value">${s.majorCount}</div></div>
-                <div class="stat-box"><div class="stat-label">Body Final</div><div class="stat-value">${s.majorPoints.toFixed(0)}</div></div>
-
-                <div class="stat-box"><div class="stat-label">Priemer R1</div><div class="stat-value">${avg(s.r1Sum, s.r1Count)}</div></div>
-                <div class="stat-box"><div class="stat-label">Priemer R2</div><div class="stat-value">${avg(s.r2Sum, s.r2Count)}</div></div>
-                <div class="stat-box"><div class="stat-label">Priemer R3</div><div class="stat-value">${avg(s.r3Sum, s.r3Count)}</div></div>
-                <div class="stat-box"><div class="stat-label">Priemer R4</div><div class="stat-value">${avg(s.r4Sum, s.r4Count)}</div></div>
-            </div>
-
-            <h3 style="margin-top:20px; border-bottom:1px solid #444;">História</h3>
-            <div class="table-container">
-                <table><thead><tr><th>Turnaj</th><th>#</th><th>Par</th><th>R1</th><th>R2</th><th>R3</th><th>R4</th><th>Pts</th></tr></thead>
-                <tbody>${historyRows}</tbody></table>
+                <div class="vs-container">
+                    <select id="vsPlayer1" class="vs-select" onchange="renderComparison()"><option value="">Hráč A...</option>${options}</select>
+                    <div class="vs-badge">VS</div>
+                    <select id="vsPlayer2" class="vs-select" onchange="renderComparison()"><option value="">Hráč B...</option>${options}</select>
+                </div>
+                <div id="vsResults"></div>
             </div>
         `;
-        if(innerOnly) return body;
-        return `<div id="${modalId}"><div class="modal-header"><h2>${name}</h2><button class="close-btn" onclick="closeTopModal()">&times;</button></div><div class="modal-body">${body}</div></div>`;
+        // Reset filtrov pri otvorení
+        window.h2hState = { tour: 'ALL', season: 'ALL', event: 'ALL' };
+        createModal(html);
     }
 
-    // --- Comparator (VS) ---
-    function showComparator() {
-        const players = [...new Set(db.files.flatMap(f => f.content.map(p => p.name)))].sort();
-        const opts = players.map(p => `<option value="${p}">${p}</option>`).join('');
-        createModal(`<div class="modal-header"><h2>Porovnávač (Head-to-Head)</h2><button class="close-btn" onclick="closeTopModal()">&times;</button></div><div class="modal-body"><div class="vs-container"><div class="vs-selectors"><select id="vsPlayer1" class="vs-select" onchange="renderComparator()"><option value="">Hráč A</option>${opts}</select><span class="vs-middle">VS</span><select id="vsPlayer2" class="vs-select" onchange="renderComparator()"><option value="">Hráč B</option>${opts}</select></div><div id="vsResults"></div></div></div>`);
+    window.updateH2HFilter = function(key, val) {
+        window.h2hState[key] = val;
+        renderComparison();
     }
 
-    function renderComparator() {
-        const p1 = document.getElementById('vsPlayer1').value; const p2 = document.getElementById('vsPlayer2').value;
-        const res = document.getElementById('vsResults'); if(!p1 || !p2) { res.innerHTML = ''; return; }
-        const s1 = calculatePlayerStats(p1); const s2 = calculatePlayerStats(p2);
-        const row = (l, v1, v2, low=false) => {
-            let c1='', c2=''; if(v1 !== v2) { if(low) { c1 = v1 < v2 ? 'vs-win' : 'vs-lose'; c2 = v2 < v1 ? 'vs-win' : 'vs-lose'; } else { c1 = v1 > v2 ? 'vs-win' : 'vs-lose'; c2 = v2 > v1 ? 'vs-win' : 'vs-lose'; } }
-            return `<div class="vs-table-row"><span class="vs-val ${c1}">${v1}</span><span class="vs-label">${l}</span><span class="vs-val ${c2}">${v2}</span></div>`;
-        };
-        res.innerHTML = `<div style="background:var(--card-bg); border-radius:8px; margin-top:15px; padding:10px;">${row('Body', s1.points.toFixed(0), s2.points.toFixed(0))}${row('Turnaje', s1.count, s2.count)}${row('Výhry', s1.wins, s2.wins)}${row('Top 5', s1.top5, s2.top5)}${row('Top 20', s1.top20, s2.top20)}${row('Cuty', s1.cut, s2.cut)}${row('Priemer Úderov', s1.avg, s2.avg, true)}${row('Najlepšie Kolo', s1.bestR, s2.bestR, true)}</div>`;
-    }
+    window.renderComparison = function() {
+        const p1Name = document.getElementById('vsPlayer1').value;
+        const p2Name = document.getElementById('vsPlayer2').value;
+        const container = document.getElementById('vsResults');
+        
+        if(!p1Name || !p2Name) {
+            container.innerHTML = '<div style="text-align:center; color:#666; padding:20px;">Vyberte dvoch hráčov pre porovnanie.</div>';
+            return;
+        }
+        if(p1Name === p2Name) {
+            container.innerHTML = '<div style="text-align:center; color:var(--accent-red); padding:20px;">Vyberte rozdielnych hráčov.</div>';
+            return;
+        }
 
-    function calculatePlayerStats(name) {
-        let st = { points:0, count:0, wins:0, top5:0, top20:0, cut:0, strokes:0, holes:0, bestR:999 };
-        const norm = normalizeName(name);
-        db.files.forEach(f => {
-            const p = f.content.find(pl => normalizeName(pl.name)===norm || getDistance(normalizeName(pl.name), norm)<=1);
-            if(p) {
-                st.count++; st.points+=p.points;
-                if(p.rank===1) st.wins++; if(p.rank<=5) st.top5++; if(p.rank<=20) st.top20++; if(p.points>0) st.cut++;
-                [p.r1,p.r2,p.r3,p.r4].forEach(r => { if(r!=='NA'){ const v=parseInt(r); st.strokes+=v; st.holes+=18; if(v<st.bestR) st.bestR=v; } });
+        const norm1 = normalizeName(p1Name);
+        const norm2 = normalizeName(p2Name);
+
+        // Filter files based on H2H filters
+        let activeFiles = db.files.filter(f => {
+            if(window.h2hState.tour !== 'ALL' && f.type !== window.h2hState.tour) return false;
+            if(window.h2hState.season !== 'ALL' && f.season !== window.h2hState.season) return false;
+            if(window.h2hState.event !== 'ALL' && f.eventName !== window.h2hState.event) return false;
+            return true;
+        });
+
+        let mutualTournaments = 0;
+        let p1BeatP2 = 0;
+        let p2BeatP1 = 0;
+        let draws = 0;
+
+        let s1 = { pts:0, wins:0, top5:0, top10:0, top20:0, cuts:0, strokes:0, holes:0, best:999, worst:-999, r1s:0, r1c:0, r4s:0, r4c:0 };
+        let s2 = { pts:0, wins:0, top5:0, top10:0, top20:0, cuts:0, strokes:0, holes:0, best:999, worst:-999, r1s:0, r1c:0, r4s:0, r4c:0 };
+
+        activeFiles.forEach(f => {
+            const player1 = f.content.find(pl => normalizeName(pl.name) === norm1 || getDistance(normalizeName(pl.name), norm1)<=1);
+            const player2 = f.content.find(pl => normalizeName(pl.name) === norm2 || getDistance(normalizeName(pl.name), norm2)<=1);
+
+            // General Stats Accumulation (only in filtered files)
+            if(player1) {
+                s1.pts += player1.points;
+                if(player1.rank===1) s1.wins++;
+                if(player1.rank<=5) s1.top5++;
+                if(player1.rank<=10) s1.top10++;
+                if(player1.rank<=20) s1.top20++;
+                if(player1.points>0) s1.cuts++;
+                [player1.r1, player1.r2, player1.r3, player1.r4].forEach((r, i)=>{
+                    if(r!=='NA'){ 
+                        const v=parseInt(r); 
+                        s1.strokes+=v; s1.holes+=18; 
+                        if(v<s1.best)s1.best=v; 
+                        if(v>s1.worst)s1.worst=v;
+                        if(i===0){ s1.r1s+=v; s1.r1c++; }
+                        if(i===3){ s1.r4s+=v; s1.r4c++; }
+                    }
+                });
+            }
+            if(player2) {
+                s2.pts += player2.points;
+                if(player2.rank===1) s2.wins++;
+                if(player2.rank<=5) s2.top5++;
+                if(player2.rank<=10) s2.top10++;
+                if(player2.rank<=20) s2.top20++;
+                if(player2.points>0) s2.cuts++;
+                [player2.r1, player2.r2, player2.r3, player2.r4].forEach((r, i)=>{
+                    if(r!=='NA'){ 
+                        const v=parseInt(r); 
+                        s2.strokes+=v; s2.holes+=18; 
+                        if(v<s2.best)s2.best=v; 
+                        if(v>s2.worst)s2.worst=v;
+                        if(i===0){ s2.r1s+=v; s2.r1c++; }
+                        if(i===3){ s2.r4s+=v; s2.r4c++; }
+                    }
+                });
+            }
+
+            // Head to Head Logic (only if both played)
+            if(player1 && player2) {
+                mutualTournaments++;
+                if(player1.rank < player2.rank) p1BeatP2++;
+                else if(player2.rank < player1.rank) p2BeatP1++;
+                else draws++;
             }
         });
-        st.avg = st.holes ? (st.strokes/st.holes*18).toFixed(2) : 0; if(st.bestR === 999) st.bestR = '-';
-        return st;
+
+        // Averages
+        const avg1 = s1.holes ? (s1.strokes/(s1.holes/18)).toFixed(2) : '-';
+        const avg2 = s2.holes ? (s2.strokes/(s2.holes/18)).toFixed(2) : '-';
+        const r1_1 = s1.r1c ? (s1.r1s/s1.r1c).toFixed(2) : '-';
+        const r1_2 = s2.r1c ? (s2.r1s/s2.r1c).toFixed(2) : '-';
+        const r4_1 = s1.r4c ? (s1.r4s/s1.r4c).toFixed(2) : '-';
+        const r4_2 = s2.r4c ? (s2.r4s/s2.r4c).toFixed(2) : '-';
+
+        const row = (label, v1, v2, lowIsGood=false) => {
+            let c1='', c2='';
+            let n1 = parseFloat(v1); let n2 = parseFloat(v2);
+            if(isNaN(n1)) n1 = lowIsGood ? 9999 : -1;
+            if(isNaN(n2)) n2 = lowIsGood ? 9999 : -1;
+            
+            if(v1 === v2) { c1='val-draw'; c2='val-draw'; }
+            else if(lowIsGood) {
+                if(n1 < n2) { c1='val-better'; c2='val-worse'; } else { c1='val-worse'; c2='val-better'; }
+            } else {
+                if(n1 > n2) { c1='val-better'; c2='val-worse'; } else { c1='val-worse'; c2='val-better'; }
+            }
+            if(v1==999) v1='-'; if(v2==999) v2='-';
+            if(v1==-999) v1='-'; if(v2==-999) v2='-';
+            return `<div class="vs-cell ${c1}">${v1}</div><div class="vs-label-cell">${label}</div><div class="vs-cell ${c2}">${v2}</div>`;
+        };
+
+        const headToHeadBar = `
+            <div style="grid-column:1/-1; padding:15px; background:#222; text-align:center; margin-bottom:10px; border:1px solid #444; border-radius:8px;">
+                <div style="font-size:0.8rem; color:#aaa; margin-bottom:5px;">VZÁJOMNÉ ZÁPASY (Spoločné turnaje: ${mutualTournaments})</div>
+                <div style="display:flex; justify-content:center; align-items:center; gap:20px; font-size:1.8rem; font-weight:bold;">
+                    <span style="color:${p1BeatP2 > p2BeatP1 ? 'var(--accent-green)' : '#fff'}">${p1BeatP2}</span>
+                    <span style="font-size:1rem; color:#555;">vs</span>
+                    <span style="color:${p2BeatP1 > p1BeatP2 ? 'var(--accent-green)' : '#fff'}">${p2BeatP1}</span>
+                </div>
+                ${draws > 0 ? `<div style="font-size:0.7rem; color:#555; margin-top:2px;">(Remízy: ${draws})</div>` : ''}
+            </div>
+        `;
+
+        container.innerHTML = `
+            <div class="vs-detailed-grid">
+                <div class="vs-header">${p1Name}</div><div class="vs-header">ŠTATISTIKA</div><div class="vs-header">${p2Name}</div>
+                ${headToHeadBar}
+                
+                ${row('Body Celkovo', s1.pts.toFixed(0), s2.pts.toFixed(0))}
+                ${row('Výhry', s1.wins, s2.wins)}
+                ${row('Top 5', s1.top5, s2.top5)}
+                ${row('Top 10', s1.top10, s2.top10)}
+                ${row('Top 20', s1.top20, s2.top20)}
+                ${row('Prejdené Cuty', s1.cuts, s2.cuts)}
+                ${row('Priemer Úderov', avg1, avg2, true)}
+                ${row('Priemer 1. Kola', r1_1, r1_2, true)}
+                ${row('Priemer 4. Kola', r4_1, r4_2, true)}
+                ${row('Najlepšie Kolo', s1.best, s2.best, true)}
+                ${row('Najhoršie Kolo', s1.worst, s2.worst, true)}
+            </div>
+        `;
     }
 
     // --- Settings & Utils ---
+
+    function createModal(contentHtml, id = null) {
+        const layer = document.getElementById('popupsLayer');
+        const overlay = document.createElement('div');
+        overlay.className = 'modal-overlay';
+        overlay.style.zIndex = 1000 + modalStack.length * 10;
+        if (id) overlay.id = id + '-overlay';
+        overlay.innerHTML = `<div class="modal">${contentHtml}</div>`;
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) closeTopModal();
+        });
+        layer.appendChild(overlay);
+        modalStack.push(overlay);
+        document.body.style.overflow = 'hidden';
+        window.history.pushState({ modal: true }, "");
+
+        if (appState.settings.zoom === 2) updateViewport();
+    }
+
+    function closeTopModal(backHistory = true) {
+        if (modalStack.length === 0) return;
+        const overlay = modalStack.pop();
+        overlay.remove();
+        if (modalStack.length === 0) document.body.style.overflow = 'auto';
+        if (backHistory) window.history.back();
+
+        if (appState.settings.zoom === 2) updateViewport();
+    }
+
+    function toggleZoom() {
+        appState.settings.zoom = (appState.settings.zoom + 1) % 3;
+        updateViewport();
+        saveAuto();
+    }
+
+    function updateViewport() {
+        applyZoom(appState.settings.zoom);
+    }
+
+    function applyZoom(mode) {
+        const meta = document.getElementById('viewportMeta');
+        const btn = document.querySelector('button[title="Zoom Mode"]');
+        
+        let targetContent = 'width=device-width, initial-scale=1.0';
+        let btnColor = 'var(--text-main)';
+
+        if (mode === 1) { 
+            targetContent = 'width=1200, initial-scale=0.5';
+            btnColor = 'var(--accent-green)';
+        } else if (mode === 2) { 
+            btnColor = 'var(--accent-blue)';
+            if (modalStack.length > 0) {
+                 targetContent = 'width=1200, initial-scale=0.5';
+            } else {
+                 targetContent = 'width=device-width, initial-scale=1.0';
+            }
+        }
+        
+        meta.setAttribute('content', targetContent);
+        if(btn) btn.style.color = btnColor;
+    }
+
     function openSettings() {
-        let tB = ''; Object.keys(colorSchemes).forEach(k => { const s=colorSchemes[k]; const b=(appState.settings.theme===k)?'#fff':(s.border||s.accent||'transparent'); tB+=`<div class="theme-btn" style="background:${s.bg}; border-color:${b}; color:${s.text}" onclick="changeTheme('${k}')">${k}</div>`; });
-        const zL = ['Mobilný', 'Desktop', 'Hybridný'];
+        let themeBtns = '';
+        Object.keys(colorSchemes).forEach(k => {
+            const sch = colorSchemes[k];
+            const borderColor = (appState.settings.theme === k) ? '#fff' : (sch.border || sch.accent || 'transparent');
+            themeBtns += `<div class="theme-btn" style="background:${sch.bg}; border-color:${borderColor}; color:${sch.text}" onclick="changeTheme('${k}')">${k}</div>`;
+        });
+
+        const zoomLabels = ['Mobilný', 'Desktop', 'Hybridný'];
+        const currentZoomLabel = zoomLabels[appState.settings.zoom] || 'Mobilný';
+        const themesDisplay = appState.settings.themesOpen ? 'grid' : 'none';
+        const toggleBtnText = appState.settings.themesOpen ? 'Skryť Témy' : 'Zobraziť Témy';
+
         const html = `
-            <div class="modal-header"><h2>Nastavenia</h2><button class="close-btn" onclick="closeTopModal()">&times;</button></div>
+            <div class="modal-header">
+                <h2>Nastavenia</h2>
+                <button class="close-btn" onclick="closeTopModal()">&times;</button>
+            </div>
             <div class="modal-body">
-                <h3>Dáta</h3>
-                <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                <h3>Nástroje</h3>
+                <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:15px;">
                     <button class="btn btn-green" onclick="document.getElementById('fileInput').click()">Vložiť .txt</button>
                     <button class="btn btn-blue" onclick="document.getElementById('seasonFileInput').click()">Vložiť Sezónu</button>
                     <button class="btn btn-grey" onclick="openFileManager()">Správca súborov</button>
                     <button class="btn btn-red" onclick="clearDB()">Vymazať DB</button>
+                    <button class="btn btn-grey" onclick="toggleZoomInSettings()">Režim: ${currentZoomLabel}</button>
                 </div>
-                <h3>Zobrazenie</h3>
-                <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:10px;">
-                     <button class="btn btn-grey" onclick="toggleZoomInSettings()">Zoom: ${zL[appState.settings.zoom]}</button>
-                     <button class="btn btn-full-width btn-grey" onclick="showAchievementList()">📜 Zoznam Odznakov</button>
+                
+                <h3>Vzhľad</h3>
+                <button class="btn btn-full-width btn-grey" onclick="toggleThemes(this)" style="margin-bottom:10px;">${toggleBtnText}</button>
+                <div class="theme-grid" id="themeContainer" style="display:${themesDisplay};">
+                    ${themeBtns}
                 </div>
-                <button class="btn btn-full-width btn-grey" onclick="toggleThemes(this)">${appState.settings.themesOpen?'Skryť Témy':'Zobraziť Témy'}</button>
-                <div class="theme-grid" id="themeContainer" style="display:${appState.settings.themesOpen?'grid':'none'};">${tB}</div>
-                <h3>Sloty</h3>
+
+                <h3>Sloty (Uložiť / Načítať)</h3>
                 <div class="slot-grid" id="slotContainer"></div>
-            </div>`;
-        createModal(html); renderSlots();
+            </div>
+        `;
+        createModal(html);
+        renderSlots();
     }
 
-    function showAchievementList() {
-        const l = achievementsList.map(a => `<div class="ach-list-item"><div class="ach-list-icon">${a.icon}</div><div class="ach-list-info"><span class="ach-list-name">${a.name}</span><span class="ach-list-desc">${a.desc}</span></div></div>`).join('');
-        createModal(`<div class="modal-header"><h2>Zoznam Odznakov</h2><button class="close-btn" onclick="closeTopModal()">&times;</button></div><div class="modal-body">${l}</div>`);
+    function toggleThemes(btn) {
+        appState.settings.themesOpen = !appState.settings.themesOpen;
+        const container = document.getElementById('themeContainer');
+        if (appState.settings.themesOpen) {
+            container.style.display = 'grid';
+            btn.innerText = 'Skryť Témy';
+        } else {
+            container.style.display = 'none';
+            btn.innerText = 'Zobraziť Témy';
+        }
+        saveAuto();
     }
 
-    window.showRankTable = function(type) {
-        let list=[], t=''; 
-        if(type==='PGA'){list=getPGARankList();t='PGA Rank (Top 40)';} 
-        else if(type==='Official'){list=getOfficialRankList();t='Official Rank (All Time)';}
-        else if(type==='Tour'){list=getTourRankList();t='Tour Rank (Major/Imp)';}
-        else if(type==='EA'){list=getEARankList();t='EA Rank';}
-        else if(type==='Association'){list=getAssociationRankList();t='Association Rank';}
-        else if(type==='FEDEX'){list=getFedExRankList();t='FED EX Rank';}
-        if(!list){alert('Nedostatok dát.');return;}
-        const r=list.map(p=>`<tr onclick="openPlayerProfile('${p.name}')" style="cursor:pointer"><td><b style="color:${p.rank===1?'gold':'white'}">${p.rank}.</b></td><td>${p.name}</td><td style="text-align:right">${p.points.toFixed(3)}</td></tr>`).join('');
-        createModal(`<div class="modal-header"><h2>${t}</h2><button class="close-btn" onclick="closeTopModal()">&times;</button></div><div class="modal-body"><div class="table-container"><table><thead><tr><th>#</th><th>Hráč</th><th style="text-align:right">Body</th></tr></thead><tbody>${r}</tbody></table></div></div>`);
+    function toggleZoomInSettings() {
+        toggleZoom();
+        closeTopModal();
+        openSettings();
     }
 
-    function createModal(html, id=null) {
-        const o = document.createElement('div'); o.className='modal-overlay'; if(id)o.id=id+'-overlay';
-        o.innerHTML = `<div class="modal">${html}</div>`; o.addEventListener('click', e=>{if(e.target===o)closeTopModal();});
-        document.getElementById('popupsLayer').appendChild(o); modalStack.push(o); document.body.style.overflow='hidden';
-        window.history.pushState({modal:true},""); if(appState.settings.zoom===2)updateViewport();
+    function changeTheme(name) {
+        appState.settings.theme = name;
+        applyTheme(name);
+        saveAuto();
+        closeTopModal();
+        openSettings();
     }
-    function closeTopModal(back=true) {
-        if(!modalStack.length)return; const o=modalStack.pop(); o.remove();
-        if(!modalStack.length)document.body.style.overflow='auto'; if(back)window.history.back();
-        if(appState.settings.zoom===2)updateViewport();
+
+    function applyTheme(name) {
+        const t = colorSchemes[name] || colorSchemes['Default'];
+        const root = document.documentElement;
+        root.style.setProperty('--bg-color', t.bg);
+        root.style.setProperty('--card-bg', t.card);
+        root.style.setProperty('--text-main', t.text);
+        root.style.setProperty('--accent-green', t.accent);
     }
-    function toggleZoom() { appState.settings.zoom=(appState.settings.zoom+1)%3; updateViewport(); saveAuto(); }
-    function toggleZoomInSettings() { toggleZoom(); closeTopModal(); openSettings(); }
-    function updateViewport() { let c='width=device-width, initial-scale=1.0'; if(appState.settings.zoom===1)c='width=1200, initial-scale=0.5'; if(appState.settings.zoom===2)c=modalStack.length>0?'width=1200, initial-scale=0.5':'width=device-width, initial-scale=1.0'; document.getElementById('viewportMeta').setAttribute('content',c); }
-    function toggleThemes(btn) { appState.settings.themesOpen=!appState.settings.themesOpen; document.getElementById('themeContainer').style.display=appState.settings.themesOpen?'grid':'none'; btn.innerText=appState.settings.themesOpen?'Skryť Témy':'Zobraziť Témy'; saveAuto(); }
-    function changeTheme(n) { appState.settings.theme=n; applyTheme(n); saveAuto(); closeTopModal(); openSettings(); }
-    function applyTheme(n) { const t=colorSchemes[n]||colorSchemes['Default']; const r=document.documentElement.style; r.setProperty('--bg-color',t.bg); r.setProperty('--card-bg',t.card); r.setProperty('--text-main',t.text); r.setProperty('--accent-green',t.accent); }
+
     function openFileManager() {
-        const f = [...db.files].sort(compareFiles).map(x=>`<div style="display:flex; justify-content:space-between; background:#222; padding:8px; margin-bottom:5px; border-radius:4px;"><span style="${x.isImportant?'color:var(--highlight-gold)':x.isSignificant?'color:var(--accent-blue)':''}">${x.isImportant?'★ ':x.isSignificant?'= ':''}${x.name}</span><button class="btn btn-red btn-sm" onclick="deleteFile(${x.id})">X</button></div>`).join('');
-        const s = db.seasonStats.map(x=>`<div style="display:flex; justify-content:space-between; background:#1a3a3a; padding:8px; margin-bottom:5px; border-radius:4px;"><span>Sezóna ${x.season}</span><button class="btn btn-red btn-sm" onclick="deleteSeasonFile('${x.season}')">X</button></div>`).join('');
-        createModal(`<div class="modal-header"><h2>Správca súborov</h2><button class="close-btn" onclick="closeTopModal()">&times;</button></div><div class="modal-body"><h3>Sezóny</h3>${s||'<small>Žiadne</small>'}<h3>Turnaje</h3>${f||'<small>Žiadne</small>'}</div>`);
+        const files = [...db.files].sort(compareFiles);
+        
+        const list = files.map(f => {
+            let label = f.name;
+            let style = '';
+            if (f.isImportant) {
+                label = '★ ' + label;
+                style = 'color: var(--highlight-gold); font-weight: bold;';
+            } else if (f.isSignificant) {
+                label = '= ' + label;
+                style = 'color: var(--accent-blue);';
+            }
+            return `
+            <div style="display:flex; justify-content:space-between; background:#222; padding:8px; margin-bottom:5px; border-radius:4px; align-items:center;">
+                <span style="${style}">${label}</span>
+                <button class="btn btn-red btn-sm" onclick="deleteFile(${f.id})">X</button>
+            </div>
+        `}).join('');
+
+        const seasonList = db.seasonStats.map(s => `
+            <div style="display:flex; justify-content:space-between; background:#1a3a3a; padding:8px; margin-bottom:5px; border-radius:4px; align-items:center; border:1px solid #2ecc71">
+                <span>SEZÓNA ${s.season} (${s.filename})</span>
+                <button class="btn btn-red btn-sm" onclick="deleteSeasonFile('${s.season}')">X</button>
+            </div>
+        `).join('');
+
+        const html = `
+            <div class="modal-header">
+                <h2>Správca súborov</h2>
+                <button class="close-btn" onclick="closeTopModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <h3>Sezónne Štatistiky</h3>
+                ${seasonList || '<small>Žiadne sezónne súbory.</small>'}
+                <h3 style="margin-top:15px">Turnajové Súbory (${files.length})</h3>
+                ${list || '<small>Žiadne turnaje.</small>'}
+            </div>
+        `;
+        createModal(html);
     }
-    function deleteFile(id) { db.files=db.files.filter(f=>f.id!==id); saveAuto(); closeTopModal(); openFileManager(); renderApp(); }
-    function deleteSeasonFile(s) { db.seasonStats=db.seasonStats.filter(x=>x.season!==s); saveAuto(); closeTopModal(); openFileManager(); renderApp(); }
-    function renderSlots() {
-        const c=document.getElementById('slotContainer'); if(!c)return; c.innerHTML='';
-        for(let i=1;i<=4;i++){ const k=`ArciWeb_Slot_${i}`; const ex=localStorage.getItem(k)!==null;
-            c.innerHTML+=`<div class="slot-card"><strong style="color:${ex?'var(--accent-green)':'#555'}">Slot ${i}</strong><div style="margin-top:5px; display:flex; flex-direction:column; gap:4px;"><button class="btn btn-sm btn-green" onclick="saveToSlot(${i})">Uložiť</button><button class="btn btn-sm btn-grey" onclick="loadFromSlot(${i})" ${!ex?'disabled':''}>Načítať</button><button class="btn btn-sm btn-red" onclick="deleteSlot(${i})" ${!ex?'disabled':''}>Zmazať</button><div style="display:flex;gap:2px"><button class="btn btn-sm btn-blue" style="flex:1" onclick="downloadSlot(${i})" ${!ex?'disabled':''}>⬇</button><button class="btn btn-sm btn-blue" style="flex:1" onclick="uploadSlotTrigger(${i})">⬆</button></div></div></div>`;
+
+    function deleteFile(id) {
+        db.files = db.files.filter(f => f.id !== id);
+        saveAuto();
+        closeTopModal();
+        openFileManager();
+        renderApp();
+    }
+
+    function deleteSeasonFile(season) {
+        db.seasonStats = db.seasonStats.filter(s => s.season !== season);
+        saveAuto();
+        closeTopModal();
+        openFileManager();
+        renderApp();
+    }
+
+    function clearDB() {
+        if(confirm('Naozaj vymazať celú databázu?')) {
+            db.files = [];
+            db.seasonStats = [];
+            appState.filters.events = [];
+            appState.filters.seasons = [];
+            renderApp();
+            saveAuto();
+            closeTopModal();
         }
     }
-    function saveToSlot(i) { localStorage.setItem(`ArciWeb_Slot_${i}`, JSON.stringify({db, appState})); renderSlots(); }
-    function loadFromSlot(i) { const d=localStorage.getItem(`ArciWeb_Slot_${i}`); if(d){ const p=JSON.parse(d); db=p.db; if(!db.seasonStats)db.seasonStats=[]; appState=p.appState; applyTheme(appState.settings.theme); updateViewport(); renderApp(); saveAuto(); closeTopModal(); } }
-    function deleteSlot(i) { localStorage.removeItem(`ArciWeb_Slot_${i}`); renderSlots(); }
-    function saveAuto() { localStorage.setItem('autosave_v206', JSON.stringify({ db, appState })); }
-    function loadAutoSave() { const d=localStorage.getItem('autosave_v206'); if(d){try{const p=JSON.parse(d);if(p.db&&p.appState){db=p.db;if(!db.seasonStats)db.seasonStats=[];appState=p.appState;}}catch(e){}} }
-    function downloadSlot(i) { const d=localStorage.getItem(`ArciWeb_Slot_${i}`); if(!d)return; const b=new Blob([d],{type:'application/json'}); const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download=`ArciWeb_Slot_${i}.json`; a.click(); }
-    function uploadSlotTrigger(i) { slotToUpload=i; document.getElementById('slotFileInput').click(); }
-    function finishSlotUpload(files) { if(!files.length||slotToUpload===null)return; const r=new FileReader(); r.onload=e=>{try{const j=JSON.parse(e.target.result); if(j.db)localStorage.setItem(`ArciWeb_Slot_${slotToUpload}`,JSON.stringify(j)); renderSlots();}catch(err){alert('Chyba!');} slotToUpload=null;}; r.readAsText(files[0]); }
+
+    function renderSlots() {
+        const container = document.getElementById('slotContainer');
+        if(!container) return;
+        container.innerHTML = '';
+        for (let i = 1; i <= 4; i++) {
+            const key = `ArciWeb_Slot_${i}`;
+            const exists = localStorage.getItem(key) !== null;
+            const div = document.createElement('div');
+            div.className = 'slot-card';
+            div.innerHTML = `
+                <strong style="color:${exists?'var(--accent-green)':'#555'}">Slot ${i}</strong>
+                <div style="margin-top:5px; display:flex; flex-direction:column; gap:4px;">
+                    <button class="btn btn-sm btn-green" onclick="saveToSlot(${i})">Uložiť</button>
+                    <button class="btn btn-sm btn-grey" onclick="loadFromSlot(${i})" ${!exists?'disabled':''}>Načítať</button>
+                    <button class="btn btn-sm btn-red" onclick="deleteSlot(${i})" ${!exists?'disabled':''}>Zmazať</button>
+                    <div style="display:flex; gap:2px;">
+                        <button class="btn btn-sm btn-blue" style="flex:1" onclick="downloadSlot(${i})" ${!exists?'disabled':''}>⬇</button>
+                        <button class="btn btn-sm btn-blue" style="flex:1" onclick="uploadSlotTrigger(${i})">⬆</button>
+                    </div>
+                </div>
+            `;
+            container.appendChild(div);
+        }
+    }
+
+    function saveToSlot(i) {
+        const data = JSON.stringify({ db, appState });
+        localStorage.setItem(`ArciWeb_Slot_${i}`, data);
+        renderSlots();
+    }
+
+    function loadFromSlot(i) {
+        const data = localStorage.getItem(`ArciWeb_Slot_${i}`);
+        if(data) {
+            const parsed = JSON.parse(data);
+            db = parsed.db;
+            if(!db.seasonStats) db.seasonStats = [];
+            appState = parsed.appState;
+            applyTheme(appState.settings.theme);
+            updateViewport();
+            renderApp();
+            saveAuto();
+            closeTopModal();
+        }
+    }
+
+    function deleteSlot(i) {
+        localStorage.removeItem(`ArciWeb_Slot_${i}`);
+        renderSlots();
+    }
+
+    function saveAuto() {
+        localStorage.setItem('autosave_v350', JSON.stringify({ db, appState }));
+    }
+
+    function loadAutoSave() {
+        const data = localStorage.getItem('autosave_v350');
+        if(data) {
+            try {
+                const parsed = JSON.parse(data);
+                if(parsed.db && parsed.appState) {
+                    db = parsed.db;
+                    if(!db.seasonStats) db.seasonStats = [];
+                    appState = parsed.appState;
+                }
+            } catch(e) {}
+        }
+    }
+
+    function downloadSlot(i) {
+        const data = localStorage.getItem(`ArciWeb_Slot_${i}`);
+        if (!data) return;
+        const blob = new Blob([data], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `ArciWeb_Slot_${i}_Backup.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+    }
+
+    function uploadSlotTrigger(i) {
+        slotToUpload = i;
+        document.getElementById('slotFileInput').click();
+    }
+
+    function finishSlotUpload(files) {
+        if (files.length === 0 || slotToUpload === null) return;
+        const file = files[0];
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                const json = JSON.parse(e.target.result);
+                if(!json.db) throw new Error('Invalid format');
+                if(!json.db.seasonStats) json.db.seasonStats = [];
+                localStorage.setItem(`ArciWeb_Slot_${slotToUpload}`, JSON.stringify(json));
+                renderSlots();
+            } catch (err) { alert('Neplatný JSON súbor!'); }
+            slotToUpload = null;
+            document.getElementById('slotFileInput').value = '';
+        };
+        reader.readAsText(file);
+    }
+
 </script>
 </body>
 </html>
-James 
