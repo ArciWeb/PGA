@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta id="viewportMeta" name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ArciWeb - PGA StatsKeeper v3.71 (Player Cards Edition)</title>
+    <title>ArciWeb - PGA StatsKeeper v3.73 (Player Cards Edition)</title>
     <style>
         :root {
             --bg-color: #1e1e1e;
@@ -403,7 +403,7 @@
 
     <header>
         <div class="header-left">
-            <h1>ArciWeb - PGA StatsKeeper <span class="version">v3.71</span></h1>
+            <h1>ArciWeb - PGA StatsKeeper <span class="version">v3.73</span></h1>
             <div class="header-ranks">
                 <span class="header-rank-link" style="color:var(--highlight-gold)" onclick="showRankTable('PGA')">PGA Rank</span>
                 <span class="header-rank-link" style="color:var(--accent-blue)" onclick="showRankTable('Official')">Official Rank</span>
@@ -2065,13 +2065,27 @@
             <h3 style="margin-top:20px; border-bottom:1px solid #444; padding-bottom:5px;">História zápasov (${stats.history.length})</h3>
             <div class="table-container">
                 <table>
-                    <thead><tr><th>Turnaj</th><th>Poz.</th><th>Par</th><th>R1</th><th>R2</th><th>R3</th><th>R4</th><th>Body</th></tr></thead>
                     <tbody>${stats.history.join('')}</tbody>
                 </table>
             </div>
         `;
+
+        // --- NOVÉ: LOGIKA PRE STATUS HRÁČA (PROFESSIONAL / AMATEUR) ---
+        const proTours = ['PGA', 'EA SPORTS', 'THE PLAYERS', 'FED EX'];
+        // Skontrolujeme celú databázu, či sa hráč zúčastnil PRO turnaja
+        const isProfessional = db.files.some(f => 
+            proTours.includes(f.type) && 
+            f.content.some(p => {
+                const n = normalizeName(p.name);
+                return n === normPlayer || getDistance(n, normPlayer) <= 1;
+            })
+        );
+        const playerStatusLabel = isProfessional ? '(Professional Player)' : '(Amateur Player)';
+        const playerStatusColor = isProfessional ? 'var(--highlight-gold)' : '#999';
+        // ---------------------------------------------------------------
+
         if (innerOnly) return bodyContent;
-        return `<div id="${modalId}"><div class="modal-header"><h2>${playerName}</h2><button class="close-btn" onclick="closeTopModal()">&times;</button></div><div class="modal-body">${bodyContent}</div></div>`;
+        return `<div id="${modalId}"><div class="modal-header"><h2>${playerName} <span style="font-size:0.55em; color:${playerStatusColor}; margin-left:10px; vertical-align:middle; font-weight:normal; letter-spacing:0.5px;">${playerStatusLabel}</span></h2><button class="close-btn" onclick="closeTopModal()">&times;</button></div><div class="modal-body">${bodyContent}</div></div>`;
     }
     function showTooltip(evt, text) {
         const tt = document.getElementById('graphTooltip');
