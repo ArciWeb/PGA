@@ -480,7 +480,7 @@
         }
             /* --- VITRINE / SHOWCASE STYLES --- */
             .vitrine-modal {
-                background: radial-gradient(circle at center, #fdfdfd 0%, #e8e8e8 40%, #c0c0c0 100%) !important;
+                background: radial-gradient(circle at center, #fdfdfd 0%, #e8e8e8 40%, #c0c0c0 100%);
                 width: 100% !important; 
                 height: 100% !important;
                 max-width: 100vw !important; 
@@ -564,6 +564,72 @@
                 0%, 100% { transform: translateY(0px) rotate(0deg); }
                 50% { transform: translateY(-20px) rotate(0.5deg); }
             }
+
+/* --- VITRINE THEME MENU --- */
+.vitrine-theme-wrapper {
+    position: absolute;
+    top: 30px;
+    left: 40px;
+    z-index: 100;
+}
+
+.vitrine-theme-btn {
+    background: rgba(255, 255, 255, 0.3);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    padding: 8px 15px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: bold;
+    color: #333;
+    font-size: 0.9rem;
+    backdrop-filter: blur(5px);
+    transition: 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.vitrine-theme-btn:hover {
+    background: rgba(255, 255, 255, 0.6);
+    transform: scale(1.05);
+}
+
+.vitrine-theme-list {
+    display: none;
+    position: absolute;
+    top: 45px;
+    left: 0;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 10px;
+    width: 220px;
+    max-height: 400px;
+    overflow-y: auto;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    padding: 5px 0;
+    text-align: left;
+}
+
+.vitrine-theme-list.show { display: block; animation: fadeIn 0.2s; }
+
+.v-theme-item {
+    padding: 8px 15px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    color: #333;
+    border-bottom: 1px solid #eee;
+    transition: background 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.v-theme-item:last-child { border-bottom: none; }
+.v-theme-item:hover { background: #f0f0f0; }
+
+.v-preview-dot {
+    width: 12px; height: 12px; border-radius: 50%;
+    border: 1px solid #ccc; display: inline-block;
+}
 
 
         #fileInput, #slotFileInput, #seasonFileInput { display: none; }
@@ -763,6 +829,30 @@
         'Ninja': { bg: '#111111', card: '#222222', text: '#33ff33', accent: '#000000' },
         'Retro': { bg: '#2c3e50', card: '#34495e', text: '#ecf0f1', accent: '#e67e22' }
     };
+
+// --- DEFINÍCIA 20 TÉM PRE VITRÍNU ---
+const vitrineThemes = {
+    'Clean White': { bg: 'radial-gradient(circle at center, #fdfdfd 0%, #e8e8e8 40%, #c0c0c0 100%)', text: '#333' },
+    'Midnight Blue': { bg: 'radial-gradient(circle at center, #2c3e50 0%, #000000 100%)', text: '#fff' },
+    'Royal Gold': { bg: 'radial-gradient(circle at center, #f1c40f 0%, #b8860b 100%)', text: '#000' },
+    'Deep Ocean': { bg: 'linear-gradient(to top, #30cfd0 0%, #330867 100%)', text: '#fff' },
+    'Forest Mist': { bg: 'linear-gradient(to top, #0ba360 0%, #3cba92 100%)', text: '#fff' },
+    'Sunset Glow': { bg: 'linear-gradient(to right, #ff8177 0%, #ff867a 0%, #ff8c7f 21%, #f99185 52%, #cf556c 78%, #b12a5b 100%)', text: '#fff' },
+    'Purple Haze': { bg: 'linear-gradient(to top, #6a11cb 0%, #2575fc 100%)', text: '#fff' },
+    'Carbon Fiber': { bg: 'radial-gradient(circle at center, #434343 0%, #000000 100%)', text: '#fff' },
+    'Ruby Red': { bg: 'linear-gradient(to right, #ed213a, #93291e)', text: '#fff' },
+    'Silver Surfer': { bg: 'linear-gradient(to top, #d7d2cc 0%, #304352 100%)', text: '#fff' },
+    'Neon Night': { bg: 'linear-gradient(to right, #00f260, #0575e6)', text: '#fff' },
+    'Soft Peach': { bg: 'linear-gradient(to top, #fad0c4 0%, #ffd1ff 100%)', text: '#333' },
+    'Sky Blue': { bg: 'linear-gradient(120deg, #a1c4fd 0%, #c2e9fb 100%)', text: '#333' },
+    'Rose Gold': { bg: 'linear-gradient(to top, #e6b980 0%, #eacda3 100%)', text: '#333' },
+    'Emerald City': { bg: 'radial-gradient(circle at center, #0f9b0f 0%, #000000 100%)', text: '#fff' },
+    'Dark Matter': { bg: 'linear-gradient(to top, #000000 0%, #434343 100%)', text: '#e0e0e0' },
+    'Coffee Bean': { bg: 'linear-gradient(to right, #636363, #a2ab58)', text: '#fff' },
+    'Arctic Ice': { bg: 'linear-gradient(to top, #e6e9f0 0%, #eef1f5 100%)', text: '#333' },
+    'Lavender Dream': { bg: 'linear-gradient(to top, #accbee 0%, #e7f0fd 100%)', text: '#333' },
+    'Volcano': { bg: 'linear-gradient(to right, #ff4b1f, #ff9068)', text: '#fff' }
+};
 
     const achievementsDef = [
         { id: 'shark', icon: '🦈', name: 'Shark', desc: '3 a viac výhier.', cat: 'wins' },
@@ -2588,12 +2678,12 @@ window.openTournamentDetails = function(fileId) {
     createModal(html);
 };
 
-// --- NOVÁ FUNKCIA: VITRÍNA TROFEJE ---
+// --- AKTUALIZOVANÁ FUNKCIA: VITRÍNA S VÝBEROM TÉM ---
 window.openTrophyShowcase = function(fileId) {
     const file = db.files.find(f => f.id == fileId);
     if (!file) return;
 
-    // Logika pre nájdenie obrázka (rovnaká ako v profile)
+    // Obrázok trofeje logic
     let eventNumFormatted = file.eventNum < 10 ? '0' + file.eventNum : '' + file.eventNum;
     if(file.eventNum === 0 && file.eventName.match(/^\d+/)) {
         let m = file.eventName.match(/^(\d+)/);
@@ -2601,9 +2691,30 @@ window.openTrophyShowcase = function(fileId) {
     }
     const imgSrc = eventNumFormatted + '.png';
 
-    // HTML pre vitrínu
+    // Generovanie zoznamu tém
+    let themesHtml = '';
+    Object.keys(vitrineThemes).forEach(key => {
+        const t = vitrineThemes[key];
+        themesHtml += `
+            <div class="v-theme-item" onclick="setVitrineTheme('${key}')">
+                <span class="v-preview-dot" style="background:${t.bg}"></span>
+                ${key}
+            </div>`;
+    });
+
+    // HTML pre vitrínu (Pridaný wrapper pre témy)
     const html = `
+        <div class="vitrine-theme-wrapper">
+            <button class="vitrine-theme-btn" onclick="document.getElementById('vitrineThemeList').classList.toggle('show')">
+                📂 Témy
+            </button>
+            <div id="vitrineThemeList" class="vitrine-theme-list">
+                ${themesHtml}
+            </div>
+        </div>
+
         <button class="vitrine-close" onclick="closeTopModal()">&times;</button>
+        
         <div class="vitrine-content">
             <img src="${imgSrc}" class="vitrine-img" alt="Trophy" 
                  onerror="this.style.display='none'; this.parentElement.innerHTML='<div style=\'font-size:8rem\'>🏆</div><div style=\'color:#333\'>Obrázok chýba</div>'">
@@ -2612,18 +2723,44 @@ window.openTrophyShowcase = function(fileId) {
         </div>
     `;
 
-    // Vytvorenie modalu a následná úprava jeho štýlu na "vitrínu"
     createModal(html);
     
-    // Získame posledný pridaný modal (ten navrchu) a zmeníme mu triedu
+    // Zmeníme štýl modalu na vitrínu
     const overlays = document.querySelectorAll('.modal-overlay');
     const currentOverlay = overlays[overlays.length - 1];
     if (currentOverlay) {
         const modalBox = currentOverlay.querySelector('.modal');
         if (modalBox) {
-            modalBox.className = 'modal vitrine-modal'; // Prepíšeme štýl
+            modalBox.className = 'modal vitrine-modal';
+            // Nastavíme default tému pri otvorení
+            setVitrineTheme('Clean White');
         }
     }
+}
+
+// Pomocná funkcia na zmenu témy
+window.setVitrineTheme = function(themeName) {
+    const theme = vitrineThemes[themeName];
+    if (!theme) return;
+
+    // Nájdeme aktuálne otvorenú vitrínu
+    const modalBox = document.querySelector('.vitrine-modal');
+    if (modalBox) {
+        modalBox.style.background = theme.bg;
+        
+        // Zmena farby textu podľa pozadia
+        const title = modalBox.querySelector('.vitrine-title');
+        const sub = modalBox.querySelector('.vitrine-subtitle');
+        const closeBtn = modalBox.querySelector('.vitrine-close');
+        
+        if(title) title.style.color = theme.text;
+        if(sub) sub.style.color = theme.text === '#fff' ? '#ddd' : '#666';
+        if(closeBtn) closeBtn.style.color = theme.text;
+    }
+    
+    // Zatvoríme menu
+    const list = document.getElementById('vitrineThemeList');
+    if(list) list.classList.remove('show');
 }
 
 
