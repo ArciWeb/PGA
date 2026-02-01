@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta id="viewportMeta" name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ArciWeb - PGA StatsKeeper v4.01 (Visual Trophy Edition)</title>
+    <title>ArciWeb - PGA StatsKeeper v4.11 (Visual Trophy Edition)</title>
     <style>
         :root {
             --bg-color: #1e1e1e;
@@ -114,7 +114,7 @@
         }
         .dropdown-content {
             display: none; flex-wrap: wrap; gap: 5px; padding: 10px;
-            background: #252525; border: 1px solid #444; border-radius: 8px;
+            background: var(--card-bg); border: 1px solid #444; border-radius: 8px;
             margin-top: 5px; max-height: 200px; overflow-y: auto;
         }
         .dropdown-content.show { display: flex; }
@@ -143,18 +143,21 @@
             opacity: 0; animation: fadeIn 0.2s forwards; z-index: 1000;
         }
         .modal {
-            background-color: #1a1a1a; border-radius: 16px;
+            background-color: var(--bg-color);
+            border-radius: 16px;
             width: 95%; max-width: 900px; max-height: 92vh;
             overflow-y: auto; position: relative;
             box-shadow: 0 20px 50px rgba(0,0,0,0.7);
             border: 1px solid #333; display: flex; flex-direction: column;
+            color: var(--text-main);
         }
         @keyframes fadeIn { to { opacity: 1; } }
 
         .modal-header {
             padding: 15px 20px; border-bottom: 1px solid #333;
             display: flex; justify-content: space-between; align-items: center;
-            background: #222; position: sticky; top: 0; z-index: 10;
+            background: var(--card-bg);
+            position: sticky; top: 0; z-index: 10;
         }
         .modal-header h2 { margin: 0; font-size: 1.2rem; color: var(--text-main); display: flex; align-items: center; gap: 10px;}
         .close-btn { background: none; border: none; color: #fff; font-size: 1.8rem; cursor: pointer; }
@@ -168,7 +171,11 @@
         }
         .profile-tab.active { background: var(--accent-green); color: #000; font-weight: bold; }
 
-        .profile-filters-area { margin-bottom: 20px; background: #222; padding: 10px; border-radius: 8px; }
+        .profile-filters-area { 
+            margin-bottom: 20px; 
+            background: var(--card-bg);
+            padding: 10px; border-radius: 8px; 
+        }
         .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 20px; }
 
         .stat-box {
@@ -188,48 +195,77 @@
         .rank-clickable { cursor: pointer; text-decoration: underline; text-decoration-style: dotted; }
         .rank-clickable:hover { color: var(--accent-green); }
 
-        /* --- PLAYER CARD (NEW COLORS) --- */
+        /* --- PLAYER CARD (UPDATED: FULL BACKGROUND COLOR) --- */
         .player-card-container {
-            display: flex; gap: 20px; background: linear-gradient(145deg, #1e1e1e 0%, #000000 100%);
+            display: flex; gap: 20px; 
+            /* Default fallback */
+            background: linear-gradient(145deg, #333 0%, #000 100%);
             padding: 15px; border-radius: 12px; margin-bottom: 20px;
             border: 2px solid #444; box-shadow: 0 10px 25px rgba(0,0,0,0.6);
             align-items: center; position: relative; overflow: hidden;
-            transition: border-color 0.3s, box-shadow 0.3s;
+            transition: border-color 0.3s, box-shadow 0.3s, background 0.3s;
         }
-        .player-card-container.gold { border-color: #ffd700; box-shadow: 0 0 20px rgba(255, 215, 0, 0.3); }
-        .player-card-container.silver { border-color: #c0c0c0; box-shadow: 0 0 20px rgba(192, 192, 192, 0.3); }
-        .player-card-container.bronze { border-color: #cd7f32; box-shadow: 0 0 20px rgba(205, 127, 50, 0.3); }
-        .player-card-container.green { border-color: #2ecc71; box-shadow: 0 0 15px rgba(46, 204, 113, 0.3); }
-        .player-card-container.orange { border-color: #e67e22; box-shadow: 0 0 15px rgba(230, 126, 34, 0.3); }
-        .player-card-container.red { border-color: #e74c3c; box-shadow: 0 0 15px rgba(231, 76, 60, 0.3); }
+
+        /* Full Background Colors based on Rank */
+        .player-card-container.gold { 
+            background: linear-gradient(135deg, #f1c40f 0%, #b8860b 100%); 
+            border-color: #fff; box-shadow: 0 0 25px rgba(241, 196, 15, 0.4);
+        }
+        .player-card-container.silver { 
+            background: linear-gradient(135deg, #bdc3c7 0%, #7f8c8d 100%); 
+            border-color: #fff; box-shadow: 0 0 25px rgba(189, 195, 199, 0.4);
+        }
+        .player-card-container.bronze { 
+            background: linear-gradient(135deg, #d35400 0%, #8b4513 100%); 
+            border-color: #fff; box-shadow: 0 0 25px rgba(211, 84, 0, 0.4);
+        }
+        .player-card-container.green { 
+            background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%); 
+            border-color: #fff; box-shadow: 0 0 20px rgba(46, 204, 113, 0.3);
+        }
+        .player-card-container.orange { 
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%); 
+            border-color: #fff; box-shadow: 0 0 20px rgba(230, 126, 34, 0.3);
+        }
+        .player-card-container.red { 
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%); 
+            border-color: #fff; box-shadow: 0 0 20px rgba(231, 76, 60, 0.3);
+        }
 
         .player-card-container::before {
             content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
-            background: radial-gradient(circle, rgba(255,255,255,0.03) 0%, transparent 60%); pointer-events: none;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%); pointer-events: none;
         }
+        
+        /* OVR Box - Tmavomodrá farba (Kontrast) */
         .card-ovr-box {
             width: 90px; height: 110px;
-            background: var(--highlight-gold);
+            background: #1e272e; /* Tmavá farba pre kontrast s farebným pozadím karty */
             clip-path: polygon(0% 0%, 100% 0%, 100% 85%, 50% 100%, 0% 85%);
             display: flex; flex-direction: column; justify-content: center; align-items: center;
-            color: #000; flex-shrink: 0; box-shadow: 0 0 15px rgba(241, 196, 15, 0.5);
+            color: #fff; flex-shrink: 0; 
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+            border-top: 2px solid rgba(255,255,255,0.2);
         }
-        .card-ovr-val { font-size: 2.8rem; font-weight: 900; line-height: 1; letter-spacing: -2px; }
-        .card-ovr-label { font-size: 0.8rem; font-weight: 800; text-transform: uppercase; margin-top: 0px; }
+
+        .card-ovr-val { font-size: 2.8rem; font-weight: 900; line-height: 1; letter-spacing: -2px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+        .card-ovr-label { font-size: 0.8rem; font-weight: 800; text-transform: uppercase; margin-top: 0px; opacity: 0.8; }
         
         .card-info { flex: 1; display: flex; flex-direction: column; justify-content: center; z-index: 1; }
-        .card-name { font-size: 1.6rem; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; color: #fff; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
+        /* Pridaný tieň textu pre lepšiu čitateľnosť na svetlých pozadiach (zlato/striebro) */
+        .card-name { font-size: 1.6rem; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; color: #fff; text-shadow: 0 2px 5px rgba(0,0,0,0.9); }
         
         .card-attrs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px 15px; }
-        .attr-row { display: flex; justify-content: space-between; align-items: center; padding: 3px 0; border-bottom: 1px solid rgba(255,255,255,0.1); }
-        .attr-name { color: #aaa; font-size: 0.8rem; font-weight: 600; }
-        .attr-val { font-weight: bold; color: #fff; font-size: 1rem; }
-        .attr-val.high { color: var(--accent-green); text-shadow: 0 0 5px rgba(46, 204, 113, 0.5); }
-        .attr-val.low { color: var(--accent-red); }
+        .attr-row { display: flex; justify-content: space-between; align-items: center; padding: 3px 0; border-bottom: 1px solid rgba(255,255,255,0.3); }
+        .attr-name { color: #f0f0f0; font-size: 0.8rem; font-weight: 700; text-shadow: 0 1px 2px rgba(0,0,0,0.8); }
+        .attr-val { font-weight: bold; color: #fff; font-size: 1rem; text-shadow: 0 1px 3px rgba(0,0,0,0.8); }
+        .attr-val.high { color: #2ecc71; text-shadow: 0 0 5px rgba(0,0,0,0.8); }
+        .attr-val.low { color: #e74c3c; text-shadow: 0 0 5px rgba(0,0,0,0.8); }
 
         /* --- TROPHY ROOM & MEDALS (UPDATED v4.01) --- */
         .trophy-section {
-            background: #252525; padding: 20px; border-radius: 12px;
+            background: var(--card-bg);
+            padding: 20px; border-radius: 12px;
             margin-bottom: 20px; border: 1px solid #444; position: relative;
         }
         .trophy-title { 
@@ -279,7 +315,9 @@
         /* --- NEMESIS SYSTEM --- */
         .rivalry-section { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
         .rival-box { 
-            flex: 1; min-width: 140px; background: #222; padding: 12px; border-radius: 8px; 
+            flex: 1; min-width: 140px; 
+            background: var(--card-bg);
+            padding: 12px; border-radius: 8px; 
             border: 1px solid #333; text-align: center; transition: 0.2s; position: relative; overflow: hidden;
         }
         .rival-box:hover { transform: translateY(-3px); border-color: #555; }
@@ -288,11 +326,14 @@
         .rival-stat { font-size: 0.85rem; color: #ccc; }
         .rival-score { font-weight: bold; color: var(--highlight-gold); }
         .rival-icon { font-size: 2rem; display: block; margin-bottom: 5px; opacity: 0.8; }
-        .rival-box.bunny { border-bottom: 2px solid var(--accent-green); background: linear-gradient(0deg, rgba(46,204,113,0.05), #222); }
-        .rival-box.nemesis { border-bottom: 2px solid var(--accent-red); background: linear-gradient(0deg, rgba(231,76,60,0.05), #222); }
+        .rival-box.bunny { border-bottom: 2px solid var(--accent-green); background: linear-gradient(0deg, rgba(46,204,113,0.05), var(--card-bg)); }
+        .rival-box.nemesis { border-bottom: 2px solid var(--accent-red); background: linear-gradient(0deg, rgba(231,76,60,0.05), var(--card-bg)); }
 
         /* --- GRAPH Styles --- */
-        .graph-section { background: #222; border-radius: 8px; padding: 15px; margin-bottom: 20px; border: 1px solid #3d3d3d; }
+        .graph-section { 
+            background: var(--card-bg);
+            border-radius: 8px; padding: 15px; margin-bottom: 20px; border: 1px solid #3d3d3d; 
+        }
         .graph-container { width: 100%; height: 200px; position: relative; }
         .graph-tooltip {
             position: absolute; background: rgba(0,0,0,0.9); color: #fff;
@@ -318,7 +359,8 @@
         .achievements-grid {
             display: grid; grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
             gap: 10px; margin-bottom: 20px; padding: 10px;
-            background: #222; border-radius: 8px;
+            background: var(--card-bg);
+            border-radius: 8px;
         }
         .badge {
             width: 100%; aspect-ratio: 1/1; border-radius: 50%;
@@ -338,7 +380,11 @@
         @keyframes popIn { 0% { transform: scale(0); } 100% { transform: scale(1); } }
 
         /* --- ACHIEVEMENT DETAILS MODAL STYLES --- */
-        .ach-header { text-align: center; padding: 20px; background: #222; border-bottom: 1px solid #444; }
+        .ach-header { 
+            text-align: center; padding: 20px; 
+            background: var(--bg-color);
+            border-bottom: 1px solid #444; 
+        }
         .ach-icon-large { font-size: 4rem; margin-bottom: 10px; display: block; }
         .ach-title { font-size: 1.5rem; color: var(--highlight-gold); margin: 0; }
         .ach-desc { color: #ccc; font-style: italic; margin-top: 5px; }
@@ -468,7 +514,7 @@
 
     <header>
         <div class="header-left">
-            <h1>ArciWeb - PGA StatsKeeper <span class="version">v4.01</span></h1>
+            <h1>ArciWeb - PGA StatsKeeper <span class="version">v4.11</span></h1>
             <div class="header-ranks">
                 <span class="header-rank-link" style="color:var(--highlight-gold)" onclick="showRankTable('PGA')">PGA Rank</span>
                 <span class="header-rank-link" style="color:var(--accent-blue)" onclick="showRankTable('Official')">Official Rank</span>
@@ -555,6 +601,7 @@
     <input type="file" id="seasonFileInput" accept=".txt" multiple onchange="handleSeasonFiles(this.files)">
     
     <div id="popupsLayer"></div>
+
 
 <script>
     const colorSchemes = {
