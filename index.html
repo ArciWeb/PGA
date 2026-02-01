@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta id="viewportMeta" name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ArciWeb - PGA StatsKeeper v4.18 (Gallery Edition)</title>
+    <title>ArciWeb - PGA StatsKeeper V4.19(Gallery Edition)</title>
     <style>
         :root {
             --bg-color: #1e1e1e;
@@ -642,7 +642,7 @@
 
     <header>
         <div class="header-left">
-            <h1>ArciWeb - PGA StatsKeeper <span class="version">v4.18</span></h1>
+            <h1>ArciWeb - PGA StatsKeeper <span class="version">v4.19</span></h1>
             <div class="header-ranks">
                 <span class="header-rank-link" style="color:var(--highlight-gold)" onclick="showRankTable('PGA')">PGA Rank</span>
                 <span class="header-rank-link" style="color:var(--accent-blue)" onclick="showRankTable('Official')">Official Rank</span>
@@ -836,25 +836,25 @@
 // --- DEFINÍCIA 20 TÉM PRE VITRÍNU ---
 const vitrineThemes = {
     'Clean White': { bg: 'radial-gradient(circle at center, #fdfdfd 0%, #e8e8e8 40%, #c0c0c0 100%)', text: '#333' },
-    'Midnight Blue': { bg: 'radial-gradient(circle at center, #2c3e50 0%, #000000 100%)', text: '#fff' },
-    'Royal Gold': { bg: 'radial-gradient(circle at center, #f1c40f 0%, #b8860b 100%)', text: '#000' },
-    'Deep Ocean': { bg: 'linear-gradient(to top, #30cfd0 0%, #330867 100%)', text: '#fff' },
-    'Forest Mist': { bg: 'linear-gradient(to top, #0ba360 0%, #3cba92 100%)', text: '#fff' },
-    'Sunset Glow': { bg: 'linear-gradient(to right, #ff8177 0%, #ff867a 0%, #ff8c7f 21%, #f99185 52%, #cf556c 78%, #b12a5b 100%)', text: '#fff' },
-    'Purple Haze': { bg: 'linear-gradient(to top, #6a11cb 0%, #2575fc 100%)', text: '#fff' },
-    'Carbon Fiber': { bg: 'radial-gradient(circle at center, #434343 0%, #000000 100%)', text: '#fff' },
-    'Ruby Red': { bg: 'linear-gradient(to right, #ed213a, #93291e)', text: '#fff' },
-    'Silver Surfer': { bg: 'linear-gradient(to top, #d7d2cc 0%, #304352 100%)', text: '#fff' },
-    'Neon Night': { bg: 'linear-gradient(to right, #00f260, #0575e6)', text: '#fff' },
-    'Soft Peach': { bg: 'linear-gradient(to top, #fad0c4 0%, #ffd1ff 100%)', text: '#333' },
-    'Sky Blue': { bg: 'linear-gradient(120deg, #a1c4fd 0%, #c2e9fb 100%)', text: '#333' },
-    'Rose Gold': { bg: 'linear-gradient(to top, #e6b980 0%, #eacda3 100%)', text: '#333' },
-    'Emerald City': { bg: 'radial-gradient(circle at center, #0f9b0f 0%, #000000 100%)', text: '#fff' },
-    'Dark Matter': { bg: 'linear-gradient(to top, #000000 0%, #434343 100%)', text: '#e0e0e0' },
-    'Coffee Bean': { bg: 'linear-gradient(to right, #636363, #a2ab58)', text: '#fff' },
-    'Arctic Ice': { bg: 'linear-gradient(to top, #e6e9f0 0%, #eef1f5 100%)', text: '#333' },
-    'Lavender Dream': { bg: 'linear-gradient(to top, #accbee 0%, #e7f0fd 100%)', text: '#333' },
-    'Volcano': { bg: 'linear-gradient(to right, #ff4b1f, #ff9068)', text: '#fff' }
+    '10-11-12-13-24-27': { bg: 'radial-gradient(circle at center, #2c3e50 0%, #000000 100%)', text: '#fff' },
+    '23': { bg: 'radial-gradient(circle at center, #f1c40f 0%, #b8860b 100%)', text: '#000' },
+    '20': { bg: 'linear-gradient(to top, #30cfd0 0%, #330867 100%)', text: '#fff' },
+    '15-19-22-25': { bg: 'linear-gradient(to top, #0ba360 0%, #3cba92 100%)', text: '#fff' },
+    '40-41-42': { bg: 'linear-gradient(to right, #ff8177 0%, #ff867a 0%, #ff8c7f 21%, #f99185 52%, #cf556c 78%, #b12a5b 100%)', text: '#fff' },
+    '17-21-28-37-39': { bg: 'linear-gradient(to top, #6a11cb 0%, #2575fc 100%)', text: '#fff' },
+    '38': { bg: 'radial-gradient(circle at center, #434343 0%, #000000 100%)', text: '#fff' },
+    '24-27': { bg: 'linear-gradient(to right, #ed213a, #93291e)', text: '#fff' },
+    '33': { bg: 'linear-gradient(to top, #d7d2cc 0%, #304352 100%)', text: '#fff' },
+    '18': { bg: 'linear-gradient(to right, #00f260, #0575e6)', text: '#fff' },
+    '14-16': { bg: 'linear-gradient(to top, #fad0c4 0%, #ffd1ff 100%)', text: '#333' },
+    '05-06-07': { bg: 'linear-gradient(120deg, #a1c4fd 0%, #c2e9fb 100%)', text: '#333' },
+    '26': { bg: 'linear-gradient(to top, #e6b980 0%, #eacda3 100%)', text: '#333' },
+    '43-44': { bg: 'radial-gradient(circle at center, #0f9b0f 0%, #000000 100%)', text: '#fff' },
+    '45': { bg: 'linear-gradient(to top, #000000 0%, #434343 100%)', text: '#e0e0e0' },
+    '30-31-32-34-35-36': { bg: 'linear-gradient(to right, #636363, #a2ab58)', text: '#fff' },
+    '08-09': { bg: 'linear-gradient(to top, #e6e9f0 0%, #eef1f5 100%)', text: '#333' },
+    '01-02-03-04': { bg: 'linear-gradient(to top, #accbee 0%, #e7f0fd 100%)', text: '#333' },
+    '29': { bg: 'linear-gradient(to right, #ff4b1f, #ff9068)', text: '#fff' }
 };
 
     const achievementsDef = [
