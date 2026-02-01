@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta id="viewportMeta" name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ArciWeb - PGA StatsKeeper V4.19(Gallery Edition)</title>
+    <title>ArciWeb - PGA StatsKeeper V4.21(Gallery Edition)</title>
     <style>
         :root {
             --bg-color: #1e1e1e;
@@ -642,7 +642,7 @@
 
     <header>
         <div class="header-left">
-            <h1>ArciWeb - PGA StatsKeeper <span class="version">v4.19</span></h1>
+            <h1>ArciWeb - PGA StatsKeeper <span class="version">v4.21</span></h1>
             <div class="header-ranks">
                 <span class="header-rank-link" style="color:var(--highlight-gold)" onclick="showRankTable('PGA')">PGA Rank</span>
                 <span class="header-rank-link" style="color:var(--accent-blue)" onclick="showRankTable('Official')">Official Rank</span>
@@ -836,7 +836,7 @@
 // --- DEFINÍCIA 20 TÉM PRE VITRÍNU ---
 const vitrineThemes = {
     'Clean White': { bg: 'radial-gradient(circle at center, #fdfdfd 0%, #e8e8e8 40%, #c0c0c0 100%)', text: '#333' },
-    '10-11-12-13-24-27': { bg: 'radial-gradient(circle at center, #2c3e50 0%, #000000 100%)', text: '#fff' },
+    '10-11-12-13': { bg: 'radial-gradient(circle at center, #2c3e50 0%, #000000 100%)', text: '#fff' },
     '23': { bg: 'radial-gradient(circle at center, #f1c40f 0%, #b8860b 100%)', text: '#000' },
     '20': { bg: 'linear-gradient(to top, #30cfd0 0%, #330867 100%)', text: '#fff' },
     '15-19-22-25': { bg: 'linear-gradient(to top, #0ba360 0%, #3cba92 100%)', text: '#fff' },
@@ -2688,8 +2688,33 @@ window.openTrophyShowcase = function(fileId) {
     const file = db.files.find(f => f.id == fileId);
     if (!file) return;
 
-    // 1. Zistíme, či už má tento turnaj uloženú tému, ak nie, dáme 'Clean White'
-    const savedTheme = file.trophyTheme || 'Clean White';
+    // --- NOVÁ LOGIKA: AUTO-DETEKCIA PREDVOLENEJ TÉMY ---
+    let themeToUse = file.trophyTheme; // 1. Skúsime načítať už uloženú tému
+
+    // 2. Ak téma nie je uložená, hľadáme ju podľa čísla turnaja v vitrineThemes
+    if (!themeToUse) {
+        // Nastavíme základný fallback
+        themeToUse = 'Clean White';
+
+        // Pripravíme číslo turnaja ako string s nulou na začiatku (napr. 1 -> "01", 45 -> "45")
+        // Toto je dôležité, pretože v kľúčoch máš "01-02-03"
+        let myEventNum = file.eventNum < 10 ? '0' + file.eventNum : '' + file.eventNum;
+
+        // Prejdeme všetky kľúče (názvy tém)
+        for (const key in vitrineThemes) {
+            // Ignorujeme 'Clean White', hľadáme len tie s číslami
+            if (key === 'Clean White') continue;
+
+            // Rozdelíme kľúč podľa pomlčky na pole (napr. "10-11-12" -> ["10", "11", "12"])
+            const targetNumbers = key.split('-');
+
+            // Ak sa naše číslo nachádza v tomto zozname, našli sme správnu tému
+            if (targetNumbers.includes(myEventNum)) {
+                themeToUse = key;
+                break; // Ukončíme cyklus, máme víťaza
+            }
+        }
+    }
 
     // Obrázok trofeje logic
     let eventNumFormatted = file.eventNum < 10 ? '0' + file.eventNum : '' + file.eventNum;
@@ -2699,8 +2724,7 @@ window.openTrophyShowcase = function(fileId) {
     }
     const imgSrc = eventNumFormatted + '.png';
 
-    // Generovanie zoznamu tém
-    // DÔLEŽITÉ: Do onclick posielame aj ID súboru ('${file.id}')
+    // Generovanie zoznamu tém pre menu
     let themesHtml = '';
     Object.keys(vitrineThemes).forEach(key => {
         const t = vitrineThemes[key];
@@ -2733,16 +2757,15 @@ window.openTrophyShowcase = function(fileId) {
 
     createModal(html);
     
-    // Zmeníme štýl modalu na vitrínu
+    // Zmeníme štýl modalu na vitrínu a aplikujeme vypočítanú tému
     const overlays = document.querySelectorAll('.modal-overlay');
     const currentOverlay = overlays[overlays.length - 1];
     if (currentOverlay) {
         const modalBox = currentOverlay.querySelector('.modal');
         if (modalBox) {
             modalBox.className = 'modal vitrine-modal';
-            // Aplikujeme tému, ktorú sme načítali z pamäte tohto konkrétneho turnaja
-            // (Tu posielame null ako ID, pretože len aplikujeme vizuál, neukladáme znova)
-            setVitrineTheme(savedTheme, null); 
+            // Aplikujeme tému (null znamená, že ju neukladáme do DB, len zobrazíme)
+            setVitrineTheme(themeToUse, null); 
         }
     }
 }
