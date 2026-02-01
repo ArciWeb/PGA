@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta id="viewportMeta" name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ArciWeb - PGA StatsKeeper v4.12 (Gallery Edition)</title>
+    <title>ArciWeb - PGA StatsKeeper v4.14 (Gallery Edition)</title>
     <style>
         :root {
             --bg-color: #1e1e1e;
@@ -486,7 +486,7 @@
 
     <header>
         <div class="header-left">
-            <h1>ArciWeb - PGA StatsKeeper <span class="version">v4.12</span></h1>
+            <h1>ArciWeb - PGA StatsKeeper <span class="version">v4.14</span></h1>
             <div class="header-ranks">
                 <span class="header-rank-link" style="color:var(--highlight-gold)" onclick="showRankTable('PGA')">PGA Rank</span>
                 <span class="header-rank-link" style="color:var(--accent-blue)" onclick="showRankTable('Official')">Official Rank</span>
@@ -1163,21 +1163,44 @@
                 if(p.rank <= 20) s.top20++;
                 if(p.rank <= 5) s.top5++;
                 
-                if(p.rank === 1) {
+                  if(p.rank === 1) {
                     s.wins++;
                     s.currentStreak++;
                     if(s.currentStreak > s.maxCons) s.maxCons = s.currentStreak;
                     if(f.isImportant) s.impWin = true;
                     if(f.isSignificant) s.majWin = true;
-                    if(f.type === 'FED EX') s.fedexWin = true;
-                    if(f.type === 'PGA') s.pgaWins++;
-                    if(f.type === 'EA SPORTS') s.eaWins++;
-                    if(f.type === 'THE PLAYERS') s.playersWin = true;
-                    if(f.eventName.includes('US Open')) s.usOpen = true;
-                    if(f.eventName.includes('The Open')) s.theOpen = true;
+                    
+                    // --- NOVÁ LOGIKA PODĽA ID TURNAJOV ---
+                    const en = f.eventNum; // Skratka pre číslo turnaja
+
+                    // FED EX (43, 44, 45)
+                    if ([43, 44, 45].includes(en)) s.fedexWin = true;
+
+                    // EA SPORTS (17, 20, 21, 28, 37, 39)
+                    if ([17, 20, 21, 28, 37, 39].includes(en)) s.eaWins++;
+
+                    // THE PLAYERS (18)
+                    if (en === 18) s.playersWin = true;
+
+                    // US CHAMP (US Open - 33)
+                    if (en === 33) s.usOpen = true;
+
+                    // OPENER (The Open - 38)
+                    if (en === 38) s.theOpen = true;
+
+                    // PGA (Všetky ostatné okrem KFT, EA, Players a FedEx)
+                    // Rozsahy: 10-16, 19, 22-27, 29-36, 38, 40-42
+                    // Poznámka: Turnaj 38 (The Open) je v zozname vedený pod PGA, takže ho rátame aj sem
+                    if (
+                        (en >= 10 && en <= 16) || en === 19 || (en >= 22 && en <= 27) ||
+                        (en >= 29 && en <= 36) || en === 38 || (en >= 40 && en <= 42)
+                    ) {
+                        s.pgaWins++;
+                    }
                 } else {
                     s.currentStreak = 0;
                 }
+
                 
                 [p.r1, p.r2, p.r3, p.r4].forEach((r, idx) => {
                     if(r!=='NA') {
@@ -2404,10 +2427,8 @@
 
     // --- NOVA FUNKCIA: GALERIA TROFEJI (GLOBAL) ---
     window.openTrophyGallery = function() {
-        let maxNum = 0;
-        db.files.forEach(f => { if(f.eventNum > maxNum) maxNum = f.eventNum; });
-        if (maxNum < 20) maxNum = 20; 
-        const limit = Math.max(maxNum + 5, 35); 
+        const limit = 45;
+
 
         let html = '<div class="gallery-grid">';
         for(let i=1; i<=limit; i++) {
