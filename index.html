@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta id="viewportMeta" name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ArciWeb - PGA StatsKeeper V4.21(Gallery Edition)</title>
+    <title>ArciWeb - PGA StatsKeeper V4.23(Gallery Edition)</title>
     <style>
         :root {
             --bg-color: #1e1e1e;
@@ -642,7 +642,7 @@
 
     <header>
         <div class="header-left">
-            <h1>ArciWeb - PGA StatsKeeper <span class="version">v4.21</span></h1>
+            <h1>ArciWeb - PGA StatsKeeper <span class="version">v4.23</span></h1>
             <div class="header-ranks">
                 <span class="header-rank-link" style="color:var(--highlight-gold)" onclick="showRankTable('PGA')">PGA Rank</span>
                 <span class="header-rank-link" style="color:var(--accent-blue)" onclick="showRankTable('Official')">Official Rank</span>
@@ -858,6 +858,7 @@ const vitrineThemes = {
 };
 
     const achievementsDef = [
+        // ... (tvoje pôvodné achievementy nechaj tu) ...
         { id: 'shark', icon: '🦈', name: 'Shark', desc: '3 a viac výhier.', cat: 'wins' },
         { id: 'dominator', icon: '👑', name: 'Dominator', desc: '10 a viac výhier.', cat: 'wins' },
         { id: 'goat', icon: '🐐', name: 'GOAT', desc: '20 a viac výhier.', cat: 'wins' },
@@ -902,8 +903,65 @@ const vitrineThemes = {
         { id: 'under_par', icon: '📉', name: 'Deep Under Par', desc: 'Hráč má celkové skóre Par menej ako - 50.', cat: 'special' },
         { id: 'solid', icon: '🧱', name: 'Solid', desc: 'Priemer úderov menší ako 3.90.', cat: 'special' },
         { id: 'never_back', icon: '💪', name: 'Never Back Down', desc: 'R1 >= 80, ale aj tak prešiel CUT.', cat: 'special' },
-        { id: 'lucky7', icon: '🍀', name: 'Lucky 7', desc: '7 Achievementov + 7x Top 5.', cat: 'special' }
+        { id: 'lucky7', icon: '🍀', name: 'Lucky 7', desc: '7 Achievementov + 7x Top 5.', cat: 'special' },
+        
+        // --- NOVÝCH 40 ACHIEVEMENTOV ---
+        
+        // KFT & Specialized Wins
+        { id: 'kft_grad', icon: '🎓', name: 'KFT Graduate', desc: 'Vyhral aspoň 1 turnaj na KFT Tour.', cat: 'wins' },
+        { id: 'kft_legend', icon: '🚜', name: 'KFT Legend', desc: 'Vyhral 3 a viac turnajov na KFT Tour.', cat: 'wins' },
+        { id: 'grand_slam', icon: '🌍', name: 'Global Conqueror', desc: 'Vyhral na PGA, KFT aj EA Sports Tour.', cat: 'wins' },
+        { id: 'silver_col', icon: '🥈', name: 'Silver Collector', desc: 'Získal 5x druhé miesto.', cat: 'wins' },
+        { id: 'bronze_col', icon: '🥉', name: 'Bronze Medalist', desc: 'Získal 5x tretie miesto.', cat: 'wins' },
+        
+        // Rounds & Scoring
+        { id: 'mr_59', icon: '👽', name: 'Mr. 59', desc: 'Zahral magické kolo pod 60 rán.', cat: 'special' },
+        { id: 'club_65', icon: '🔥', name: 'Club 65', desc: 'Zahral 10 kôl pod 65 rán.', cat: 'special' },
+        { id: 'sunday_roaring', icon: '🦁', name: 'Sunday Roar', desc: 'Priemer 4. kola je lepší ako 68.0.', cat: 'special' },
+        { id: 'fast_starter', icon: '🚀', name: 'Fast Starter', desc: 'Priemer 1. kola je lepší ako 68.0.', cat: 'special' },
+        { id: 'comeback_king', icon: '🆙', name: 'Comeback King', desc: 'Priemer 4. kola je aspoň o 2 rany lepší ako priemer 1. kola.', cat: 'special' },
+        
+        // Streaks & Consistency
+        { id: 'heating_up', icon: '🌡️', name: 'Heating Up', desc: '3x Top 10 v rade za sebou.', cat: 'consist' },
+        { id: 'on_fire', icon: '🔥', name: 'On Fire', desc: '5x Top 10 v rade za sebou.', cat: 'consist' },
+        { id: 'cut_streak', icon: '🧱', name: 'Brick Wall', desc: 'Prešiel cez CUT 10-krát v rade.', cat: 'consist' },
+        { id: 'invincible', icon: '🛡️', name: 'Invincible', desc: 'Prešiel cez CUT 20-krát v rade.', cat: 'consist' },
+        { id: 'top_percent', icon: '📊', name: 'Top Tier', desc: 'Viac ako 40% účastí skončilo v Top 5 (min. 10 turnajov).', cat: 'consist' },
+        
+        // Volume & Season Stats
+        { id: 'birdie_god', icon: '⚡', name: 'Birdie God', desc: '500 a viac Birdies.', cat: 'aim' },
+        { id: 'eagle_nest', icon: '🦅', name: 'Eagle Nest', desc: '10 a viac Eagles v jednej sezóne.', cat: 'aim' },
+        { id: 'par_hoarder', icon: '📦', name: 'Par Hoarder', desc: '2000 a viac Parov celkovo.', cat: 'aim' },
+        { id: 'sniper_elite', icon: '🎯', name: 'Sniper Elite', desc: '3 a viac Hole-in-One celkovo.', cat: 'aim' },
+        { id: 'clean_sheet', icon: '🧼', name: 'Clean Sheet', desc: 'Počet Birdies je vyšší ako počet Bogeys.', cat: 'special' },
+        
+        // Points & Career
+        { id: 'pts_millionaire', icon: '💎', name: 'Points Millionaire', desc: 'Celkový zisk viac ako 50 000 bodov.', cat: 'points' },
+        { id: 'efficiency', icon: '📈', name: 'Efficiency', desc: 'Priemer bodov na turnaj vyšší ako 100 (min. 10 turnajov).', cat: 'points' },
+        { id: 'journeyman', icon: '🧳', name: 'Journeyman', desc: 'Odohraných 50 turnajov bez jedinej výhry.', cat: 'stamina' },
+        { id: 'one_hit', icon: '🎵', name: 'One Hit Wonder', desc: 'Presne 1 výhra pri 50+ odohraných turnajoch.', cat: 'wins' },
+        { id: 'grinder', icon: '⚙️', name: 'The Grinder', desc: 'Viac ako 3000 Parov.', cat: 'aim' },
+        
+        // Specific Situations
+        { id: 'risk_taker', icon: '🎲', name: 'Risk Taker', desc: 'Počet Eagles je vyšší ako počet Double Bogeys.', cat: 'special' },
+        { id: 'glass_chin', icon: '📉', name: 'Glass Chin', desc: 'Priemer 1. kola je o 2 rany lepší ako priemer 4. kola.', cat: 'special' },
+        { id: 'weekend_warrior', icon: '🍺', name: 'Weekend Warrior', desc: 'Prešiel cez CUT, ale skončil horšie ako 60. miesto (min. 5x).', cat: 'special' },
+        { id: 'bridesmaid', icon: '💍', name: 'Always Bridesmaid', desc: '10x Top 3 bez výhry.', cat: 'wins' },
+        { id: 'major_top10', icon: '🌟', name: 'Big Stage Player', desc: '5x Top 10 na Major/Important turnajoch.', cat: 'consist' },
+        
+        // Hardcore / Elite
+        { id: 'club_63', icon: '🧨', name: 'Club 63', desc: 'Zahral 5 kôl pod 63 rán.', cat: 'special' },
+        { id: 'mr_consistent', icon: '📏', name: 'Mr. Consistent', desc: 'Priemerné umiestnenie lepšie ako 15.0 (min. 20 turnajov).', cat: 'consist' },
+        { id: 'the_1_percent', icon: '👑', name: 'The 1%', desc: 'Súčasne drží: Official #1, Win na Players a Win na FedEx.', cat: 'wins' },
+        { id: 'grand_finish', icon: '🏁', name: 'Grand Finish', desc: 'Zahral 4. kolo pod 62 rán.', cat: 'special' },
+        { id: 'no_bogeys', icon: '🛡️', name: 'No Mistakes', desc: 'Pomer Par/Bogey je väčší ako 30.', cat: 'special' },
+        { id: 'perfect_weekend', icon: '📅', name: 'Perfect Weekend', desc: 'Súčet R3 + R4 je menej ako 128 (priemer 64).', cat: 'special' },
+        { id: 'fedex_regular', icon: '📦', name: 'FedEx Regular', desc: 'Zúčastnil sa aspoň 3 FedEx Playoff turnajov.', cat: 'stamina' },
+        { id: 'scrambler', icon: '🍳', name: 'Scrambler', desc: 'Málo Parov (<500), ale veľa Birdies (>200).', cat: 'special' },
+        { id: 'top50_machine', icon: '🤖', name: 'Top 50 Machine', desc: 'Skončil v Top 50 aspoň 80-krát.', cat: 'consist' },
+        { id: 'lucky_number', icon: '🎰', name: 'Jackpot', desc: 'Získal presne 777 bodov (alebo viac) v jednom turnaji.', cat: 'points' }
     ];
+
 
     const recordsDef = [
         { id: 'most_wins', name: 'Najviac Výhier', desc: 'Celkový počet víťazstiev vo všetkých turnajoch.', icon: '🥇', format: (v) => `${v}x` },
@@ -988,13 +1046,15 @@ const vitrineThemes = {
     
     let lastVitrineTheme = 'Clean White';
 
-    let appState = {
+      let appState = {
         filters: { tours: ['ALL'], events: [], seasons: [], importance: 'ALL', activeWeek: null },
         ui: { showWeeks: false, eventDropdownOpen: false, seasonDropdownOpen: false, importanceDropdownOpen: false },
         sort: { column: 'points', dir: 'desc' },
         settings: { zoom: 0, theme: 'Default', themesOpen: false }, 
-        history: []
+        history: [],
+        unlockedBadges: {} // <--- TOTO PRIDAJ (Pamäť pre odznaky)
     };
+
     
     let modalStack = [];
     let slotToUpload = null;
@@ -1312,6 +1372,9 @@ const vitrineThemes = {
     }
     
     function calculateGlobalAchievements() {
+        // Inicializácia pamäte ak neexistuje (pre spätnú kompatibilitu)
+        if (!appState.unlockedBadges) appState.unlockedBadges = {};
+
         window.globalBadgeHolders = {};
         achievementsDef.forEach(def => window.globalBadgeHolders[def.id] = []);
         const playerStats = {};
@@ -1326,13 +1389,22 @@ const vitrineThemes = {
                     foundKey = targetName;
                     playerStats[foundKey] = {
                         realName: p.name,
-                        wins: 0, points: 0, top5: 0, top20: 0, cut: 0, tourneys: 0,
-                        strokes: 0, holes: 0, sub60: false, pars: 0,
+                        wins: 0, points: 0, top5: 0, top10: 0, top20: 0, cut: 0, tourneys: 0,
+                        strokes: 0, holes: 0, sub60: false, sub65Count: 0, sub63Count: 0, pars: 0,
                         impWin: false, majWin: false, fedexWin: false, 
-                        pgaWins: 0, eaWins: 0, playersWin: false, 
+                        pgaWins: 0, eaWins: 0, kftWins: 0, playersWin: false, 
                         usOpen: false, theOpen: false,
                         maxCons: 0, currentStreak: 0,
-                        r1_80_cut: false
+                        maxTop10Streak: 0, currentTop10Streak: 0,
+                        maxCutStreak: 0, currentCutStreak: 0,
+                        secondPlaces: 0, thirdPlaces: 0,
+                        ranksSum: 0,
+                        r1Sum: 0, r1Count: 0, r4Sum: 0, r4Count: 0,
+                        r1_80_cut: false, sub62R4: false,
+                        majorTop10: 0,
+                        fedexParticipations: 0,
+                        maxPointsInEvent: 0,
+                        worstCutRank: 0
                     };
                 }
                 
@@ -1340,39 +1412,50 @@ const vitrineThemes = {
                 s.tourneys++;
                 s.points += p.points;
                 s.pars += p.par;
+                s.ranksSum += p.rank;
+                if(p.points > s.maxPointsInEvent) s.maxPointsInEvent = p.points;
                 
-                if(p.points > 0) s.cut++;
+                if(p.points > 0) { 
+                    s.cut++; 
+                    s.currentCutStreak++;
+                    if(s.currentCutStreak > s.maxCutStreak) s.maxCutStreak = s.currentCutStreak;
+                    if(p.rank > s.worstCutRank) s.worstCutRank = p.rank;
+                } else {
+                    s.currentCutStreak = 0;
+                }
+
                 if(p.rank <= 20) s.top20++;
-                if(p.rank <= 5) s.top5++;
                 
-                  if(p.rank === 1) {
+                if(p.rank <= 10) {
+                    s.top10++;
+                    s.currentTop10Streak++;
+                    if(s.currentTop10Streak > s.maxTop10Streak) s.maxTop10Streak = s.currentTop10Streak;
+                    if(f.isImportant || f.isSignificant) s.majorTop10++;
+                } else {
+                    s.currentTop10Streak = 0;
+                }
+
+                if(p.rank <= 5) s.top5++;
+                if(p.rank === 2) s.secondPlaces++;
+                if(p.rank === 3) s.thirdPlaces++;
+                
+                if(f.type === 'FED EX') s.fedexParticipations++;
+
+                if(p.rank === 1) {
                     s.wins++;
                     s.currentStreak++;
                     if(s.currentStreak > s.maxCons) s.maxCons = s.currentStreak;
                     if(f.isImportant) s.impWin = true;
                     if(f.isSignificant) s.majWin = true;
                     
-                    // --- NOVÁ LOGIKA PODĽA ID TURNAJOV ---
-                    const en = f.eventNum; // Skratka pre číslo turnaja
-
-                    // FED EX (43, 44, 45)
+                    const en = f.eventNum;
                     if ([43, 44, 45].includes(en)) s.fedexWin = true;
-
-                    // EA SPORTS (17, 20, 21, 28, 37, 39)
                     if ([17, 20, 21, 28, 37, 39].includes(en)) s.eaWins++;
-
-                    // THE PLAYERS (18)
                     if (en === 18) s.playersWin = true;
-
-                    // US CHAMP (US Open - 33)
                     if (en === 33) s.usOpen = true;
-
-                    // OPENER (The Open - 38)
                     if (en === 38) s.theOpen = true;
-
-                    // PGA (Všetky ostatné okrem KFT, EA, Players a FedEx)
-                    // Rozsahy: 10-16, 19, 22-27, 29-36, 38, 40-42
-                    // Poznámka: Turnaj 38 (The Open) je v zozname vedený pod PGA, takže ho rátame aj sem
+                    if (f.type === 'KFT') s.kftWins++;
+                    
                     if (
                         (en >= 10 && en <= 16) || en === 19 || (en >= 22 && en <= 27) ||
                         (en >= 29 && en <= 36) || en === 38 || (en >= 40 && en <= 42)
@@ -1383,16 +1466,29 @@ const vitrineThemes = {
                     s.currentStreak = 0;
                 }
 
-                
+                let r1Val = 0, r3Val = 0, r4Val = 0;
                 [p.r1, p.r2, p.r3, p.r4].forEach((r, idx) => {
                     if(r!=='NA') {
                         let v = parseInt(r);
                         s.strokes += v;
                         s.holes += 18;
                         if(v < 60) s.sub60 = true;
-                        if(idx === 0 && v >= 80 && p.points > 0) s.r1_80_cut = true;
+                        if(v < 65) s.sub65Count++;
+                        if(v < 63) s.sub63Count++;
+                        
+                        if(idx === 0) { 
+                            s.r1Sum += v; s.r1Count++; r1Val = v;
+                            if(v >= 80 && p.points > 0) s.r1_80_cut = true;
+                        }
+                        if(idx === 2) r3Val = v;
+                        if(idx === 3) { 
+                            s.r4Sum += v; s.r4Count++; r4Val = v;
+                            if(v < 62) s.sub62R4 = true;
+                        }
                     }
                 });
+                
+                if(r3Val > 0 && r4Val > 0 && (r3Val + r4Val) < 128) s.perfectWeekend = true;
             });
         });
 
@@ -1401,14 +1497,15 @@ const vitrineThemes = {
             sFile.content.forEach(p => {
                 let targetName = normalizeName(p.name);
                 let foundKey = Object.keys(playerStats).find(k => k === targetName || getDistance(k, targetName) <= 1);
-                if(!foundKey) { foundKey = targetName; seasonAgg[foundKey] = { aces:0, eagles:0, birdies:0, pars:0, bogeys:0 }; }
-                else if(!seasonAgg[foundKey]) { seasonAgg[foundKey] = { aces:0, eagles:0, birdies:0, pars:0, bogeys:0 }; }
+                if(!foundKey) { foundKey = targetName; seasonAgg[foundKey] = { aces:0, eagles:0, birdies:0, pars:0, bogeys:0, doubleBogeys:0 }; }
+                else if(!seasonAgg[foundKey]) { seasonAgg[foundKey] = { aces:0, eagles:0, birdies:0, pars:0, bogeys:0, doubleBogeys:0 }; }
                 
-                seasonAgg[foundKey].aces += p.stats.aces;
-                seasonAgg[foundKey].eagles += p.stats.eagles;
-                seasonAgg[foundKey].birdies += p.stats.birdies;
-                seasonAgg[foundKey].pars += p.stats.pars;
-                seasonAgg[foundKey].bogeys += p.stats.bogeys;
+                seasonAgg[foundKey].aces += (p.stats.aces || 0);
+                seasonAgg[foundKey].eagles += (p.stats.eagles || 0);
+                seasonAgg[foundKey].birdies += (p.stats.birdies || 0);
+                seasonAgg[foundKey].pars += (p.stats.pars || 0);
+                seasonAgg[foundKey].bogeys += (p.stats.bogeys || 0);
+                seasonAgg[foundKey].doubleBogeys += (p.stats.doubleBogeys || 0);
             });
         });
 
@@ -1417,12 +1514,32 @@ const vitrineThemes = {
 
         Object.keys(playerStats).forEach(key => {
             const stats = playerStats[key];
-            const sStats = seasonAgg[key] || { aces:0, eagles:0, birdies:0, pars:0, bogeys:0 };
+            const sStats = seasonAgg[key] || { aces:0, eagles:0, birdies:0, pars:0, bogeys:0, doubleBogeys:0 };
             const avgStrokes = stats.holes > 0 ? (stats.strokes / (stats.holes/18)) : 99;
             const avgPerHole = stats.holes > 0 ? (stats.strokes / stats.holes) : 99;
+            const avgRank = stats.tourneys > 0 ? (stats.ranksSum / stats.tourneys) : 99;
+            const avgPts = stats.tourneys > 0 ? (stats.points / stats.tourneys) : 0;
+            
+            const r1Avg = stats.r1Count > 0 ? (stats.r1Sum / stats.r1Count) : 99;
+            const r4Avg = stats.r4Count > 0 ? (stats.r4Sum / stats.r4Count) : 99;
+            
             const name = stats.realName;
             
-            const check = (id, condition) => { if(condition) window.globalBadgeHolders[id].push(name); };
+            // --- UPRAVENÁ FUNKCIA CHECK (S PAMÄŤOU) ---
+            const check = (id, condition) => { 
+                const alreadyUnlocked = appState.unlockedBadges[name] && appState.unlockedBadges[name].includes(id);
+                
+                // Ak splnil podmienku TERAZ, alebo ju splnil KEDYKOĽVEK V MINULOSTI
+                if(condition || alreadyUnlocked) { 
+                    window.globalBadgeHolders[id].push(name); 
+                    
+                    // Ak to ešte nemáme zapísané v pamäti, zapíšeme to
+                    if(condition && !alreadyUnlocked) {
+                        if (!appState.unlockedBadges[name]) appState.unlockedBadges[name] = [];
+                        appState.unlockedBadges[name].push(id);
+                    }
+                } 
+            };
             
             check('shark', stats.wins >= 3);
             check('dominator', stats.wins >= 10);
@@ -1469,10 +1586,53 @@ const vitrineThemes = {
             check('solid', avgPerHole < 3.90);
             check('never_back', stats.r1_80_cut);
             check('lucky7', stats.top5 >= 7 && stats.wins >= 1);
+            check('kft_grad', stats.kftWins >= 1);
+            check('kft_legend', stats.kftWins >= 3);
+            check('grand_slam', stats.pgaWins > 0 && stats.kftWins > 0 && stats.eaWins > 0);
+            check('silver_col', stats.secondPlaces >= 5);
+            check('bronze_col', stats.thirdPlaces >= 5);
+            check('mr_59', stats.sub60); 
+            check('club_65', stats.sub65Count >= 10);
+            check('sunday_roaring', stats.r4Count >= 5 && r4Avg < 68.0);
+            check('fast_starter', stats.r1Count >= 5 && r1Avg < 68.0);
+            check('comeback_king', stats.r1Count >= 5 && stats.r4Count >= 5 && (r1Avg - r4Avg) >= 2);
+            check('heating_up', stats.maxTop10Streak >= 3);
+            check('on_fire', stats.maxTop10Streak >= 5);
+            check('cut_streak', stats.maxCutStreak >= 10);
+            check('invincible', stats.maxCutStreak >= 20);
+            check('top_percent', stats.tourneys >= 10 && (stats.top5 / stats.tourneys) >= 0.40);
+            check('birdie_god', sStats.birdies >= 500);
+            check('eagle_nest', sStats.eagles >= 10);
+            check('par_hoarder', sStats.pars >= 2000);
+            check('sniper_elite', sStats.aces >= 3);
+            check('clean_sheet', sStats.birdies > sStats.bogeys);
+            check('pts_millionaire', stats.points > 50000);
+            check('efficiency', stats.tourneys >= 10 && avgPts > 100);
+            check('journeyman', stats.tourneys >= 50 && stats.wins === 0);
+            check('one_hit', stats.tourneys >= 50 && stats.wins === 1);
+            check('grinder', sStats.pars > 3000);
+            check('risk_taker', sStats.eagles > sStats.doubleBogeys && sStats.eagles > 0);
+            check('glass_chin', stats.r1Count >= 5 && stats.r4Count >= 5 && (r4Avg - r1Avg) >= 2);
+            check('weekend_warrior', stats.cut >= 5 && stats.worstCutRank >= 60);
+            check('bridesmaid', stats.wins === 0 && (stats.secondPlaces + stats.thirdPlaces) >= 10);
+            check('major_top10', stats.majorTop10 >= 5);
+            check('club_63', stats.sub63Count >= 5);
+            check('mr_consistent', stats.tourneys >= 20 && avgRank <= 15.0);
+            check('the_1_percent', world1Name && (key === world1Name || getDistance(key, world1Name) <= 1) && stats.fedexWin && stats.playersWin);
+            check('grand_finish', stats.sub62R4);
+            check('no_bogeys', sStats.bogeys > 0 && (sStats.pars / sStats.bogeys) > 30);
+            check('perfect_weekend', stats.perfectWeekend); 
+            check('fedex_regular', stats.fedexParticipations >= 3);
+            check('scrambler', sStats.pars < 500 && sStats.birdies > 200);
+            check('top50_machine', (stats.cut + stats.top20) >= 80); 
+            check('lucky_number', stats.maxPointsInEvent >= 777);
         });
         
         Object.keys(window.globalBadgeHolders).forEach(k => window.globalBadgeHolders[k].sort());
+        // Uložíme zmeny do localStorage, aby sa nestratili pri refreshi
+        saveAuto();
     }
+
 
     // --- Helper Functions ---
     function getActiveFiles() {
@@ -3409,7 +3569,20 @@ window.setVitrineTheme = function(themeName, fileId = null) {
 
     function deleteFile(id) { db.files = db.files.filter(f => f.id !== id); calculateELO(); calculateGlobalAchievements(); saveAuto(); closeTopModal(); openFileManager(); renderApp(); }
     function deleteSeasonFile(season) { db.seasonStats = db.seasonStats.filter(s => s.season !== season); calculateGlobalAchievements(); saveAuto(); closeTopModal(); openFileManager(); renderApp(); }
-    function clearDB() { if(confirm('Naozaj vymazať celú databázu?')) { db.files = []; db.seasonStats = []; appState.filters.events = []; appState.filters.seasons = []; calculateELO(); calculateGlobalAchievements(); renderApp(); saveAuto(); closeTopModal(); } }
+    function clearDB() { 
+        if(confirm('Naozaj vymazať celú databázu a všetky získané odznaky?')) { 
+            db.files = []; 
+            db.seasonStats = []; 
+            appState.filters.events = []; 
+            appState.filters.seasons = []; 
+            appState.unlockedBadges = {}; // <--- VYMAZANIE PAMÄTE ODZNAKOV
+            calculateELO(); 
+            calculateGlobalAchievements(); 
+            renderApp(); 
+            saveAuto(); 
+            closeTopModal(); 
+        } 
+    }
 
     function renderSlots() {
         const container = document.getElementById('slotContainer'); if(!container) return; container.innerHTML = '';
