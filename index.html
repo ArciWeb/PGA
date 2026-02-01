@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta id="viewportMeta" name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ArciWeb - PGA StatsKeeper v4.11 (Visual Trophy Edition)</title>
+    <title>ArciWeb - PGA StatsKeeper v4.12 (Gallery Edition)</title>
     <style>
         :root {
             --bg-color: #1e1e1e;
@@ -195,10 +195,9 @@
         .rank-clickable { cursor: pointer; text-decoration: underline; text-decoration-style: dotted; }
         .rank-clickable:hover { color: var(--accent-green); }
 
-        /* --- PLAYER CARD (UPDATED: FULL BACKGROUND COLOR) --- */
+        /* --- PLAYER CARD --- */
         .player-card-container {
             display: flex; gap: 20px; 
-            /* Default fallback */
             background: linear-gradient(145deg, #333 0%, #000 100%);
             padding: 15px; border-radius: 12px; margin-bottom: 20px;
             border: 2px solid #444; box-shadow: 0 10px 25px rgba(0,0,0,0.6);
@@ -206,7 +205,6 @@
             transition: border-color 0.3s, box-shadow 0.3s, background 0.3s;
         }
 
-        /* Full Background Colors based on Rank */
         .player-card-container.gold { 
             background: linear-gradient(135deg, #f1c40f 0%, #b8860b 100%); 
             border-color: #fff; box-shadow: 0 0 25px rgba(241, 196, 15, 0.4);
@@ -237,10 +235,9 @@
             background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%); pointer-events: none;
         }
         
-        /* OVR Box - Tmavomodrá farba (Kontrast) */
         .card-ovr-box {
             width: 90px; height: 110px;
-            background: #1e272e; /* Tmavá farba pre kontrast s farebným pozadím karty */
+            background: #1e272e; 
             clip-path: polygon(0% 0%, 100% 0%, 100% 85%, 50% 100%, 0% 85%);
             display: flex; flex-direction: column; justify-content: center; align-items: center;
             color: #fff; flex-shrink: 0; 
@@ -252,7 +249,6 @@
         .card-ovr-label { font-size: 0.8rem; font-weight: 800; text-transform: uppercase; margin-top: 0px; opacity: 0.8; }
         
         .card-info { flex: 1; display: flex; flex-direction: column; justify-content: center; z-index: 1; }
-        /* Pridaný tieň textu pre lepšiu čitateľnosť na svetlých pozadiach (zlato/striebro) */
         .card-name { font-size: 1.6rem; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; color: #fff; text-shadow: 0 2px 5px rgba(0,0,0,0.9); }
         
         .card-attrs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px 15px; }
@@ -262,7 +258,7 @@
         .attr-val.high { color: #2ecc71; text-shadow: 0 0 5px rgba(0,0,0,0.8); }
         .attr-val.low { color: #e74c3c; text-shadow: 0 0 5px rgba(0,0,0,0.8); }
 
-        /* --- TROPHY ROOM & MEDALS (UPDATED v4.01) --- */
+        /* --- TROPHY ROOM & GALLERY --- */
         .trophy-section {
             background: var(--card-bg);
             padding: 20px; border-radius: 12px;
@@ -282,28 +278,14 @@
             position: relative; width: 80px;
         }
         .trophy-item:hover { transform: scale(1.1); z-index: 5; }
-        
-        .trophy-inner {
-            position: relative; display: flex; justify-content: center; align-items: center;
-        }
-
-        /* NEW IMAGE CLASS */
+        .trophy-inner { position: relative; display: flex; justify-content: center; align-items: center; }
         .trophy-img {
-            width: 70px;
-            height: 70px;
-            object-fit: contain;
-            filter: drop-shadow(0 5px 8px rgba(0,0,0,0.6));
-            transition: transform 0.3s ease;
+            width: 70px; height: 70px; object-fit: contain;
+            filter: drop-shadow(0 5px 8px rgba(0,0,0,0.6)); transition: transform 0.3s ease;
         }
-        .trophy-item:hover .trophy-img {
-            transform: scale(1.15) rotate(-3deg);
-            filter: drop-shadow(0 8px 12px rgba(0,0,0,0.8));
-        }
-
-        /* Medals (Rank 2 & 3) */
+        .trophy-item:hover .trophy-img { transform: scale(1.15) rotate(-3deg); filter: drop-shadow(0 8px 12px rgba(0,0,0,0.8)); }
         .m-silver { font-size: 2.2rem; filter: drop-shadow(0 0 4px #dfe6e9); opacity: 0.9; }
         .m-bronze { font-size: 2.2rem; filter: drop-shadow(0 0 4px #cd6133); opacity: 0.9; }
-        
         .trophy-date { 
             font-size: 0.7rem; color: #fff; margin-top: 8px; opacity: 0; transition: 0.2s; 
             position: absolute; bottom: -35px; background: rgba(0,0,0,0.95); 
@@ -312,13 +294,28 @@
         }
         .trophy-item:hover .trophy-date { opacity: 1; bottom: -45px; }
 
+        /* --- GLOBAL GALLERY STYLES --- */
+        .gallery-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+            gap: 15px; padding: 10px;
+        }
+        .gallery-item {
+            display: flex; flex-direction: column; align-items: center; text-align: center;
+            background: var(--card-bg); padding: 10px; border-radius: 8px;
+            border: 1px solid #333; transition: 0.2s; position: relative;
+        }
+        .gallery-item.locked { opacity: 0.5; filter: grayscale(100%); cursor: not-allowed; }
+        .gallery-item.unlocked { cursor: pointer; border-color: var(--accent-green); }
+        .gallery-item.unlocked:hover { transform: scale(1.05); box-shadow: 0 0 15px rgba(46, 204, 113, 0.3); }
+        .gallery-label { font-size: 0.75rem; color: #888; margin-top: 8px; font-weight: bold; }
+        .gallery-item.unlocked .gallery-label { color: var(--highlight-gold); }
+
         /* --- NEMESIS SYSTEM --- */
         .rivalry-section { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
         .rival-box { 
-            flex: 1; min-width: 140px; 
-            background: var(--card-bg);
-            padding: 12px; border-radius: 8px; 
-            border: 1px solid #333; text-align: center; transition: 0.2s; position: relative; overflow: hidden;
+            flex: 1; min-width: 140px; background: var(--card-bg);
+            padding: 12px; border-radius: 8px; border: 1px solid #333; 
+            text-align: center; transition: 0.2s; position: relative; overflow: hidden;
         }
         .rival-box:hover { transform: translateY(-3px); border-color: #555; }
         .rival-title { font-size: 0.7rem; text-transform: uppercase; color: #888; letter-spacing: 1px; margin-bottom: 8px; }
@@ -330,10 +327,7 @@
         .rival-box.nemesis { border-bottom: 2px solid var(--accent-red); background: linear-gradient(0deg, rgba(231,76,60,0.05), var(--card-bg)); }
 
         /* --- GRAPH Styles --- */
-        .graph-section { 
-            background: var(--card-bg);
-            border-radius: 8px; padding: 15px; margin-bottom: 20px; border: 1px solid #3d3d3d; 
-        }
+        .graph-section { background: var(--card-bg); border-radius: 8px; padding: 15px; margin-bottom: 20px; border: 1px solid #3d3d3d; }
         .graph-container { width: 100%; height: 200px; position: relative; }
         .graph-tooltip {
             position: absolute; background: rgba(0,0,0,0.9); color: #fff;
@@ -359,8 +353,7 @@
         .achievements-grid {
             display: grid; grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
             gap: 10px; margin-bottom: 20px; padding: 10px;
-            background: var(--card-bg);
-            border-radius: 8px;
+            background: var(--card-bg); border-radius: 8px;
         }
         .badge {
             width: 100%; aspect-ratio: 1/1; border-radius: 50%;
@@ -380,11 +373,7 @@
         @keyframes popIn { 0% { transform: scale(0); } 100% { transform: scale(1); } }
 
         /* --- ACHIEVEMENT DETAILS MODAL STYLES --- */
-        .ach-header { 
-            text-align: center; padding: 20px; 
-            background: var(--bg-color);
-            border-bottom: 1px solid #444; 
-        }
+        .ach-header { text-align: center; padding: 20px; background: var(--bg-color); border-bottom: 1px solid #444; }
         .ach-icon-large { font-size: 4rem; margin-bottom: 10px; display: block; }
         .ach-title { font-size: 1.5rem; color: var(--highlight-gold); margin: 0; }
         .ach-desc { color: #ccc; font-style: italic; margin-top: 5px; }
@@ -410,26 +399,9 @@
         .global-ach-count { font-weight: bold; color: var(--accent-green); font-size: 1.2rem; }
         
         /* --- PLAYER PROFILE RECORDS STYLE --- */
-        .profile-records-container {
-            margin-bottom: 20px;
-            background: #252525;
-            padding: 10px;
-            border-radius: 8px;
-            border: 1px solid #444;
-        }
-        .profile-records-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-            gap: 8px;
-        }
-        .profile-record-item {
-            background: #333;
-            padding: 8px;
-            border-radius: 6px;
-            text-align: center;
-            border: 1px solid #555;
-            transition: transform 0.2s;
-        }
+        .profile-records-container { margin-bottom: 20px; background: #252525; padding: 10px; border-radius: 8px; border: 1px solid #444; }
+        .profile-records-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px; }
+        .profile-record-item { background: #333; padding: 8px; border-radius: 6px; text-align: center; border: 1px solid #555; transition: transform 0.2s; }
         .profile-record-item:hover { transform: scale(1.03); border-color: var(--highlight-gold); }
         .p-rec-icon { font-size: 1.5rem; display: block; margin-bottom: 4px; }
         .p-rec-name { font-size: 0.7rem; color: #aaa; text-transform: uppercase; font-weight: bold; }
@@ -514,7 +486,7 @@
 
     <header>
         <div class="header-left">
-            <h1>ArciWeb - PGA StatsKeeper <span class="version">v4.11</span></h1>
+            <h1>ArciWeb - PGA StatsKeeper <span class="version">v4.12</span></h1>
             <div class="header-ranks">
                 <span class="header-rank-link" style="color:var(--highlight-gold)" onclick="showRankTable('PGA')">PGA Rank</span>
                 <span class="header-rank-link" style="color:var(--accent-blue)" onclick="showRankTable('Official')">Official Rank</span>
@@ -531,6 +503,7 @@
             <button class="icon-btn" onclick="openHallOfFame()" title="Sieň slávy">🏆</button>
             <button class="icon-btn" onclick="openComparator()" title="Porovnávač (Head-to-Head)">🆚</button>
             <button class="icon-btn" onclick="toggleZoom()" title="Zoom Mode">🔍</button>
+            <button class="icon-btn" onclick="openTrophyGallery()" title="Galéria Trofejí (Všetky)">🖼️</button>
             <button class="icon-btn" onclick="openSettings()" title="Nastavenia">&#9881;</button>
         </div>
     </header>
@@ -601,8 +574,6 @@
     <input type="file" id="seasonFileInput" accept=".txt" multiple onchange="handleSeasonFiles(this.files)">
     
     <div id="popupsLayer"></div>
-
-
 <script>
     const colorSchemes = {
         'Gold': { bg: '#000000', card: '#1c1c1c', text: '#ffd700', accent: '#ffec8b' },
@@ -921,8 +892,6 @@
         return arr;
     }
 
-    // ... pokračovanie skriptu (Part 3/5)
-
     document.addEventListener('DOMContentLoaded', () => {
         loadAutoSave();
         if (typeof appState.settings.zoom === 'boolean') {
@@ -968,7 +937,6 @@
             if (seasonFiles.length > 0) handleSeasonFiles(seasonFiles);
         }
     });
-
     // --- File Handling ---
     function handleFiles(files) {
         let count = 0;
@@ -1440,7 +1408,6 @@
             return (valA - valB) * dir;
         });
     }
-
     // --- Ranking Algorithms ---
     function getPGARankList() {
         let pgaFiles = db.files.filter(f => f.type === 'PGA');
@@ -1563,7 +1530,6 @@
         });
         return arr;
     }
-    // ... pokračovanie skriptu (Part 4/5)
 
     // --- Render Functions ---
     function renderApp() {
@@ -1911,7 +1877,6 @@
             results.style.display = 'none';
         }
     }
-    
     // --- Player Profile (UPDATED FOR IMAGE TROPHIES) ---
     function openPlayerProfile(playerName) {
         const modalId = 'profile-' + Date.now();
@@ -2026,12 +1991,11 @@
                     // Formátovanie čísla turnaja na 2 cifry (napr. 1 -> "01", 10 -> "10")
                     let eventNumFormatted = f.eventNum < 10 ? '0' + f.eventNum : '' + f.eventNum;
                     if(f.eventNum === 0 && f.eventName.match(/^\d+/)) {
-                        // Fallback ak eventNum nebolo parsene, skusime z nazvu
                         let m = f.eventName.match(/^(\d+)/);
                         if(m) eventNumFormatted = parseInt(m[1]) < 10 ? '0' + parseInt(m[1]) : m[1];
                     }
                     
-                    let imgSrc = eventNumFormatted + '.png'; // Cesta k obrázku (v rovnakej zložke)
+                    let imgSrc = eventNumFormatted + '.png'; 
 
                     trophyCollection.push({
                         name: f.eventName,
@@ -2043,7 +2007,6 @@
                     });
                 }
                 else if (p.rank === 2) {
-                    // Strieborná medaila
                     trophyCollection.push({
                         name: f.eventName,
                         season: f.season,
@@ -2055,7 +2018,6 @@
                     });
                 }
                 else if (p.rank === 3) {
-                    // Bronzová medaila
                     trophyCollection.push({
                         name: f.eventName,
                         season: f.season,
@@ -2224,8 +2186,6 @@
                     // Pre 2. a 3. miesto klasické medaily
                     content = `<div class="${t.cssClass}">${t.icon}</div>`;
                 }
-                
-                // Odstránenie čísla zo začiatku názvu pre čistejší vzhľad pod trofejou (voliteľné, ale vyzerá to lepšie)
                 let label = t.name.replace(/^\d+\s+/, ''); 
 
                 return `
@@ -2442,8 +2402,81 @@
     }
     function hideTooltip() { document.getElementById('graphTooltip').style.display = 'none'; }
 
-    // ... pokračovanie skriptu (Part 5a/5)
+    // --- NOVA FUNKCIA: GALERIA TROFEJI (GLOBAL) ---
+    window.openTrophyGallery = function() {
+        let maxNum = 0;
+        db.files.forEach(f => { if(f.eventNum > maxNum) maxNum = f.eventNum; });
+        if (maxNum < 20) maxNum = 20; 
+        const limit = Math.max(maxNum + 5, 35); 
 
+        let html = '<div class="gallery-grid">';
+        for(let i=1; i<=limit; i++) {
+            let numStr = i < 10 ? '0' + i : '' + i;
+            let file = db.files.find(f => f.eventNum === i);
+
+            if(file) {
+                // Unlocked (Existuje súbor)
+                html += `<div class="gallery-item unlocked" onclick="openTournamentDetails('${file.id}')">
+                            <img src="${numStr}.png" style="width:60px; height:60px; object-fit:contain;" onerror="this.style.display='none'; this.nextElementSibling.innerHTML='🏆'">
+                            <div class="gallery-label">${file.eventName}</div>
+                         </div>`;
+            } else {
+                // Locked (Neexistuje súbor - zobrazi len placeholder)
+                html += `<div class="gallery-item locked">
+                            <img src="${numStr}.png" style="width:60px; height:60px; object-fit:contain; filter:grayscale(100%); opacity:0.3;" onerror="this.style.display='none'">
+                            <div class="gallery-label">Turnaj ${numStr}</div>
+                         </div>`;
+            }
+        }
+        html += '</div>';
+        
+        const modalHtml = `
+            <div class="modal-header">
+                <h2>Galéria Všetkých Trofejí</h2>
+                <button class="close-btn" onclick="closeTopModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                ${html}
+            </div>`;
+        
+        createModal(modalHtml);
+    }
+
+    // --- Detail konkrétneho turnaja ---
+    window.openTournamentDetails = function(fileId) {
+        const file = db.files.find(f => f.id == fileId);
+        if (!file) return;
+        let sortedPlayers = [...file.content].sort((a, b) => (a.rank !== b.rank) ? a.rank - b.rank : b.points - a.points);
+        const rows = sortedPlayers.map(p => `
+            <tr class="${p.name === 'Tiger Woods' ? 'important-row' : ''}"> <td>${p.rank}.</td>
+                <td style="text-align:left; font-weight:bold;">${p.name}</td><td>${p.par}</td>
+                <td>${p.r1}</td><td>${p.r2}</td><td>${p.r3}</td><td>${p.r4}</td><td>${p.points}</td>
+            </tr>`).join('');
+        const html = `<div class="modal-header"><h2>${file.eventName} <span style="font-size:0.7em; color:#888;">(Sezóna ${file.season})</span></h2><button class="close-btn" onclick="closeTopModal()">&times;</button></div><div class="modal-body"><div class="table-container"><table><thead><tr><th>Poz.</th><th>Hráč</th><th>Par</th><th>R1</th><th>R2</th><th>R3</th><th>R4</th><th>Body</th></tr></thead><tbody>${rows}</tbody></table></div></div>`;
+        createModal(html);
+    };
+
+    // --- Global Rank Tables ---
+    window.showRankTable = function(type) {
+        let list = []; let title = '';
+        if (type === 'PGA') { list = getPGARankList(); title = 'PGA Rank (Top 40 PGA Turnajov)'; }
+        if (type === 'Official') { list = getOfficialRankList(); title = 'Official Rank (All Time)'; }
+        if (type === 'Tour') { list = getTourRankList(); title = 'Tour Rank (Major/Important)'; }
+        if (type === 'EA') { list = getEARankList(); title = 'EA Rank (EA Sports + FED EX)'; }
+        if (type === 'Association') { list = getAssociationRankList(); title = 'Association Rank (The Players - Last 10)'; }
+        if (type === 'FEDEX') { list = getFedExRankList(); title = 'FED EX Rank (Posledná sezóna - All Tours)'; }
+        if (type === 'ELO') { list = getELORankList(); title = 'ELO Ranking (Skill Level)'; }
+
+        if (!list) { alert('Nedostatok dát pre výpočet.'); return; }
+        
+        let rows = list.map(p => {
+            const val = type === 'ELO' ? Math.round(p.points) : p.points.toFixed(3);
+            return `<tr onclick="openPlayerProfile('${p.name}')" style="cursor:pointer"><td><b style="color:${p.rank===1?'gold':'white'}">${p.rank}.</b></td><td>${p.name}</td><td style="text-align:right">${val}</td></tr>`
+        }).join('');
+        
+        const html = `<div class="modal-header"><h2>${title}</h2><button class="close-btn" onclick="closeTopModal()">&times;</button></div><div class="modal-body"><div class="table-container"><table><thead><tr><th>#</th><th>Hráč</th><th style="text-align:right">${type==='ELO'?'Rating':'Body'}</th></tr></thead><tbody>${rows}</tbody></table></div></div>`;
+        createModal(html);
+    }
     // --- GLOBÁLNY ZOZNAM ACHIEVEMENTOV ---
     window.openGlobalAchievementsList = function() {
         const allPlayers = new Set();
@@ -2522,42 +2555,6 @@
         `;
         createModal(html);
         setTimeout(() => { const bar = document.querySelector('.ach-fill'); if(bar) bar.style.width = percentage + '%'; }, 100);
-    }
-
-    // --- Detail konkrétneho turnaja ---
-    window.openTournamentDetails = function(fileId) {
-        const file = db.files.find(f => f.id == fileId);
-        if (!file) return;
-        let sortedPlayers = [...file.content].sort((a, b) => (a.rank !== b.rank) ? a.rank - b.rank : b.points - a.points);
-        const rows = sortedPlayers.map(p => `
-            <tr class="${p.name === 'Tiger Woods' ? 'important-row' : ''}"> <td>${p.rank}.</td>
-                <td style="text-align:left; font-weight:bold;">${p.name}</td><td>${p.par}</td>
-                <td>${p.r1}</td><td>${p.r2}</td><td>${p.r3}</td><td>${p.r4}</td><td>${p.points}</td>
-            </tr>`).join('');
-        const html = `<div class="modal-header"><h2>${file.eventName} <span style="font-size:0.7em; color:#888;">(Sezóna ${file.season})</span></h2><button class="close-btn" onclick="closeTopModal()">&times;</button></div><div class="modal-body"><div class="table-container"><table><thead><tr><th>Poz.</th><th>Hráč</th><th>Par</th><th>R1</th><th>R2</th><th>R3</th><th>R4</th><th>Body</th></tr></thead><tbody>${rows}</tbody></table></div></div>`;
-        createModal(html);
-    };
-
-    // --- Global Rank Tables ---
-    window.showRankTable = function(type) {
-        let list = []; let title = '';
-        if (type === 'PGA') { list = getPGARankList(); title = 'PGA Rank (Top 40 PGA Turnajov)'; }
-        if (type === 'Official') { list = getOfficialRankList(); title = 'Official Rank (All Time)'; }
-        if (type === 'Tour') { list = getTourRankList(); title = 'Tour Rank (Major/Important)'; }
-        if (type === 'EA') { list = getEARankList(); title = 'EA Rank (EA Sports + FED EX)'; }
-        if (type === 'Association') { list = getAssociationRankList(); title = 'Association Rank (The Players - Last 10)'; }
-        if (type === 'FEDEX') { list = getFedExRankList(); title = 'FED EX Rank (Posledná sezóna - All Tours)'; }
-        if (type === 'ELO') { list = getELORankList(); title = 'ELO Ranking (Skill Level)'; }
-
-        if (!list) { alert('Nedostatok dát pre výpočet.'); return; }
-        
-        let rows = list.map(p => {
-            const val = type === 'ELO' ? Math.round(p.points) : p.points.toFixed(3);
-            return `<tr onclick="openPlayerProfile('${p.name}')" style="cursor:pointer"><td><b style="color:${p.rank===1?'gold':'white'}">${p.rank}.</b></td><td>${p.name}</td><td style="text-align:right">${val}</td></tr>`
-        }).join('');
-        
-        const html = `<div class="modal-header"><h2>${title}</h2><button class="close-btn" onclick="closeTopModal()">&times;</button></div><div class="modal-body"><div class="table-container"><table><thead><tr><th>#</th><th>Hráč</th><th style="text-align:right">${type==='ELO'?'Rating':'Body'}</th></tr></thead><tbody>${rows}</tbody></table></div></div>`;
-        createModal(html);
     }
 
     // --- DETAIL REKORDU (TOP 20) ---
