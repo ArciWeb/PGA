@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta id="viewportMeta" name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ArciWeb - PGA StatsKeeper v3.77 (Player Cards Edition)</title>
+    <title>ArciWeb - PGA StatsKeeper v4.01 (Visual Trophy Edition)</title>
     <style>
         :root {
             --bg-color: #1e1e1e;
@@ -188,13 +188,21 @@
         .rank-clickable { cursor: pointer; text-decoration: underline; text-decoration-style: dotted; }
         .rank-clickable:hover { color: var(--accent-green); }
 
-        /* --- PLAYER CARD (NEW FEATURE) --- */
+        /* --- PLAYER CARD (NEW COLORS) --- */
         .player-card-container {
             display: flex; gap: 20px; background: linear-gradient(145deg, #1e1e1e 0%, #000000 100%);
             padding: 15px; border-radius: 12px; margin-bottom: 20px;
-            border: 1px solid #444; box-shadow: 0 10px 25px rgba(0,0,0,0.6);
+            border: 2px solid #444; box-shadow: 0 10px 25px rgba(0,0,0,0.6);
             align-items: center; position: relative; overflow: hidden;
+            transition: border-color 0.3s, box-shadow 0.3s;
         }
+        .player-card-container.gold { border-color: #ffd700; box-shadow: 0 0 20px rgba(255, 215, 0, 0.3); }
+        .player-card-container.silver { border-color: #c0c0c0; box-shadow: 0 0 20px rgba(192, 192, 192, 0.3); }
+        .player-card-container.bronze { border-color: #cd7f32; box-shadow: 0 0 20px rgba(205, 127, 50, 0.3); }
+        .player-card-container.green { border-color: #2ecc71; box-shadow: 0 0 15px rgba(46, 204, 113, 0.3); }
+        .player-card-container.orange { border-color: #e67e22; box-shadow: 0 0 15px rgba(230, 126, 34, 0.3); }
+        .player-card-container.red { border-color: #e74c3c; box-shadow: 0 0 15px rgba(231, 76, 60, 0.3); }
+
         .player-card-container::before {
             content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
             background: radial-gradient(circle, rgba(255,255,255,0.03) 0%, transparent 60%); pointer-events: none;
@@ -219,7 +227,56 @@
         .attr-val.high { color: var(--accent-green); text-shadow: 0 0 5px rgba(46, 204, 113, 0.5); }
         .attr-val.low { color: var(--accent-red); }
 
-        /* --- NEMESIS SYSTEM (NEW FEATURE) --- */
+        /* --- TROPHY ROOM & MEDALS (UPDATED v4.01) --- */
+        .trophy-section {
+            background: #252525; padding: 20px; border-radius: 12px;
+            margin-bottom: 20px; border: 1px solid #444; position: relative;
+        }
+        .trophy-title { 
+            font-size: 0.9rem; text-transform: uppercase; color: #aaa; letter-spacing: 1px; 
+            margin-bottom: 20px; text-align: center; border-bottom: 1px solid #333; padding-bottom: 10px;
+        }
+        .trophy-grid { 
+            display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; 
+            max-height: 350px; overflow-y: auto; padding: 10px;
+        }
+        .trophy-item {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            cursor: pointer; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+            position: relative; width: 80px;
+        }
+        .trophy-item:hover { transform: scale(1.1); z-index: 5; }
+        
+        .trophy-inner {
+            position: relative; display: flex; justify-content: center; align-items: center;
+        }
+
+        /* NEW IMAGE CLASS */
+        .trophy-img {
+            width: 70px;
+            height: 70px;
+            object-fit: contain;
+            filter: drop-shadow(0 5px 8px rgba(0,0,0,0.6));
+            transition: transform 0.3s ease;
+        }
+        .trophy-item:hover .trophy-img {
+            transform: scale(1.15) rotate(-3deg);
+            filter: drop-shadow(0 8px 12px rgba(0,0,0,0.8));
+        }
+
+        /* Medals (Rank 2 & 3) */
+        .m-silver { font-size: 2.2rem; filter: drop-shadow(0 0 4px #dfe6e9); opacity: 0.9; }
+        .m-bronze { font-size: 2.2rem; filter: drop-shadow(0 0 4px #cd6133); opacity: 0.9; }
+        
+        .trophy-date { 
+            font-size: 0.7rem; color: #fff; margin-top: 8px; opacity: 0; transition: 0.2s; 
+            position: absolute; bottom: -35px; background: rgba(0,0,0,0.95); 
+            padding: 4px 8px; border-radius: 4px; border: 1px solid var(--highlight-gold); white-space: nowrap;
+            pointer-events: none; z-index: 10; text-align: center; font-weight: bold;
+        }
+        .trophy-item:hover .trophy-date { opacity: 1; bottom: -45px; }
+
+        /* --- NEMESIS SYSTEM --- */
         .rivalry-section { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
         .rival-box { 
             flex: 1; min-width: 140px; background: #222; padding: 12px; border-radius: 8px; 
@@ -363,6 +420,14 @@
         .record-holder { font-size: 0.95rem; font-weight: bold; color: var(--highlight-gold); }
         .record-val { font-size: 0.85rem; color: #fff; margin-top: 2px; }
 
+        /* --- ELO & BADGES --- */
+        .elo-badge {
+            background: #2c3e50; color: #fff; padding: 2px 8px; border-radius: 4px;
+            font-size: 0.8rem; border: 1px solid #444; cursor: pointer; margin-left: 5px;
+            vertical-align: middle; transition: 0.2s; font-weight: bold;
+        }
+        .elo-badge:hover { background: var(--accent-blue); border-color: #fff; transform: scale(1.05); }
+
         /* --- Settings & Slots --- */
         .slot-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-top: 15px; }
         .slot-card { background: var(--card-bg); padding: 10px; border-radius: 8px; border: 1px solid #444; text-align: center; }
@@ -403,7 +468,7 @@
 
     <header>
         <div class="header-left">
-            <h1>ArciWeb - PGA StatsKeeper <span class="version">v3.77</span></h1>
+            <h1>ArciWeb - PGA StatsKeeper <span class="version">v4.01</span></h1>
             <div class="header-ranks">
                 <span class="header-rank-link" style="color:var(--highlight-gold)" onclick="showRankTable('PGA')">PGA Rank</span>
                 <span class="header-rank-link" style="color:var(--accent-blue)" onclick="showRankTable('Official')">Official Rank</span>
@@ -411,6 +476,7 @@
                 <span class="header-rank-link" style="color:var(--accent-red)" onclick="showRankTable('EA')">EA Rank</span>
                 <span class="header-rank-link" style="color:var(--accent-red)" onclick="showRankTable('Association')">Association Rank</span>
                 <span class="header-rank-link" style="color:var(--highlight-gold)" onclick="showRankTable('FEDEX')">FED EX Rank</span>
+                <span class="header-rank-link" style="color:#2c3e50; background:#fff; padding:0 4px; border-radius:3px;" onclick="showRankTable('ELO')">ELO Rank</span>
             </div>
         </div>
         <div class="header-icons">
@@ -492,9 +558,8 @@
 
 <script>
     const colorSchemes = {
-        // --- 1. KOVY & LUXUS (Metals & Luxury) ---
         'Gold': { bg: '#000000', card: '#1c1c1c', text: '#ffd700', accent: '#ffec8b' },
-        'Silver': { bg: '#2c3e50', card: '#bdc3c7', text: '#2c3e50', accent: '#ecf0f1' }, // Tmavé pozadie, strieborné karty
+        'Silver': { bg: '#2c3e50', card: '#bdc3c7', text: '#2c3e50', accent: '#ecf0f1' },
         'Bronze': { bg: '#1a120b', card: '#302113', text: '#e8dace', accent: '#cd7f32' },
         'Copper': { bg: '#261109', card: '#421d0f', text: '#ffe0d6', accent: '#b87333' },
         'Platinum': { bg: '#1a1a1a', card: '#333333', text: '#e5e4e2', accent: '#00bfff' },
@@ -504,8 +569,6 @@
         'RoseGold': { bg: '#29181b', card: '#42242b', text: '#ffc2cd', accent: '#b76e79' },
         'Onyx': { bg: '#050505', card: '#141414', text: '#ffffff', accent: '#7f8c8d' },
         'Diamond': { bg: '#0f151c', card: '#1a2633', text: '#b9f2ff', accent: '#00ffff' },
-
-        // --- 2. ŽLTÉ & ORANŽOVÉ (Yellow & Orange - Vivid) ---
         'Sun': { bg: '#ffcc00', card: '#ffe066', text: '#000000', accent: '#d35400' },
         'Bumblebee': { bg: '#1a1a00', card: '#333300', text: '#ffff00', accent: '#ffffff' },
         'Banana': { bg: '#2e2e00', card: '#4a4a00', text: '#ffffe0', accent: '#ffe135' },
@@ -517,8 +580,6 @@
         'Amber': { bg: '#2b1d00', card: '#4d3300', text: '#ffbf00', accent: '#ffdb4d' },
         'Halloween': { bg: '#1a0500', card: '#2b0e00', text: '#ff6600', accent: '#993300' },
         'Apricot': { bg: '#2b1608', card: '#4a260e', text: '#ffccb3', accent: '#fbceb1' },
-
-        // --- 3. ČERVENÉ & OHNIVÉ (Red & Fire) ---
         'Ferrari': { bg: '#330000', card: '#cc0000', text: '#ffffff', accent: '#ffff00' },
         'Lava': { bg: '#1a0500', card: '#330a00', text: '#ffebd9', accent: '#ff4500' },
         'Ruby': { bg: '#2b0000', card: '#520000', text: '#ffe6e6', accent: '#e0115f' },
@@ -530,8 +591,6 @@
         'Mars': { bg: '#2b0a05', card: '#4a1209', text: '#ffcccb', accent: '#bc2732' },
         'Inferno': { bg: '#140500', card: '#290a00', text: '#ff4500', accent: '#ffa500' },
         'Volcanic': { bg: '#120505', card: '#260a0a', text: '#ffdddd', accent: '#ff3333' },
-
-        // --- 4. FIALOVÉ & RUŽOVÉ (Purple & Pink) ---
         'Magenta': { bg: '#1a001a', card: '#330033', text: '#ff00ff', accent: '#ff00ff' },
         'Amethyst': { bg: '#1a001a', card: '#330033', text: '#f2e6ff', accent: '#9966cc' },
         'Velvet': { bg: '#1a001a', card: '#2e002e', text: '#ffccff', accent: '#800080' },
@@ -543,8 +602,6 @@
         'Grape': { bg: '#12001a', card: '#240033', text: '#f3e6ff', accent: '#800080' },
         'Lavender': { bg: '#201a23', card: '#2e2532', text: '#ffffff', accent: '#a663cc' },
         'Barbie': { bg: '#330019', card: '#660033', text: '#ffccdd', accent: '#e0218a' },
-
-        // --- 5. MODRÉ (Blue) ---
         'Electric': { bg: '#00001a', card: '#000033', text: '#ffffff', accent: '#00ffff' },
         'Ocean': { bg: '#001f3f', card: '#003366', text: '#7FDBFF', accent: '#39CCCC' },
         'Sapphire': { bg: '#00002b', card: '#000052', text: '#e6e6ff', accent: '#0f52ba' },
@@ -556,8 +613,6 @@
         'Azure': { bg: '#003333', card: '#006666', text: '#e0ffff', accent: '#00ffff' },
         'Blueprint': { bg: '#001a33', card: '#003366', text: '#ffffff', accent: '#4da6ff' },
         'Navy': { bg: '#00001a', card: '#000040', text: '#ccccff', accent: '#000080' },
-
-        // --- 6. ZELENÉ (Green) ---
         'Toxic': { bg: '#0d1f0d', card: '#1a3d1a', text: '#ccffcc', accent: '#adff2f' },
         'Matrix': { bg: '#000000', card: '#0a140a', text: '#00ff00', accent: '#00cc00' },
         'Emerald': { bg: '#00260e', card: '#004d1c', text: '#e6ffe6', accent: '#50c878' },
@@ -569,8 +624,6 @@
         'Alien': { bg: '#051405', card: '#0f290f', text: '#39ff14', accent: '#00ff00' },
         'Cactus': { bg: '#0f1a0f', card: '#1f331f', text: '#e0f2e0', accent: '#5f9ea0' },
         'Grass': { bg: '#001a00', card: '#003300', text: '#ccffcc', accent: '#008000' },
-
-        // --- 7. NEÓNOVÉ & CYBER (Neon & Cyberpunk) ---
         'Cyberpunk': { bg: '#050505', card: '#121212', text: '#fcee0a', accent: '#00fff5' },
         'Synthwave': { bg: '#1a0b2e', card: '#2b1055', text: '#fff', accent: '#ff007f' },
         'NeonPink': { bg: '#1a0011', card: '#330022', text: '#ff0080', accent: '#ff1493' },
@@ -582,8 +635,6 @@
         'Plasma': { bg: '#12001a', card: '#240033', text: '#e0ccff', accent: '#9933ff' },
         'Tron': { bg: '#00111a', card: '#002233', text: '#ccf2ff', accent: '#00eeee' },
         'Miami': { bg: '#001a1a', card: '#003333', text: '#ff66b2', accent: '#00cccc' },
-
-        // --- 8. OVOCNÉ & MIX (Fruit & Mixed) ---
         'Berry': { bg: '#1a001a', card: '#330033', text: '#ffe6ff', accent: '#cc00cc' },
         'Kiwi': { bg: '#111a00', card: '#223300', text: '#eeffee', accent: '#8ee53f' },
         'Watermelon': { bg: '#001a0d', card: '#00331a', text: '#ffcccc', accent: '#ff6b6b' },
@@ -595,8 +646,6 @@
         'Coffee': { bg: '#1a110d', card: '#33221a', text: '#dcc6ba', accent: '#8b4513' },
         'MintChoco': { bg: '#0a1a15', card: '#152b22', text: '#d9f2e6', accent: '#3eb489' },
         'Rainbow': { bg: '#1a1a1a', card: '#2d2d2d', text: '#ffffff', accent: '#ff0000', border: '#00ff00' },
-
-        // --- 9. TMAVÉ KLASIKY (Dark Classics) ---
         'Default': { bg: '#1e1e1e', card: '#2d2d2d', text: '#ffffff', accent: '#2ecc71' },
         'NightMode': { bg: '#050505', card: '#0f0f0f', text: '#cccccc', accent: '#444444' },
         'Abyss': { bg: '#020202', card: '#0a0a0a', text: '#555555', accent: '#333333' },
@@ -609,7 +658,7 @@
         'Ninja': { bg: '#111111', card: '#222222', text: '#33ff33', accent: '#000000' },
         'Retro': { bg: '#2c3e50', card: '#34495e', text: '#ecf0f1', accent: '#e67e22' }
     };
-    // --- ACHIEVEMENTS DEFINITION ---
+
     const achievementsDef = [
         { id: 'shark', icon: '🦈', name: 'Shark', desc: '3 a viac výhier.', cat: 'wins' },
         { id: 'dominator', icon: '👑', name: 'Dominator', desc: '10 a viac výhier.', cat: 'wins' },
@@ -627,43 +676,37 @@
         { id: 'opener', icon: '🕰️', name: 'Opener', desc: 'Vyhral turnaj s názvom The Open!', cat: 'wins' },
         { id: 'defender', icon: '🛡️', name: 'Trophy Defender', desc: 'Vyhral dva turnaje po sebe.', cat: 'wins' },
         { id: 'champion', icon: '🏅', name: 'Champion', desc: '15+ výhier a titul FED EX.', cat: 'wins' },
-
         { id: 'high_roller', icon: '💰', name: 'High Roller', desc: 'Celkový zisk viac ako 5 000 bodov.', cat: 'points' },
         { id: 'tycoon', icon: '🏦', name: 'Tycoon', desc: 'Celkový zisk viac ako 10 000 bodov.', cat: 'points' },
         { id: 'legend', icon: '🧞', name: 'Legend', desc: 'Viac ako 20 000 bodov a aspoň 10 vyhranych turnajov.', cat: 'points' },
-
         { id: 'veteran', icon: '🎖️', name: 'Veteran', desc: 'Odohraných 50+ turnajov.', cat: 'stamina' },
         { id: 'iron_man', icon: '🤖', name: 'Iron Man', desc: 'Odohraných 100+ turnajov.', cat: 'stamina' },
         { id: 'immortal', icon: '🧛', name: 'Immortal', desc: 'Odohraných 200+ turnajov.', cat: 'stamina' },
         { id: 'marathon', icon: '🏃', name: 'Marathon', desc: 'Odohraných viac ako 5000 jamiek.', cat: 'stamina' },
         { id: 'iron_hand', icon: '🦾', name: 'Iron Hand', desc: 'Odohraných viac ako 20 000 jamiek.', cat: 'stamina' },
-
         { id: 'sniper', icon: '🎯', name: 'Sniper', desc: 'Aspoň 1 Ace (Hole-in-one).', cat: 'aim' },
         { id: 'eagle_eye', icon: '🦅', name: 'Eagle Eye', desc: '20 a viac Eagles.', cat: 'aim' },
         { id: 'albatross', icon: '🐦‍🔥', name: 'Albatross', desc: 'Aspoň 1 Double Eagle.', cat: 'aim' },
         { id: 'birdie_mach', icon: '🐦', name: 'Birdie Machine', desc: '100 a viac Birdies.', cat: 'aim' },
         { id: 'birdie_king', icon: '🦜', name: 'Birdie King', desc: '200 a viac Birdies.', cat: 'aim' },
         { id: 'par_master', icon: '⚖️', name: 'Par Master', desc: '1000 a viac Parov.', cat: 'aim' },
-
         { id: 'elite', icon: '🎩', name: 'Elite', desc: 'Top 5 aspoň 10-krát.', cat: 'consist' },
         { id: 'podium', icon: '🥉', name: 'Podium', desc: 'Top 5 aspoň 20-krát.', cat: 'consist' },
         { id: 'consistency', icon: '📉', name: 'Consistency', desc: 'Top 20 aspoň 30-krát.', cat: 'consist' },
         { id: 'top10_reg', icon: '📊', name: 'Top 10 Reg', desc: 'Top 20 aspoň 50-krát.', cat: 'consist' },
         { id: 'cut_master', icon: '✂️', name: 'Cut Master', desc: 'Prešiel cez CUT aspoň 50-krát.', cat: 'consist' },
         { id: 'survivor', icon: '🏝️', name: 'Survivor', desc: 'Prešiel cez CUT aspoň 100-krát.', cat: 'consist' },
-
-        { id: 'sub60', icon: '🔥', name: 'Sub-60 Club', desc: 'Zahral kolo pod 60 rán.', cat: 'special' },
-        { id: 'scratch', icon: '🏌️', name: 'Scratch', desc: 'Celkový priemer úderov pod 67.0.', cat: 'special' },
+        { id: 'sub62', icon: '🔥', name: 'Sub-62 Club', desc: 'Zahral kolo pod 62 rán.', cat: 'special' },
+        { id: 'scratch', icon: '🏌️', name: 'Scratch', desc: 'Celkový priemer úderov pod 69.9.', cat: 'special' },
         { id: 'safe_play', icon: '🛡️', name: 'Safe Player', desc: 'Počet Parov je viac ako dvadsatnásobok Bogeys.', cat: 'special' },
         { id: 'aggressive', icon: '⚔️', name: 'Aggressive', desc: 'Počet Birdies je vyšší ako počet Parov.', cat: 'special' },
         { id: 'player_badge', icon: '🧢', name: 'Player', desc: 'Zúčastnil sa turnaja Players.', cat: 'special' },
-        { id: 'under_par', icon: '📉', name: 'Deep Under Par', desc: 'Hráč má celkové skóre Par menej ako - 30.', cat: 'special' },
-        { id: 'solid', icon: '🧱', name: 'Solid', desc: 'Priemer úderov menší ako 3.80.', cat: 'special' },
+        { id: 'under_par', icon: '📉', name: 'Deep Under Par', desc: 'Hráč má celkové skóre Par menej ako - 50.', cat: 'special' },
+        { id: 'solid', icon: '🧱', name: 'Solid', desc: 'Priemer úderov menší ako 3.90.', cat: 'special' },
         { id: 'never_back', icon: '💪', name: 'Never Back Down', desc: 'R1 >= 80, ale aj tak prešiel CUT.', cat: 'special' },
         { id: 'lucky7', icon: '🍀', name: 'Lucky 7', desc: '7 Achievementov + 7x Top 5.', cat: 'special' }
     ];
 
-    // --- HALL OF FAME RECORDS DEFINITION ---
     const recordsDef = [
         { id: 'most_wins', name: 'Najviac Výhier', desc: 'Celkový počet víťazstiev vo všetkých turnajoch.', icon: '🥇', format: (v) => `${v}x` },
         { id: 'most_points', name: 'Najviac Bodov', desc: 'Celkový počet získaných bodov v kariére.', icon: '💰', format: (v) => v.toFixed(0) },
@@ -697,7 +740,7 @@
         { id: 'kft_king', name: 'KFT King', desc: 'Najviac bodov získaných na KFT Tour.', icon: '🚜', format: (v) => v.toFixed(0) },
         { id: 'pga_dominator', name: 'PGA Dominator', desc: 'Najviac bodov získaných na PGA Tour.', icon: '🏙️', format: (v) => v.toFixed(0) },
         { id: 'under_par_total', name: 'Red Numbers', desc: 'Celkové skóre voči Paru v kariére.', icon: '🔻', format: (v) => v > 0 ? `+${v}` : v },
-        { id: 'sub60_count', name: '59 Watch', desc: 'Počet kôl pod 60 úderov.', icon: '👽', format: (v) => `${v}x` },
+        { id: 'sub60_count', name: '61 Watch', desc: 'Počet kôl pod 62 úderov.', icon: '👽', format: (v) => `${v}x` },
         { id: 'unique_winner', name: 'Global Winner', desc: 'Počet rôznych typov Tour, na ktorých hráč vyhral.', icon: '🌍', format: (v) => `${v}` },
         { id: 'efficiency', name: 'Efektivita', desc: 'Priemerný počet bodov na jeden odohraný turnaj (min. 5 turnajov).', icon: '📊', format: (v) => v.toFixed(1) },
         { id: 'mr_friday', name: 'Mr. Friday', desc: 'Najlepší priemer skóre v 2. kole (Cut Day).', icon: '📅', format: (v) => v.toFixed(2) },
@@ -743,6 +786,7 @@
 
     let db = { files: [], seasonStats: [] }; 
     window.globalBadgeHolders = {}; 
+    window.eloRatings = {}; 
 
     let appState = {
         filters: { tours: ['ALL'], events: [], seasons: [], importance: 'ALL', activeWeek: null },
@@ -756,6 +800,82 @@
     let slotToUpload = null;
     const VALID_TOURS = ['KFT', 'PGA', 'EA SPORTS', 'THE PLAYERS', 'FED EX', 'MAIN'];
 
+    // --- ELO CALCULATION SYSTEM ---
+    function calculateELO() {
+        const sortedFiles = [...db.files].sort(compareFiles); 
+        const ratings = {}; 
+        const K_BASE = 32;  
+        const START_ELO = 1200;
+
+        sortedFiles.forEach(file => {
+            const playersInTournament = file.content;
+            const activePlayers = playersInTournament.filter(p => p.rank > 0);
+            
+            activePlayers.forEach(p => {
+                const name = normalizeName(p.name);
+                if (!ratings[name]) ratings[name] = START_ELO;
+            });
+
+            const eloChanges = {}; 
+
+            activePlayers.forEach(pA => {
+                const nameA = normalizeName(pA.name);
+                let actualScoreSum = 0;
+                let expectedScoreSum = 0;
+                const ratingA = ratings[nameA];
+                
+                let K = K_BASE;
+                if (file.isImportant) K = K_BASE * 1.5;
+                if (file.isSignificant) K = K_BASE * 1.25;
+                if (file.type === 'FED EX' || file.type === 'THE PLAYERS') K = K_BASE * 2.0;
+
+                activePlayers.forEach(pB => {
+                    if (pA === pB) return;
+                    const nameB = normalizeName(pB.name);
+                    const ratingB = ratings[nameB];
+
+                    const expected = 1 / (1 + Math.pow(10, (ratingB - ratingA) / 400));
+                    expectedScoreSum += expected;
+
+                    let actual = 0.5;
+                    if (pA.rank < pB.rank) actual = 1; 
+                    else if (pA.rank > pB.rank) actual = 0; 
+
+                    actualScoreSum += actual;
+                });
+
+                const count = activePlayers.length - 1;
+                if (count > 0) {
+                     const change = K * (actualScoreSum - expectedScoreSum) / Math.max(1, (count / 20));
+                     eloChanges[nameA] = change;
+                }
+            });
+
+            Object.keys(eloChanges).forEach(key => {
+                ratings[key] += eloChanges[key];
+            });
+        });
+
+        window.eloRatings = ratings;
+    }
+
+    function getELORankList() {
+        if (Object.keys(window.eloRatings).length === 0) calculateELO();
+        const arr = Object.entries(window.eloRatings).map(([name, elo]) => {
+            let realName = name;
+            for(const f of db.files) {
+                const found = f.content.find(p => normalizeName(p.name) === name);
+                if(found) { realName = found.name; break; }
+            }
+            return { name: realName, points: elo, rank: 0 };
+        });
+        arr.sort((a, b) => b.points - a.points);
+        arr.forEach((p, i) => p.rank = i + 1);
+        return arr;
+    }
+
+    // ... pokračovanie skriptu (Part 3/5)
+
     document.addEventListener('DOMContentLoaded', () => {
         loadAutoSave();
         if (typeof appState.settings.zoom === 'boolean') {
@@ -764,6 +884,7 @@
         if (!appState.filters.importance) appState.filters.importance = 'ALL';
         if (!db.seasonStats) db.seasonStats = [];
 
+        calculateELO();
         calculateGlobalAchievements();
 
         applyTheme(appState.settings.theme);
@@ -810,6 +931,7 @@
                 parseTxt(file.name, e.target.result);
                 count++;
                 if(count === files.length) {
+                    calculateELO(); 
                     calculateGlobalAchievements(); 
                     renderApp();
                     saveAuto();
@@ -825,55 +947,110 @@
         let cleanName = filename.replace('.txt', '').trim();
         let isImportant = false; 
         let isSignificant = false; 
+        
+        // Detekcia dôležitosti z názvu súboru
         if (cleanName.includes('!')) { isImportant = true; cleanName = cleanName.replace('!', '').trim(); }
         if (cleanName.includes('=')) { isSignificant = true; cleanName = cleanName.replace('=', '').trim(); }
+        
         const parts = cleanName.split(' ');
-        if (parts.length < 2) return; 
-        let datePartIndex = parts.findIndex(p => p.includes('-') && /\d/.test(p));
-        if (datePartIndex === -1 && parts.length >= 2) datePartIndex = 1; 
-        let typeRaw = parts.slice(0, datePartIndex).join(' ').toUpperCase();
-        let type = typeRaw;
-        if (type === 'EA') type = 'EA SPORTS';
-        if (type === 'PLAYERS') type = 'THE PLAYERS';
-        if (type === 'MAIN') type = 'FED EX';
-        if (!VALID_TOURS.includes(type) && type !== 'FED EX') return;
+        
+        // Pokus o parsovanie typu turnaja a čísla
+        // Predpokladaný formát: "Typ Sezóna-Číslo-Týždeň Názov" alebo "01 Názov"
+        
+        let type = 'UNKNOWN';
         let season = '00';
         let eventNum = 0;
         let week = 0;
-        let eventName = 'Unknown';
-        const datePart = parts[datePartIndex];
-        if (datePart && datePart.includes('-')) {
+        let eventName = cleanName;
+
+        // Detekcia typu na zaciatku
+        let firstPart = parts[0].toUpperCase();
+        if (VALID_TOURS.includes(firstPart) || firstPart === 'EA' || firstPart === 'PLAYERS' || firstPart === 'MAIN') {
+             if (firstPart === 'EA') type = 'EA SPORTS';
+             else if (firstPart === 'PLAYERS') type = 'THE PLAYERS';
+             else if (firstPart === 'MAIN') type = 'FED EX';
+             else type = firstPart;
+        }
+
+        // Hľadanie dátumovej časti (obsahuje pomlčku a čísla, napr. 2024-01-05)
+        let datePartIndex = parts.findIndex(p => p.includes('-') && /\d/.test(p));
+        
+        if (datePartIndex !== -1) {
+            // Formát s pomlčkami nájdený
+            const datePart = parts[datePartIndex];
             const d = datePart.split('-');
             season = d[0];
-            if (d.length >= 3) { eventNum = parseInt(d[1]); week = parseInt(d[2]); } 
-            else if (d.length === 2) { week = parseInt(d[1]); }
+            if (d.length >= 3) { 
+                eventNum = parseInt(d[1]); // Toto je číslo pre obrázok (napr. 01)
+                week = parseInt(d[2]); 
+            } else if (d.length === 2) { 
+                week = parseInt(d[1]); 
+            }
+            
+            // Názov turnaja je všetko za dátumom
+            if (parts.length > datePartIndex + 1) {
+                eventName = parts.slice(datePartIndex + 1).join(' ');
+            } else {
+                eventName = `${type} ${season}-${eventNum}`;
+            }
+        } else {
+            // Alternatívny formát: "01 Wisconsin Open.txt"
+            // Ak prvá časť je číslo
+            if (/^\d+$/.test(parts[0])) {
+                eventNum = parseInt(parts[0]);
+                eventName = parts.slice(1).join(' ');
+                // Ak neurčený typ, defaultne PGA ak nie je inak
+                if (type === 'UNKNOWN') type = 'PGA'; 
+            }
         }
-        if (parts.length > datePartIndex + 1) eventName = parts.slice(datePartIndex + 1).join(' ');
-        else eventName = `${type} ${season}-${week}`;
+        
+        // Final fallback ak typ nebol najdeny
+        if (type === 'UNKNOWN') type = 'PGA';
+
+        // Pridanie značiek do názvu eventu pre interné zobrazenie
         if (isImportant) eventName += '!';
         else if (isSignificant) eventName += '=';
 
         const lines = text.split('\n').map(l => l.trim()).filter(l => l);
         const players = [];
+        
         for (let i = 0; i < lines.length; i++) {
             if (lines[i].startsWith('[source')) continue;
             if (lines[i].startsWith('}')) continue;
+            
             let name = lines[i];
             if (!lines[i+1] || isNaN(parseInt(lines[i+1]))) { if(i + 6 >= lines.length) break; }
+            
             let par = parseInt(lines[i+1]) || 0;
             let r1 = lines[i+2]; let r2 = lines[i+3]; let r3 = lines[i+4]; let r4 = lines[i+5];
             let pts = parseFloat(lines[i+6]) || 0;
+            
             if (pts === undefined) break;
+            
             players.push({ name: name, par: par, r1: r1, r2: r2, r3: r3, r4: r4, points: pts, rank: 0 });
             i += 6;
         }
+        
         players.sort((a, b) => { if (a.points !== b.points) return b.points - a.points; return a.par - b.par; });
         for (let i = 0; i < players.length; i++) {
             if (i > 0 && players[i].points === players[i-1].points) players[i].rank = players[i-1].rank;
             else players[i].rank = i + 1;
         }
+        
         db.files = db.files.filter(f => f.name !== filename); 
-        db.files.push({ id: Date.now() + Math.random(), name: filename, type: type, season: season, week: week, eventNum: eventNum, eventName: eventName, isImportant: isImportant, isSignificant: isSignificant, timestamp: Date.now(), content: players });
+        db.files.push({ 
+            id: Date.now() + Math.random(), 
+            name: filename, 
+            type: type, 
+            season: season, 
+            week: week, 
+            eventNum: eventNum, // Kľúčové pre obrázok trofeje
+            eventName: eventName, 
+            isImportant: isImportant, 
+            isSignificant: isSignificant, 
+            timestamp: Date.now(), 
+            content: players 
+        });
     }
 
     function handleSeasonFiles(files) {
@@ -889,16 +1066,20 @@
         });
         document.getElementById('seasonFileInput').value = '';
     }
+
     function parseSeasonTxt(filename, text) {
         let season = '0';
         const match = filename.match(/(\d+)/);
         if (match) season = match[1];
+        
         const lines = text.split('\n').map(l => l.trim()).filter(l => l);
         const seasonPlayers = [];
         let i = 0;
+        
         while (i < lines.length) {
             if (lines[i].startsWith('[source') || lines[i].startsWith('}')) { i++; continue; }
             if (i + 7 >= lines.length) break;
+            
             const name = lines[i];
             const aces = parseInt(lines[i+1]) || 0;
             const doubleEagles = parseInt(lines[i+2]) || 0;
@@ -907,14 +1088,17 @@
             const pars = parseInt(lines[i+5]) || 0;
             const bogeys = parseInt(lines[i+6]) || 0;
             const doubleBogeys = parseInt(lines[i+7]) || 0;
+            
             seasonPlayers.push({ name: name, stats: { aces, doubleEagles, eagles, birdies, pars, bogeys, doubleBogeys } });
             i += 8;
         }
+        
         db.seasonStats = db.seasonStats.filter(s => s.season !== season);
         db.seasonStats.push({ season: season, filename: filename, content: seasonPlayers });
     }
 
     function normalizeName(name) { return name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim(); }
+    
     function getDistance(a, b) {
         if(a.length === 0) return b.length; 
         if(b.length === 0) return a.length; 
@@ -935,10 +1119,12 @@
         achievementsDef.forEach(def => window.globalBadgeHolders[def.id] = []);
         const playerStats = {};
         const relevantFiles = [...db.files].sort(compareFiles);
+        
         relevantFiles.forEach(f => {
             f.content.forEach(p => {
                 let targetName = normalizeName(p.name);
                 let foundKey = Object.keys(playerStats).find(k => k === targetName || getDistance(k, targetName) <= 1);
+                
                 if (!foundKey) {
                     foundKey = targetName;
                     playerStats[foundKey] = {
@@ -952,13 +1138,16 @@
                         r1_80_cut: false
                     };
                 }
+                
                 const s = playerStats[foundKey];
                 s.tourneys++;
                 s.points += p.points;
                 s.pars += p.par;
+                
                 if(p.points > 0) s.cut++;
                 if(p.rank <= 20) s.top20++;
                 if(p.rank <= 5) s.top5++;
+                
                 if(p.rank === 1) {
                     s.wins++;
                     s.currentStreak++;
@@ -974,6 +1163,7 @@
                 } else {
                     s.currentStreak = 0;
                 }
+                
                 [p.r1, p.r2, p.r3, p.r4].forEach((r, idx) => {
                     if(r!=='NA') {
                         let v = parseInt(r);
@@ -985,6 +1175,7 @@
                 });
             });
         });
+
         const seasonAgg = {};
         db.seasonStats.forEach(sFile => {
             sFile.content.forEach(p => {
@@ -992,6 +1183,7 @@
                 let foundKey = Object.keys(playerStats).find(k => k === targetName || getDistance(k, targetName) <= 1);
                 if(!foundKey) { foundKey = targetName; seasonAgg[foundKey] = { aces:0, eagles:0, birdies:0, pars:0, bogeys:0 }; }
                 else if(!seasonAgg[foundKey]) { seasonAgg[foundKey] = { aces:0, eagles:0, birdies:0, pars:0, bogeys:0 }; }
+                
                 seasonAgg[foundKey].aces += p.stats.aces;
                 seasonAgg[foundKey].eagles += p.stats.eagles;
                 seasonAgg[foundKey].birdies += p.stats.birdies;
@@ -999,15 +1191,19 @@
                 seasonAgg[foundKey].bogeys += p.stats.bogeys;
             });
         });
+
         const offList = getOfficialRankList();
         const world1Name = offList && offList.length > 0 ? normalizeName(offList[0].name) : null;
+
         Object.keys(playerStats).forEach(key => {
             const stats = playerStats[key];
             const sStats = seasonAgg[key] || { aces:0, eagles:0, birdies:0, pars:0, bogeys:0 };
             const avgStrokes = stats.holes > 0 ? (stats.strokes / (stats.holes/18)) : 99;
             const avgPerHole = stats.holes > 0 ? (stats.strokes / stats.holes) : 99;
             const name = stats.realName;
+            
             const check = (id, condition) => { if(condition) window.globalBadgeHolders[id].push(name); };
+            
             check('shark', stats.wins >= 3);
             check('dominator', stats.wins >= 10);
             check('goat', stats.wins >= 20);
@@ -1044,16 +1240,17 @@
             check('top10_reg', stats.top20 >= 50);
             check('cut_master', stats.cut >= 50);
             check('survivor', stats.cut >= 100);
-            check('sub60', stats.sub60);
-            check('scratch', avgStrokes < 67.0);
+            check('sub62', stats.sub60); 
+            check('scratch', avgStrokes < 69.9);
             check('safe_play', sStats.bogeys > 0 && sStats.pars >= (sStats.bogeys * 20));
             check('aggressive', sStats.birdies > sStats.pars);
             check('player_badge', stats.playersWin || (stats.tourneys >= 1 && db.files.some(f => f.type==='THE PLAYERS' && f.content.some(px=>normalizeName(px.name)===key))));
             check('under_par', stats.pars < -50);
-            check('solid', avgPerHole < 3.80);
+            check('solid', avgPerHole < 3.90);
             check('never_back', stats.r1_80_cut);
             check('lucky7', stats.top5 >= 7 && stats.wins >= 1);
         });
+        
         Object.keys(window.globalBadgeHolders).forEach(k => window.globalBadgeHolders[k].sort());
     }
 
@@ -1077,6 +1274,7 @@
         if (a.week !== b.week) return a.week - b.week;
         return a.timestamp - b.timestamp;
     }
+    
     function getAggregatedStats() {
         const files = getActiveFiles();
         const playerMap = {};
@@ -1087,6 +1285,7 @@
             file.content.forEach(p => {
                 let targetName = p.name;
                 const normNew = normalizeName(targetName);
+                
                 for (let existingName in playerMap) {
                     const normExisting = normalizeName(existingName);
                     if (normNew === normExisting || getDistance(normNew, normExisting) <= 1) {
@@ -1094,6 +1293,7 @@
                         break;
                     }
                 }
+                
                 if (!playerMap[targetName]) {
                     playerMap[targetName] = {
                         name: targetName,
@@ -1113,18 +1313,22 @@
                         ranks: [] 
                     };
                 }
+                
                 const entry = playerMap[targetName];
                 entry.totalPar += p.par;
                 entry.totalPoints += p.points;
                 entry.weeksPlayed++; 
                 entry.ranks.push(p.rank);
+                
                 if (latestFile && file.id === latestFile.id) {
                     entry.lastRank = p.rank;
                 }
+                
                 if (p.points > 0) entry.cut++;
                 if (p.rank <= 20) entry.top20++;
                 if (p.rank <= 5) entry.top5++;
                 if (p.rank === 1) entry.wins++;
+                
                 [p.r1, p.r2, p.r3, p.r4].forEach(r => {
                     if (r !== 'NA') {
                         const val = parseInt(r);
@@ -1141,6 +1345,7 @@
         let arr = Object.values(playerMap);
         arr.forEach(p => {
             p.strokeAvg = p.totalHoles > 0 ? (p.totalStrokes / (p.totalHoles/18)).toFixed(2) : '-';
+            
             if (p.lastRank !== null && p.ranks.length > 1) {
                 const sumRanks = p.ranks.reduce((a, b) => a + b, 0);
                 const avgRank = sumRanks / p.ranks.length;
@@ -1151,7 +1356,10 @@
                 p.form = '-';
             }
         });
+        
         arr = sortData(arr);
+        
+        // Pridanie Table Rank
         const rankedArr = [...arr].sort((a, b) => b.totalPoints - a.totalPoints);
         const rankMap = {};
         rankedArr.forEach((p, i) => {
@@ -1162,6 +1370,7 @@
             }
         });
         arr.forEach(p => p.tableRank = rankMap[p.name]);
+        
         return arr;
     }
 
@@ -1307,8 +1516,9 @@
         });
         return arr;
     }
-    // --- Render Functions ---
+    // ... pokračovanie skriptu (Part 4/5)
 
+    // --- Render Functions ---
     function renderApp() {
         renderFilters();
         renderTable();
@@ -1655,7 +1865,7 @@
         }
     }
     
-    // --- Player Profile (Vrátane Player Cards & Nemesis) ---
+    // --- Player Profile (UPDATED FOR IMAGE TROPHIES) ---
     function openPlayerProfile(playerName) {
         const modalId = 'profile-' + Date.now();
         const html = generateProfileHtml(playerName, 'ALL', modalId, [], []);
@@ -1693,13 +1903,13 @@
             cut: 0, top20: 0, top5: 0, wins: 0, trophies: 0,
             r1Sum: 0, r1Count: 0, r2Sum: 0, r2Count: 0, r3Sum: 0, r3Count: 0, r4Sum: 0, r4Count: 0,
             history: [], rounds: [],
-            // Pre Rivalov
             h2h: {} 
         };
         
         let uniqueEvents = new Set();
         let uniqueMajors = new Set();
         let graphData = [];
+        let trophyCollection = [];
 
         // Preload ranks...
         const pgaList = getPGARankList();
@@ -1722,6 +1932,11 @@
         const assocRankVal = getRank(assocList);
         const fedexRankVal = getRank(fedexList);
         
+        const eloList = getELORankList();
+        const eloEntry = eloList.find(p => normalizeName(p.name) === normPlayer);
+        const eloVal = eloEntry ? Math.round(eloEntry.points) : 'NA';
+        const eloRank = eloEntry ? eloEntry.rank + '.' : '-';
+
         let bestOfficialRank = 'NA';
         if (officialList) {
              const pEntry = officialList.find(p => normalizeName(p.name) === normPlayer);
@@ -1755,8 +1970,55 @@
                 if (p.points > 0) stats.cut++;
                 if (p.rank <= 20) stats.top20++;
                 if (p.rank <= 5) stats.top5++;
-                if (p.rank === 1) stats.wins++;
-                if (f.type === 'FED EX' && p.rank === 1) stats.trophies++;
+                
+                // --- NOVÁ LOGIKA TROFEJÍ (OBRÁZKY) ---
+                if (p.rank === 1) {
+                    stats.wins++;
+                    if (f.type === 'FED EX') stats.trophies++;
+                    
+                    // Formátovanie čísla turnaja na 2 cifry (napr. 1 -> "01", 10 -> "10")
+                    let eventNumFormatted = f.eventNum < 10 ? '0' + f.eventNum : '' + f.eventNum;
+                    if(f.eventNum === 0 && f.eventName.match(/^\d+/)) {
+                        // Fallback ak eventNum nebolo parsene, skusime z nazvu
+                        let m = f.eventName.match(/^(\d+)/);
+                        if(m) eventNumFormatted = parseInt(m[1]) < 10 ? '0' + parseInt(m[1]) : m[1];
+                    }
+                    
+                    let imgSrc = eventNumFormatted + '.png'; // Cesta k obrázku (v rovnakej zložke)
+
+                    trophyCollection.push({
+                        name: f.eventName,
+                        season: f.season,
+                        type: 'image',
+                        src: imgSrc,
+                        fileId: f.id,
+                        rank: 1
+                    });
+                }
+                else if (p.rank === 2) {
+                    // Strieborná medaila
+                    trophyCollection.push({
+                        name: f.eventName,
+                        season: f.season,
+                        type: 'icon',
+                        icon: '🥈',
+                        cssClass: 'm-silver',
+                        fileId: f.id,
+                        rank: 2
+                    });
+                }
+                else if (p.rank === 3) {
+                    // Bronzová medaila
+                    trophyCollection.push({
+                        name: f.eventName,
+                        season: f.season,
+                        type: 'icon',
+                        icon: '🥉',
+                        cssClass: 'm-bronze',
+                        fileId: f.id,
+                        rank: 3
+                    });
+                }
 
                 graphData.push({ name: f.eventName, rank: p.rank });
 
@@ -1830,7 +2092,7 @@
                 </div>
             </div>`;
 
-        // --- PLAYER CARD ATTRIBUTES CALCULATION ---
+        // --- PLAYER CARD ATTRIBUTES ---
         let sStats = { games: 0, aces: 0, de: 0, eagles: 0, birdies: 0, pars: 0, bogeys: 0, db: 0 };
         const seasonFilesToUse = db.seasonStats.filter(sFile => activeSeasons.length === 0 || activeSeasons.includes(sFile.season));
         seasonFilesToUse.forEach(sFile => {
@@ -1845,28 +2107,22 @@
         });
         sStats.games = sStats.aces + sStats.de + sStats.eagles + sStats.birdies + sStats.pars + sStats.bogeys + sStats.db;
 
-        // Vypocet 0-99
-        // 1. PWR (Power): Zalozene na Birdies/Eagles a Wins
         const holesPlayed = stats.totalHoles || 1;
-        const birdieRatio = (sStats.birdies + (sStats.eagles*3)) / holesPlayed; // cca 0.2 - 0.4
+        const birdieRatio = (sStats.birdies + (sStats.eagles*3)) / holesPlayed; 
         let pwr = Math.round(50 + (birdieRatio * 120) + (stats.wins * 1.5));
         
-        // 2. ACC (Accuracy/Safety): Pomer Parov a Bogeys
         const safeRatio = sStats.bogeys > 0 ? (sStats.pars / sStats.bogeys) : (sStats.pars > 0 ? 15 : 5);
         let acc = Math.round(55 + (safeRatio * 2.5));
 
-        // 3. MNT (Mental): R4 priemer vs R1 priemer + Major Top 10
         const r1Avg = stats.r1Count ? stats.r1Sum/stats.r1Count : 72;
         const r4Avg = stats.r4Count ? stats.r4Sum/stats.r4Count : 72;
-        const clutchFactor = (r1Avg - r4Avg); // Pozitivne ak sa zlepsuje
+        const clutchFactor = (r1Avg - r4Avg);
         let mnt = Math.round(60 + (clutchFactor * 5) + (stats.top5 * 1.5) + (stats.majorCount * 1));
 
-        // 4. CON (Consistency): Cuts made % + Top 20 %
         const cutPct = stats.tournamentCount ? (stats.cut / stats.tournamentCount) : 0;
         const top20Pct = stats.tournamentCount ? (stats.top20 / stats.tournamentCount) : 0;
         let con = Math.round(40 + (cutPct * 30) + (top20Pct * 30));
 
-        // 5. FORM: Posledne 3 turnaje
         let form = 70;
         if(graphData.length > 0) {
             const last3 = graphData.slice(Math.max(0, graphData.length - 3));
@@ -1874,18 +2130,24 @@
             form = Math.round(99 - (avgPos * 1.2));
         }
 
-        // Clamp values 0-99
         const clamp = (v) => Math.max(40, Math.min(99, v));
         pwr = clamp(pwr); acc = clamp(acc); mnt = clamp(mnt); con = clamp(con); form = clamp(form);
         const ovr = Math.round((pwr + acc + mnt + con + form) / 5);
         
-        let ovrColor = '#fff';
-        if(ovr >= 90) ovrColor = 'var(--highlight-gold)';
-        else if(ovr >= 80) ovrColor = 'var(--accent-green)';
-        else if(ovr >= 70) ovrColor = 'var(--accent-blue)';
+        // Card Color Logic
+        let cardColorClass = 'red'; 
+        const allCards = calculateAllPlayersAttributes().sort((a,b) => b.ovr - a.ovr);
+        const myCardRank = allCards.findIndex(c => c.name === realPlayerName) + 1;
+
+        if (myCardRank === 1) cardColorClass = 'gold';
+        else if (myCardRank === 2) cardColorClass = 'silver';
+        else if (myCardRank === 3) cardColorClass = 'bronze';
+        else if (myCardRank <= 10) cardColorClass = 'green';
+        else if (myCardRank <= 100) cardColorClass = 'orange';
+        else cardColorClass = 'red';
 
         const playerCardHtml = `
-        <div class="player-card-container" onclick="showGlobalPlayerCards()" style="cursor:pointer" title="Klikni pre zobrazenie rebríčka všetkých hráčov">
+        <div class="player-card-container ${cardColorClass}" onclick="showGlobalPlayerCards()" style="cursor:pointer" title="Klikni pre zobrazenie rebríčka všetkých hráčov">
             <div class="card-ovr-box">
                 <div class="card-ovr-val">${ovr}</div>
                 <div class="card-ovr-label">OVR</div>
@@ -1902,6 +2164,39 @@
                 </div>
             </div>
         </div>`;
+
+        // --- GENEROWANIE HTML PRE TROFEJE (OBRÁZKY) ---
+        let trophyHtml = '';
+        if (trophyCollection.length > 0) {
+            const items = trophyCollection.map(t => {
+                let content = '';
+                if (t.type === 'image') {
+                    // Pre víťaza načítame obrázok (napr. 01.png)
+                    content = `<img src="${t.src}" class="trophy-img" alt="${t.name}" onerror="this.style.display='none';this.parentElement.innerHTML='🏆'">`;
+                } else {
+                    // Pre 2. a 3. miesto klasické medaily
+                    content = `<div class="${t.cssClass}">${t.icon}</div>`;
+                }
+                
+                // Odstránenie čísla zo začiatku názvu pre čistejší vzhľad pod trofejou (voliteľné, ale vyzerá to lepšie)
+                let label = t.name.replace(/^\d+\s+/, ''); 
+
+                return `
+                <div class="trophy-item" onclick="openTournamentDetails('${t.fileId}')" title="${t.name} (Sezóna ${t.season})">
+                    <div class="trophy-inner">
+                        ${content}
+                    </div>
+                    <div class="trophy-date">${label}</div>
+                </div>
+                `;
+            }).join('');
+            
+            trophyHtml = `
+                <div class="trophy-section">
+                    <div class="trophy-title">Sieň Trofejí & Medailí (${trophyCollection.length})</div>
+                    <div class="trophy-grid">${items}</div>
+                </div>`;
+        }
 
         // --- GRAPH ---
         const graphPoints = graphData.slice(0, 15).reverse();
@@ -1922,7 +2217,7 @@
              graphHtml = `<div class="graph-section"><h3 style="margin:0 0 10px 0; font-size:0.9rem; color:#aaa;">Graf vývoja (Posledných 15 turnajov)</h3><div class="graph-container"><svg width="100%" height="100%" viewBox="0 0 100 50" preserveAspectRatio="none" style="overflow:visible;"><line x1="0" y1="5" x2="100" y2="5" stroke="#333" stroke-width="0.2" stroke-dasharray="2"/><line x1="0" y1="25" x2="100" y2="25" stroke="#333" stroke-width="0.2" stroke-dasharray="2"/><line x1="0" y1="45" x2="100" y2="45" stroke="#333" stroke-width="0.2" stroke-dasharray="2"/><path d="${d}" class="graph-path" />${dots}</svg><div id="graphTooltip" class="graph-tooltip"></div></div></div>`;
         } else { graphHtml = `<div style="text-align:center; color:#555; padding:10px;">Nedostatok dát pre graf.</div>`; }
         
-        // --- ACHIEVEMENTS (OPTIMALIZOVANÉ) ---
+        // --- ACHIEVEMENTS ---
         const achievementsHtml = achievementsDef.map(def => {
             const holders = window.globalBadgeHolders[def.id] || [];
             const isUnlocked = holders.includes(realPlayerName);
@@ -1934,7 +2229,7 @@
                     </div>`;
         }).join('');
 
-        // --- ZOBRAZENIE REKORDOV (NOVÉ) ---
+        // --- RECORDS ---
         let recordsHtml = '';
         if(window.calculateRecordLeaders) {
             const leaders = window.calculateRecordLeaders(); 
@@ -1947,7 +2242,7 @@
             if (myRecords.length > 0) {
                 const recs = myRecords.map(def => {
                     const l = leaders[def.id];
-                    return `<div class="profile-record-item" title="${def.desc}" onclick="alert('${def.name}: ${def.desc}')" style="cursor:pointer">
+                    return `<div class="profile-record-item" title="${def.desc}" onclick="showRecordDetails('${def.id}')" style="cursor:pointer">
                         <span class="p-rec-icon">${def.icon}</span>
                         <div class="p-rec-name">${def.name}</div>
                         <div class="p-rec-val">${def.format(l.val)}</div>
@@ -1959,7 +2254,9 @@
         }  
 
         const avg = (sum, count) => count ? (sum / count).toFixed(1) : '-';
-        const avgStrokes = stats.totalHoles ? (stats.totalStrokes / (stats.totalHoles/18)).toFixed(2) : '-';
+        const strokesPerHole = stats.totalHoles ? (stats.totalStrokes / stats.totalHoles).toFixed(4) : '-';
+        const avgStrokesRound = stats.totalHoles ? (stats.totalStrokes / (stats.totalHoles/18)).toFixed(2) : '-';
+        const avgPoints = stats.tournamentCount ? (stats.totalPoints / stats.tournamentCount).toFixed(2) : '-';
         const avgRank = stats.rankCount ? (stats.rankSum / stats.rankCount).toFixed(1) : '-';
         const bestR = stats.bestRound === 999 ? '-' : stats.bestRound;
         const worstR = stats.worstRound === -999 ? '-' : stats.worstRound;
@@ -1996,6 +2293,7 @@
 
         const bodyContent = `
             ${playerCardHtml}
+            ${trophyHtml}
             ${rivalHtml}
 
             <div class="profile-tabs">
@@ -2027,7 +2325,7 @@
                 <div class="stat-box highlight" onclick="showRankTable('FEDEX')"><div class="stat-label" style="color:var(--highlight-gold)">FED EX Rank</div><div class="stat-value gold rank-clickable">${fedexRankVal}</div></div>
                 <div class="stat-box highlight" onclick="showRankTable('EA')"><div class="stat-label" style="color:var(--accent-blue)">EA Rank</div><div class="stat-value blue rank-clickable">${eaRankVal}</div></div>
                 <div class="stat-box highlight" onclick="showRankTable('Association')"><div class="stat-label" style="color:var(--accent-red)">Association</div><div class="stat-value rank-clickable" style="color:var(--accent-red)">${assocRankVal}</div></div>
-                <div class="stat-box highlight"><div class="stat-label">Trophies</div><div class="stat-value gold">🏆 ${stats.trophies}</div></div>
+                <div class="stat-box highlight" onclick="showRankTable('ELO')" style="border-color:#fff"><div class="stat-label">ELO Rank</div><div class="stat-value">${eloRank}</div></div>
 
                 <div class="stat-box season-highlight"><div class="stat-label" style="font-weight:bold; color:var(--text-main)">Games</div><div class="stat-value white">${sStats.games}</div></div>
                 <div class="stat-box season-highlight"><div class="stat-label">Aces</div><div class="stat-value green">${sStats.aces}</div></div>
@@ -2040,9 +2338,11 @@
 
                 <div class="stat-box"><div class="stat-label">Jamiek</div><div class="stat-value green">${stats.totalHoles}</div></div>
                 <div class="stat-box"><div class="stat-label">Odpalov</div><div class="stat-value">${stats.totalStrokes}</div></div>
-                <div class="stat-box"><div class="stat-label">Priemer Úderov</div><div class="stat-value">${avgStrokes}</div></div>
-                <div class="stat-box"><div class="stat-label">Par</div><div class="stat-value">${stats.totalPar}</div></div>
+                <div class="stat-box"><div class="stat-label">Priemer / Jamka</div><div class="stat-value">${strokesPerHole}</div></div>
+                <div class="stat-box"><div class="stat-label">Priem. Úderov</div><div class="stat-value" title="Priemer na 18 jamiek">${avgStrokesRound}</div></div>
+                <div class="stat-box"><div class="stat-label">Priem. Body</div><div class="stat-value gold" title="Priemerný počet bodov na turnaj">${avgPoints}</div></div>
 
+                <div class="stat-box"><div class="stat-label">Par</div><div class="stat-value">${stats.totalPar}</div></div>
                 <div class="stat-box"><div class="stat-label">Turnajov</div><div class="stat-value">${stats.tournamentCount}</div></div>
                 <div class="stat-box"><div class="stat-label">Bodov</div><div class="stat-value">${stats.totalPoints.toFixed(2)}</div></div>
                 <div class="stat-box"><div class="stat-label">Final Tour</div><div class="stat-value">${stats.majorCount}</div></div>
@@ -2072,9 +2372,7 @@
             </div>
         `;
 
-        // --- NOVÉ: LOGIKA PRE STATUS HRÁČA (PROFESSIONAL / AMATEUR) ---
         const proTours = ['PGA', 'EA SPORTS', 'THE PLAYERS', 'FED EX'];
-        // Skontrolujeme celú databázu, či sa hráč zúčastnil PRO turnaja
         const isProfessional = db.files.some(f => 
             proTours.includes(f.type) && 
             f.content.some(p => {
@@ -2084,16 +2382,20 @@
         );
         const playerStatusLabel = isProfessional ? '(Professional Player)' : '(Amateur Player)';
         const playerStatusColor = isProfessional ? 'var(--highlight-gold)' : '#999';
-        // ---------------------------------------------------------------
+        
+        const eloBadge = `<span class="elo-badge" onclick="showRankTable('ELO')">ELO: ${eloVal}</span>`;
 
         if (innerOnly) return bodyContent;
-        return `<div id="${modalId}"><div class="modal-header"><h2>${playerName} <span style="font-size:0.55em; color:${playerStatusColor}; margin-left:10px; vertical-align:middle; font-weight:normal; letter-spacing:0.5px;">${playerStatusLabel}</span></h2><button class="close-btn" onclick="closeTopModal()">&times;</button></div><div class="modal-body">${bodyContent}</div></div>`;
+        return `<div id="${modalId}"><div class="modal-header"><h2>${playerName} <span style="font-size:0.55em; color:${playerStatusColor}; margin-left:10px; vertical-align:middle; font-weight:normal; letter-spacing:0.5px;">${playerStatusLabel}</span> ${eloBadge}</h2><button class="close-btn" onclick="closeTopModal()">&times;</button></div><div class="modal-body">${bodyContent}</div></div>`;
     }
+    
     function showTooltip(evt, text) {
         const tt = document.getElementById('graphTooltip');
         tt.style.display = 'block'; tt.innerHTML = text; tt.style.left = (evt.layerX + 15) + 'px'; tt.style.top = (evt.layerY - 30) + 'px';
     }
     function hideTooltip() { document.getElementById('graphTooltip').style.display = 'none'; }
+
+    // ... pokračovanie skriptu (Part 5a/5)
 
     // --- GLOBÁLNY ZOZNAM ACHIEVEMENTOV ---
     window.openGlobalAchievementsList = function() {
@@ -2198,17 +2500,146 @@
         if (type === 'EA') { list = getEARankList(); title = 'EA Rank (EA Sports + FED EX)'; }
         if (type === 'Association') { list = getAssociationRankList(); title = 'Association Rank (The Players - Last 10)'; }
         if (type === 'FEDEX') { list = getFedExRankList(); title = 'FED EX Rank (Posledná sezóna - All Tours)'; }
+        if (type === 'ELO') { list = getELORankList(); title = 'ELO Ranking (Skill Level)'; }
+
         if (!list) { alert('Nedostatok dát pre výpočet.'); return; }
-        let rows = list.map(p => `<tr onclick="openPlayerProfile('${p.name}')" style="cursor:pointer"><td><b style="color:${p.rank===1?'gold':'white'}">${p.rank}.</b></td><td>${p.name}</td><td style="text-align:right">${p.points.toFixed(3)}</td></tr>`).join('');
-        const html = `<div class="modal-header"><h2>${title}</h2><button class="close-btn" onclick="closeTopModal()">&times;</button></div><div class="modal-body"><div class="table-container"><table><thead><tr><th>#</th><th>Hráč</th><th style="text-align:right">Body</th></tr></thead><tbody>${rows}</tbody></table></div></div>`;
+        
+        let rows = list.map(p => {
+            const val = type === 'ELO' ? Math.round(p.points) : p.points.toFixed(3);
+            return `<tr onclick="openPlayerProfile('${p.name}')" style="cursor:pointer"><td><b style="color:${p.rank===1?'gold':'white'}">${p.rank}.</b></td><td>${p.name}</td><td style="text-align:right">${val}</td></tr>`
+        }).join('');
+        
+        const html = `<div class="modal-header"><h2>${title}</h2><button class="close-btn" onclick="closeTopModal()">&times;</button></div><div class="modal-body"><div class="table-container"><table><thead><tr><th>#</th><th>Hráč</th><th style="text-align:right">${type==='ELO'?'Rating':'Body'}</th></tr></thead><tbody>${rows}</tbody></table></div></div>`;
         createModal(html);
     }
 
-    // --- VÝPOČET LÍDROV REKORDOV (SIEŇ SLÁVY) ---
-    window.calculateRecordLeaders = function() {
+    // --- DETAIL REKORDU (TOP 20) ---
+    window.showRecordDetails = function(recordId) {
+        const def = recordsDef.find(r => r.id === recordId);
+        if(!def) return;
+
+        const allStats = calculateAllPlayerStatsForRecords();
+        
+        const list = allStats.map(p => {
+             let val = getRecordValueForPlayer(p, recordId);
+             return { name: p.realName, val: val, debug: p };
+        }).filter(item => item.val !== null && item.val !== undefined && item.val !== 999 && item.val !== -999);
+
+        if(recordId.includes('lowest') || recordId.includes('avg') || recordId === 'adapter' || recordId === 'comeback_kid' || recordId === 'scratch') {
+            list.sort((a,b) => a.val - b.val); 
+        } else {
+            list.sort((a,b) => b.val - a.val); 
+        }
+
+        const top20 = list.slice(0, 20);
+        
+        const rows = top20.map((item, idx) => `
+            <tr onclick="closeTopModal(); setTimeout(() => openPlayerProfile('${item.name}'), 100);" style="cursor:pointer">
+                <td>${idx+1}.</td>
+                <td style="font-weight:bold; text-align:left;">${item.name}</td>
+                <td style="color:var(--highlight-gold); text-align:right;">${def.format(item.val)}</td>
+            </tr>
+        `).join('');
+
+        const html = `
+            <div class="modal-header">
+                <h2>${def.icon} ${def.name}</h2>
+                <button class="close-btn" onclick="closeTopModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p style="color:#aaa; text-align:center; font-style:italic; margin-bottom:15px;">${def.desc}</p>
+                <div class="table-container">
+                    <table>
+                        <thead><tr><th>#</th><th>Hráč</th><th style="text-align:right">Hodnota</th></tr></thead>
+                        <tbody>${rows}</tbody>
+                    </table>
+                </div>
+            </div>
+        `;
+        createModal(html);
+    }
+    
+    function getRecordValueForPlayer(s, recId) {
+        if(recId === 'most_wins') return s.wins;
+        if(recId === 'most_points') return s.points;
+        if(recId === 'iron_man') return s.tourneys;
+        if(recId === 'lowest_rnd') return s.bestRound === 999 ? null : s.bestRound;
+        if(recId === 'avg_strokes') return s.tourneys >= 5 ? s.avgStrokes : null;
+        if(recId === 'most_cuts') return s.cuts;
+        if(recId === 'most_top20') return s.top20;
+        if(recId === 'top10_machine') return s.top10;
+        if(recId === 'podium') return s.top5;
+        if(recId === 'birdie_king') return s.sStats.birdies;
+        if(recId === 'sniper') return s.sStats.aces;
+        if(recId === 'eagle_master') return s.sStats.eagles;
+        if(recId === 'par_machine') return s.sStats.pars;
+        if(recId === 'mr_saturday') return s.r3c >= 3 ? s.avgR3 : null;
+        if(recId === 'mr_sunday') return s.r4c >= 3 ? s.avgR4 : null;
+        if(recId === 'slow_starter') return s.r1c >= 3 ? s.avgR1 : null; 
+        if(recId === 'fast_starter') return s.r1c >= 3 ? s.avgR1 : null;
+        if(recId === 'glass_chin') return s.worstR4 !== -999 ? s.worstR4 : null;
+        if(recId === 'finisher') return s.bestR4 !== 999 ? s.bestR4 : null;
+        if(recId === 'major_hunter') return s.majorWins;
+        if(recId === 'major_avg') return s.majorCount >= 3 ? s.avgMajor : null;
+        if(recId === 'runner_up') return s.secondPlaces;
+        if(recId === 'consistency_king') return s.tourneys >= 10 ? s.avgRank : null;
+        if(recId === 'marathon_man') return s.holes;
+        if(recId === 'win_streak') return s.maxWinStreak;
+        if(recId === 'best_weekend') return s.bestWeekend !== 999 ? s.bestWeekend : null;
+        if(recId === 'worst_collapse') return s.r3_r4_diff_count >= 3 ? s.avgCollapse : null;
+        if(recId === 'comeback_kid') return s.r3_r4_diff_count >= 3 ? Math.abs(s.avgCollapse) : null;
+        if(recId === 'scoring_machine') return s.sub70;
+        if(recId === 'kft_king') return s.kftPoints;
+        if(recId === 'pga_dominator') return s.pgaPoints;
+        if(recId === 'under_par_total') return s.underParTotal;
+        if(recId === 'sub60_count') return s.sub60;
+        if(recId === 'unique_winner') return s.uniqueWinsCount;
+        if(recId === 'efficiency') return s.tourneys >= 5 ? s.avgPoints : null;
+        if(recId === 'mr_friday') return s.r2c >= 3 ? s.avgR2 : null;
+        if(recId === 'ea_king') return s.eaPoints;
+        if(recId === 'players_king') return s.playersPoints;
+        if(recId === 'fedex_king') return s.fedexPoints;
+        if(recId === 'weekend_golfer') return s.rounds80;
+        if(recId === 'sub65_machine') return s.sub65;
+        if(recId === 'bridesmaid') return s.wins === 0 ? s.top5 : null;
+        if(recId === 'fireworks') return s.sStats.fireworks;
+        if(recId === 'bogey_man') return s.sStats.bogeys;
+        if(recId === 'disaster_artist') return s.sStats.doubleBogeys;
+        if(recId === 'adapter') return s.r1_r4_diff_count >= 3 ? s.avgImprovement : null;
+        if(recId === 'gas_out') return s.r1_r4_diff_count >= 3 ? Math.abs(s.avgImprovement) : null;
+        if(recId === 'risk_taker') return s.sStats.pars > 50 ? s.sStats.riskRatio : null;
+        if(recId === 'safe_hands') return s.sStats.bogeys > 0 ? s.sStats.safeRatio : null;
+        if(recId === 'jekyll_hyde') return s.tourneys >= 5 ? s.roundDiffCareer : null;
+        if(recId === 'major_contender') return s.majorTop10;
+        if(recId === 'survivalist') return s.wins === 0 ? s.cuts : null;
+        if(recId === 'points_per_round') return s.holes >= 180 ? s.pointsPerRound : null;
+        if(recId === 'classic_king') return s.classicPoints;
+        if(recId === 'career_aces') return s.sStats.aces;
+        if(recId === 'career_eagles') return s.sStats.eagles;
+        if(recId === 'career_birdies') return s.sStats.birdies;
+        if(recId === 'career_pars') return s.sStats.pars;
+        if(recId === 'career_bogeys') return s.sStats.bogeys;
+        if(recId === 'career_doubles') return s.sStats.doubleBogeys;
+        if(recId === 'win_pct') return s.tourneys >= 20 ? s.winPct : null;
+        if(recId === 'top10_pct') return s.tourneys >= 20 ? s.top10Pct : null;
+        if(recId === 'cut_pct') return s.tourneys >= 20 ? s.cutPct : null;
+        if(recId === 'top5_pct') return s.tourneys >= 20 ? s.top5Pct : null;
+        if(recId === 'streak_top10') return s.maxTop10Streak;
+        if(recId === 'streak_cuts') return s.maxCutStreak;
+        if(recId === 'lowest_r1') return s.lowestR1 !== 999 ? s.lowestR1 : null;
+        if(recId === 'lowest_r2') return s.lowestR2 !== 999 ? s.lowestR2 : null;
+        if(recId === 'lowest_r3') return s.lowestR3 !== 999 ? s.lowestR3 : null;
+        if(recId === 'highest_rnd') return s.highestRnd !== -999 ? s.highestRnd : null;
+        if(recId === 'season_best_wins') return s.maxSeasonWins;
+        if(recId === 'season_best_pts') return s.maxSeasonPoints;
+        if(recId === 'longevity') return s.seasonsCount;
+        if(recId === 'missed_cuts') return s.missedCuts;
+        return 0;
+    }
+
+    function calculateAllPlayerStatsForRecords() {
         const stats = {}; const seasonAgg = {};
         const sortedFiles = [...db.files].sort(compareFiles);
-
         sortedFiles.forEach(f => {
             f.content.forEach(p => {
                 const name = normalizeName(p.name);
@@ -2231,7 +2662,6 @@
                 const s = stats[name]; 
                 s.points += p.points; s.tourneys++; s.ranksSum += p.rank; s.underParTotal += p.par;
                 s.uniqueSeasons.add(f.season);
-
                 if(!s.seasonMap[f.season]) s.seasonMap[f.season] = { wins: 0, points: 0 };
                 s.seasonMap[f.season].points += p.points;
                 
@@ -2256,13 +2686,8 @@
                 } else { s.curTop10Streak = 0; }
 
                 if(p.rank <= 20) s.top20++;
-                
-                if(p.points > 0) {
-                    s.cuts++; s.curCutStreak++;
-                    if(s.curCutStreak > s.maxCutStreak) s.maxCutStreak = s.curCutStreak;
-                } else {
-                    s.missedCuts++; s.curCutStreak = 0;
-                }
+                if(p.points > 0) { s.cuts++; s.curCutStreak++; if(s.curCutStreak > s.maxCutStreak) s.maxCutStreak = s.curCutStreak; } 
+                else { s.missedCuts++; s.curCutStreak = 0; }
                 
                 if(f.isImportant || f.isSignificant) { 
                     s.majorSum += p.rank; s.majorCount++; 
@@ -2274,53 +2699,32 @@
                     if(r !== 'NA') { 
                         const v = parseInt(r); 
                         s.strokes += v; s.holes += 18; 
-                        
-                        if(v < 70) s.sub70++; 
-                        if(v < 65) s.sub65++;
-                        if(v < 60) s.sub60++; 
-                        if(v >= 80) s.rounds80++;
-                        
-                        if(v < s.bestRound) s.bestRound = v; 
-                        if(v > s.worstRound) s.worstRound = v;
-                        if(v > s.highestRnd) s.highestRnd = v;
-
+                        if(v < 70) s.sub70++; if(v < 65) s.sub65++; if(v < 60) s.sub60++; if(v >= 80) s.rounds80++;
+                        if(v < s.bestRound) s.bestRound = v; if(v > s.worstRound) s.worstRound = v; if(v > s.highestRnd) s.highestRnd = v;
                         if(idx === 0) { s.r1s += v; s.r1c++; r1v=v; if(v < s.lowestR1) s.lowestR1 = v; }
                         if(idx === 1) { s.r2s += v; s.r2c++; if(v < s.lowestR2) s.lowestR2 = v; }
                         if(idx === 2) { s.r3s += v; s.r3c++; r3v=v; if(v < s.lowestR3) s.lowestR3 = v; }
                         if(idx === 3) { s.r4s += v; s.r4c++; r4v=v; if(v < s.bestR4) s.bestR4 = v; if(v > s.worstR4) s.worstR4 = v; } 
                     }
                 });
-                
-                if(r3v !== null && r4v !== null) { 
-                    s.r3_r4_diff_sum += (r4v - r3v); s.r3_r4_diff_count++; 
-                    if((r3v + r4v) < s.bestWeekend) s.bestWeekend = (r3v + r4v); 
-                }
-                if(r1v !== null && r4v !== null) {
-                    s.r1_r4_diff_sum += (r1v - r4v);
-                    s.r1_r4_diff_count++;
-                }
+                if(r3v !== null && r4v !== null) { s.r3_r4_diff_sum += (r4v - r3v); s.r3_r4_diff_count++; if((r3v + r4v) < s.bestWeekend) s.bestWeekend = (r3v + r4v); }
+                if(r1v !== null && r4v !== null) { s.r1_r4_diff_sum += (r1v - r4v); s.r1_r4_diff_count++; }
             });
         });
-
         db.seasonStats.forEach(f => {
             f.content.forEach(p => { 
                 const name = normalizeName(p.name); 
-                if(!seasonAgg[name]) seasonAgg[name] = { realName: p.name, birdies: 0, aces: 0, eagles: 0, pars: 0, bogeys: 0, doubleBogeys: 0 }; 
-                seasonAgg[name].birdies += p.stats.birdies; 
-                seasonAgg[name].aces += p.stats.aces; 
-                seasonAgg[name].eagles += p.stats.eagles; 
-                seasonAgg[name].pars += p.stats.pars;
-                seasonAgg[name].bogeys += p.stats.bogeys;
-                seasonAgg[name].doubleBogeys += p.stats.doubleBogeys;
+                if(!seasonAgg[name]) seasonAgg[name] = { birdies: 0, aces: 0, eagles: 0, pars: 0, bogeys: 0, doubleBogeys: 0 }; 
+                seasonAgg[name].birdies += p.stats.birdies; seasonAgg[name].aces += p.stats.aces; 
+                seasonAgg[name].eagles += p.stats.eagles; seasonAgg[name].pars += p.stats.pars;
+                seasonAgg[name].bogeys += p.stats.bogeys; seasonAgg[name].doubleBogeys += p.stats.doubleBogeys;
             });
         });
 
-        Object.values(stats).forEach(s => { 
+        return Object.values(stats).map(s => { 
             s.avgStrokes = s.holes > 0 ? (s.strokes / (s.holes/18)) : 999; 
-            s.avgR1 = s.r1c > 0 ? (s.r1s / s.r1c) : 999; 
-            s.avgR2 = s.r2c > 0 ? (s.r2s / s.r2c) : 999; 
-            s.avgR3 = s.r3c > 0 ? (s.r3s / s.r3c) : 999; 
-            s.avgR4 = s.r4c > 0 ? (s.r4s / s.r4c) : 999; 
+            s.avgR1 = s.r1c > 0 ? (s.r1s / s.r1c) : 999; s.avgR2 = s.r2c > 0 ? (s.r2s / s.r2c) : 999; 
+            s.avgR3 = s.r3c > 0 ? (s.r3s / s.r3c) : 999; s.avgR4 = s.r4c > 0 ? (s.r4s / s.r4c) : 999; 
             s.avgRank = s.tourneys > 0 ? (s.ranksSum / s.tourneys) : 999; 
             s.avgMajor = s.majorCount > 0 ? (s.majorSum / s.majorCount) : 999; 
             s.avgCollapse = s.r3_r4_diff_count > 0 ? (s.r3_r4_diff_sum / s.r3_r4_diff_count) : -999; 
@@ -2329,114 +2733,37 @@
             s.avgPoints = s.tourneys > 0 ? (s.points / s.tourneys) : 0; 
             s.pointsPerRound = s.holes > 0 ? (s.points / (s.holes/18)) : 0; 
             s.roundDiffCareer = (s.worstRound !== -999 && s.bestRound !== 999) ? (s.worstRound - s.bestRound) : 0;
-            
             s.winPct = s.tourneys > 0 ? (s.wins / s.tourneys) * 100 : 0;
             s.top10Pct = s.tourneys > 0 ? (s.top10 / s.tourneys) * 100 : 0;
             s.cutPct = s.tourneys > 0 ? (s.cuts / s.tourneys) * 100 : 0;
             s.top5Pct = s.tourneys > 0 ? (s.top5 / s.tourneys) * 100 : 0;
             s.seasonsCount = s.uniqueSeasons.size;
-
             s.maxSeasonWins = 0; s.maxSeasonPoints = 0;
-            Object.values(s.seasonMap).forEach(val => {
-                if(val.wins > s.maxSeasonWins) s.maxSeasonWins = val.wins;
-                if(val.points > s.maxSeasonPoints) s.maxSeasonPoints = val.points;
-            });
+            Object.values(s.seasonMap).forEach(val => { if(val.wins > s.maxSeasonWins) s.maxSeasonWins = val.wins; if(val.points > s.maxSeasonPoints) s.maxSeasonPoints = val.points; });
+            s.sStats = seasonAgg[normalizeName(s.realName)] || { birdies: 0, aces: 0, eagles: 0, pars: 0, bogeys: 0, doubleBogeys: 0 };
+            s.sStats.fireworks = s.sStats.aces + s.sStats.eagles + s.sStats.birdies;
+            s.sStats.riskRatio = s.sStats.pars > 0 ? (s.sStats.birdies / s.sStats.pars) : 0;
+            s.sStats.safeRatio = s.sStats.bogeys > 0 ? (s.sStats.pars / s.sStats.bogeys) : s.sStats.pars;
+            return s;
         });
+    }
 
-        Object.values(seasonAgg).forEach(s => {
-            s.fireworks = s.aces + s.eagles + s.birdies;
-            s.riskRatio = s.pars > 0 ? (s.birdies / s.pars) : 0;
-            s.safeRatio = s.bogeys > 0 ? (s.pars / s.bogeys) : s.pars;
-        });
-
-        const players = Object.values(stats); const seasonPlayers = Object.values(seasonAgg);
-        const getWinner = (list, sortFn) => { const sorted = [...list].sort(sortFn); return sorted.length > 0 ? sorted[0] : null; };
-
+    window.calculateRecordLeaders = function() {
+        const players = calculateAllPlayerStatsForRecords();
         const leaders = {};
         recordsDef.forEach(rec => {
-            let p = null, val = null;
-            if(rec.id === 'most_wins') { p = getWinner(players, (a,b)=>b.wins - a.wins); val = p?.wins; }
-            if(rec.id === 'most_points') { p = getWinner(players, (a,b)=>b.points - a.points); val = p?.points; }
-            if(rec.id === 'iron_man') { p = getWinner(players, (a,b)=>b.tourneys - a.tourneys); val = p?.tourneys; }
-            if(rec.id === 'lowest_rnd') { p = getWinner(players.filter(x=>x.bestRound!==999), (a,b)=>a.bestRound - b.bestRound); val = p?.bestRound; }
-            if(rec.id === 'avg_strokes') { p = getWinner(players.filter(x=>x.tourneys>=5), (a,b)=>a.avgStrokes - b.avgStrokes); val = p?.avgStrokes; }
-            if(rec.id === 'most_cuts') { p = getWinner(players, (a,b)=>b.cuts - a.cuts); val = p?.cuts; }
-            if(rec.id === 'most_top20') { p = getWinner(players, (a,b)=>b.top20 - a.top20); val = p?.top20; }
-            if(rec.id === 'top10_machine') { p = getWinner(players, (a,b)=>b.top10 - a.top10); val = p?.top10; }
-            if(rec.id === 'podium') { p = getWinner(players, (a,b)=>b.top5 - a.top5); val = p?.top5; }
-            if(rec.id === 'birdie_king') { p = getWinner(seasonPlayers, (a,b)=>b.birdies - a.birdies); val = p?.birdies; }
-            if(rec.id === 'sniper') { p = getWinner(seasonPlayers.filter(x=>x.aces>0), (a,b)=>b.aces - a.aces); val = p?.aces; }
-            if(rec.id === 'eagle_master') { p = getWinner(seasonPlayers, (a,b)=>b.eagles - a.eagles); val = p?.eagles; }
-            if(rec.id === 'par_machine') { p = getWinner(seasonPlayers, (a,b)=>b.pars - a.pars); val = p?.pars; }
-            if(rec.id === 'mr_saturday') { p = getWinner(players.filter(x=>x.r3c>=3), (a,b)=>a.avgR3 - b.avgR3); val = p?.avgR3; }
-            if(rec.id === 'mr_sunday') { p = getWinner(players.filter(x=>x.r4c>=3), (a,b)=>a.avgR4 - b.avgR4); val = p?.avgR4; }
-            if(rec.id === 'slow_starter') { p = getWinner(players.filter(x=>x.r1c>=3), (a,b)=>b.avgR1 - a.avgR1); val = p?.avgR1; } 
-            if(rec.id === 'fast_starter') { p = getWinner(players.filter(x=>x.r1c>=3), (a,b)=>a.avgR1 - b.avgR1); val = p?.avgR1; }
-            if(rec.id === 'glass_chin') { p = getWinner(players.filter(x=>x.worstR4!==-999), (a,b)=>b.worstR4 - a.worstR4); val = p?.worstR4; }
-            if(rec.id === 'finisher') { p = getWinner(players.filter(x=>x.bestR4!==999), (a,b)=>a.bestR4 - b.bestR4); val = p?.bestR4; }
-            if(rec.id === 'major_hunter') { p = getWinner(players, (a,b)=>b.majorWins - a.majorWins); val = p?.majorWins; }
-            if(rec.id === 'major_avg') { p = getWinner(players.filter(x=>x.majorCount>=3), (a,b)=>a.avgMajor - b.avgMajor); val = p?.avgMajor; }
-            if(rec.id === 'runner_up') { p = getWinner(players, (a,b)=>b.secondPlaces - a.secondPlaces); val = p?.secondPlaces; }
-            if(rec.id === 'consistency_king') { p = getWinner(players.filter(x=>x.tourneys>=10), (a,b)=>a.avgRank - b.avgRank); val = p?.avgRank; }
-            if(rec.id === 'marathon_man') { p = getWinner(players, (a,b)=>b.holes - a.holes); val = p?.holes; }
-            if(rec.id === 'win_streak') { p = getWinner(players, (a,b)=>b.maxWinStreak - a.maxWinStreak); val = p?.maxWinStreak; }
-            if(rec.id === 'best_weekend') { p = getWinner(players.filter(x=>x.bestWeekend!==999), (a,b)=>a.bestWeekend - b.bestWeekend); val = p?.bestWeekend; }
-            if(rec.id === 'worst_collapse') { p = getWinner(players.filter(x=>x.r3_r4_diff_count>=3), (a,b)=>b.avgCollapse - a.avgCollapse); val = p?.avgCollapse; } 
-            if(rec.id === 'comeback_kid') { p = getWinner(players.filter(x=>x.r3_r4_diff_count>=3), (a,b)=>a.avgCollapse - b.avgCollapse); val = p?.avgCollapse ? Math.abs(p.avgCollapse) : 0; }
-            if(rec.id === 'scoring_machine') { p = getWinner(players, (a,b)=>b.sub70 - a.sub70); val = p?.sub70; }
-            if(rec.id === 'kft_king') { p = getWinner(players, (a,b)=>b.kftPoints - a.kftPoints); val = p?.kftPoints; }
-            if(rec.id === 'pga_dominator') { p = getWinner(players, (a,b)=>b.pgaPoints - a.pgaPoints); val = p?.pgaPoints; }
-            if(rec.id === 'under_par_total') { p = getWinner(players, (a,b)=>a.underParTotal - b.underParTotal); val = p?.underParTotal; }
-            if(rec.id === 'sub60_count') { p = getWinner(players, (a,b)=>b.sub60 - a.sub60); val = p?.sub60; }
-            if(rec.id === 'unique_winner') { p = getWinner(players, (a,b)=>b.uniqueWinsCount - a.uniqueWinsCount); val = p?.uniqueWinsCount; }
-            if(rec.id === 'efficiency') { p = getWinner(players.filter(x=>x.tourneys>=5), (a,b)=>b.avgPoints - a.avgPoints); val = p?.avgPoints; }
-            if(rec.id === 'mr_friday') { p = getWinner(players.filter(x=>x.r2c>=3), (a,b)=>a.avgR2 - b.avgR2); val = p?.avgR2; }
-            if(rec.id === 'ea_king') { p = getWinner(players, (a,b)=>b.eaPoints - a.eaPoints); val = p?.eaPoints; }
-            if(rec.id === 'players_king') { p = getWinner(players, (a,b)=>b.playersPoints - a.playersPoints); val = p?.playersPoints; }
-            if(rec.id === 'fedex_king') { p = getWinner(players, (a,b)=>b.fedexPoints - a.fedexPoints); val = p?.fedexPoints; }
-            if(rec.id === 'weekend_golfer') { p = getWinner(players, (a,b)=>b.rounds80 - a.rounds80); val = p?.rounds80; }
-            if(rec.id === 'sub65_machine') { p = getWinner(players, (a,b)=>b.sub65 - a.sub65); val = p?.sub65; }
-            if(rec.id === 'bridesmaid') { p = getWinner(players.filter(x=>x.wins===0), (a,b)=>b.top5 - a.top5); val = p?.top5; }
-            if(rec.id === 'fireworks') { p = getWinner(seasonPlayers, (a,b)=>b.fireworks - a.fireworks); val = p?.fireworks; }
-            if(rec.id === 'bogey_man') { p = getWinner(seasonPlayers, (a,b)=>b.bogeys - a.bogeys); val = p?.bogeys; }
-            if(rec.id === 'disaster_artist') { p = getWinner(seasonPlayers, (a,b)=>b.doubleBogeys - a.doubleBogeys); val = p?.doubleBogeys; }
-            if(rec.id === 'adapter') { p = getWinner(players.filter(x=>x.r1_r4_diff_count>=3), (a,b)=>b.avgImprovement - a.avgImprovement); val = p?.avgImprovement; }
-            if(rec.id === 'gas_out') { p = getWinner(players.filter(x=>x.r1_r4_diff_count>=3), (a,b)=>a.avgImprovement - b.avgImprovement); val = p?.avgImprovement ? Math.abs(p.avgImprovement) : 0; }
-            if(rec.id === 'risk_taker') { p = getWinner(seasonPlayers.filter(x=>x.pars>50), (a,b)=>b.riskRatio - a.riskRatio); val = p?.riskRatio; }
-            if(rec.id === 'safe_hands') { p = getWinner(seasonPlayers.filter(x=>x.bogeys>0), (a,b)=>b.safeRatio - a.safeRatio); val = p?.safeRatio; }
-            if(rec.id === 'jekyll_hyde') { p = getWinner(players.filter(x=>x.tourneys>=5), (a,b)=>b.roundDiffCareer - a.roundDiffCareer); val = p?.roundDiffCareer; }
-            if(rec.id === 'major_contender') { p = getWinner(players, (a,b)=>b.majorTop10 - a.majorTop10); val = p?.majorTop10; }
-            if(rec.id === 'survivalist') { p = getWinner(players.filter(x=>x.wins===0), (a,b)=>b.cuts - a.cuts); val = p?.cuts; }
-            if(rec.id === 'points_per_round') { p = getWinner(players.filter(x=>x.holes>=180), (a,b)=>b.pointsPerRound - a.pointsPerRound); val = p?.pointsPerRound; }
-            if(rec.id === 'classic_king') { p = getWinner(players, (a,b)=>b.classicPoints - a.classicPoints); val = p?.classicPoints; }
-            if(rec.id === 'career_aces') { p = getWinner(seasonPlayers, (a,b)=>b.aces - a.aces); val = p?.aces; }
-            if(rec.id === 'career_eagles') { p = getWinner(seasonPlayers, (a,b)=>b.eagles - a.eagles); val = p?.eagles; }
-            if(rec.id === 'career_birdies') { p = getWinner(seasonPlayers, (a,b)=>b.birdies - a.birdies); val = p?.birdies; }
-            if(rec.id === 'career_pars') { p = getWinner(seasonPlayers, (a,b)=>b.pars - a.pars); val = p?.pars; }
-            if(rec.id === 'career_bogeys') { p = getWinner(seasonPlayers, (a,b)=>b.bogeys - a.bogeys); val = p?.bogeys; }
-            if(rec.id === 'career_doubles') { p = getWinner(seasonPlayers, (a,b)=>b.doubleBogeys - a.doubleBogeys); val = p?.doubleBogeys; }
-            if(rec.id === 'win_pct') { p = getWinner(players.filter(x=>x.tourneys>=20), (a,b)=>b.winPct - a.winPct); val = p?.winPct; }
-            if(rec.id === 'top10_pct') { p = getWinner(players.filter(x=>x.tourneys>=20), (a,b)=>b.top10Pct - a.top10Pct); val = p?.top10Pct; }
-            if(rec.id === 'cut_pct') { p = getWinner(players.filter(x=>x.tourneys>=20), (a,b)=>b.cutPct - a.cutPct); val = p?.cutPct; }
-            if(rec.id === 'top5_pct') { p = getWinner(players.filter(x=>x.tourneys>=20), (a,b)=>b.top5Pct - a.top5Pct); val = p?.top5Pct; }
-            if(rec.id === 'streak_top10') { p = getWinner(players, (a,b)=>b.maxTop10Streak - a.maxTop10Streak); val = p?.maxTop10Streak; }
-            if(rec.id === 'streak_cuts') { p = getWinner(players, (a,b)=>b.maxCutStreak - a.maxCutStreak); val = p?.maxCutStreak; }
-            if(rec.id === 'lowest_r1') { p = getWinner(players.filter(x=>x.lowestR1!==999), (a,b)=>a.lowestR1 - b.lowestR1); val = p?.lowestR1; }
-            if(rec.id === 'lowest_r2') { p = getWinner(players.filter(x=>x.lowestR2!==999), (a,b)=>a.lowestR2 - b.lowestR2); val = p?.lowestR2; }
-            if(rec.id === 'lowest_r3') { p = getWinner(players.filter(x=>x.lowestR3!==999), (a,b)=>a.lowestR3 - b.lowestR3); val = p?.lowestR3; }
-            if(rec.id === 'highest_rnd') { p = getWinner(players.filter(x=>x.highestRnd!==-999), (a,b)=>b.highestRnd - a.highestRnd); val = p?.highestRnd; }
-            if(rec.id === 'season_best_wins') { p = getWinner(players, (a,b)=>b.maxSeasonWins - a.maxSeasonWins); val = p?.maxSeasonWins; }
-            if(rec.id === 'season_best_pts') { p = getWinner(players, (a,b)=>b.maxSeasonPoints - a.maxSeasonPoints); val = p?.maxSeasonPoints; }
-            if(rec.id === 'longevity') { p = getWinner(players, (a,b)=>b.seasonsCount - a.seasonsCount); val = p?.seasonsCount; }
-            if(rec.id === 'missed_cuts') { p = getWinner(players, (a,b)=>b.missedCuts - a.missedCuts); val = p?.missedCuts; }
-
-            if(p && val !== undefined && val !== null && val !== 0 && val !== 999 && val !== -999) {
-                leaders[rec.id] = { holder: p.realName, val: val };
-            }
+             const candidates = players.map(p => ({ realName: p.realName, val: getRecordValueForPlayer(p, rec.id) }))
+                                       .filter(x => x.val !== null && x.val !== undefined && x.val !== 999 && x.val !== -999);
+             
+             if(rec.id.includes('lowest') || rec.id.includes('avg') || rec.id === 'adapter' || rec.id === 'comeback_kid' || rec.id === 'scratch') {
+                 candidates.sort((a,b) => a.val - b.val);
+             } else {
+                 candidates.sort((a,b) => b.val - a.val);
+             }
+             if(candidates.length > 0) leaders[rec.id] = { holder: candidates[0].realName, val: candidates[0].val };
         });
         return leaders;
     }
-
 
     // --- Hall of Fame ---
     window.openHallOfFame = function() {
@@ -2445,23 +2772,27 @@
         recordsDef.forEach(rec => {
             const l = leaders[rec.id];
             if(l) {
-                boxesHtml += `<div class="record-box" onclick="alert('${rec.name}: ${rec.desc}')"><div class="record-icon">${rec.icon}</div><div class="record-info"><div class="record-title">${rec.name}</div><div class="record-holder" onclick="event.stopPropagation(); openPlayerProfile('${l.holder}')" style="cursor:pointer">${l.holder}</div><div class="record-val">${rec.format(l.val)}</div></div></div>`;
+                boxesHtml += `<div class="record-box" onclick="showRecordDetails('${rec.id}')"><div class="record-icon">${rec.icon}</div><div class="record-info"><div class="record-title">${rec.name}</div><div class="record-holder" onclick="event.stopPropagation(); openPlayerProfile('${l.holder}')" style="cursor:pointer">${l.holder}</div><div class="record-val">${rec.format(l.val)}</div></div></div>`;
             }
         });
         const html = `<div class="modal-header"><h2>Sieň Slávy (Rekordy)</h2><button class="close-btn" onclick="closeTopModal()">&times;</button></div><div class="modal-body"><div class="stats-grid" style="grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap:10px;">${boxesHtml}</div></div>`;
         createModal(html);
     }
-
-
-    // --- Enhanced Comparator ---
+    // --- Enhanced Comparator (Head-to-Head) ---
     window.h2hState = { tour: 'ALL', season: 'ALL', event: 'ALL' };
+    
     window.openComparator = function() {
-        const uniqueNames = new Set(); db.files.forEach(f => f.content.forEach(p => uniqueNames.add(p.name)));
+        const uniqueNames = new Set(); 
+        db.files.forEach(f => f.content.forEach(p => uniqueNames.add(p.name)));
         const sortedNames = [...uniqueNames].sort();
         const options = sortedNames.map(n => `<option value="${n}">${n}</option>`).join('');
+        
         const tours = ['ALL', 'KFT', 'PGA', 'EA SPORTS', 'THE PLAYERS', 'FED EX'];
-        const seasons = ['ALL', ...new Set(db.files.map(f => f.season))].sort((a,b) => { if(a==='ALL') return -1; if(b==='ALL') return 1; return parseInt(a)-parseInt(b); });
+        const seasons = ['ALL', ...new Set(db.files.map(f => f.season))].sort((a,b) => { 
+            if(a==='ALL') return -1; if(b==='ALL') return 1; return parseInt(a)-parseInt(b); 
+        });
         const events = ['ALL', ...new Set(db.files.map(f => f.eventName))].sort();
+        
         const tourOpts = tours.map(t => `<option value="${t}">${t}</option>`).join('');
         const seasonOpts = seasons.map(s => `<option value="${s}">${s === 'ALL' ? 'Všetky sezóny' : 'Sezóna '+s}</option>`).join('');
         const eventOpts = events.map(e => `<option value="${e}">${e === 'ALL' ? 'Všetky turnaje' : e}</option>`).join('');
@@ -2474,39 +2805,111 @@
                     <select id="h2hSeason" class="vs-select" style="min-width:100px; font-size:0.8rem;" onchange="updateH2HFilter('season', this.value)">${seasonOpts}</select>
                     <select id="h2hEvent" class="vs-select" style="min-width:150px; font-size:0.8rem;" onchange="updateH2HFilter('event', this.value)">${eventOpts}</select>
                 </div>
-                <div class="vs-container"><select id="vsPlayer1" class="vs-select" onchange="renderComparison()"><option value="">Hráč A...</option>${options}</select><div class="vs-badge">VS</div><select id="vsPlayer2" class="vs-select" onchange="renderComparison()"><option value="">Hráč B...</option>${options}</select></div><div id="vsResults"></div>
+                <div class="vs-container">
+                    <select id="vsPlayer1" class="vs-select" onchange="renderComparison()"><option value="">Hráč A...</option>${options}</select>
+                    <div class="vs-badge">VS</div>
+                    <select id="vsPlayer2" class="vs-select" onchange="renderComparison()"><option value="">Hráč B...</option>${options}</select>
+                </div>
+                <div id="vsResults"></div>
             </div>`;
         window.h2hState = { tour: 'ALL', season: 'ALL', event: 'ALL' };
         createModal(html);
     }
 
-    window.updateH2HFilter = function(key, val) { window.h2hState[key] = val; renderComparison(); }
+    window.updateH2HFilter = function(key, val) { 
+        window.h2hState[key] = val; 
+        renderComparison(); 
+    }
+
     window.renderComparison = function() {
-        const p1Name = document.getElementById('vsPlayer1').value; const p2Name = document.getElementById('vsPlayer2').value; const container = document.getElementById('vsResults');
+        const p1Name = document.getElementById('vsPlayer1').value; 
+        const p2Name = document.getElementById('vsPlayer2').value; 
+        const container = document.getElementById('vsResults');
+        
         if(!p1Name || !p2Name) { container.innerHTML = '<div style="text-align:center; color:#666; padding:20px;">Vyberte dvoch hráčov pre porovnanie.</div>'; return; }
         if(p1Name === p2Name) { container.innerHTML = '<div style="text-align:center; color:var(--accent-red); padding:20px;">Vyberte rozdielnych hráčov.</div>'; return; }
-        const norm1 = normalizeName(p1Name); const norm2 = normalizeName(p2Name);
+        
+        const norm1 = normalizeName(p1Name); 
+        const norm2 = normalizeName(p2Name);
+        
         let activeFiles = db.files.filter(f => {
             if(window.h2hState.tour !== 'ALL' && f.type !== window.h2hState.tour) return false;
             if(window.h2hState.season !== 'ALL' && f.season !== window.h2hState.season) return false;
             if(window.h2hState.event !== 'ALL' && f.eventName !== window.h2hState.event) return false;
             return true;
         });
+
         let mutualTournaments = 0, p1BeatP2 = 0, p2BeatP1 = 0, draws = 0;
         let s1 = { pts:0, wins:0, top5:0, top10:0, top20:0, cuts:0, strokes:0, holes:0, best:999, worst:-999, r1s:0, r1c:0, r4s:0, r4c:0 };
         let s2 = { pts:0, wins:0, top5:0, top10:0, top20:0, cuts:0, strokes:0, holes:0, best:999, worst:-999, r1s:0, r1c:0, r4s:0, r4c:0 };
+        
         activeFiles.forEach(f => {
             const player1 = f.content.find(pl => normalizeName(pl.name) === norm1 || getDistance(normalizeName(pl.name), norm1)<=1);
             const player2 = f.content.find(pl => normalizeName(pl.name) === norm2 || getDistance(normalizeName(pl.name), norm2)<=1);
-            if(player1) { s1.pts += player1.points; if(player1.rank===1) s1.wins++; if(player1.rank<=5) s1.top5++; if(player1.rank<=10) s1.top10++; if(player1.rank<=20) s1.top20++; if(player1.points>0) s1.cuts++; [player1.r1, player1.r2, player1.r3, player1.r4].forEach((r, i)=>{ if(r!=='NA'){ const v=parseInt(r); s1.strokes+=v; s1.holes+=18; if(v<s1.best)s1.best=v; if(v>s1.worst)s1.worst=v; if(i===0){ s1.r1s+=v; s1.r1c++; } if(i===3){ s1.r4s+=v; s1.r4c++; } } }); }
-            if(player2) { s2.pts += player2.points; if(player2.rank===1) s2.wins++; if(player2.rank<=5) s2.top5++; if(player2.rank<=10) s2.top10++; if(player2.rank<=20) s2.top20++; if(player2.points>0) s2.cuts++; [player2.r1, player2.r2, player2.r3, player2.r4].forEach((r, i)=>{ if(r!=='NA'){ const v=parseInt(r); s2.strokes+=v; s2.holes+=18; if(v<s2.best)s2.best=v; if(v>s2.worst)s2.worst=v; if(i===0){ s2.r1s+=v; s2.r1c++; } if(i===3){ s2.r4s+=v; s2.r4c++; } } }); }
-            if(player1 && player2) { mutualTournaments++; if(player1.rank < player2.rank) p1BeatP2++; else if(player2.rank < player1.rank) p2BeatP1++; else draws++; }
+            
+            if(player1) { 
+                s1.pts += player1.points; 
+                if(player1.rank===1) s1.wins++; if(player1.rank<=5) s1.top5++; if(player1.rank<=10) s1.top10++; if(player1.rank<=20) s1.top20++; 
+                if(player1.points>0) s1.cuts++; 
+                [player1.r1, player1.r2, player1.r3, player1.r4].forEach((r, i)=>{ 
+                    if(r!=='NA'){ const v=parseInt(r); s1.strokes+=v; s1.holes+=18; if(v<s1.best)s1.best=v; if(v>s1.worst)s1.worst=v; if(i===0){ s1.r1s+=v; s1.r1c++; } if(i===3){ s1.r4s+=v; s1.r4c++; } } 
+                }); 
+            }
+            if(player2) { 
+                s2.pts += player2.points; 
+                if(player2.rank===1) s2.wins++; if(player2.rank<=5) s2.top5++; if(player2.rank<=10) s2.top10++; if(player2.rank<=20) s2.top20++; 
+                if(player2.points>0) s2.cuts++; 
+                [player2.r1, player2.r2, player2.r3, player2.r4].forEach((r, i)=>{ 
+                    if(r!=='NA'){ const v=parseInt(r); s2.strokes+=v; s2.holes+=18; if(v<s2.best)s2.best=v; if(v>s2.worst)s2.worst=v; if(i===0){ s2.r1s+=v; s2.r1c++; } if(i===3){ s2.r4s+=v; s2.r4c++; } } 
+                }); 
+            }
+            if(player1 && player2) { 
+                mutualTournaments++; 
+                if(player1.rank < player2.rank) p1BeatP2++; 
+                else if(player2.rank < player1.rank) p2BeatP1++; 
+                else draws++; 
+            }
         });
+
         const avg1 = s1.holes ? (s1.strokes/(s1.holes/18)).toFixed(2) : '-'; const avg2 = s2.holes ? (s2.strokes/(s2.holes/18)).toFixed(2) : '-';
         const r1_1 = s1.r1c ? (s1.r1s/s1.r1c).toFixed(2) : '-'; const r1_2 = s2.r1c ? (s2.r1s/s2.r1c).toFixed(2) : '-';
         const r4_1 = s1.r4c ? (s1.r4s/s1.r4c).toFixed(2) : '-'; const r4_2 = s2.r4c ? (s2.r4s/s2.r4c).toFixed(2) : '-';
-        const row = (label, v1, v2, lowIsGood=false) => { let c1='', c2=''; let n1 = parseFloat(v1); let n2 = parseFloat(v2); if(isNaN(n1)) n1 = lowIsGood ? 9999 : -1; if(isNaN(n2)) n2 = lowIsGood ? 9999 : -1; if(v1 === v2) { c1='val-draw'; c2='val-draw'; } else if(lowIsGood) { if(n1 < n2) { c1='val-better'; c2='val-worse'; } else { c1='val-worse'; c2='val-better'; } } else { if(n1 > n2) { c1='val-better'; c2='val-worse'; } else { c1='val-worse'; c2='val-better'; } } if(v1==999) v1='-'; if(v2==999) v2='-'; if(v1==-999) v1='-'; if(v2==-999) v2='-'; return `<div class="vs-cell ${c1}">${v1}</div><div class="vs-label-cell">${label}</div><div class="vs-cell ${c2}">${v2}</div>`; };
-        container.innerHTML = `<div class="vs-detailed-grid"><div class="vs-header">${p1Name}</div><div class="vs-header">ŠTATISTIKA</div><div class="vs-header">${p2Name}</div><div style="grid-column:1/-1; padding:15px; background:#222; text-align:center; margin-bottom:10px; border:1px solid #444; border-radius:8px;"><div style="font-size:0.8rem; color:#aaa; margin-bottom:5px;">VZÁJOMNÉ ZÁPASY (Spoločné turnaje: ${mutualTournaments})</div><div style="display:flex; justify-content:center; align-items:center; gap:20px; font-size:1.8rem; font-weight:bold;"><span style="color:${p1BeatP2 > p2BeatP1 ? 'var(--accent-green)' : '#fff'}">${p1BeatP2}</span><span style="font-size:1rem; color:#555;">vs</span><span style="color:${p2BeatP1 > p1BeatP2 ? 'var(--accent-green)' : '#fff'}">${p2BeatP1}</span></div>${draws > 0 ? `<div style="font-size:0.7rem; color:#555; margin-top:2px;">(Remízy: ${draws})</div>` : ''}</div>${row('Body Celkovo', s1.pts.toFixed(0), s2.pts.toFixed(0))}${row('Výhry', s1.wins, s2.wins)}${row('Top 5', s1.top5, s2.top5)}${row('Top 10', s1.top10, s2.top10)}${row('Top 20', s1.top20, s2.top20)}${row('Prejdené Cuty', s1.cuts, s2.cuts)}${row('Priemer Úderov', avg1, avg2, true)}${row('Priemer 1. Kola', r1_1, r1_2, true)}${row('Priemer 4. Kola', r4_1, r4_2, true)}${row('Najlepšie Kolo', s1.best, s2.best, true)}${row('Najhoršie Kolo', s1.worst, s2.worst, true)}</div>`;
+        
+        const row = (label, v1, v2, lowIsGood=false) => { 
+            let c1='', c2=''; 
+            let n1 = parseFloat(v1); let n2 = parseFloat(v2); 
+            if(isNaN(n1)) n1 = lowIsGood ? 9999 : -1; if(isNaN(n2)) n2 = lowIsGood ? 9999 : -1; 
+            if(v1 === v2) { c1='val-draw'; c2='val-draw'; } 
+            else if(lowIsGood) { if(n1 < n2) { c1='val-better'; c2='val-worse'; } else { c1='val-worse'; c2='val-better'; } } 
+            else { if(n1 > n2) { c1='val-better'; c2='val-worse'; } else { c1='val-worse'; c2='val-better'; } } 
+            if(v1==999) v1='-'; if(v2==999) v2='-'; if(v1==-999) v1='-'; if(v2==-999) v2='-'; 
+            return `<div class="vs-cell ${c1}">${v1}</div><div class="vs-label-cell">${label}</div><div class="vs-cell ${c2}">${v2}</div>`; 
+        };
+
+        container.innerHTML = `
+            <div class="vs-detailed-grid">
+                <div class="vs-header">${p1Name}</div><div class="vs-header">ŠTATISTIKA</div><div class="vs-header">${p2Name}</div>
+                <div style="grid-column:1/-1; padding:15px; background:#222; text-align:center; margin-bottom:10px; border:1px solid #444; border-radius:8px;">
+                    <div style="font-size:0.8rem; color:#aaa; margin-bottom:5px;">VZÁJOMNÉ ZÁPASY (Spoločné turnaje: ${mutualTournaments})</div>
+                    <div style="display:flex; justify-content:center; align-items:center; gap:20px; font-size:1.8rem; font-weight:bold;">
+                        <span style="color:${p1BeatP2 > p2BeatP1 ? 'var(--accent-green)' : '#fff'}">${p1BeatP2}</span>
+                        <span style="font-size:1rem; color:#555;">vs</span>
+                        <span style="color:${p2BeatP1 > p1BeatP2 ? 'var(--accent-green)' : '#fff'}">${p2BeatP1}</span>
+                    </div>
+                    ${draws > 0 ? `<div style="font-size:0.7rem; color:#555; margin-top:2px;">(Remízy: ${draws})</div>` : ''}
+                </div>
+                ${row('Body Celkovo', s1.pts.toFixed(0), s2.pts.toFixed(0))}
+                ${row('Výhry', s1.wins, s2.wins)}
+                ${row('Top 5', s1.top5, s2.top5)}
+                ${row('Top 10', s1.top10, s2.top10)}
+                ${row('Top 20', s1.top20, s2.top20)}
+                ${row('Prejdené Cuty', s1.cuts, s2.cuts)}
+                ${row('Priemer Úderov', avg1, avg2, true)}
+                ${row('Priemer 1. Kola', r1_1, r1_2, true)}
+                ${row('Priemer 4. Kola', r4_1, r4_2, true)}
+                ${row('Najlepšie Kolo', s1.best, s2.best, true)}
+                ${row('Najhoršie Kolo', s1.worst, s2.worst, true)}
+            </div>`;
     }
 
     // --- Settings & Utils ---
@@ -2611,9 +3014,9 @@
         createModal(html);
     }
 
-    function deleteFile(id) { db.files = db.files.filter(f => f.id !== id); calculateGlobalAchievements(); saveAuto(); closeTopModal(); openFileManager(); renderApp(); }
+    function deleteFile(id) { db.files = db.files.filter(f => f.id !== id); calculateELO(); calculateGlobalAchievements(); saveAuto(); closeTopModal(); openFileManager(); renderApp(); }
     function deleteSeasonFile(season) { db.seasonStats = db.seasonStats.filter(s => s.season !== season); calculateGlobalAchievements(); saveAuto(); closeTopModal(); openFileManager(); renderApp(); }
-    function clearDB() { if(confirm('Naozaj vymazať celú databázu?')) { db.files = []; db.seasonStats = []; appState.filters.events = []; appState.filters.seasons = []; calculateGlobalAchievements(); renderApp(); saveAuto(); closeTopModal(); } }
+    function clearDB() { if(confirm('Naozaj vymazať celú databázu?')) { db.files = []; db.seasonStats = []; appState.filters.events = []; appState.filters.seasons = []; calculateELO(); calculateGlobalAchievements(); renderApp(); saveAuto(); closeTopModal(); } }
 
     function renderSlots() {
         const container = document.getElementById('slotContainer'); if(!container) return; container.innerHTML = '';
@@ -2632,14 +3035,15 @@
             const parsed = JSON.parse(data);
             db = parsed.db; if(!db.seasonStats) db.seasonStats = [];
             appState = parsed.appState;
+            calculateELO();
             calculateGlobalAchievements();
             applyTheme(appState.settings.theme); updateViewport(); renderApp(); saveAuto(); closeTopModal();
         }
     }
     function deleteSlot(i) { localStorage.removeItem(`ArciWeb_Slot_${i}`); renderSlots(); }
-    function saveAuto() { localStorage.setItem('autosave_v363', JSON.stringify({ db, appState })); }
+    function saveAuto() { localStorage.setItem('autosave_v380', JSON.stringify({ db, appState })); }
     function loadAutoSave() {
-        const data = localStorage.getItem('autosave_v363');
+        const data = localStorage.getItem('autosave_v380');
         if(data) { try { const parsed = JSON.parse(data); if(parsed.db && parsed.appState) { db = parsed.db; if(!db.seasonStats) db.seasonStats = []; appState = parsed.appState; } } catch(e) {} }
     }
 
@@ -2665,33 +3069,34 @@
         };
         reader.readAsText(file);
     }
-    // --- GLOBAL PLAYER CARDS SYSTEM (NEW) ---
     
     let playerCardsData = [];
     let playerCardsSort = { col: 'ovr', dir: 'desc' };
 
     window.showGlobalPlayerCards = function() {
-        // 1. Vypočítame atribúty pre všetkých hráčov
         playerCardsData = calculateAllPlayersAttributes();
-        
-        // 2. Zoradíme ich podľa aktuálneho nastavenia (default: OVR desc)
         sortPlayerCardsData();
-
-        // 3. Vykreslíme modal
         renderPlayerCardsModal();
     };
 
     function renderPlayerCardsModal() {
         const rows = playerCardsData.map((p, index) => {
-            // Farba pre OVR
+            const rank = index + 1;
             let ovrColor = '#fff';
             if(p.ovr >= 90) ovrColor = 'var(--highlight-gold)';
             else if(p.ovr >= 80) ovrColor = 'var(--accent-green)';
             else if(p.ovr >= 70) ovrColor = 'var(--accent-blue)';
 
+            let rankColor = '#e74c3c'; 
+            if (rank === 1) rankColor = '#ffd700';
+            else if (rank === 2) rankColor = '#c0c0c0';
+            else if (rank === 3) rankColor = '#cd7f32';
+            else if (rank <= 10) rankColor = '#2ecc71';
+            else if (rank <= 100) rankColor = '#e67e22';
+
             return `
             <tr onclick="closeTopModal(); setTimeout(() => openPlayerProfile('${p.name}'), 100);" style="cursor:pointer">
-                <td>${index + 1}.</td>
+                <td><span style="font-weight:bold; color:${rankColor}">${rank}.</span></td>
                 <td style="text-align:left; font-weight:bold;">${p.name}</td>
                 <td style="font-weight:bold; color:${ovrColor}; font-size:1.1rem;">${p.ovr}</td>
                 <td class="${p.pwr >= 85 ? 'val-better' : ''}">${p.pwr}</td>
@@ -2712,17 +3117,13 @@
             </div>
             <div class="modal-body">
                 <div style="background:#252525; padding:12px; border-radius:8px; border:1px solid #444; margin-bottom:15px; font-size:0.8rem; color:#bbb; line-height:1.4;">
-                    <strong style="color:var(--highlight-gold); display:block; margin-bottom:8px; font-size:0.9rem;">Vysvetlivky atribútov:</strong>
                     <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap:10px;">
-                        <div><strong style="color:#fff">1. PWR (Power):</strong> Sila útoku. Založené na pomere Birdies/Eagles a počte výhier. Čím viac skóruješ, tým vyššie PWR.</div>
-                        <div><strong style="color:#fff">2. ACC (Accuracy):</strong> Presnosť. Pomer Parov ku Bogey. Ukazuje schopnosť vyhýbať sa chybám.</div>
-                        <div><strong style="color:#fff">3. MNT (Mental):</strong> Psychika. Schopnosť zvládať tlak (4. kolo vs 1. kolo) + bonus za Top 5 a Majors.</div>
-                        <div><strong style="color:#fff">4. CON (Consistency):</strong> Konzistencia. Kombinácia % prejdených Cutov a umiestnení v Top 20.</div>
-                        <div><strong style="color:#fff">5. FRM (Form):</strong> Forma. Odráža priemerné umiestnenie v posledných 3 turnajoch.</div>
-                        <div><strong style="color:#fff">XP (Experience):</strong> Skúsenosti. Celkový počet odohraných turnajov v kariére.</div>
-                    </div>
-                    <div style="margin-top:10px; padding-top:5px; border-top:1px solid #444; color:#fff;">
-                        <strong style="color:var(--highlight-gold)">🏆 OVR (Overall):</strong> Výsledný priemer 5 hlavných hodnôt (PWR + ACC + MNT + CON + FRM).
+                        <div><strong style="color:#fff">1. PWR (Power):</strong> Sila útoku (Birdies/Eagles + Wins)</div>
+                        <div><strong style="color:#fff">2. ACC (Accuracy):</strong> Presnosť (Par vs Bogey)</div>
+                        <div><strong style="color:#fff">3. MNT (Mental):</strong> Psychika (R4 vs R1 + Majors)</div>
+                        <div><strong style="color:#fff">4. CON (Consistency):</strong> Konzistencia (Cuts + Top 20)</div>
+                        <div><strong style="color:#fff">5. FRM (Form):</strong> Forma (Posledné 3 turnaje)</div>
+                        <div><strong style="color:#fff">XP:</strong> Počet turnajov</div>
                     </div>
                 </div>
 
@@ -2746,7 +3147,6 @@
                 </div>
             </div>
         `;
-        // Ak už je otvorený modal s týmto ID, len prepíšeme obsah (pre sortovanie), inak vytvoríme nový
         const existingOverlay = document.getElementById('cards-overlay');
         if (existingOverlay) {
             existingOverlay.querySelector('.modal').innerHTML = html;
@@ -2755,13 +3155,12 @@
         }
     }
 
-
     window.sortPlayerCards = function(col) {
         if (playerCardsSort.col === col) {
             playerCardsSort.dir = playerCardsSort.dir === 'asc' ? 'desc' : 'asc';
         } else {
             playerCardsSort.col = col;
-            playerCardsSort.dir = 'desc'; // Default desc pre čísla
+            playerCardsSort.dir = 'desc'; 
             if(col === 'name') playerCardsSort.dir = 'asc';
         }
         sortPlayerCardsData();
@@ -2781,11 +3180,9 @@
     }
 
     function calculateAllPlayersAttributes() {
-        // Agregácia dát (podobne ako v calculateGlobalAchievements)
         const pMap = {};
-        const sMap = {}; // Season stats
+        const sMap = {}; 
 
-        // 1. Turnajové dáta
         const sortedFiles = [...db.files].sort(compareFiles);
         sortedFiles.forEach(f => {
             f.content.forEach(p => {
@@ -2793,7 +3190,7 @@
                 if (!pMap[name]) pMap[name] = { 
                     realName: p.name, wins: 0, top5: 0, top20: 0, cut: 0, tourneys: 0, majorCount: 0,
                     r1Sum: 0, r1Count: 0, r4Sum: 0, r4Count: 0, totalHoles: 0,
-                    historyRanks: [] // Pre výpočet formy
+                    historyRanks: [] 
                 };
                 
                 const s = pMap[name];
@@ -2808,13 +3205,11 @@
 
                 if (p.r1 !== 'NA') { s.r1Sum += parseInt(p.r1); s.r1Count++; s.totalHoles += 18; }
                 if (p.r4 !== 'NA') { s.r4Sum += parseInt(p.r4); s.r4Count++; s.totalHoles += 18; }
-                // Pridáme jamky aj za R2/R3 pre presnejší priemer holes
                 if (p.r2 !== 'NA') s.totalHoles += 18;
                 if (p.r3 !== 'NA') s.totalHoles += 18;
             });
         });
 
-        // 2. Sezónne dáta
         db.seasonStats.forEach(f => {
             f.content.forEach(p => {
                 const name = normalizeName(p.name);
@@ -2826,7 +3221,6 @@
             });
         });
 
-        // 3. Výpočet atribútov pre každého hráča
         const results = [];
         const clamp = (v) => Math.max(40, Math.min(99, Math.round(v)));
 
@@ -2834,38 +3228,29 @@
             const stats = pMap[key];
             const sStats = sMap[key] || { birdies: 0, eagles: 0, pars: 0, bogeys: 0 };
             
-            // --- FORMULAS (Rovnaké ako v profile) ---
-            
-            // PWR
             const holesPlayed = stats.totalHoles || 1;
             const birdieRatio = (sStats.birdies + (sStats.eagles*3)) / holesPlayed;
             let pwr = 50 + (birdieRatio * 120) + (stats.wins * 1.5);
 
-            // ACC
             const safeRatio = sStats.bogeys > 0 ? (sStats.pars / sStats.bogeys) : (sStats.pars > 0 ? 15 : 5);
             let acc = 55 + (safeRatio * 2.5);
 
-            // MNT
             const r1Avg = stats.r1Count ? stats.r1Sum/stats.r1Count : 72;
             const r4Avg = stats.r4Count ? stats.r4Sum/stats.r4Count : 72;
             const clutchFactor = (r1Avg - r4Avg);
             let mnt = 60 + (clutchFactor * 5) + (stats.top5 * 1.5) + (stats.majorCount * 1);
 
-            // CON
             const cutPct = stats.tourneys ? (stats.cut / stats.tourneys) : 0;
             const top20Pct = stats.tourneys ? (stats.top20 / stats.tourneys) : 0;
             let con = 40 + (cutPct * 30) + (top20Pct * 30);
 
-            // FRM
             let form = 70;
             if(stats.historyRanks.length > 0) {
-                // Zoberieme posledné 3 turnaje (pole je zoradené chronologicky od začiatku)
                 const last3 = stats.historyRanks.slice(Math.max(0, stats.historyRanks.length - 3));
                 const avgPos = last3.reduce((a,b) => a + b, 0) / last3.length;
                 form = 99 - (avgPos * 1.2);
             }
 
-            // Clamp and OVR
             pwr = clamp(pwr); acc = clamp(acc); mnt = clamp(mnt); con = clamp(con); form = clamp(form);
             const ovr = Math.round((pwr + acc + mnt + con + form) / 5);
 
@@ -2878,6 +3263,6 @@
 
         return results;
     }
-</script> </body>
+</script>
+</body>
 </html>
-
