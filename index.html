@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta id="viewportMeta" name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ArciWeb - PGA StatsKeeper v4.15 (Gallery Edition)</title>
+    <title>ArciWeb - PGA StatsKeeper v4.17 (Gallery Edition)</title>
     <style>
         :root {
             --bg-color: #1e1e1e;
@@ -479,20 +479,23 @@
             .card-ovr-val { font-size: 2rem; }
         }
             /* --- VITRINE / SHOWCASE STYLES --- */
-            .vitrine-modal {
-                background: radial-gradient(circle at center, #fdfdfd 0%, #e8e8e8 40%, #c0c0c0 100%);
-                width: 100% !important; 
-                height: 100% !important;
-                max-width: 100vw !important; 
-                max-height: 100vh !important;
-                border: none !important;
-                border-radius: 0 !important;
-                display: flex; 
-                flex-direction: column; 
-                align-items: center; 
-                justify-content: center;
-                box-shadow: inset 0 0 100px rgba(0,0,0,0.1) !important;
-            }
+.vitrine-modal {
+    /* OPRAVENÉ: Vymazané !important, aby fungovalo prepínanie tém */
+    background: radial-gradient(circle at center, #fdfdfd 0%, #e8e8e8 40%, #c0c0c0 100%);
+    
+    width: 100% !important; 
+    height: 100% !important;
+    max-width: 100vw !important; 
+    max-height: 100vh !important;
+    border: none !important;
+    border-radius: 0 !important;
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    justify-content: center;
+    box-shadow: inset 0 0 100px rgba(0,0,0,0.1) !important;
+}
+
 
             .vitrine-content {
                 text-align: center;
@@ -639,7 +642,7 @@
 
     <header>
         <div class="header-left">
-            <h1>ArciWeb - PGA StatsKeeper <span class="version">v4.15</span></h1>
+            <h1>ArciWeb - PGA StatsKeeper <span class="version">v4.17</span></h1>
             <div class="header-ranks">
                 <span class="header-rank-link" style="color:var(--highlight-gold)" onclick="showRankTable('PGA')">PGA Rank</span>
                 <span class="header-rank-link" style="color:var(--accent-blue)" onclick="showRankTable('Official')">Official Rank</span>
@@ -982,6 +985,8 @@ const vitrineThemes = {
     let db = { files: [], seasonStats: [] }; 
     window.globalBadgeHolders = {}; 
     window.eloRatings = {}; 
+    
+    let lastVitrineTheme = 'Clean White';
 
     let appState = {
         filters: { tours: ['ALL'], events: [], seasons: [], importance: 'ALL', activeWeek: null },
@@ -2678,7 +2683,8 @@ window.openTournamentDetails = function(fileId) {
     createModal(html);
 };
 
-// --- AKTUALIZOVANÁ FUNKCIA: VITRÍNA S VÝBEROM TÉM ---
+
+// --- AKTUALIZOVANÁ FUNKCIA: VITRÍNA S VÝBEROM TÉM (FINAL) ---
 window.openTrophyShowcase = function(fileId) {
     const file = db.files.find(f => f.id == fileId);
     if (!file) return;
@@ -2702,7 +2708,8 @@ window.openTrophyShowcase = function(fileId) {
             </div>`;
     });
 
-    // HTML pre vitrínu (Pridaný wrapper pre témy)
+    // HTML pre vitrínu
+    // Opravený onerror s použitím &quot; pre bezpečnosť
     const html = `
         <div class="vitrine-theme-wrapper">
             <button class="vitrine-theme-btn" onclick="document.getElementById('vitrineThemeList').classList.toggle('show')">
@@ -2717,7 +2724,7 @@ window.openTrophyShowcase = function(fileId) {
         
         <div class="vitrine-content">
             <img src="${imgSrc}" class="vitrine-img" alt="Trophy" 
-                 onerror="this.style.display='none'; this.parentElement.innerHTML='<div style=\'font-size:8rem\'>🏆</div><div style=\'color:#333\'>Obrázok chýba</div>'">
+                 onerror="this.outerHTML='<div style=&quot;font-size:8rem; margin-bottom:20px;&quot;>🏆</div><div style=&quot;color:#555; font-weight:bold;&quot;>Obrázok chýba</div>'">
             <div class="vitrine-title">${file.eventName}</div>
             <div class="vitrine-subtitle">SEZÓNA ${file.season} • VÍŤAZNÁ TROFEJ</div>
         </div>
@@ -2725,30 +2732,32 @@ window.openTrophyShowcase = function(fileId) {
 
     createModal(html);
     
-    // Zmeníme štýl modalu na vitrínu
+    // Zmeníme štýl modalu na vitrínu a nastavíme POSLEDNÚ tému
     const overlays = document.querySelectorAll('.modal-overlay');
     const currentOverlay = overlays[overlays.length - 1];
     if (currentOverlay) {
         const modalBox = currentOverlay.querySelector('.modal');
         if (modalBox) {
             modalBox.className = 'modal vitrine-modal';
-            // Nastavíme default tému pri otvorení
-            setVitrineTheme('Clean White');
+            // Tu sa načíta uložená téma (alebo defaultná 'Clean White' ak ešte nebola zmenená)
+            setVitrineTheme(lastVitrineTheme);
         }
     }
 }
 
-// Pomocná funkcia na zmenu témy
+// --- POMOCNÁ FUNKCIA NA ZMENU TÉMY ---
 window.setVitrineTheme = function(themeName) {
     const theme = vitrineThemes[themeName];
     if (!theme) return;
 
-    // Nájdeme aktuálne otvorenú vitrínu
+    // ULOŽÍME TÉMU DO GLOBÁLNEJ PREMENNEJ
+    lastVitrineTheme = themeName;
+
+    // Aplikujeme štýly
     const modalBox = document.querySelector('.vitrine-modal');
     if (modalBox) {
         modalBox.style.background = theme.bg;
         
-        // Zmena farby textu podľa pozadia
         const title = modalBox.querySelector('.vitrine-title');
         const sub = modalBox.querySelector('.vitrine-subtitle');
         const closeBtn = modalBox.querySelector('.vitrine-close');
@@ -2758,11 +2767,10 @@ window.setVitrineTheme = function(themeName) {
         if(closeBtn) closeBtn.style.color = theme.text;
     }
     
-    // Zatvoríme menu
+    // Zatvoríme menu po výbere
     const list = document.getElementById('vitrineThemeList');
     if(list) list.classList.remove('show');
 }
-
 
     // --- Global Rank Tables ---
     window.showRankTable = function(type) {
