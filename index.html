@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta id="viewportMeta" name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ArciWeb - PGA StatsKeeper v4.17 (Gallery Edition)</title>
+    <title>ArciWeb - PGA StatsKeeper v4.18 (Gallery Edition)</title>
     <style>
         :root {
             --bg-color: #1e1e1e;
@@ -642,7 +642,7 @@
 
     <header>
         <div class="header-left">
-            <h1>ArciWeb - PGA StatsKeeper <span class="version">v4.17</span></h1>
+            <h1>ArciWeb - PGA StatsKeeper <span class="version">v4.18</span></h1>
             <div class="header-ranks">
                 <span class="header-rank-link" style="color:var(--highlight-gold)" onclick="showRankTable('PGA')">PGA Rank</span>
                 <span class="header-rank-link" style="color:var(--accent-blue)" onclick="showRankTable('Official')">Official Rank</span>
@@ -2682,12 +2682,14 @@ window.openTournamentDetails = function(fileId) {
     
     createModal(html);
 };
-
-
-// --- AKTUALIZOVANÁ FUNKCIA: VITRÍNA S VÝBEROM TÉM (FINAL) ---
+ 
+// --- VYLEPŠENÁ FUNKCIA: VITRÍNA S PAMÄŤOU PRE KAŽDÚ TROFEJ ---
 window.openTrophyShowcase = function(fileId) {
     const file = db.files.find(f => f.id == fileId);
     if (!file) return;
+
+    // 1. Zistíme, či už má tento turnaj uloženú tému, ak nie, dáme 'Clean White'
+    const savedTheme = file.trophyTheme || 'Clean White';
 
     // Obrázok trofeje logic
     let eventNumFormatted = file.eventNum < 10 ? '0' + file.eventNum : '' + file.eventNum;
@@ -2698,18 +2700,17 @@ window.openTrophyShowcase = function(fileId) {
     const imgSrc = eventNumFormatted + '.png';
 
     // Generovanie zoznamu tém
+    // DÔLEŽITÉ: Do onclick posielame aj ID súboru ('${file.id}')
     let themesHtml = '';
     Object.keys(vitrineThemes).forEach(key => {
         const t = vitrineThemes[key];
         themesHtml += `
-            <div class="v-theme-item" onclick="setVitrineTheme('${key}')">
+            <div class="v-theme-item" onclick="setVitrineTheme('${key}', '${file.id}')">
                 <span class="v-preview-dot" style="background:${t.bg}"></span>
                 ${key}
             </div>`;
     });
 
-    // HTML pre vitrínu
-    // Opravený onerror s použitím &quot; pre bezpečnosť
     const html = `
         <div class="vitrine-theme-wrapper">
             <button class="vitrine-theme-btn" onclick="document.getElementById('vitrineThemeList').classList.toggle('show')">
@@ -2732,28 +2733,36 @@ window.openTrophyShowcase = function(fileId) {
 
     createModal(html);
     
-    // Zmeníme štýl modalu na vitrínu a nastavíme POSLEDNÚ tému
+    // Zmeníme štýl modalu na vitrínu
     const overlays = document.querySelectorAll('.modal-overlay');
     const currentOverlay = overlays[overlays.length - 1];
     if (currentOverlay) {
         const modalBox = currentOverlay.querySelector('.modal');
         if (modalBox) {
             modalBox.className = 'modal vitrine-modal';
-            // Tu sa načíta uložená téma (alebo defaultná 'Clean White' ak ešte nebola zmenená)
-            setVitrineTheme(lastVitrineTheme);
+            // Aplikujeme tému, ktorú sme načítali z pamäte tohto konkrétneho turnaja
+            // (Tu posielame null ako ID, pretože len aplikujeme vizuál, neukladáme znova)
+            setVitrineTheme(savedTheme, null); 
         }
     }
 }
 
-// --- POMOCNÁ FUNKCIA NA ZMENU TÉMY ---
-window.setVitrineTheme = function(themeName) {
+
+// --- VYLEPŠENÁ FUNKCIA NA ZMENU A ULOŽENIE TÉMY ---
+window.setVitrineTheme = function(themeName, fileId = null) {
     const theme = vitrineThemes[themeName];
     if (!theme) return;
 
-    // ULOŽÍME TÉMU DO GLOBÁLNEJ PREMENNEJ
-    lastVitrineTheme = themeName;
+    // 1. AK MÁME ID SÚBORU, ULOŽÍME TÉMU DO DATABÁZY
+    if (fileId) {
+        const file = db.files.find(f => f.id == fileId);
+        if (file) {
+            file.trophyTheme = themeName; // Uložíme do objektu turnaja
+            saveAuto(); // Uložíme celú DB do prehliadača
+        }
+    }
 
-    // Aplikujeme štýly
+    // 2. APLIKUJEME VIZUÁLNE ZMENY
     const modalBox = document.querySelector('.vitrine-modal');
     if (modalBox) {
         modalBox.style.background = theme.bg;
@@ -2767,10 +2776,11 @@ window.setVitrineTheme = function(themeName) {
         if(closeBtn) closeBtn.style.color = theme.text;
     }
     
-    // Zatvoríme menu po výbere
+    // Zatvoríme menu
     const list = document.getElementById('vitrineThemeList');
     if(list) list.classList.remove('show');
 }
+
 
     // --- Global Rank Tables ---
     window.showRankTable = function(type) {
