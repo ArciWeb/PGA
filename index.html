@@ -259,6 +259,26 @@
         .card-ovr-val { font-size: 2.8rem; font-weight: 900; line-height: 1; letter-spacing: -2px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
         .card-ovr-label { font-size: 0.8rem; font-weight: 800; text-transform: uppercase; margin-top: 0px; opacity: 0.8; }
         
+        /* --- NOVÝ ŠTÝL PRE PROFILOVÚ FOTKU --- */
+        .card-player-img {
+            width: 110px;
+            height: 110px;
+            object-fit: cover;
+            object-position: top center;
+            border-radius: 8px;
+            margin-right: 20px;
+            margin-left: 10px;
+            border: 2px solid rgba(255,255,255,0.3);
+            background-color: rgba(0,0,0,0.2);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.4);
+            z-index: 2;
+        }
+
+        @media (max-width: 600px) {
+            .card-player-img { width: 90px; height: 90px; margin: 10px 0; }
+        }
+        /* ------------------------------------- */
+
         .card-info { flex: 1; display: flex; flex-direction: column; justify-content: center; z-index: 1; }
         .card-name { font-size: 1.6rem; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; color: #fff; text-shadow: 0 2px 5px rgba(0,0,0,0.9); }
         
@@ -2702,12 +2722,15 @@ const vitrineThemes = {
         else if (myCardRank <= 100) cardColorClass = 'orange';
         else cardColorClass = 'red';
 
-        const playerCardHtml = `
+         const playerCardHtml = `
         <div class="player-card-container ${cardColorClass}" onclick="showGlobalPlayerCards()" style="cursor:pointer" title="Klikni pre zobrazenie rebríčka všetkých hráčov">
             <div class="card-ovr-box">
                 <div class="card-ovr-val">${ovr}</div>
                 <div class="card-ovr-label">OVR</div>
             </div>
+            
+            <img src="${realPlayerName}.png" onerror="this.onerror=null;this.src='Nezname.png';" class="card-player-img" alt="${realPlayerName}">
+            
             <div class="card-info">
                 <div class="card-name">${realPlayerName}</div>
                 <div class="card-attrs">
@@ -2720,6 +2743,7 @@ const vitrineThemes = {
                 </div>
             </div>
         </div>`;
+
 
         // --- GENEROWANIE HTML PRE TROFEJE (OBRÁZKY) ---
         let trophyHtml = '';
