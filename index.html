@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta id="viewportMeta" name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ArciWeb - PGA StatsKeeper V4.79(Gallery Edition)</title>
+    <title>ArciWeb - PGA StatsKeeper V4.81(Gallery Edition)</title>
     <style>
         :root {
             --bg-color: #1e1e1e;
@@ -677,7 +677,7 @@
 
     <header>
         <div class="header-left">
-            <h1>ArciWeb - PGA StatsKeeper <span class="version">v4.79</span></h1>
+            <h1>ArciWeb - PGA StatsKeeper <span class="version">v4.81</span></h1>
             <div class="header-ranks">
                 <span class="header-rank-link" style="color:var(--highlight-gold)" onclick="showRankTable('PGA')">PGA Rank</span>
                 <span class="header-rank-link" style="color:var(--accent-blue)" onclick="showRankTable('Official')">Official Rank</span>
@@ -1632,7 +1632,7 @@ const vitrineThemes = {
             check('lucky7', stats.top5 >= 7 && stats.wins >= 1);
             check('ea_grad', stats.eaWins >= 2);
             check('ea_legend', stats.eaWins >= 3);
-            check('grand_slam', stats.pgaWins > 0 && stats.mainWins > 0 && stats.eaWins > 0);
+            check('grand_slam', stats.pgaWins > 0 && stats.fedexWins > 0 && stats.eaWins > 0);
             check('silver_col', stats.secondPlaces >= 5);
             check('bronze_col', stats.thirdPlaces >= 5);
             check('mr_59', stats.sub60); 
@@ -3270,17 +3270,27 @@ window.setVitrineTheme = function(themeName, fileId = null) {
         
         const list = allStats.map(p => {
              let val = getRecordValueForPlayer(p, recordId);
-             return { name: p.realName, val: val, debug: p };
-        }).filter(item => item.val !== null && item.val !== undefined && item.val !== 999 && item.val !== -999);
+             return { name: p.realName, val: val };
+        }).filter(item => item.val !== null && item.val !== undefined && item.val !== 999 && item.val !== -999 && item.val !== 0);
 
+        // Zoznam rekordov, kde MENŠIE číslo je LEPŠIE (Ascending sort)
+        const lowIsGoodRecords = [
+            'lowest_rnd', 'lowest_r1', 'lowest_r2', 'lowest_r3',
+            'avg_strokes', 'major_avg', 
+            'mr_friday', 'mr_saturday', 'mr_sunday', 'fast_starter',
+            'finisher', // Best R4
+            'best_weekend', // Lowest sum
+            'consistency_king', // Best Rank (1.0)
+            'comeback_kid', // R4 - R3 (Negative is good)
+            'under_par_total' // Most negative is good
+        ];
 
-// Opravená podmienka pre zoraďovanie
-if(recordId.includes('lowest') || recordId.includes('avg') || recordId === 'adapter' || recordId === 'comeback_kid' || recordId === 'scratch' || recordId === 'under_par_total') {
-    list.sort((a,b) => a.val - b.val); // Zoradí od najnižšieho (-100 bude prvé)
-} else {
-    list.sort((a,b) => b.val - a.val); 
-}
-
+        // Zoradenie
+        if(lowIsGoodRecords.includes(recordId) || recordId.includes('lowest') || recordId.includes('avg')) {
+            list.sort((a,b) => a.val - b.val); // Vzostupne (najnižšie prvé)
+        } else {
+            list.sort((a,b) => b.val - a.val); // Zostupne (najvyššie prvé)
+        }
 
         const top20 = list.slice(0, 20);
         
@@ -3309,6 +3319,7 @@ if(recordId.includes('lowest') || recordId.includes('avg') || recordId === 'adap
         `;
         createModal(html);
     }
+
     
     function getRecordValueForPlayer(s, recId) {
         if(recId === 'most_wins') return s.wins;
@@ -3357,7 +3368,7 @@ if(recordId.includes('lowest') || recordId.includes('avg') || recordId === 'adap
         if(recId === 'bogey_man') return s.sStats.bogeys;
         if(recId === 'disaster_artist') return s.sStats.doubleBogeys;
         if(recId === 'adapter') return s.r1_r4_diff_count >= 3 ? s.avgImprovement : null;
-        if(recId === 'gas_out') return s.r1_r4_diff_count >= 3 ? Math.abs(s.avgImprovement) : null;
+        if(recId === 'gas_out') return (s.r1_r4_diff_count >= 3 && s.avgImprovement < -0.1) ? Math.abs(s.avgImprovement) : null;
         if(recId === 'risk_taker') return s.sStats.pars > 50 ? s.sStats.riskRatio : null;
         if(recId === 'safe_hands') return s.sStats.bogeys > 0 ? s.sStats.safeRatio : null;
         if(recId === 'jekyll_hyde') return s.tourneys >= 5 ? s.roundDiffCareer : null;
@@ -3502,21 +3513,29 @@ if(recordId.includes('lowest') || recordId.includes('avg') || recordId === 'adap
     window.calculateRecordLeaders = function() {
         const players = calculateAllPlayerStatsForRecords();
         const leaders = {};
+
+        // Zoznam rekordov, kde MENŠIE číslo je LEPŠIE (Ascending sort)
+        const lowIsGoodRecords = [
+            'lowest_rnd', 'lowest_r1', 'lowest_r2', 'lowest_r3',
+            'avg_strokes', 'major_avg', 
+            'mr_friday', 'mr_saturday', 'mr_sunday', 'fast_starter',
+            'finisher', // Best R4
+            'best_weekend', // Lowest sum
+            'consistency_king', // Best Rank (1.0)
+            'comeback_kid', // R4 - R3 (Negative is good)
+            'under_par_total' // Most negative is good
+        ];
+
         recordsDef.forEach(rec => {
-             // Získame kandidátov
              const candidates = players.map(p => ({ realName: p.realName, val: getRecordValueForPlayer(p, rec.id) }))
-                                       // OPRAVA: Pridané "&& x.val !== 0" na koniec filtra
-                                       // Týmto vylúčime hráčov, ktorí majú hodnotu 0 (napr. 0 Aces, 0 Birdies atď.)
                                        .filter(x => x.val !== null && x.val !== undefined && x.val !== 999 && x.val !== -999 && x.val !== 0);
              
-             // Zoradenie podľa typu rekordu (niektoré sú lepšie nižšie, iné vyššie)
-             if(rec.id.includes('lowest') || rec.id.includes('avg') || rec.id === 'adapter' || rec.id === 'comeback_kid' || rec.id === 'scratch' || rec.id === 'under_par_total') {
-                 candidates.sort((a,b) => a.val - b.val);
+             if(lowIsGoodRecords.includes(rec.id) || rec.id.includes('lowest') || rec.id.includes('avg')) {
+                 candidates.sort((a,b) => a.val - b.val); // Vzostupne
              } else {
-                 candidates.sort((a,b) => b.val - a.val);
+                 candidates.sort((a,b) => b.val - a.val); // Zostupne
              }
              
-             // Ak existuje aspoň jeden kandidát s nenulovou hodnotou, zapíšeme ho
              if(candidates.length > 0) leaders[rec.id] = { holder: candidates[0].realName, val: candidates[0].val };
         });
         return leaders;
