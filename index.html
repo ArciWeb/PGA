@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta id="viewportMeta" name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ArciWeb - PGA StatsKeeper V4.23(Gallery Edition)</title>
+    <title>ArciWeb - PGA StatsKeeper V4.72(Gallery Edition)</title>
     <style>
         :root {
             --bg-color: #1e1e1e;
@@ -52,6 +52,14 @@
             text-decoration: none; border-bottom: 1px dotted var(--accent-green); transition: var(--transition);
         }
         .header-rank-link:hover { color: var(--highlight-gold); border-bottom-color: var(--highlight-gold); }
+        
+        /* Nový štýl pre Amateur Rank (KFT) */
+        .header-rank-link.amateur-rank {
+            color: #bdc3c7; border-bottom-color: #bdc3c7;
+        }
+        .header-rank-link.amateur-rank:hover {
+            color: #fff; border-bottom-color: #fff;
+        }
 
         .header-icons { display: flex; gap: 15px; align-items: center; }
         .icon-btn {
@@ -142,6 +150,9 @@
             display: flex; justify-content: center; align-items: center;
             opacity: 0; animation: fadeIn 0.2s forwards; z-index: 1000;
         }
+        /* Dynamické vrstvenie pre viacero okien */
+        .modal-overlay.stacked { background: rgba(0,0,0,0.6); }
+
         .modal {
             background-color: var(--bg-color);
             border-radius: 16px;
@@ -197,7 +208,7 @@
 
         /* --- PLAYER CARD --- */
         .player-card-container {
-            display: flex; gap: 20px; 
+            display: flex; gap: 40px; 
             background: linear-gradient(145deg, #333 0%, #000 100%);
             padding: 15px; border-radius: 12px; margin-bottom: 20px;
             border: 2px solid #444; box-shadow: 0 10px 25px rgba(0,0,0,0.6);
@@ -269,13 +280,13 @@
             margin-bottom: 20px; text-align: center; border-bottom: 1px solid #333; padding-bottom: 10px;
         }
         .trophy-grid { 
-            display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; 
-            max-height: 350px; overflow-y: auto; padding: 10px;
+            display: flex; flex-direction: column; align-items: center; gap: 30px; justify-content: center; 
+            max-height: 600px; overflow-y: auto; padding: 10px;
         }
         .trophy-item {
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             cursor: pointer; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
-            position: relative; width: 80px;
+            position: relative; width: 130px;
         }
         .trophy-item:hover { transform: scale(1.1); z-index: 5; }
         .trophy-inner { position: relative; display: flex; justify-content: center; align-items: center; }
@@ -284,8 +295,8 @@
             filter: drop-shadow(0 5px 8px rgba(0,0,0,0.6)); transition: transform 0.3s ease;
         }
         .trophy-item:hover .trophy-img { transform: scale(1.15) rotate(-3deg); filter: drop-shadow(0 8px 12px rgba(0,0,0,0.8)); }
-        .m-silver { font-size: 2.2rem; filter: drop-shadow(0 0 4px #dfe6e9); opacity: 0.9; }
-        .m-bronze { font-size: 2.2rem; filter: drop-shadow(0 0 4px #cd6133); opacity: 0.9; }
+        .m-silver { font-size: 7.2rem; filter: drop-shadow(0 0 34px #dfe6e9); opacity: 0.9; }
+        .m-bronze { font-size: 5.2rem; filter: drop-shadow(0 0 24px #cd6133); opacity: 0.9; }
         .trophy-date { 
             font-size: 0.7rem; color: #fff; margin-top: 8px; opacity: 0; transition: 0.2s; 
             position: absolute; bottom: -35px; background: rgba(0,0,0,0.95); 
@@ -351,9 +362,10 @@
 
         /* --- ACHIEVEMENTS Styles --- */
         .achievements-grid {
-            display: grid; grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
-            gap: 10px; margin-bottom: 20px; padding: 10px;
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
+            gap: 10px; margin-bottom: 30px; padding: 15px;
             background: var(--card-bg); border-radius: 8px;
+            align-items: start;
         }
         .badge {
             width: 100%; aspect-ratio: 1/1; border-radius: 50%;
@@ -480,9 +492,7 @@
         }
             /* --- VITRINE / SHOWCASE STYLES --- */
 .vitrine-modal {
-    /* OPRAVENÉ: Vymazané !important, aby fungovalo prepínanie tém */
     background: radial-gradient(circle at center, #fdfdfd 0%, #e8e8e8 40%, #c0c0c0 100%);
-    
     width: 100% !important; 
     height: 100% !important;
     max-width: 100vw !important; 
@@ -496,15 +506,17 @@
     box-shadow: inset 0 0 100px rgba(0,0,0,0.1) !important;
 }
 
-
             .vitrine-content {
                 text-align: center;
                 position: relative;
                 z-index: 2;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
             }
 
             .vitrine-img {
-                max-height: 60vh;
+                max-height: 55vh;
                 max-width: 80vw;
                 filter: drop-shadow(0 30px 40px rgba(0,0,0,0.6));
                 animation: floatTrophy 5s ease-in-out infinite;
@@ -517,7 +529,7 @@
             }
 
             .vitrine-title {
-                margin-top: 40px;
+                margin-top: 30px;
                 font-size: 2rem;
                 color: #333;
                 font-weight: 300;
@@ -533,6 +545,18 @@
                 margin-top: 5px;
                 letter-spacing: 2px;
                 font-weight: bold;
+            }
+            
+            /* Nový štýl pre zobrazenie víťaza vo vitríne */
+            .vitrine-winner {
+                font-size: 1.4rem; color: #b8860b;
+                margin-top: 8px; font-weight: 800; text-transform: uppercase;
+                letter-spacing: 1px; cursor: pointer;
+                transition: transform 0.2s, color 0.2s;
+                text-shadow: 0 1px 2px rgba(255,255,255,0.5);
+            }
+            .vitrine-winner:hover {
+                transform: scale(1.1); color: #d4af37;
             }
 
             .vitrine-close {
@@ -562,6 +586,17 @@
             .clickable-header:hover {
                 color: var(--highlight-gold);
             }
+            
+            /* Navigačné šípky pre Vitrínu */
+            .vitrine-nav-btn {
+                position: absolute; top: 50%; transform: translateY(-50%);
+                background: rgba(0,0,0,0.1); color: #555; border: 1px solid rgba(0,0,0,0.1);
+                font-size: 2.5rem; padding: 10px 20px; cursor: pointer;
+                border-radius: 50%; transition: 0.3s; z-index: 20;
+            }
+            .vitrine-nav-btn:hover { background: rgba(0,0,0,0.8); color: #fff; border-color: #fff; }
+            .v-prev { left: 40px; }
+            .v-next { right: 40px; }
 
             @keyframes floatTrophy {
                 0%, 100% { transform: translateY(0px) rotate(0deg); }
@@ -642,7 +677,7 @@
 
     <header>
         <div class="header-left">
-            <h1>ArciWeb - PGA StatsKeeper <span class="version">v4.23</span></h1>
+            <h1>ArciWeb - PGA StatsKeeper <span class="version">v4.72</span></h1>
             <div class="header-ranks">
                 <span class="header-rank-link" style="color:var(--highlight-gold)" onclick="showRankTable('PGA')">PGA Rank</span>
                 <span class="header-rank-link" style="color:var(--accent-blue)" onclick="showRankTable('Official')">Official Rank</span>
@@ -651,6 +686,7 @@
                 <span class="header-rank-link" style="color:var(--accent-red)" onclick="showRankTable('Association')">Association Rank</span>
                 <span class="header-rank-link" style="color:var(--highlight-gold)" onclick="showRankTable('FEDEX')">FED EX Rank</span>
                 <span class="header-rank-link" style="color:#2c3e50; background:#fff; padding:0 4px; border-radius:3px;" onclick="showRankTable('ELO')">ELO Rank</span>
+                <span class="header-rank-link amateur-rank" onclick="showRankTable('Amateur')">Amateur Rank</span>
             </div>
         </div>
         <div class="header-icons">
@@ -724,7 +760,6 @@
             <tbody></tbody>
         </table>
     </div>
-
     <input type="file" id="fileInput" accept=".txt" multiple onchange="handleFiles(this.files)">
     <input type="file" id="slotFileInput" accept=".json" onchange="finishSlotUpload(this.files)">
     <input type="file" id="seasonFileInput" accept=".txt" multiple onchange="handleSeasonFiles(this.files)">
@@ -809,7 +844,7 @@
         'Plasma': { bg: '#12001a', card: '#240033', text: '#e0ccff', accent: '#9933ff' },
         'Tron': { bg: '#00111a', card: '#002233', text: '#ccf2ff', accent: '#00eeee' },
         'Miami': { bg: '#001a1a', card: '#003333', text: '#ff66b2', accent: '#00cccc' },
-        'Berry': { bg: '#1a001a', card: '#330033', text: '#ffe6ff', accent: '#cc00cc' },
+        'Berry': { bg: '#1a001a', card: '#33001a', text: '#ffe6ff', accent: '#cc00cc' },
         'Kiwi': { bg: '#111a00', card: '#223300', text: '#eeffee', accent: '#8ee53f' },
         'Watermelon': { bg: '#001a0d', card: '#00331a', text: '#ffcccc', accent: '#ff6b6b' },
         'DragonFruit': { bg: '#1a0011', card: '#330022', text: '#ffffff', accent: '#ff0055' },
@@ -1060,7 +1095,7 @@ const vitrineThemes = {
     let slotToUpload = null;
     const VALID_TOURS = ['KFT', 'PGA', 'EA SPORTS', 'THE PLAYERS', 'FED EX', 'MAIN'];
 
-    // --- ELO CALCULATION SYSTEM ---
+// --- ELO CALCULATION SYSTEM ---
     function calculateELO() {
         const sortedFiles = [...db.files].sort(compareFiles); 
         const ratings = {}; 
@@ -1068,6 +1103,9 @@ const vitrineThemes = {
         const START_ELO = 1200;
 
         sortedFiles.forEach(file => {
+            // --- KFT IZOLÁCIA: KFT turnaje neovplyvňujú ELO ---
+            if (file.type === 'KFT') return;
+
             const playersInTournament = file.content;
             const activePlayers = playersInTournament.filter(p => p.rank > 0);
             
@@ -1409,6 +1447,10 @@ const vitrineThemes = {
                 }
                 
                 const s = playerStats[foundKey];
+                
+                // Poznámka: Tu zatiaľ rátame VŠETKO, pretože achievementy ako "KFT Graduate"
+                // potrebujú vedieť o KFT. Filtrácia pre RANKY sa deje v getOfficialRankList.
+                
                 s.tourneys++;
                 s.points += p.points;
                 s.pars += p.par;
@@ -1454,6 +1496,8 @@ const vitrineThemes = {
                     if (en === 18) s.playersWin = true;
                     if (en === 33) s.usOpen = true;
                     if (en === 38) s.theOpen = true;
+                    
+                    // KFT Win detekcia
                     if (f.type === 'KFT') s.kftWins++;
                     
                     if (
@@ -1775,6 +1819,7 @@ const vitrineThemes = {
     }
     // --- Ranking Algorithms ---
     function getPGARankList() {
+        // FILTER: Ignorovať KFT
         let pgaFiles = db.files.filter(f => f.type === 'PGA');
         pgaFiles.sort((a, b) => compareFiles(b, a)); 
         const last40 = pgaFiles.slice(0, 40);
@@ -1798,9 +1843,11 @@ const vitrineThemes = {
     }
 
     function getOfficialRankList() {
-        if (db.files.length <= 20) return null; 
+        // FILTER: Ignorovať KFT
+        const relevantFiles = db.files.filter(f => f.type !== 'KFT');
+        if (relevantFiles.length <= 20) return null; 
         const playerPoints = {};
-        db.files.forEach(file => {
+        relevantFiles.forEach(file => {
             file.content.forEach(p => {
                 let name = normalizePlayerName(p.name, playerPoints);
                 if (!playerPoints[name]) playerPoints[name] = 0;
@@ -1812,7 +1859,8 @@ const vitrineThemes = {
 
     function getTourRankList() {
         const playerPoints = {};
-        db.files.forEach(file => {
+        // FILTER: KFT sa neráta do Tour Ranku
+        db.files.filter(f => f.type !== 'KFT').forEach(file => {
             let coeff = 0;
             if (file.isImportant) coeff = 2;
             else if (file.isSignificant) coeff = 1;
@@ -1856,11 +1904,26 @@ const vitrineThemes = {
     }
 
     function getFedExRankList() {
+        // KFT sa do FED EX neráta
         const validTypes = ['PGA', 'EA SPORTS', 'THE PLAYERS', 'FED EX'];
         const seasons = db.files.map(f => parseInt(f.season));
         if (seasons.length === 0) return null;
         const maxSeason = Math.max(...seasons);
         const relevantFiles = db.files.filter(f => validTypes.includes(f.type) && parseInt(f.season) === maxSeason);
+        const playerPoints = {};
+        relevantFiles.forEach(file => {
+            file.content.forEach(p => {
+                let name = normalizePlayerName(p.name, playerPoints);
+                if (!playerPoints[name]) playerPoints[name] = 0;
+                playerPoints[name] += p.points;
+            });
+        });
+        return createRankedList(playerPoints);
+    }
+    
+    // --- NOVÁ FUNKCIA PRE AMATEUR RANK (KFT) ---
+    function getAmateurRankList() {
+        const relevantFiles = db.files.filter(f => f.type === 'KFT');
         const playerPoints = {};
         relevantFiles.forEach(file => {
             file.content.forEach(p => {
@@ -2158,7 +2221,6 @@ const vitrineThemes = {
             tbody.appendChild(tr);
         });
     }
-
     // --- UI Actions ---
     function changeSort(col) {
         if (appState.sort.column === col) {
@@ -2295,6 +2357,7 @@ const vitrineThemes = {
         const eaList = getEARankList();
         const assocList = getAssociationRankList();
         const fedexList = getFedExRankList();
+        const amateurList = getAmateurRankList(); // Pridaný Amateur Rank
         
         const getRank = (list) => {
             if (!list) return 'NA';
@@ -2308,6 +2371,7 @@ const vitrineThemes = {
         const eaRankVal = getRank(eaList);
         const assocRankVal = getRank(assocList);
         const fedexRankVal = getRank(fedexList);
+        const amateurRankVal = getRank(amateurList);
         
         const eloList = getELORankList();
         const eloEntry = eloList.find(p => normalizeName(p.name) === normPlayer);
@@ -2465,6 +2529,7 @@ const vitrineThemes = {
                     <div class="rival-stat">Skóre: ${nemesis.wins} - <span class="rival-score" style="color:var(--accent-red)">${nemesis.val}</span></div>
                 </div>
             </div>`;
+
 
         // --- PLAYER CARD ATTRIBUTES ---
         let sStats = { games: 0, aces: 0, de: 0, eagles: 0, birdies: 0, pars: 0, bogeys: 0, db: 0 };
@@ -2698,6 +2763,7 @@ const vitrineThemes = {
                 <div class="stat-box highlight" onclick="showRankTable('EA')"><div class="stat-label" style="color:var(--accent-blue)">EA Rank</div><div class="stat-value blue rank-clickable">${eaRankVal}</div></div>
                 <div class="stat-box highlight" onclick="showRankTable('Association')"><div class="stat-label" style="color:var(--accent-red)">Association</div><div class="stat-value rank-clickable" style="color:var(--accent-red)">${assocRankVal}</div></div>
                 <div class="stat-box highlight" onclick="showRankTable('ELO')" style="border-color:#fff"><div class="stat-label">ELO Rank</div><div class="stat-value">${eloRank}</div></div>
+                <div class="stat-box highlight" onclick="showRankTable('Amateur')"><div class="stat-label" style="color:#bdc3c7">Amateur Rank</div><div class="stat-value rank-clickable" style="color:#bdc3c7">${amateurRankVal}</div></div>
 
                 <div class="stat-box season-highlight"><div class="stat-label" style="font-weight:bold; color:var(--text-main)">Games</div><div class="stat-value white">${sStats.games}</div></div>
                 <div class="stat-box season-highlight"><div class="stat-label">Aces</div><div class="stat-value green">${sStats.aces}</div></div>
@@ -2814,12 +2880,12 @@ window.openTournamentDetails = function(fileId) {
     let sortedPlayers = [...file.content].sort((a, b) => (a.rank !== b.rank) ? a.rank - b.rank : b.points - a.points);
     
     const rows = sortedPlayers.map(p => `
-        <tr class="${p.name === 'Tiger Woods' ? 'important-row' : ''}"> <td>${p.rank}.</td>
+        <tr class="${p.name === 'Tiger Woods' ? 'important-row' : ''}" onclick="openPlayerProfile('${p.name}')" style="cursor:pointer"> 
+            <td>${p.rank}.</td>
             <td style="text-align:left; font-weight:bold;">${p.name}</td><td>${p.par}</td>
             <td>${p.r1}</td><td>${p.r2}</td><td>${p.r3}</td><td>${p.r4}</td><td>${p.points}</td>
         </tr>`).join('');
     
-    // TU JE ZMENA: Pridaný onclick na H2 a title atribút
     const html = `
         <div class="modal-header">
             <h2 class="clickable-header" onclick="openTrophyShowcase('${file.id}')" title="Klikni pre zobrazenie trofeje vo vitríne">
@@ -2843,40 +2909,27 @@ window.openTournamentDetails = function(fileId) {
     createModal(html);
 };
  
-// --- VYLEPŠENÁ FUNKCIA: VITRÍNA S PAMÄŤOU PRE KAŽDÚ TROFEJ ---
+// --- VYLEPŠENÁ FUNKCIA: VITRÍNA S PAMÄŤOU, VÍŤAZOM A NAVIGÁCIOU ---
 window.openTrophyShowcase = function(fileId) {
     const file = db.files.find(f => f.id == fileId);
     if (!file) return;
 
-    // --- NOVÁ LOGIKA: AUTO-DETEKCIA PREDVOLENEJ TÉMY ---
-    let themeToUse = file.trophyTheme; // 1. Skúsime načítať už uloženú tému
-
-    // 2. Ak téma nie je uložená, hľadáme ju podľa čísla turnaja v vitrineThemes
+    // --- AUTO-DETEKCIA TÉMY ---
+    let themeToUse = file.trophyTheme; 
     if (!themeToUse) {
-        // Nastavíme základný fallback
         themeToUse = 'Clean White';
-
-        // Pripravíme číslo turnaja ako string s nulou na začiatku (napr. 1 -> "01", 45 -> "45")
-        // Toto je dôležité, pretože v kľúčoch máš "01-02-03"
         let myEventNum = file.eventNum < 10 ? '0' + file.eventNum : '' + file.eventNum;
-
-        // Prejdeme všetky kľúče (názvy tém)
         for (const key in vitrineThemes) {
-            // Ignorujeme 'Clean White', hľadáme len tie s číslami
             if (key === 'Clean White') continue;
-
-            // Rozdelíme kľúč podľa pomlčky na pole (napr. "10-11-12" -> ["10", "11", "12"])
             const targetNumbers = key.split('-');
-
-            // Ak sa naše číslo nachádza v tomto zozname, našli sme správnu tému
             if (targetNumbers.includes(myEventNum)) {
                 themeToUse = key;
-                break; // Ukončíme cyklus, máme víťaza
+                break; 
             }
         }
     }
 
-    // Obrázok trofeje logic
+    // --- LOGIKA OBRÁZKA ---
     let eventNumFormatted = file.eventNum < 10 ? '0' + file.eventNum : '' + file.eventNum;
     if(file.eventNum === 0 && file.eventName.match(/^\d+/)) {
         let m = file.eventName.match(/^(\d+)/);
@@ -2884,7 +2937,27 @@ window.openTrophyShowcase = function(fileId) {
     }
     const imgSrc = eventNumFormatted + '.png';
 
-    // Generovanie zoznamu tém pre menu
+    // --- LOGIKA VÍŤAZA ---
+    const winner = file.content.find(p => p.rank === 1);
+    const winnerName = winner ? winner.name : 'N/A';
+    
+    // --- LOGIKA NAVIGÁCIE (PREKLIKÁVANIE MEDZI SEZÓNAMI ROVNAKÉHO TURNAJA) ---
+    // Nájdeme všetky súbory, ktoré majú rovnaké eventNum (alebo eventName ak eventNum je 0)
+    // a zoradíme ich podľa sezóny.
+    const sameEventFiles = db.files.filter(f => {
+        if (file.eventNum !== 0) return f.eventNum === file.eventNum;
+        return f.eventName === file.eventName;
+    }).sort((a,b) => parseInt(a.season) - parseInt(b.season));
+    
+    const currentIndex = sameEventFiles.findIndex(f => f.id === file.id);
+    const prevFile = currentIndex > 0 ? sameEventFiles[currentIndex - 1] : null;
+    const nextFile = currentIndex < sameEventFiles.length - 1 ? sameEventFiles[currentIndex + 1] : null;
+    
+    let navHtml = '';
+    if(prevFile) navHtml += `<button class="vitrine-nav-btn v-prev" onclick="openTrophyShowcase('${prevFile.id}')" title="Sezóna ${prevFile.season}">&#10094;</button>`;
+    if(nextFile) navHtml += `<button class="vitrine-nav-btn v-next" onclick="openTrophyShowcase('${nextFile.id}')" title="Sezóna ${nextFile.season}">&#10095;</button>`;
+
+    // --- MENU TÉM ---
     let themesHtml = '';
     Object.keys(vitrineThemes).forEach(key => {
         const t = vitrineThemes[key];
@@ -2906,25 +2979,26 @@ window.openTrophyShowcase = function(fileId) {
         </div>
 
         <button class="vitrine-close" onclick="closeTopModal()">&times;</button>
+        ${navHtml}
         
         <div class="vitrine-content">
             <img src="${imgSrc}" class="vitrine-img" alt="Trophy" 
                  onerror="this.outerHTML='<div style=&quot;font-size:8rem; margin-bottom:20px;&quot;>🏆</div><div style=&quot;color:#555; font-weight:bold;&quot;>Obrázok chýba</div>'">
             <div class="vitrine-title">${file.eventName}</div>
             <div class="vitrine-subtitle">SEZÓNA ${file.season} • VÍŤAZNÁ TROFEJ</div>
+            <div class="vitrine-winner" onclick="openPlayerProfile('${winnerName}')">${winnerName}</div>
         </div>
     `;
 
     createModal(html);
     
-    // Zmeníme štýl modalu na vitrínu a aplikujeme vypočítanú tému
+    // Aplikácia témy
     const overlays = document.querySelectorAll('.modal-overlay');
     const currentOverlay = overlays[overlays.length - 1];
     if (currentOverlay) {
         const modalBox = currentOverlay.querySelector('.modal');
         if (modalBox) {
             modalBox.className = 'modal vitrine-modal';
-            // Aplikujeme tému (null znamená, že ju neukladáme do DB, len zobrazíme)
             setVitrineTheme(themeToUse, null); 
         }
     }
@@ -2952,10 +3026,12 @@ window.setVitrineTheme = function(themeName, fileId = null) {
         
         const title = modalBox.querySelector('.vitrine-title');
         const sub = modalBox.querySelector('.vitrine-subtitle');
+        const winner = modalBox.querySelector('.vitrine-winner'); // Nové
         const closeBtn = modalBox.querySelector('.vitrine-close');
         
         if(title) title.style.color = theme.text;
         if(sub) sub.style.color = theme.text === '#fff' ? '#ddd' : '#666';
+        if(winner) winner.style.color = theme.text === '#fff' ? '#f1c40f' : '#b8860b'; // Zlatá farba pre víťaza
         if(closeBtn) closeBtn.style.color = theme.text;
     }
     
@@ -2975,6 +3051,8 @@ window.setVitrineTheme = function(themeName, fileId = null) {
         if (type === 'Association') { list = getAssociationRankList(); title = 'Association Rank (The Players - Last 10)'; }
         if (type === 'FEDEX') { list = getFedExRankList(); title = 'FED EX Rank (Posledná sezóna - All Tours)'; }
         if (type === 'ELO') { list = getELORankList(); title = 'ELO Ranking (Skill Level)'; }
+        // Pridaný AMATEUR RANK (KFT)
+        if (type === 'Amateur') { list = getAmateurRankList(); title = 'Amateur Rank (KFT Tour)'; }
 
         if (!list) { alert('Nedostatok dát pre výpočet.'); return; }
         
@@ -3499,7 +3577,6 @@ window.setVitrineTheme = function(themeName, fileId = null) {
         else if (mode === 2) { btnColor = 'var(--accent-blue)'; targetContent = modalStack.length > 0 ? 'width=1200, initial-scale=0.5' : 'width=device-width, initial-scale=1.0'; }
         meta.setAttribute('content', targetContent); if(btn) btn.style.color = btnColor;
     }
-
     function openSettings() {
         let themeBtns = '';
         Object.keys(colorSchemes).forEach(k => {
@@ -3560,11 +3637,45 @@ window.setVitrineTheme = function(themeName, fileId = null) {
             let label = f.name, style = '';
             if (f.isImportant) { label = '★ ' + label; style = 'color: var(--highlight-gold); font-weight: bold;'; } 
             else if (f.isSignificant) { label = '= ' + label; style = 'color: var(--accent-blue);'; }
-            return `<div style="display:flex; justify-content:space-between; background:#222; padding:8px; margin-bottom:5px; border-radius:4px; align-items:center;"><span style="${style}">${label}</span><button class="btn btn-red btn-sm" onclick="deleteFile(${f.id})">X</button></div>`
+            
+            // Pridané tlačidlo na stiahnutie (⬇)
+            return `
+            <div style="display:flex; justify-content:space-between; background:#222; padding:8px; margin-bottom:5px; border-radius:4px; align-items:center;">
+                <span style="${style}; flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; margin-right:10px;">${label}</span>
+                <div style="display:flex; gap:5px;">
+                    <button class="btn btn-blue btn-sm" onclick="downloadOriginalFile(${f.id})" title="Stiahnuť originál TXT">⬇</button>
+                    <button class="btn btn-red btn-sm" onclick="deleteFile(${f.id})" title="Vymazať">X</button>
+                </div>
+            </div>`
         }).join('');
+        
         const seasonList = db.seasonStats.map(s => `<div style="display:flex; justify-content:space-between; background:#1a3a3a; padding:8px; margin-bottom:5px; border-radius:4px; align-items:center; border:1px solid #2ecc71"><span>SEZÓNA ${s.season} (${s.filename})</span><button class="btn btn-red btn-sm" onclick="deleteSeasonFile('${s.season}')">X</button></div>`).join('');
         const html = `<div class="modal-header"><h2>Správca súborov</h2><button class="close-btn" onclick="closeTopModal()">&times;</button></div><div class="modal-body"><h3>Sezónne Štatistiky</h3>${seasonList || '<small>Žiadne sezónne súbory.</small>'}<h3 style="margin-top:15px">Turnajové Súbory (${files.length})</h3>${list || '<small>Žiadne turnaje.</small>'}</div>`;
         createModal(html);
+    }
+
+    // --- NOVÁ FUNKCIA NA REKONŠTRUKCIU A STIAHNUTIE TXT ---
+    function downloadOriginalFile(id) {
+        const f = db.files.find(x => x.id === id);
+        if(!f) return;
+        
+        let content = "";
+        // Zoradíme podľa umiestnenia, ako v pôvodnom súbore zvyčajne býva
+        const players = [...f.content].sort((a,b) => a.rank - b.rank);
+        
+        players.forEach((p, idx) => {
+            content += `${p.name}\n${p.par}\n${p.r1}\n${p.r2}\n${p.r3}\n${p.r4}\n${p.points}`;
+            if(idx < players.length - 1) content += "\n";
+        });
+
+        const blob = new Blob([content], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = f.name.endsWith('.txt') ? f.name : f.name + '.txt';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
     }
 
     function deleteFile(id) { db.files = db.files.filter(f => f.id !== id); calculateELO(); calculateGlobalAchievements(); saveAuto(); closeTopModal(); openFileManager(); renderApp(); }
@@ -3575,7 +3686,7 @@ window.setVitrineTheme = function(themeName, fileId = null) {
             db.seasonStats = []; 
             appState.filters.events = []; 
             appState.filters.seasons = []; 
-            appState.unlockedBadges = {}; // <--- VYMAZANIE PAMÄTE ODZNAKOV
+            appState.unlockedBadges = {}; 
             calculateELO(); 
             calculateGlobalAchievements(); 
             renderApp(); 
@@ -3751,6 +3862,9 @@ window.setVitrineTheme = function(themeName, fileId = null) {
 
         const sortedFiles = [...db.files].sort(compareFiles);
         sortedFiles.forEach(f => {
+            // --- KFT IZOLÁCIA: KFT turnaje sa nepočítajú do kariet ---
+            if (f.type === 'KFT') return;
+
             f.content.forEach(p => {
                 const name = normalizeName(p.name);
                 if (!pMap[name]) pMap[name] = { 
