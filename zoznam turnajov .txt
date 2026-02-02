@@ -1,0 +1,45 @@
+01 KFT - Wisconsin Open       
+02 KFT - Desert Championship       
+03 KFT - California Classic        
+04 KFT - Florida Open       
+05 KFT - Hilton Head Invitational       
+06 KFT - Canadian Championship       
+07 KFT - Oregon Championship       
+08 KFT - Boston Open       
+09 KFT - Charlotte Championship       
+10 PGA - The American Express        
+11 PGA - Farmers Insurance Open        
+12 PGA - AT&T Pebble Beach       
+13 PGA - WM Phoenix Open       
+14 PGA - The Genesis Invitation =       
+15 PGA - The Florida Classic =       
+16 PGA - Arnold Palmer Invitational by Mastercard =       
+17 EA - Lighthouse Open       
+18 PLAYERS -  THE PLAYERS Championship !       
+19 PGA - Pacific Championship =       
+20 EA - EA SPORTS Championship =       
+21 EA - Wetlands Championship        
+22 PGA - Carolina Open =       
+23 PGA - MASTERS Tournament !       
+24 PGA - RBC Heritage        
+25 PGA - Mesquite Classic =       
+26 PGA - French Open =       
+27 PGA - Wells Fargo Championship        
+28 EA - Tiburon Championship        
+29 PGA - PGA Championship !       
+30 PGA - New Jersey Challenge =       
+31 PGA - The Sawgrass Invitational =       
+32 PGA - Alberta Open =       
+33 PGA - U.S. OPEN !        
+34 PGA - Kiwi Championship =       
+35 PGA - The Maine Classic =       
+36 PGA - Dominican Open =       
+37 EA - Nevada Championship       
+38 PGA - THE OPEN Championship !        
+39 EA - Banff Championship        
+40 PGA - Kohler Open =       
+41 PGA - Arizona Classic =       
+42 PGA - New England Championship =       
+43 Main - FedEx  St. Jude Championship !       
+44 Main - FedEx  BMW Championship !       
+45 Main - FedEx  Tour Championship !       

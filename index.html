@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta id="viewportMeta" name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ArciWeb - PGA StatsKeeper V4.78(Gallery Edition)</title>
+    <title>ArciWeb - PGA StatsKeeper V4.79(Gallery Edition)</title>
     <style>
         :root {
             --bg-color: #1e1e1e;
@@ -677,7 +677,7 @@
 
     <header>
         <div class="header-left">
-            <h1>ArciWeb - PGA StatsKeeper <span class="version">v4.78</span></h1>
+            <h1>ArciWeb - PGA StatsKeeper <span class="version">v4.79</span></h1>
             <div class="header-ranks">
                 <span class="header-rank-link" style="color:var(--highlight-gold)" onclick="showRankTable('PGA')">PGA Rank</span>
                 <span class="header-rank-link" style="color:var(--accent-blue)" onclick="showRankTable('Official')">Official Rank</span>
@@ -3832,19 +3832,35 @@ if(recordId.includes('lowest') || recordId.includes('avg') || recordId === 'adap
         }
     }
 
-    function saveToSlot(i) { const data = JSON.stringify({ db, appState }); localStorage.setItem(`ArciWeb_Slot_${i}`, data); renderSlots(); }
-    function loadFromSlot(i) {
-        const data = localStorage.getItem(`ArciWeb_Slot_${i}`);
-        if(data) {
-            const parsed = JSON.parse(data);
-            db = parsed.db; if(!db.seasonStats) db.seasonStats = [];
-            appState = parsed.appState;
-            calculateELO();
-            calculateGlobalAchievements();
-            applyTheme(appState.settings.theme); updateViewport(); renderApp(); saveAuto(); closeTopModal();
+    function saveToSlot(i) { 
+        if(confirm("Naozaj chcete uložiť hru do Slotu " + i + "? (Prepíše to staré dáta)")) {
+            const data = JSON.stringify({ db, appState }); 
+            localStorage.setItem(`ArciWeb_Slot_${i}`, data); 
+            renderSlots(); 
         }
     }
-    function deleteSlot(i) { localStorage.removeItem(`ArciWeb_Slot_${i}`); renderSlots(); }
+
+
+    function loadFromSlot(i) {
+        if(confirm("Naozaj chcete načítať hru zo Slotu " + i + "? (Stratíte neuložené zmeny)")) {
+            const data = localStorage.getItem(`ArciWeb_Slot_${i}`);
+            if(data) {
+                const parsed = JSON.parse(data);
+                db = parsed.db; if(!db.seasonStats) db.seasonStats = [];
+                appState = parsed.appState;
+                calculateELO();
+                calculateGlobalAchievements();
+                applyTheme(appState.settings.theme); updateViewport(); renderApp(); saveAuto(); closeTopModal();
+            }
+        }
+    }
+
+    function deleteSlot(i) { 
+        if(confirm("Naozaj chcete vymazať hru v Slote " + i + "?")) {
+            localStorage.removeItem(`ArciWeb_Slot_${i}`); 
+            renderSlots(); 
+        }
+    }
     function saveAuto() { localStorage.setItem('autosave_v380', JSON.stringify({ db, appState })); }
     function loadAutoSave() {
         const data = localStorage.getItem('autosave_v380');
