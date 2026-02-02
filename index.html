@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta id="viewportMeta" name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ArciWeb - PGA StatsKeeper V4.76(Gallery Edition)</title>
+    <title>ArciWeb - PGA StatsKeeper V4.78(Gallery Edition)</title>
     <style>
         :root {
             --bg-color: #1e1e1e;
@@ -677,7 +677,7 @@
 
     <header>
         <div class="header-left">
-            <h1>ArciWeb - PGA StatsKeeper <span class="version">v4.76</span></h1>
+            <h1>ArciWeb - PGA StatsKeeper <span class="version">v4.78</span></h1>
             <div class="header-ranks">
                 <span class="header-rank-link" style="color:var(--highlight-gold)" onclick="showRankTable('PGA')">PGA Rank</span>
                 <span class="header-rank-link" style="color:var(--accent-blue)" onclick="showRankTable('Official')">Official Rank</span>
@@ -1026,7 +1026,7 @@ const vitrineThemes = {
         { id: 'win_streak', name: 'Win Streak', desc: 'Najviac výhier v rade za sebou.', icon: '🔥', format: (v) => `${v}x` },
         { id: 'best_weekend', name: 'Best Weekend', desc: 'Najnižší súčet skóre za víkend (R3 + R4).', icon: '🎉', format: (v) => v },
         { id: 'worst_collapse', name: 'Worst Collapse', desc: 'Najväčšie zhoršenie skóre medzi R3 a R4 (R4 >> R3).', icon: '🥀', format: (v) => `+${v}` },
-        { id: 'comeback_kid', name: 'Comeback Kid', desc: 'Najväčšie zlepšenie skóre medzi R3 a R4 (R4 << R3).', icon: '🆙', format: (v) => `-${v}` },
+        { id: 'comeback_kid', name: 'Comeback Kid', desc: 'Najväčšie zlepšenie skóre medzi R3 a R4 (R4 << R3).', icon: '🆙', format: (v) => v.toFixed(2) },
         { id: 'scoring_machine', name: 'Sub-70 Machine', desc: 'Počet kôl zahraných pod 70 úderov.', icon: '🔫', format: (v) => `${v}x` },
         { id: 'kft_king', name: 'KFT King', desc: 'Najviac bodov získaných na KFT Tour.', icon: '🚜', format: (v) => v.toFixed(0) },
         { id: 'pga_dominator', name: 'PGA Dominator', desc: 'Najviac bodov získaných na PGA Tour.', icon: '🏙️', format: (v) => v.toFixed(0) },
@@ -3273,11 +3273,14 @@ window.setVitrineTheme = function(themeName, fileId = null) {
              return { name: p.realName, val: val, debug: p };
         }).filter(item => item.val !== null && item.val !== undefined && item.val !== 999 && item.val !== -999);
 
-        if(recordId.includes('lowest') || recordId.includes('avg') || recordId === 'adapter' || recordId === 'comeback_kid' || recordId === 'scratch') {
-            list.sort((a,b) => a.val - b.val); 
-        } else {
-            list.sort((a,b) => b.val - a.val); 
-        }
+
+// Opravená podmienka pre zoraďovanie
+if(recordId.includes('lowest') || recordId.includes('avg') || recordId === 'adapter' || recordId === 'comeback_kid' || recordId === 'scratch' || recordId === 'under_par_total') {
+    list.sort((a,b) => a.val - b.val); // Zoradí od najnižšieho (-100 bude prvé)
+} else {
+    list.sort((a,b) => b.val - a.val); 
+}
+
 
         const top20 = list.slice(0, 20);
         
@@ -3335,7 +3338,7 @@ window.setVitrineTheme = function(themeName, fileId = null) {
         if(recId === 'win_streak') return s.maxWinStreak;
         if(recId === 'best_weekend') return s.bestWeekend !== 999 ? s.bestWeekend : null;
         if(recId === 'worst_collapse') return s.r3_r4_diff_count >= 3 ? s.avgCollapse : null;
-        if(recId === 'comeback_kid') return s.r3_r4_diff_count >= 3 ? Math.abs(s.avgCollapse) : null;
+        if(recId === 'comeback_kid') return s.r3_r4_diff_count >= 3 ? s.avgCollapse : null;
         if(recId === 'scoring_machine') return s.sub70;
         if(recId === 'kft_king') return s.kftPoints;
         if(recId === 'pga_dominator') return s.pgaPoints;
@@ -3500,18 +3503,25 @@ window.setVitrineTheme = function(themeName, fileId = null) {
         const players = calculateAllPlayerStatsForRecords();
         const leaders = {};
         recordsDef.forEach(rec => {
+             // Získame kandidátov
              const candidates = players.map(p => ({ realName: p.realName, val: getRecordValueForPlayer(p, rec.id) }))
-                                       .filter(x => x.val !== null && x.val !== undefined && x.val !== 999 && x.val !== -999);
+                                       // OPRAVA: Pridané "&& x.val !== 0" na koniec filtra
+                                       // Týmto vylúčime hráčov, ktorí majú hodnotu 0 (napr. 0 Aces, 0 Birdies atď.)
+                                       .filter(x => x.val !== null && x.val !== undefined && x.val !== 999 && x.val !== -999 && x.val !== 0);
              
-             if(rec.id.includes('lowest') || rec.id.includes('avg') || rec.id === 'adapter' || rec.id === 'comeback_kid' || rec.id === 'scratch') {
+             // Zoradenie podľa typu rekordu (niektoré sú lepšie nižšie, iné vyššie)
+             if(rec.id.includes('lowest') || rec.id.includes('avg') || rec.id === 'adapter' || rec.id === 'comeback_kid' || rec.id === 'scratch' || rec.id === 'under_par_total') {
                  candidates.sort((a,b) => a.val - b.val);
              } else {
                  candidates.sort((a,b) => b.val - a.val);
              }
+             
+             // Ak existuje aspoň jeden kandidát s nenulovou hodnotou, zapíšeme ho
              if(candidates.length > 0) leaders[rec.id] = { holder: candidates[0].realName, val: candidates[0].val };
         });
         return leaders;
     }
+
 
     // --- Hall of Fame ---
     window.openHallOfFame = function() {
