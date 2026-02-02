@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta id="viewportMeta" name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ArciWeb - PGA StatsKeeper V4.72(Gallery Edition)</title>
+    <title>ArciWeb - PGA StatsKeeper V4.76(Gallery Edition)</title>
     <style>
         :root {
             --bg-color: #1e1e1e;
@@ -43,12 +43,12 @@
         }
 
         .header-left { display: flex; flex-direction: column; gap: 5px; }
-        h1 { margin: 0; font-size: 1.4rem; font-weight: 700; }
-        .version { font-size: 0.7rem; color: var(--text-muted); margin-left: 5px; vertical-align: middle; }
+        h1 { margin: 0; font-size: 1.5rem; font-weight: 700; }
+        .version { font-size: 0.6rem; color: var(--text-muted); margin-left: 5px; vertical-align: middle; }
 
         .header-ranks { display: flex; flex-wrap: wrap; gap: 15px; margin-top: 5px; }
         .header-rank-link {
-            font-size: 0.85rem; color: var(--accent-green); cursor: pointer;
+            font-size: 0.75rem; color: var(--accent-green); cursor: pointer;
             text-decoration: none; border-bottom: 1px dotted var(--accent-green); transition: var(--transition);
         }
         .header-rank-link:hover { color: var(--highlight-gold); border-bottom-color: var(--highlight-gold); }
@@ -677,7 +677,7 @@
 
     <header>
         <div class="header-left">
-            <h1>ArciWeb - PGA StatsKeeper <span class="version">v4.72</span></h1>
+            <h1>ArciWeb - PGA StatsKeeper <span class="version">v4.76</span></h1>
             <div class="header-ranks">
                 <span class="header-rank-link" style="color:var(--highlight-gold)" onclick="showRankTable('PGA')">PGA Rank</span>
                 <span class="header-rank-link" style="color:var(--accent-blue)" onclick="showRankTable('Official')">Official Rank</span>
@@ -943,9 +943,9 @@ const vitrineThemes = {
         // --- NOVÝCH 40 ACHIEVEMENTOV ---
         
         // KFT & Specialized Wins
-        { id: 'kft_grad', icon: '🎓', name: 'KFT Graduate', desc: 'Vyhral aspoň 1 turnaj na KFT Tour.', cat: 'wins' },
-        { id: 'kft_legend', icon: '🚜', name: 'KFT Legend', desc: 'Vyhral 3 a viac turnajov na KFT Tour.', cat: 'wins' },
-        { id: 'grand_slam', icon: '🌍', name: 'Global Conqueror', desc: 'Vyhral na PGA, KFT aj EA Sports Tour.', cat: 'wins' },
+        { id: 'ea_grad', icon: '🎓', name: 'EA Graduate', desc: 'Vyhral aspoň 2 turnaje na EA Tour.', cat: 'wins' },
+        { id: 'ea_legend', icon: '🚜', name: 'EA Legend', desc: 'Vyhral 3 a viac turnajov na EA Tour.', cat: 'wins' },
+        { id: 'grand_slam', icon: '🌍', name: 'Global Conqueror', desc: 'Vyhral na PGA, FED Ex aj EA Sports Tour.', cat: 'wins' },
         { id: 'silver_col', icon: '🥈', name: 'Silver Collector', desc: 'Získal 5x druhé miesto.', cat: 'wins' },
         { id: 'bronze_col', icon: '🥉', name: 'Bronze Medalist', desc: 'Získal 5x tretie miesto.', cat: 'wins' },
         
@@ -1630,9 +1630,9 @@ const vitrineThemes = {
             check('solid', avgPerHole < 3.90);
             check('never_back', stats.r1_80_cut);
             check('lucky7', stats.top5 >= 7 && stats.wins >= 1);
-            check('kft_grad', stats.kftWins >= 1);
-            check('kft_legend', stats.kftWins >= 3);
-            check('grand_slam', stats.pgaWins > 0 && stats.kftWins > 0 && stats.eaWins > 0);
+            check('ea_grad', stats.eaWins >= 2);
+            check('ea_legend', stats.eaWins >= 3);
+            check('grand_slam', stats.pgaWins > 0 && stats.mainWins > 0 && stats.eaWins > 0);
             check('silver_col', stats.secondPlaces >= 5);
             check('bronze_col', stats.thirdPlaces >= 5);
             check('mr_59', stats.sub60); 
@@ -2220,6 +2220,67 @@ const vitrineThemes = {
             });
             tbody.appendChild(tr);
         });
+        // --- ZAČIATOK: ŠTATISTIKA POČTU HRÁČOV (Footer) ---
+        if (data.length > 0) {
+            // 1. Zistíme zoznam všetkých PRO hráčov z celej databázy
+            const proToursList = ['PGA', 'EA SPORTS', 'THE PLAYERS', 'FED EX'];
+            const globalProNames = new Set();
+            
+            db.files.forEach(f => {
+                if (proToursList.includes(f.type)) {
+                    f.content.forEach(p => globalProNames.add(normalizeName(p.name)));
+                }
+            });
+
+            // 2. Spočítame počty len pre aktuálne zobrazených hráčov v tabuľke
+            let countPro = 0;
+            let countAm = 0;
+            
+            data.forEach(p => {
+                const n = normalizeName(p.name);
+                // Kontrola: Ak je v zozname PRO mien, alebo sa naň veľmi podobá (preklepy)
+                let isPro = false;
+                if (globalProNames.has(n)) {
+                    isPro = true;
+                } else {
+                    // Fuzzy kontrola pre istotu (ak by bolo meno v DB mierne inak zapísané)
+                    for (let proName of globalProNames) {
+                        if (getDistance(n, proName) <= 1) { isPro = true; break; }
+                    }
+                }
+
+                if (isPro) countPro++;
+                else countAm++;
+            });
+
+            // 3. Vytvoríme spodný riadok tabuľky
+            const footerTr = document.createElement('tr');
+            footerTr.style.backgroundColor = '#252525';
+            footerTr.style.borderTop = '2px solid #555';
+            
+            const footerTd = document.createElement('td');
+            footerTd.colSpan = columns.length; // Roztiahnuť cez všetky stĺpce
+            footerTd.style.textAlign = 'center';
+            footerTd.style.padding = '15px';
+            footerTd.style.fontSize = '0.9rem';
+            
+            footerTd.innerHTML = `
+                <span style="display:inline-block; margin: 0 15px; padding: 5px 10px; background:rgba(255,255,255,0.05); border-radius:6px;">
+                    Počet Hráčov: <strong style="color:var(--text-main); font-size:1.1em;">${data.length}</strong>
+                </span>
+                <span style="display:inline-block; margin: 0 15px; padding: 5px 10px; background:rgba(241, 196, 15, 0.1); border-radius:6px; border:1px solid rgba(241, 196, 15, 0.3);">
+                    Počet Profesionálov: <strong style="color:var(--highlight-gold); font-size:1.1em;">${countPro}</strong>
+                </span>
+                <span style="display:inline-block; margin: 0 15px; padding: 5px 10px; background:rgba(255,255,255,0.05); border-radius:6px;">
+                    Počet Amatérov: <strong style="color:#bdc3c7; font-size:1.1em;">${countAm}</strong>
+                </span>
+            `;
+            
+            footerTr.appendChild(footerTd);
+            tbody.appendChild(footerTr);
+        }
+        // --- KONIEC: ŠTATISTIKA POČTU HRÁČOV ---
+
     }
     // --- UI Actions ---
     function changeSort(col) {
@@ -2340,6 +2401,7 @@ const vitrineThemes = {
             bestRank: 999, rankSum: 0, rankCount: 0,
             bestRound: 999, worstRound: -999,
             cut: 0, top20: 0, top5: 0, wins: 0, trophies: 0,
+            secondPlaces: 0, thirdPlaces: 0,
             r1Sum: 0, r1Count: 0, r2Sum: 0, r2Count: 0, r3Sum: 0, r3Count: 0, r4Sum: 0, r4Count: 0,
             history: [], rounds: [],
             h2h: {} 
@@ -2436,6 +2498,7 @@ const vitrineThemes = {
                     });
                 }
                 else if (p.rank === 2) {
+                    stats.secondPlaces++;
                     trophyCollection.push({
                         name: f.eventName,
                         season: f.season,
@@ -2447,6 +2510,7 @@ const vitrineThemes = {
                     });
                 }
                 else if (p.rank === 3) {
+                    stats.thirdPlaces++;
                     trophyCollection.push({
                         name: f.eventName,
                         season: f.season,
@@ -2530,8 +2594,52 @@ const vitrineThemes = {
                 </div>
             </div>`;
 
+        // --- PLAYER CARD ATTRIBUTES (DEFINITÍVNA OPRAVA) ---
+        // Musíme vypočítať ÚPLNE VŠETKO nanovo iba pre PGA/Pro turnaje (bez KFT)
+        // Aby sme neodkazovali na "stats", ktorá KFT obsahuje.
+        
+        let cardStats = { 
+            wins: 0, top5: 0, cut: 0, top20: 0, tourneys: 0, majorCount: 0,
+            totalHoles: 0,
+            historyRanks: [],
+            // Pridávame sumy pre výpočet priemerov (MNT atribút)
+            r1Sum: 0, r1Count: 0,
+            r4Sum: 0, r4Count: 0
+        };
+        
+        relevantFiles.forEach(f => {
+            // 1. ZÁSADNÝ FILTER: Ignorujeme KFT
+            if (f.type === 'KFT') return;
 
-        // --- PLAYER CARD ATTRIBUTES ---
+            const p = f.content.find(pl => {
+                 const n = normalizeName(pl.name);
+                 return n === normPlayer || getDistance(n, normPlayer) <= 1;
+            });
+
+            if (p) {
+                cardStats.tourneys++;
+                cardStats.historyRanks.push(p.rank);
+
+                if (p.rank === 1) cardStats.wins++;
+                if (p.rank <= 5) cardStats.top5++;
+                if (p.rank <= 20) cardStats.top20++;
+                if (p.points > 0) cardStats.cut++;
+                if (f.isImportant || f.isSignificant) cardStats.majorCount++;
+
+                // 2. ZÁSADNÝ VÝPOČET: Počítame údery len z PRO turnajov
+                [p.r1, p.r2, p.r3, p.r4].forEach((r, idx) => {
+                    if (r !== 'NA') {
+                        const val = parseInt(r);
+                        cardStats.totalHoles += 18;
+                        // Pre MNT potrebujeme R1 a R4
+                        if (idx === 0) { cardStats.r1Sum += val; cardStats.r1Count++; }
+                        if (idx === 3) { cardStats.r4Sum += val; cardStats.r4Count++; }
+                    }
+                });
+            }
+        });
+
+        // Sezónne štatistiky (Birdies/Eagles) - tu sa berie všetko (rovnako ako v globálnom rebríčku)
         let sStats = { games: 0, aces: 0, de: 0, eagles: 0, birdies: 0, pars: 0, bogeys: 0, db: 0 };
         const seasonFilesToUse = db.seasonStats.filter(sFile => activeSeasons.length === 0 || activeSeasons.includes(sFile.season));
         seasonFilesToUse.forEach(sFile => {
@@ -2546,33 +2654,42 @@ const vitrineThemes = {
         });
         sStats.games = sStats.aces + sStats.de + sStats.eagles + sStats.birdies + sStats.pars + sStats.bogeys + sStats.db;
 
-        const holesPlayed = stats.totalHoles || 1;
+        // --- VÝPOČET ATRIBÚTOV (Teraz používame výhradne cardStats) ---
+
+        // PWR: Používame jamky bez KFT
+        const holesPlayed = cardStats.totalHoles || 1; 
         const birdieRatio = (sStats.birdies + (sStats.eagles*3)) / holesPlayed; 
-        let pwr = Math.round(50 + (birdieRatio * 120) + (stats.wins * 1.5));
+        let pwr = Math.round(50 + (birdieRatio * 120) + (cardStats.wins * 1.5));
         
+        // ACC: Ostáva nezmenené (pomer Par/Bogey)
         const safeRatio = sStats.bogeys > 0 ? (sStats.pars / sStats.bogeys) : (sStats.pars > 0 ? 15 : 5);
         let acc = Math.round(55 + (safeRatio * 2.5));
 
-        const r1Avg = stats.r1Count ? stats.r1Sum/stats.r1Count : 72;
-        const r4Avg = stats.r4Count ? stats.r4Sum/stats.r4Count : 72;
+        // MNT: TOTO BOL PROBLÉM. Teraz používame priemery z cardStats (bez KFT)
+        const r1Avg = cardStats.r1Count ? cardStats.r1Sum/cardStats.r1Count : 72;
+        const r4Avg = cardStats.r4Count ? cardStats.r4Sum/cardStats.r4Count : 72;
         const clutchFactor = (r1Avg - r4Avg);
-        let mnt = Math.round(60 + (clutchFactor * 5) + (stats.top5 * 1.5) + (stats.majorCount * 1));
+        let mnt = Math.round(60 + (clutchFactor * 5) + (cardStats.top5 * 1.5) + (cardStats.majorCount * 1));
 
-        const cutPct = stats.tournamentCount ? (stats.cut / stats.tournamentCount) : 0;
-        const top20Pct = stats.tournamentCount ? (stats.top20 / stats.tournamentCount) : 0;
+        // CON: Používame cardStats (bez KFT)
+        const cutPct = cardStats.tourneys ? (cardStats.cut / cardStats.tourneys) : 0;
+        const top20Pct = cardStats.tourneys ? (cardStats.top20 / cardStats.tourneys) : 0;
         let con = Math.round(40 + (cutPct * 30) + (top20Pct * 30));
 
+        // FRM: Používame cardStats (bez KFT)
         let form = 70;
-        if(graphData.length > 0) {
-            const last3 = graphData.slice(Math.max(0, graphData.length - 3));
-            const avgPos = last3.reduce((a,b) => a + b.rank, 0) / last3.length;
+        if(cardStats.historyRanks.length > 0) {
+            // Pozor: relevantFiles sú zoradené od najnovších, takže berieme prvých 3
+            const last3 = cardStats.historyRanks.slice(0, 3);
+            const avgPos = last3.reduce((a,b) => a + b, 0) / last3.length;
             form = Math.round(99 - (avgPos * 1.2));
         }
 
         const clamp = (v) => Math.max(40, Math.min(99, v));
         pwr = clamp(pwr); acc = clamp(acc); mnt = clamp(mnt); con = clamp(con); form = clamp(form);
         const ovr = Math.round((pwr + acc + mnt + con + form) / 5);
-        
+
+
         // Card Color Logic
         let cardColorClass = 'red'; 
         const allCards = calculateAllPlayersAttributes().sort((a,b) => b.ovr - a.ovr);
@@ -2764,7 +2881,7 @@ const vitrineThemes = {
                 <div class="stat-box highlight" onclick="showRankTable('Association')"><div class="stat-label" style="color:var(--accent-red)">Association</div><div class="stat-value rank-clickable" style="color:var(--accent-red)">${assocRankVal}</div></div>
                 <div class="stat-box highlight" onclick="showRankTable('ELO')" style="border-color:#fff"><div class="stat-label">ELO Rank</div><div class="stat-value">${eloRank}</div></div>
                 <div class="stat-box highlight" onclick="showRankTable('Amateur')"><div class="stat-label" style="color:#bdc3c7">Amateur Rank</div><div class="stat-value rank-clickable" style="color:#bdc3c7">${amateurRankVal}</div></div>
-
+                <div class="stat-box highlight" title="Súčet všetkých 1., 2. a 3. miest"><div class="stat-label" style="color:#ffd700">Trofeje & Medaily</div><div class="stat-value" style="color:#fff">${stats.wins + stats.secondPlaces + stats.thirdPlaces}</div></div>
                 <div class="stat-box season-highlight"><div class="stat-label" style="font-weight:bold; color:var(--text-main)">Games</div><div class="stat-value white">${sStats.games}</div></div>
                 <div class="stat-box season-highlight"><div class="stat-label">Aces</div><div class="stat-value green">${sStats.aces}</div></div>
                 <div class="stat-box season-highlight"><div class="stat-label">D. Eagles</div><div class="stat-value green">${sStats.de}</div></div>
