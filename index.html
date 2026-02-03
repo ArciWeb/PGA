@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta id="viewportMeta" name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ArciWeb - PGA StatsKeeper V4.84(Gallery Edition)</title>
+    <title>ArciWeb - PGA StatsKeeper V4.89(Gallery Edition)</title>
     <style>
         :root {
             --bg-color: #1e1e1e;
@@ -646,6 +646,23 @@
                 50% { transform: translateY(-20px) rotate(0.5deg); }
             }
 
+/* --- ŠTÝL PRE VEĽKÚ FOTKU HRÁČA (PHOTOSHOP STYLE) --- */
+.vitrine-player-img {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    height: auto;
+    max-height: 55vh; /* Fotka bude siahať max do polovice obrazovky */
+    width: auto;
+    max-width: 95vw;
+    object-fit: contain;
+    filter: drop-shadow(0 -5px 15px rgba(0,0,0,0.5));
+    z-index: 1; /* Bude pod textom ak sa prekrývajú, pre popredie daj vyššie číslo */
+    pointer-events: none;
+}
+
+
 /* --- VITRINE THEME MENU --- */
 .vitrine-theme-wrapper {
     position: absolute;
@@ -720,7 +737,7 @@
 
     <header>
         <div class="header-left">
-            <h1>ArciWeb - PGA StatsKeeper <span class="version">v4.84</span></h1>
+            <h1>ArciWeb - PGA StatsKeeper <span class="version">v4.89</span></h1>
             <div class="header-ranks">
                 <span class="header-rank-link" style="color:var(--highlight-gold)" onclick="showRankTable('PGA')">PGA Rank</span>
                 <span class="header-rank-link" style="color:var(--accent-blue)" onclick="showRankTable('Official')">Official Rank</span>
@@ -3167,7 +3184,7 @@ window.openTrophyShowcase = function(fileId) {
             <div class="vitrine-winner" onclick="openPlayerProfile('${winnerName}')">${winnerName}</div>
             
             <img src="${winnerName}.png" 
-                 style="height:140px; width:auto; margin-top:10px; object-fit:contain; filter: drop-shadow(0 5px 15px rgba(0,0,0,0.5)); pointer-events:none;" 
+                 class="vitrine-player-img" 
                  onerror="this.onerror=null;this.src='Nezname2.png';">
         </div>
     `;
