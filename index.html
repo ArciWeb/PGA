@@ -206,15 +206,20 @@
         .rank-clickable { cursor: pointer; text-decoration: underline; text-decoration-style: dotted; }
         .rank-clickable:hover { color: var(--accent-green); }
 
-        /* --- PLAYER CARD --- */
         .player-card-container {
             display: flex; gap: 40px; 
             background: linear-gradient(145deg, #333 0%, #000 100%);
             padding: 15px; border-radius: 12px; margin-bottom: 20px;
             border: 2px solid #444; box-shadow: 0 10px 25px rgba(0,0,0,0.6);
-            align-items: center; position: relative; overflow: hidden;
+            align-items: center; position: relative; 
+            
+            /* TOTO JE ZMENA - ZVÄČŠÍME KARTU ABY SA TAM FOTKA ZMESTILA */
+            min-height: 300px;  
+            overflow: hidden; /* Aby fotka nepretrčala von z oblých rohov */
+            
             transition: border-color 0.3s, box-shadow 0.3s, background 0.3s;
         }
+
 
         .player-card-container.gold { 
             background: linear-gradient(135deg, #f1c40f 0%, #b8860b 100%); 
@@ -262,8 +267,8 @@
          /* --- PROFILOVÁ FOTKA (VEĽKÁ A NEZMENŠITEĽNÁ) --- */
         .card-player-img {
             /* Nastavíme pevnú veľkosť */
-            width: 860px;
-            height: 860px;
+            width: 560px;
+            height: 560px;
             
             /* TOTO JE KĽÚČOVÉ: Zakáže prehliadaču fotku zmenšiť, aj keď je málo miesta */
             min-width: 360px; 
