@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta id="viewportMeta" name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ArciWeb - PGA StatsKeeper V4.89.6(Gallery Edition)</title>
+    <title>ArciWeb - PGA StatsKeeper V4.92.1(Gallery Edition)</title>
     <style>
         :root {
             --bg-color: #1e1e1e;
@@ -151,7 +151,11 @@
             opacity: 0; animation: fadeIn 0.2s forwards; z-index: 1000;
         }
         /* Dynamické vrstvenie pre viacero okien */
-        .modal-overlay.stacked { background: rgba(0,0,0,0.6); }
+        .modal-overlay.stacked { 
+    background: rgba(0,0,0,0.6); 
+    backdrop-filter: none; /* TOTO JE KĽÚČOVÁ OPRAVA */
+    -webkit-backdrop-filter: none;
+}
 
         .modal {
             background-color: var(--bg-color);
@@ -222,24 +226,47 @@
             transition: border-color 0.3s, box-shadow 0.3s, background 0.3s;
         }
 
-        .player-card-container.gold { 
-            background: linear-gradient(135deg, #f1c40f 0%, #b8860b 100%); border-color: #fff; box-shadow: 0 0 25px rgba(241, 196, 15, 0.4);
-        }
-        .player-card-container.silver { 
-            background: linear-gradient(135deg, #bdc3c7 0%, #7f8c8d 100%); border-color: #fff; box-shadow: 0 0 25px rgba(189, 195, 199, 0.4);
-        }
-        .player-card-container.bronze { 
-            background: linear-gradient(135deg, #d35400 0%, #8b4513 100%); border-color: #fff; box-shadow: 0 0 25px rgba(211, 84, 0, 0.4);
-        }
-        .player-card-container.green { 
-            background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%); border-color: #fff; box-shadow: 0 0 20px rgba(46, 204, 113, 0.3);
-        }
-        .player-card-container.orange { 
-            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%); border-color: #fff; box-shadow: 0 0 20px rgba(230, 126, 34, 0.3);
-        }
-        .player-card-container.red { 
-            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%); border-color: #fff; box-shadow: 0 0 20px rgba(231, 76, 60, 0.3);
-        }
+.player-card-container.gold { 
+    /* Viacstupňový gradient pre efekt zlatého odlesku */
+    background: linear-gradient(135deg, #BF953F 0%, #FCF6BA 25%, #B38728 50%, #FBF5B7 75%, #AA771C 100%);
+    border-color: #fff; 
+    box-shadow: 0 0 30px rgba(251, 245, 183, 0.6);
+}
+
+.player-card-container.silver { 
+    /* Striedanie sivej a bielej pre efekt lešteného striebra */
+    background: linear-gradient(135deg, #E2E2E2 0%, #FFFFFF 25%, #9E9E9E 50%, #FFFFFF 75%, #8A8A8A 100%);
+    border-color: #fff; 
+    box-shadow: 0 0 25px rgba(255, 255, 255, 0.5);
+}
+
+.player-card-container.bronze { 
+    /* Hlboká meď s jasným svetlým pruhom uprostred */
+    background: linear-gradient(135deg, #804A00 0%, #FFC880 25%, #B06F20 50%, #FFC880 75%, #804A00 100%);
+    border-color: #fff; 
+    box-shadow: 0 0 25px rgba(255, 200, 128, 0.4);
+}
+
+.player-card-container.green { 
+    /* Ponechané bez zmeny */
+    background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%); 
+    border-color: #fff; 
+    box-shadow: 0 0 20px rgba(46, 204, 113, 0.3);
+}
+
+.player-card-container.blue { 
+    /* Zaujímavá "Royal Blue" až azúrová */
+    background: linear-gradient(135deg, #00c6ff 0%, #0072ff 100%);
+    border-color: #fff; 
+    box-shadow: 0 0 20px rgba(0, 198, 255, 0.4);
+}
+
+.player-card-container.cherry { 
+    /* Výrazná hlboká višňová, prechádzajúca do jasnej červenej */
+    background: linear-gradient(135deg, #960018 0%, #FF0844 100%);
+    border-color: #fff; 
+    box-shadow: 0 0 25px rgba(255, 8, 68, 0.4);
+}
 
         /* Box pre OVR (Vpravo hore) */
         .card-ovr-box {
@@ -758,7 +785,7 @@
 
     <header>
         <div class="header-left">
-            <h1>ArciWeb - PGA StatsKeeper <span class="version">v4.89.6</span></h1>
+            <h1>ArciWeb - PGA StatsKeeper <span class="version">v4.92.1</span></h1>
             <div class="header-ranks">
                 <span class="header-rank-link" style="color:var(--highlight-gold)" onclick="showRankTable('PGA')">PGA Rank</span>
                 <span class="header-rank-link" style="color:var(--accent-blue)" onclick="showRankTable('Official')">Official Rank</span>
@@ -2786,8 +2813,8 @@ const vitrineThemes = {
         else if (myCardRank === 2) cardColorClass = 'silver';
         else if (myCardRank === 3) cardColorClass = 'bronze';
         else if (myCardRank <= 10) cardColorClass = 'green';
-        else if (myCardRank <= 100) cardColorClass = 'orange';
-        else cardColorClass = 'red';
+        else if (myCardRank <= 100) cardColorClass = 'blue';
+        else cardColorClass = 'cherry';
 
         // --- ÚPRAVA: Rozdelenie mena na dva riadky (Meno <br> Priezvisko) ---
         const nameParts = realPlayerName.split(' ');
@@ -3343,7 +3370,7 @@ window.setVitrineTheme = function(themeName, fileId = null) {
         const percentage = totalPlayers > 0 ? ((holders.length / totalPlayers) * 100).toFixed(1) : 0;
 
         const holdersHtml = holders.map(h => `
-            <div class="ach-player-card" onclick="closeTopModal(); setTimeout(() => openPlayerProfile('${h}'), 100);">
+            <div class="ach-player-card" onclick="openPlayerProfile('${h}')">
                 <div style="font-weight:bold; color:#fff;">${h}</div>
             </div>
         `).join('');
@@ -3404,7 +3431,7 @@ window.setVitrineTheme = function(themeName, fileId = null) {
         const top20 = list.slice(0, 20);
         
         const rows = top20.map((item, idx) => `
-            <tr onclick="closeTopModal(); setTimeout(() => openPlayerProfile('${item.name}'), 100);" style="cursor:pointer">
+            <tr onclick="openPlayerProfile('${item.name}')" style="cursor:pointer">
                 <td>${idx+1}.</td>
                 <td style="font-weight:bold; text-align:left;">${item.name}</td>
                 <td style="color:var(--highlight-gold); text-align:right;">${def.format(item.val)}</td>
@@ -3799,20 +3826,28 @@ window.setVitrineTheme = function(themeName, fileId = null) {
     }
 
     // --- Settings & Utils ---
-    function createModal(contentHtml, id = null) {
-        const layer = document.getElementById('popupsLayer');
-        const overlay = document.createElement('div');
+function createModal(contentHtml, id = null) {
+    const layer = document.getElementById('popupsLayer');
+    const overlay = document.createElement('div');
+    
+    // OPRAVA: Ak už je nejaké okno otvorené (stack > 0), pridáme triedu 'stacked'
+    if (modalStack.length > 0) {
+        overlay.className = 'modal-overlay stacked';
+    } else {
         overlay.className = 'modal-overlay';
-        overlay.style.zIndex = 1000 + modalStack.length * 10;
-        if (id) overlay.id = id + '-overlay';
-        overlay.innerHTML = `<div class="modal">${contentHtml}</div>`;
-        overlay.addEventListener('click', (e) => { if (e.target === overlay) closeTopModal(); });
-        layer.appendChild(overlay);
-        modalStack.push(overlay);
-        document.body.style.overflow = 'hidden';
-        window.history.pushState({ modal: true }, "");
-        if (appState.settings.zoom === 2) updateViewport();
     }
+
+    overlay.style.zIndex = 1000 + modalStack.length * 10;
+    if (id) overlay.id = id + '-overlay';
+    overlay.innerHTML = `<div class="modal">${contentHtml}</div>`;
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) closeTopModal(); });
+    layer.appendChild(overlay);
+    modalStack.push(overlay);
+    document.body.style.overflow = 'hidden';
+    window.history.pushState({ modal: true }, "");
+    if (appState.settings.zoom === 2) updateViewport();
+}
+
 
     function closeTopModal(backHistory = true) {
         if (modalStack.length === 0) return;
@@ -4050,7 +4085,7 @@ window.setVitrineTheme = function(themeName, fileId = null) {
             else if (rank <= 100) rankColor = '#e67e22';
 
             return `
-            <tr onclick="closeTopModal(); setTimeout(() => openPlayerProfile('${p.name}'), 100);" style="cursor:pointer">
+            <tr onclick="openPlayerProfile('${p.name}')" style="cursor:pointer">
                 <td><span style="font-weight:bold; color:${rankColor}">${rank}.</span></td>
                 <td style="text-align:left; font-weight:bold;">${p.name}</td>
                 <td style="font-weight:bold; color:${ovrColor}; font-size:1.1rem;">${p.ovr}</td>
