@@ -259,35 +259,45 @@
         .card-ovr-val { font-size: 2.8rem; font-weight: 900; line-height: 1; letter-spacing: -2px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
         .card-ovr-label { font-size: 0.8rem; font-weight: 800; text-transform: uppercase; margin-top: 0px; opacity: 0.8; }
         
-        /* --- NOVÝ ŠTÝL PRE PROFILOVÚ FOTKU (VÄČŠIA A BEZ RÁMU) --- */
+         /* --- PROFILOVÁ FOTKA (VEĽKÁ A NEZMENŠITEĽNÁ) --- */
         .card-player-img {
-            width: 360px;          /* Zväčšené zo 110px */
-            height: 360px;         /* Zväčšené zo 110px */
-            object-fit: contain;   /* Zmenené na contain, aby sa celá postava/tvár zmestila a neorezal sa vrch */
+            /* Nastavíme pevnú veľkosť */
+            width: 360px;
+            height: 360px;
+            
+            /* TOTO JE KĽÚČOVÉ: Zakáže prehliadaču fotku zmenšiť, aj keď je málo miesta */
+            min-width: 360px; 
+            flex-shrink: 0;   
+            
+            object-fit: contain;
             object-position: bottom center;
             
-            margin-right: 15px;
-            margin-left: 5px;
+            /* Posunieme ju trochu doľava/doprava, aby nezavadzala */
+            margin-right: 0px; 
+            margin-left: -20px; /* Jemne prekryje OVR box, vyzerá to dynamickejšie */
             
-            /* Odstránený rámik a pozadie (štvorček) */
             border: none;
             background: transparent;
             box-shadow: none;
-
-            /* Jemný tieň len za postavou/obrázkom */
-            filter: drop-shadow(0 5px 10px rgba(0,0,0,0.5));
+            filter: drop-shadow(0 5px 15px rgba(0,0,0,0.6));
             
-            z-index: 5; /* Aby bola fotka popredí */
+            z-index: 5;
             transition: transform 0.3s ease;
         }
 
         .card-player-img:hover {
-            transform: scale(1.05); /* Efekt zväčšenia pri nabehnutí myšou */
+            transform: scale(1.1);
         }
 
-        @media (max-width: 600px) {
-            /* Na mobile trochu menšia, aby nezabrala celú obrazovku */
-            .card-player-img { width: 130px; height: 130px; margin: 5px auto; display:block; }
+        /* Dôležité: Na mobiloch to musíme zmenšiť, inak to rozbije obrazovku */
+        @media (max-width: 800px) {
+            .card-player-img { 
+                width: 200px; 
+                height: 200px; 
+                min-width: 200px;
+                margin: 5px auto; 
+                display: block; 
+            }
         }
         /* ------------------------------------- */
 
