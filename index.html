@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta id="viewportMeta" name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ArciWeb - PGA StatsKeeper V4.81(Gallery Edition)</title>
+    <title>ArciWeb - PGA StatsKeeper V4.82(Gallery Edition)</title>
     <style>
         :root {
             --bg-color: #1e1e1e;
@@ -259,25 +259,38 @@
         .card-ovr-val { font-size: 2.8rem; font-weight: 900; line-height: 1; letter-spacing: -2px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
         .card-ovr-label { font-size: 0.8rem; font-weight: 800; text-transform: uppercase; margin-top: 0px; opacity: 0.8; }
         
-        /* --- NOVÝ ŠTÝL PRE PROFILOVÚ FOTKU --- */
+        /* --- NOVÝ ŠTÝL PRE PROFILOVÚ FOTKU (VÄČŠIA A BEZ RÁMU) --- */
         .card-player-img {
-            width: 110px;
-            height: 110px;
-            object-fit: cover;
-            object-position: top center;
-            border-radius: 8px;
-            margin-right: 20px;
-            margin-left: 10px;
-            border: 2px solid rgba(255,255,255,0.3);
-            background-color: rgba(0,0,0,0.2);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.4);
-            z-index: 2;
+            width: 160px;          /* Zväčšené zo 110px */
+            height: 160px;         /* Zväčšené zo 110px */
+            object-fit: contain;   /* Zmenené na contain, aby sa celá postava/tvár zmestila a neorezal sa vrch */
+            object-position: bottom center;
+            
+            margin-right: 15px;
+            margin-left: 5px;
+            
+            /* Odstránený rámik a pozadie (štvorček) */
+            border: none;
+            background: transparent;
+            box-shadow: none;
+
+            /* Jemný tieň len za postavou/obrázkom */
+            filter: drop-shadow(0 5px 10px rgba(0,0,0,0.5));
+            
+            z-index: 5; /* Aby bola fotka popredí */
+            transition: transform 0.3s ease;
+        }
+
+        .card-player-img:hover {
+            transform: scale(1.05); /* Efekt zväčšenia pri nabehnutí myšou */
         }
 
         @media (max-width: 600px) {
-            .card-player-img { width: 90px; height: 90px; margin: 10px 0; }
+            /* Na mobile trochu menšia, aby nezabrala celú obrazovku */
+            .card-player-img { width: 130px; height: 130px; margin: 5px auto; display:block; }
         }
         /* ------------------------------------- */
+
 
         .card-info { flex: 1; display: flex; flex-direction: column; justify-content: center; z-index: 1; }
         .card-name { font-size: 1.6rem; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; color: #fff; text-shadow: 0 2px 5px rgba(0,0,0,0.9); }
@@ -697,7 +710,7 @@
 
     <header>
         <div class="header-left">
-            <h1>ArciWeb - PGA StatsKeeper <span class="version">v4.81</span></h1>
+            <h1>ArciWeb - PGA StatsKeeper <span class="version">v4.82</span></h1>
             <div class="header-ranks">
                 <span class="header-rank-link" style="color:var(--highlight-gold)" onclick="showRankTable('PGA')">PGA Rank</span>
                 <span class="header-rank-link" style="color:var(--accent-blue)" onclick="showRankTable('Official')">Official Rank</span>
