@@ -1133,6 +1133,7 @@ const vitrineThemes = {
 
     
     let modalStack = [];
+    let isProgrammaticBack = false; // Oprava dvojitého zatvárania
     let slotToUpload = null;
     const VALID_TOURS = ['KFT', 'PGA', 'EA SPORTS', 'THE PLAYERS', 'FED EX', 'MAIN'];
 
@@ -1229,6 +1230,11 @@ const vitrineThemes = {
         renderApp();
 
         window.onpopstate = function(event) {
+            // Ak sme stlačili krížik, ignorujeme túto udalosť, aby sa nezavrelo aj okno pod tým
+            if (isProgrammaticBack) {
+                isProgrammaticBack = false;
+                return;
+            }
             if (modalStack.length > 0) closeTopModal(false);
         };
 
@@ -3159,7 +3165,9 @@ window.openTrophyShowcase = function(fileId) {
             <div class="vitrine-title">${file.eventName}</div>
             <div class="vitrine-subtitle">SEZÓNA ${file.season} • VÍŤAZNÁ TROFEJ</div>
             <div class="vitrine-winner" onclick="openPlayerProfile('${winnerName}')">${winnerName}</div>
+            <img src="${winnerName}.png" style="height:140px; width:auto; margin-top:10px; object-fit:contain; filter: drop-shadow(0 5px 15px rgba(0,0,0,0.5)); pointer-events:none;" onerror="this.style.display='none'">
         </div>
+
     `;
 
     createModal(html);
@@ -3765,9 +3773,16 @@ window.setVitrineTheme = function(themeName, fileId = null) {
         const overlay = modalStack.pop();
         overlay.remove();
         if (modalStack.length === 0) document.body.style.overflow = 'auto';
-        if (backHistory) window.history.back();
+        
+        if (backHistory) {
+            // Nastavíme vlajku, že toto zatvorenie sme vyvolali my (krížikom), nie tlačidlom späť
+            isProgrammaticBack = true;
+            window.history.back();
+        }
+        
         if (appState.settings.zoom === 2) updateViewport();
     }
+
 
     function toggleZoom() { appState.settings.zoom = (appState.settings.zoom + 1) % 3; updateViewport(); saveAuto(); }
     function updateViewport() { applyZoom(appState.settings.zoom); }
