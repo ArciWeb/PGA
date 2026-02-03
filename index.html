@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta id="viewportMeta" name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ArciWeb - PGA StatsKeeper V4.82(Gallery Edition)</title>
+    <title>ArciWeb - PGA StatsKeeper V4.84(Gallery Edition)</title>
     <style>
         :root {
             --bg-color: #1e1e1e;
@@ -241,12 +241,10 @@
             background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%); border-color: #fff; box-shadow: 0 0 20px rgba(231, 76, 60, 0.3);
         }
 
-        /* Box pre OVR - presunutý doprava hore */
+        /* Box pre OVR (Vpravo hore) */
         .card-ovr-box {
-            position: absolute; /* Vytrhnuté z toku */
-            top: 20px;
-            right: 20px;
-            
+            position: absolute;
+            top: 20px; right: 20px;
             width: 80px; height: 100px;
             background: #1e272e; 
             clip-path: polygon(0% 0%, 100% 0%, 100% 85%, 50% 100%, 0% 85%);
@@ -256,49 +254,59 @@
             border-top: 2px solid rgba(255,255,255,0.2);
             z-index: 10;
         }
-
         .card-ovr-val { font-size: 2.5rem; font-weight: 900; line-height: 1; letter-spacing: -2px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
         .card-ovr-label { font-size: 0.7rem; font-weight: 800; text-transform: uppercase; margin-top: 0px; opacity: 0.8; }
         
-        /* Fotka - ostrá a cez celú kartu */
-        .card-player-img {
+        /* Box pre MENO (Vľavo hore - Len text bez rámčeka) */
+        .card-name-box {
             position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            object-fit: cover;
-            object-position: top center;
-            z-index: 0;
-            opacity: 1; /* OSTRÁ FOTKA (pôvodne bolo 0.6) */
-            pointer-events: none;
+            top: 25px; left: 25px;
+            z-index: 10;
+            display: flex;
+            align-items: flex-start;
+        }
+        .card-name-text {
+            color: #fff; font-weight: 900; text-transform: uppercase; letter-spacing: 1px;
+            font-size: 1.4rem; /* Zväčšené písmo */
+            text-align: left;
+            line-height: 1.1;
+            /* Silný tieň aby bolo meno čitateľné na každom pozadí */
+            text-shadow: 3px 3px 0 #000, 0 0 10px rgba(0,0,0,0.5);
+        }
+
+
+        /* Fotka */
+        .card-player-img {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            object-fit: cover; object-position: top center;
+            z-index: 0; opacity: 1; pointer-events: none;
         }
         .card-player-img:hover { transform: scale(1.05); transition: transform 5s ease; }
 
-        /* Informácie (Meno, PWR, atď) - dole a s tmavým pozadím pre čitateľnosť */
+        /* Informácie (Atribúty) - upravené centrovanie */
         .card-info { 
-            width: 100%;
-            position: relative; 
-            z-index: 5; 
-            padding: 80px 20px 20px 20px; /* Horný padding robí prechod plynulým */
-            
-            /* Prechod do čiernej, aby bolo biele písmo čitateľné na akejkoľvek fotke */
+            width: 100%; position: relative; z-index: 5; 
+            padding: 80px 20px 20px 20px;
             background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.6) 60%, transparent 100%);
-            
-            text-align: center;
-            text-shadow: 0 2px 5px rgba(0,0,0,1);
-        }
-        
-        .card-name { 
-            font-size: 1.8rem; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; 
-            margin-bottom: 15px; color: #fff; 
+            text-align: center; text-shadow: 0 2px 5px rgba(0,0,0,1);
         }
         
         .card-attrs { 
-            display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px 20px; 
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; 
             border-top: 1px solid rgba(255,255,255,0.2);
             padding-top: 10px;
         }
-        .attr-row { display: flex; justify-content: space-between; align-items: center; padding: 2px 0; }
-        .attr-name { color: #ddd; font-size: 0.85rem; font-weight: 600; }
-        .attr-val { font-weight: bold; color: #fff; font-size: 1.1rem; }
+        
+        /* Centrovanie atribútov k sebe */
+        .attr-row { 
+            display: flex; 
+            justify-content: center; /* Toto to dá do stredu */
+            align-items: center; 
+            padding: 2px 0; 
+            gap: 8px; /* Medzera medzi PWR a číslom */
+        }
+        .attr-name { color: #ddd; font-size: 0.85rem; font-weight: 600; text-align: right; }
+        .attr-val { font-weight: bold; color: #fff; font-size: 1.1rem; text-align: left; }
         .attr-val.high { color: #2ecc71; }
         .attr-val.low { color: #e74c3c; }
 
@@ -710,7 +718,7 @@
 
     <header>
         <div class="header-left">
-            <h1>ArciWeb - PGA StatsKeeper <span class="version">v4.82</span></h1>
+            <h1>ArciWeb - PGA StatsKeeper <span class="version">v4.84</span></h1>
             <div class="header-ranks">
                 <span class="header-rank-link" style="color:var(--highlight-gold)" onclick="showRankTable('PGA')">PGA Rank</span>
                 <span class="header-rank-link" style="color:var(--accent-blue)" onclick="showRankTable('Official')">Official Rank</span>
@@ -2735,8 +2743,19 @@ const vitrineThemes = {
         else if (myCardRank <= 100) cardColorClass = 'orange';
         else cardColorClass = 'red';
 
+        // --- ÚPRAVA: Rozdelenie mena na dva riadky (Meno <br> Priezvisko) ---
+        const nameParts = realPlayerName.split(' ');
+        const fName = nameParts[0]; // Prvé meno
+        const lName = nameParts.slice(1).join(' '); // Zvyšok (priezvisko)
+        // Ak existuje priezvisko, vložíme <br>, inak necháme len meno
+        const splitNameHtml = lName ? `${fName}<br>${lName}` : fName;
+
          const playerCardHtml = `
         <div class="player-card-container ${cardColorClass}" onclick="showGlobalPlayerCards()" style="cursor:pointer" title="Klikni pre zobrazenie rebríčka všetkých hráčov">
+            <div class="card-name-box">
+                <div class="card-name-text">${splitNameHtml}</div>
+            </div>
+
             <div class="card-ovr-box">
                 <div class="card-ovr-val">${ovr}</div>
                 <div class="card-ovr-label">OVR</div>
@@ -2745,7 +2764,6 @@ const vitrineThemes = {
             <img src="${realPlayerName}.png" onerror="this.onerror=null;this.src='Nezname.png';" class="card-player-img" alt="${realPlayerName}">
             
             <div class="card-info">
-                <div class="card-name">${realPlayerName}</div>
                 <div class="card-attrs">
                     <div class="attr-row"><span class="attr-name">PWR</span><span class="attr-val ${pwr>85?'high':''}">${pwr}</span></div>
                     <div class="attr-row"><span class="attr-name">ACC</span><span class="attr-val ${acc>85?'high':''}">${acc}</span></div>
