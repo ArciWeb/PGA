@@ -259,55 +259,47 @@
             color: #fff; flex-shrink: 0; 
             box-shadow: 0 5px 15px rgba(0,0,0,0.5);
             border-top: 2px solid rgba(255,255,255,0.2);
+            position: relative;
+            z-index: 2;
         }
+
 
         .card-ovr-val { font-size: 2.8rem; font-weight: 900; line-height: 1; letter-spacing: -2px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
         .card-ovr-label { font-size: 0.8rem; font-weight: 800; text-transform: uppercase; margin-top: 0px; opacity: 0.8; }
         
          /* --- PROFILOVÁ FOTKA (VEĽKÁ A NEZMENŠITEĽNÁ) --- */
-        .card-player-img {
-            /* Nastavíme pevnú veľkosť */
-            width: 780px;
-            height: 780px;
-            
-            /* TOTO JE KĽÚČOVÉ: Zakáže prehliadaču fotku zmenšiť, aj keď je málo miesta */
-            min-width: 360px; 
-            flex-shrink: 0;   
-            
-            object-fit: contain;
-            object-position: bottom center;
-            
-            /* Posunieme ju trochu doľava/doprava, aby nezavadzala */
-            margin-right: 0px; 
-            margin-left: -20px; /* Jemne prekryje OVR box, vyzerá to dynamickejšie */
-            
-            border: none;
-            background: transparent;
-            box-shadow: none;
-            filter: drop-shadow(0 5px 15px rgba(0,0,0,0.6));
-            
-            z-index: 5;
-            transition: transform 0.3s ease;
-        }
+.card-player-img {
+    position: absolute;   /* Kľúčové: vytrhne fotku z flexboxu */
+    top: 0;
+    left: 0;
+    width: 100%;          /* Roztiahne na celú šírku karty */
+    height: 100%;         /* Roztiahne na celú výšku karty */
+    
+    object-fit: cover;    /* Fotka vyplní celú plochu (ak chceš celú postavu, skús 'contain') */
+    object-position: top center; /* Zameria sa na vrch fotky (tvár) */
+    
+    z-index: 0;           /* Dáme ju DOZADU */
+    opacity: 0.6;         /* (Voliteľné) Jemne ju stmaví/spriehľadní, aby bol text čitateľný */
+    margin: 0;            /* Zrušíme staré okraje */
+    pointer-events: none; /* Aby sa dalo kliknúť na kartu cez fotku */
+}
 
         .card-player-img:hover {
             transform: scale(1.1);
         }
-
-        /* Dôležité: Na mobiloch to musíme zmenšiť, inak to rozbije obrazovku */
-        @media (max-width: 800px) {
-            .card-player-img { 
-                width: 200px; 
-                height: 200px; 
-                min-width: 200px;
-                margin: 5px auto; 
-                display: block; 
-            }
         }
         /* ------------------------------------- */
 
 
-        .card-info { flex: 1; display: flex; flex-direction: column; justify-content: center; z-index: 1; }
+        .card-info { 
+            flex: 1; 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: center; 
+            position: relative; 
+            z-index: 2; 
+            text-shadow: 0 2px 5px rgba(0,0,0,0.9);
+        }
         .card-name { font-size: 1.6rem; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; color: #fff; text-shadow: 0 2px 5px rgba(0,0,0,0.9); }
         
         .card-attrs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px 15px; }
