@@ -3087,7 +3087,7 @@ window.openTournamentDetails = function(fileId) {
     createModal(html);
 };
  
-// --- VYLEPŠENÁ FUNKCIA: VITRÍNA S PAMÄŤOU, VÍŤAZOM A NAVIGÁCIOU ---
+/// --- VYLEPŠENÁ FUNKCIA: VITRÍNA S PAMÄŤOU, VÍŤAZOM A NAVIGÁCIOU ---
 window.openTrophyShowcase = function(fileId) {
     const file = db.files.find(f => f.id == fileId);
     if (!file) return;
@@ -3107,7 +3107,7 @@ window.openTrophyShowcase = function(fileId) {
         }
     }
 
-    // --- LOGIKA OBRÁZKA ---
+    // --- LOGIKA OBRÁZKA TROFEJE ---
     let eventNumFormatted = file.eventNum < 10 ? '0' + file.eventNum : '' + file.eventNum;
     if(file.eventNum === 0 && file.eventName.match(/^\d+/)) {
         let m = file.eventName.match(/^(\d+)/);
@@ -3119,9 +3119,7 @@ window.openTrophyShowcase = function(fileId) {
     const winner = file.content.find(p => p.rank === 1);
     const winnerName = winner ? winner.name : 'N/A';
     
-    // --- LOGIKA NAVIGÁCIE (PREKLIKÁVANIE MEDZI SEZÓNAMI ROVNAKÉHO TURNAJA) ---
-    // Nájdeme všetky súbory, ktoré majú rovnaké eventNum (alebo eventName ak eventNum je 0)
-    // a zoradíme ich podľa sezóny.
+    // --- LOGIKA NAVIGÁCIE ---
     const sameEventFiles = db.files.filter(f => {
         if (file.eventNum !== 0) return f.eventNum === file.eventNum;
         return f.eventName === file.eventName;
@@ -3165,9 +3163,11 @@ window.openTrophyShowcase = function(fileId) {
             <div class="vitrine-title">${file.eventName}</div>
             <div class="vitrine-subtitle">SEZÓNA ${file.season} • VÍŤAZNÁ TROFEJ</div>
             <div class="vitrine-winner" onclick="openPlayerProfile('${winnerName}')">${winnerName}</div>
-            <img src="${winnerName}.png" style="height:140px; width:auto; margin-top:10px; object-fit:contain; filter: drop-shadow(0 5px 15px rgba(0,0,0,0.5)); pointer-events:none;" onerror="this.style.display='none'">
+            
+            <img src="${winnerName}.png" 
+                 style="height:140px; width:auto; margin-top:10px; object-fit:contain; filter: drop-shadow(0 5px 15px rgba(0,0,0,0.5)); pointer-events:none;" 
+                 onerror="this.onerror=null;this.src='Nezname2.png';">
         </div>
-
     `;
 
     createModal(html);
@@ -3183,6 +3183,7 @@ window.openTrophyShowcase = function(fileId) {
         }
     }
 }
+
 
 
 // --- VYLEPŠENÁ FUNKCIA NA ZMENU A ULOŽENIE TÉMY ---
