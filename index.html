@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta id="viewportMeta" name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ArciWeb - PGA StatsKeeper V4.89.3(Gallery Edition)</title>
+    <title>ArciWeb - PGA StatsKeeper V4.89.6(Gallery Edition)</title>
     <style>
         :root {
             --bg-color: #1e1e1e;
@@ -611,6 +611,7 @@
                 letter-spacing: 5px;
                 text-shadow: 0 2px 4px rgba(255,255,255,0.8);
                 font-family: 'Segoe UI', sans-serif;
+                order: - 1;
             }
 
 
@@ -749,7 +750,7 @@
 
     <header>
         <div class="header-left">
-            <h1>ArciWeb - PGA StatsKeeper <span class="version">v4.89.3</span></h1>
+            <h1>ArciWeb - PGA StatsKeeper <span class="version">v4.89.6</span></h1>
             <div class="header-ranks">
                 <span class="header-rank-link" style="color:var(--highlight-gold)" onclick="showRankTable('PGA')">PGA Rank</span>
                 <span class="header-rank-link" style="color:var(--accent-blue)" onclick="showRankTable('Official')">Official Rank</span>
@@ -3189,13 +3190,15 @@ window.openTrophyShowcase = function(fileId) {
         ${navHtml}
         
         <div class="vitrine-content">
+            <div class="vitrine-title">${file.eventName}</div>
+
             <div class="vitrine-season-label">SEZÓNA ${file.season}</div>
+
             <div class="vitrine-winner" onclick="openPlayerProfile('${winnerName}')">${winnerName}</div>
             
             <img src="${imgSrc}" class="vitrine-img" alt="Trophy" 
                  onerror="this.outerHTML='<div style=&quot;font-size:8rem; margin:20px 0;&quot;>🏆</div><div style=&quot;color:#555; font-weight:bold;&quot;>Obrázok chýba</div>'">
             
-            <div class="vitrine-title">${file.eventName}</div>
         </div> 
 
         <img src="${winnerName}.png" 
