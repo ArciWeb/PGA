@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta id="viewportMeta" name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ArciWeb - PGA StatsKeeper V4.92.1(Gallery Edition)</title>
+    <title>ArciWeb - PGA StatsKeeper V4.92.2(Gallery Edition)</title>
     <style>
         :root {
             --bg-color: #1e1e1e;
@@ -172,7 +172,7 @@
             padding: 15px 20px; border-bottom: 1px solid #333;
             display: flex; justify-content: space-between; align-items: center;
             background: var(--card-bg);
-            position: sticky; top: 0; z-index: 10;
+            position: sticky; top: 0; z-index: 100;
         }
         .modal-header h2 { margin: 0; font-size: 1.2rem; color: var(--text-main); display: flex; align-items: center; gap: 10px;}
         .close-btn { background: none; border: none; color: #fff; font-size: 1.8rem; cursor: pointer; }
@@ -255,11 +255,18 @@
 }
 
 .player-card-container.blue { 
-    /* Zaujímavá "Royal Blue" až azúrová */
-    background: linear-gradient(135deg, #00c6ff 0%, #0072ff 100%);
-    border-color: #fff; 
-    box-shadow: 0 0 20px rgba(0, 198, 255, 0.4);
+    background: linear-gradient(135deg, #606c88 0%, #3f4c6b 100%);
+    border-color: #aaa; 
+    box-shadow: 0 0 20px rgba(96, 108, 136, 0.4);
 }
+
+.player-card-container.grey { 
+    /* Názov triedy je 'grey', ale farba je jasná svetlo-modrá */
+    background: linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%);
+    border-color: #fff; 
+    box-shadow: 0 0 25px rgba(102, 166, 255, 0.5);
+}
+
 
 .player-card-container.cherry { 
     /* Výrazná hlboká višňová, prechádzajúca do jasnej červenej */
@@ -785,7 +792,7 @@
 
     <header>
         <div class="header-left">
-            <h1>ArciWeb - PGA StatsKeeper <span class="version">v4.92.1</span></h1>
+            <h1>ArciWeb - PGA StatsKeeper <span class="version">v4.92.2</span></h1>
             <div class="header-ranks">
                 <span class="header-rank-link" style="color:var(--highlight-gold)" onclick="showRankTable('PGA')">PGA Rank</span>
                 <span class="header-rank-link" style="color:var(--accent-blue)" onclick="showRankTable('Official')">Official Rank</span>
@@ -2807,14 +2814,27 @@ const vitrineThemes = {
         // Card Color Logic
         let cardColorClass = 'red'; 
         const allCards = calculateAllPlayersAttributes().sort((a,b) => b.ovr - a.ovr);
-        const myCardRank = allCards.findIndex(c => c.name === realPlayerName) + 1;
+        
+        // OPRAVA TU:
+        const foundIndex = allCards.findIndex(c => c.name === realPlayerName);
+        let myCardRank = 0;
 
-        if (myCardRank === 1) cardColorClass = 'gold';
+        if (foundIndex === -1) {
+            // Hráč nie je v PRO rebríčku (je amatér / iba KFT)
+            myCardRank = 9999; 
+        } else {
+            // Hráč je v rebríčku
+            myCardRank = foundIndex + 1;
+        }
+
+        if (myCardRank === 9999) cardColorClass = 'grey'; // Alebo 'steel', ak máš takú triedu v CSS
+        else if (myCardRank === 1) cardColorClass = 'gold';
         else if (myCardRank === 2) cardColorClass = 'silver';
         else if (myCardRank === 3) cardColorClass = 'bronze';
         else if (myCardRank <= 10) cardColorClass = 'green';
         else if (myCardRank <= 100) cardColorClass = 'blue';
-        else cardColorClass = 'cherry';
+        else cardColorClass = 'cherry'; // Sem spadnú všetci amatéri (rank 9999)
+
 
         // --- ÚPRAVA: Rozdelenie mena na dva riadky (Meno <br> Priezvisko) ---
         const nameParts = realPlayerName.split(' ');
