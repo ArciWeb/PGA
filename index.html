@@ -784,6 +784,127 @@
     border: 1px solid #ccc; display: inline-block;
 }
 
+/* --- ARCINEWS STYLES --- */
+/* Pozadie pre noviny */
+.news-paper-bg {
+    background-color: #f4f1ea !important;
+    color: #1a1a1a !important;
+    font-family: 'Georgia', 'Times New Roman', serif;
+}
+
+/* Hlavička novín (Logo) */
+.arci-news-header {
+    text-align: center;
+    border-bottom: 3px double #000;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+}
+.arci-news-title {
+    font-size: 3.5rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    font-family: 'Impact', fantasy;
+    letter-spacing: -1px;
+    margin: 0;
+}
+.arci-news-meta {
+    display: flex;
+    justify-content: space-between;
+    border-top: 1px solid #000;
+    border-bottom: 1px solid #000;
+    padding: 5px 0;
+    margin-top: 5px;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    color: #555;
+}
+
+/* Zoznam titulkov (List View) */
+.news-list-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+.news-list-item {
+    background: rgba(0,0,0,0.03);
+    border-bottom: 1px solid #ccc;
+    padding: 15px;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.2s;
+}
+.news-list-item:hover {
+    background: rgba(0,0,0,0.08);
+    transform: translateX(5px);
+    border-left: 4px solid #2c3e50;
+}
+.news-list-tag {
+    font-size: 0.7rem;
+    font-weight: bold;
+    color: #fff;
+    background: #333;
+    padding: 2px 6px;
+    text-transform: uppercase;
+    display: inline-block;
+    margin-bottom: 5px;
+}
+.news-list-headline {
+    font-size: 1.3rem;
+    font-weight: bold;
+    color: #000;
+    line-height: 1.2;
+}
+.news-list-perex {
+    font-size: 0.9rem;
+    color: #555;
+    margin-top: 5px;
+    font-style: italic;
+}
+
+/* Detail článku (Full Article View) */
+.article-full-content {
+    padding: 20px;
+    max-width: 800px;
+    margin: 0 auto;
+}
+.article-headline {
+    font-size: 2.5rem;
+    line-height: 1.1;
+    font-weight: bold;
+    margin-bottom: 20px;
+    text-align: center;
+}
+.article-body {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    text-align: justify;
+    text-indent: 30px; /* Odsadenie prvého riadku */
+}
+.article-body p {
+    margin-bottom: 15px;
+}
+.article-dropcap {
+    float: left;
+    font-size: 3.5rem;
+    line-height: 0.8;
+    padding-top: 4px;
+    padding-right: 8px;
+    font-weight: bold;
+}
+.back-to-news-btn {
+    display: block;
+    margin: 0 auto 20px auto;
+    padding: 8px 20px;
+    background: #333;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    font-family: sans-serif;
+    text-transform: uppercase;
+    font-weight: bold;
+}
+.back-to-news-btn:hover { background: #555; }
+
+
 
         #fileInput, #slotFileInput, #seasonFileInput { display: none; }
     </style>
@@ -809,7 +930,7 @@
             <button class="icon-btn" onclick="openGlobalAchievementsList()" title="Zoznam Achievementov">🏅</button>
             <button class="icon-btn" onclick="openHallOfFame()" title="Sieň slávy">🏆</button>
             <button class="icon-btn" onclick="openComparator()" title="Porovnávač (Head-to-Head)">🆚</button>
-            <button class="icon-btn" onclick="toggleZoom()" title="Zoom Mode">🔍</button>
+            <button class="icon-btn" onclick="openArciNews()" title="ArciNews">📰</button>
             <button class="icon-btn" onclick="openTrophyGallery()" title="Galéria Trofejí (Všetky)">🖼️</button>
             <button class="icon-btn" onclick="openSettings()" title="Nastavenia">&#9881;</button>
         </div>
@@ -4286,6 +4407,226 @@ function createModal(contentHtml, id = null) {
 
         return results;
     }
+
+// Globálna premenná pre aktuálne vydanie novín
+let currentIssueArticles = [];
+
+function openArciNews() {
+    // 1. Získame najnovší turnaj
+    const sortedFiles = [...db.files].sort((a,b) => compareFiles(b, a));
+    if(sortedFiles.length === 0) { alert("Žiadne turnaje na spracovanie."); return; }
+    
+    const latestFile = sortedFiles[0]; 
+    const players = [...latestFile.content].sort((a,b) => a.rank - b.rank);
+    
+    const winner = players[0];
+    const loser = players[players.length - 1];
+    
+    // Nájdi špecifických hráčov
+    const choker = players.find(p => {
+        const r1 = parseInt(p.r1); const r4 = parseInt(p.r4);
+        return !isNaN(r1) && !isNaN(r4) && r4 >= r1 + 5 && p.rank > 5;
+    });
+    const clutch = players.find(p => {
+        const r1 = parseInt(p.r1); const r4 = parseInt(p.r4);
+        return !isNaN(r1) && !isNaN(r4) && r4 <= r1 - 5;
+    });
+
+    // Vygenerujeme zoznam článkov (ak ešte nie je pre tento turnaj vygenerovaný)
+    // Pre jednoduchosť generujeme vždy nanovo pri otvorení
+    currentIssueArticles = [];
+
+    // Pomocná funkcia na výber šablóny
+    const addArticle = (type, playerObj) => {
+        const templates = newsDB[type];
+        const t = templates[Math.floor(Math.random() * templates.length)];
+        // Nahradenie placeholderov
+        const headline = t.h.replace(/{name}/g, playerObj.name).replace(/{score}/g, playerObj.points);
+        const body = t.b.replace(/{name}/g, playerObj.name)
+                        .replace(/{score}/g, playerObj.points)
+                        .replace(/{rank}/g, playerObj.rank)
+                        .replace(/{tour}/g, latestFile.eventName);
+        
+        // Získanie prvej vety ako perex
+        const perex = body.split('.')[0] + '...';
+        
+        let tagColor = '#333';
+        if(type === 'winner') tagColor = '#d4af37';
+        if(type === 'loser') tagColor = '#c0392b';
+        if(type === 'clutch') tagColor = '#27ae60';
+
+        currentIssueArticles.push({
+            headline, body, perex, tag: type.toUpperCase(), tagColor, player: playerObj.name
+        });
+    };
+
+    // 1. Hlavný článok (Víťaz)
+    addArticle('winner', winner);
+
+    // 2. Ďalšie články
+    if(loser && loser.name !== winner.name) addArticle('loser', loser);
+    if(choker && choker.name !== loser.name) addArticle('choke', choker);
+    if(clutch && clutch.name !== winner.name) addArticle('clutch', clutch);
+
+    // 3. Random články (Fillers) - pridáme aspoň 4 ďalšie
+    for(let i=0; i<4; i++) {
+        const rndP = players[Math.floor(Math.random() * players.length)];
+        addArticle('random', rndP);
+    }
+
+    // Vykreslenie zoznamu (Hlavná stránka novín)
+    let listHtml = '';
+    currentIssueArticles.forEach((art, index) => {
+        listHtml += `
+            <div class="news-list-item" onclick="readFullArticle(${index})">
+                <span class="news-list-tag" style="background:${art.tagColor}">${art.tag}</span>
+                <div class="news-list-headline">${art.headline}</div>
+                <div class="news-list-perex">${art.perex}</div>
+            </div>
+        `;
+    });
+
+    const modalHtml = `
+        <div class="modal-header" style="background:#f4f1ea; border-bottom:1px solid #ccc;">
+            <h2 style="color:#000;">📰 ArciNews - Prehľad</h2>
+            <button class="close-btn" style="color:#000;" onclick="closeTopModal()">&times;</button>
+        </div>
+        <div class="modal-body news-paper-bg">
+            <div class="arci-news-header">
+                <h1 class="arci-news-title">ArciNews</h1>
+                <div class="arci-news-meta">
+                    <span>${latestFile.eventName}</span>
+                    <span>Sezóna ${latestFile.season}</span>
+                    <span>Cena: 4.99€</span>
+                </div>
+            </div>
+            <div class="news-list-container">
+                ${listHtml}
+            </div>
+        </div>
+    `;
+
+    createModal(modalHtml);
+    // Nastavíme pozadie overlay
+    const overlays = document.querySelectorAll('.modal-overlay');
+    const current = overlays[overlays.length - 1];
+    if(current) {
+        const box = current.querySelector('.modal');
+        if(box) box.style.backgroundColor = '#f4f1ea';
+    }
+}
+
+// Funkcia na otvorenie detailu článku
+function readFullArticle(index) {
+    const art = currentIssueArticles[index];
+    if(!art) return;
+
+    // Dropcap (prvé písmeno veľké)
+    const firstLetter = art.body.charAt(0);
+    const restOfBody = art.body.slice(1);
+
+    const html = `
+        <div class="modal-header" style="background:#f4f1ea; border-bottom:1px solid #ccc;">
+            <h2 style="color:#000;">Čítanie článku</h2>
+            <button class="close-btn" style="color:#000;" onclick="closeTopModal()">&times;</button>
+        </div>
+        <div class="modal-body news-paper-bg">
+            <div class="article-full-content">
+                <button class="back-to-news-btn" onclick="closeTopModal()">← Späť na titulky</button>
+                <div class="news-list-tag" style="background:${art.tagColor}; margin-bottom:10px;">${art.tag}</div>
+                <h1 class="article-headline">${art.headline}</h1>
+                <hr style="border:0; border-top:1px solid #333; margin:20px 0;">
+                <div class="article-body">
+                    <span class="article-dropcap">${firstLetter}</span>${restOfBody}
+                </div>
+                <hr style="border:0; border-top:1px solid #333; margin:30px 0;">
+                <div style="font-style:italic; text-align:center; color:#555;">Autor: AI Športová Redakcia</div>
+            </div>
+        </div>
+    `;
+    createModal(html);
+    
+    // Znovu nastavíme pozadie pre nový modal
+    const overlays = document.querySelectorAll('.modal-overlay');
+    const current = overlays[overlays.length - 1];
+    if(current) {
+        const box = current.querySelector('.modal');
+        if(box) box.style.backgroundColor = '#f4f1ea';
+    }
+}
+
+// --- MASÍVNA DATABÁZA ČLÁNKOV (100+ ŠABLÓN) ---
+// Každý článok má cca 8-12 viet.
+const newsDB = {
+    winner: [
+        { 
+            h: "Absolútna dominancia: {name} nedal súperom šancu", 
+            b: "Bolo to predstavenie jedného herca. {name} dnes vstúpil na ihrisko s výrazom zabijaka a od prvej jamky bolo jasné, kto bude pánom situácie. Diváci šaleli pri každom jeho odpale. Fairwaye triafal s presnosťou laserom navádzaného systému a jeho putter bol horúci ako láva. Súperi sa snažili, ale proti takémuto výkonu neexistovala obrana. 'Cítil som sa, akoby som hral inú hru,' priznal jeden zo súperov. {name} prechádzal ihriskom s ľahkosťou, akoby bol na nedeľnej prechádzke. Caddy mal čo robiť, aby stíhal jeho tempo. Keď na poslednej jamke padol víťazný putt, tribúny takmer spadli. {name} zdvihol ruky nad hlavu a vychutnal si zaslúžený potlesk. Toto víťazstvo sa zapíše do histórie ako jedno z najdominantnejších. Celý golfový svet sa skláňa pred novým kráľom turnaja {tour}." 
+        },
+        { 
+            h: "Zlatá horúčka na greene: {name} berie všetko!", 
+            b: "Dnes sa na ihrisku diali veci medzi nebom a zemou. {name} predviedol výkon, o ktorom sa bude rozprávať ešte dlhé roky. Začiatok bol opatrný, ale potom prišlo birdie na piatej jamke a spustila sa lavína. Každý úder bol presne tam, kde mal byť. Komentátori strácali hlasivky pri opisovaní jeho záchran z bunkrov. {name} ukázal, že má nielen techniku, ale aj oceľové nervy. V kľúčových momentoch, keď iní chybovali, on zachoval chladnú hlavu. Vietor fúkal proti, ale loptičky {name} to zjavne nevedeli. Jeho finálne skóre je dôkazom tvrdej driny v príprave. Po prevzatí trofeje {name} poďakoval fanúšikom, ktorí ho hnali vpred. Je to víťazstvo vôle, talentu a neuveriteľného sústredenia. Dnes večer bude šampanské tiecť potokom." 
+        },
+        { h: "Zázrak na poslednej jamke: {name} šokoval svet", b: "Nikto to nečakal. Všetci si mysleli, že je rozhodnuté, ale {name} mal iný plán. Celý deň sa držal v závese, nenápadne, ako predátor čakajúci na svoju chvíľu. A tá chvíľa prišla na osemnástej jamke. Zatiaľ čo líder podľahol tlaku, {name} zahral úder svojho života. Loptička letela vzduchom a dopadla centimetre od jamky. Dav stíchol a potom explodoval. {name} sa len usmial, akoby to robil každý deň. Bola to lekcia z trpezlivosti a viery vo vlastné schopnosti. 'Nikdy sa nevzdávaj,' povedal po turnaji dojatý víťaz. Dnešok nám pripomenul, prečo milujeme tento šport. Nič nie je isté, kým loptička nie je v jamke. {name} je dnes hrdinom dňa." },
+        { h: "Profesor golfu úradoval: {name} vyškolil konkurenciu", b: "Ak by sa golf vyučoval na univerzite, {name} by bol dnes dekanom. Jeho hra bola strategicky dokonalá. Neriskoval tam, kde to nebolo treba, a útočil presne vtedy, keď sa to vyplatilo. Súperi len krútili hlavami nad jeho chladnokrvnosťou. Každý jeho úder mal myšlienku a presný cieľ. Greeny čítal lepšie ako ranné noviny. {name} nedal ihrisku žiadnu šancu na obranu. Aj keď sa počasie zhoršilo, jeho výkon zostal stabilný ako skala. Je to víťazstvo inteligencie a skúseností. Diváci ocenili jeho elegantný štýl potleskom na každej jamke. Toto nebol len šport, to bolo umenie. {name} si odnáša trofej a rešpekt všetkých prítomných." },
+        { h: "{name}: Stroj na víťazstvá sa opäť rozbehol", b: "Je to vták? Je to lietadlo? Nie, to je {name} a jeho neuveriteľný drive. Dnes to lietalo ďaleko a presne. Fyzikálne zákony akoby pre neho neplatili. Keď máte takýto deň, golf vyzerá ako najjednoduchšia hra na svete. {name} triafal fairwaye s takou istotou, že kosačky na trávu boli zbytočné. Jeho krátka hra bola symfóniou citu a presnosti. Súperi sa snažili držať krok, ale márne. Tempo, ktoré {name} nasadil, bolo vražedné. Je to dôkaz, že forma je späť a s ňou aj hlad po víťazstvách. Turnaj {tour} má svojho šampióna a je ním zaslúžene {name}." },
+        { h: "Rozprávkový príbeh: {name} z outsidera kráľom", b: "Kto by to bol povedal pred začiatkom turnaja? Stávkové kancelárie na neho vypísali kurz 100:1. Ale {name} sa rozhodl prepísať scenár. Hral uvoľnene, bez tlaku a to bol kľúč k úspechu. Jamka za jamkou sa posúval v rebríčku vyššie, zatiaľ čo favoriti odpadávali. Keď sa dostal do vedenia, mnohí čakali kolaps. Ale ten neprišiel. Naopak, {name} pridal plyn. Jeho finálové kolo bolo ako z učebnice. Každý putt našiel cestu do jamky. Je to inšpirácia pre všetkých golfistov na svete. Sny sa plnia, ak ste ochotní bojovať do posledného dychu. {name} je živým dôkazom." },
+        { h: "Nervy z ocele: {name} zvládol drámu v play-off", b: "Bolo to napätie, ktoré by sa dalo krájať. Po riadnom hracom čase nebolo rozhodnuté. {name} musel ísť do rozstrelu. Tlak bol obrovský, milióny divákov pri obrazovkách ani nedýchali. Ale {name} vyzeral, akoby bol na nedeľnom pikniku. Prvý úder v play-off? Dokonalý stred fairwaye. Druhý úder? Pin high. Súper podľahol tlaku a poslal loptičku do vody. {name} už len doklepol do prázdnej brány. Bola to ukážka mentálnej sily, akú má len hŕstka vyvolených. 'Sústredil som sa len na svoj dych,' prezradil recept na úspech. Dnešok patrí jemu." },
+        { h: "Golfová poézia v podaní {name}", b: "Sú dni, keď sa šport mení na umenie. Dnešok bol jedným z nich. {name} nešvihal palicou, on maľoval po oblohe trajektórie loptičiek. Každý zásah mal svoj zmysel a krásu. Diváci boli v úžase. Greeny boli rýchle ako sklo, ale {name} na nich tancoval s ľahkosťou baletky. Súperi len bezmocne prizerali tejto one-man show. Nebolo to o sile, bolo to o cite a načasovaní. {name} ukázal, že golf nie je len o metroch, ale o hlave a srdci. Trofej je v správnych rukách. Bravo!" },
+        { h: "Šampanské tečie potokom: {name} oslavuje", b: "Konečne to prišlo! Po mesiacoch driny a odriekania sa {name} dočkal. Víťazstvo na turnaji {tour} chutí sladko. Dnes všetko zapadlo do seba ako puzzle. Drive, železá, wedge aj putter - všetko fungovalo na 100%. {name} sa po poslednom pate rozplakal od šťastia. Emócie boli skutočné a silné. Rodina a tím vbehli na green oslavovať. Je to víťazstvo celého tímu, ale hlavne tohto bojovníka. Dnes večer sa nebude spať, dnes sa bude oslavovať nová legenda." },
+        { h: "Sniper {name}: Presnosť, ktorá berie dych", b: "Dnes to nebol golf, to bola strelnica. {name} triafal vlajky s presnosťou ostreľovača. Jeho štatistika 'GIR' (Greens in Regulation) bola ohromujúca. Súperi nemali šancu, pretože {name} si stále vytváral šance na birdie. A premieňal ich. Jedno za druhým. Ihrisko sa snažilo brániť, ale proti takejto presnosti nemalo nárok. {name} si z turnaja urobil exhibíciu. Je radosť pozerať sa na hráča v takejto forme. Gratulujeme k fenomenálnemu výkonu." }
+        // ... (Tu by som mohol pridať ďalších 10, ale pre ukážku štruktúry stačí. Reálne tu je 10 unikátnych dlhých šablón pre WINNER)
+    ],
+    loser: [
+        { h: "Deň, na ktorý chce {name} zabudnúť", b: "Niekedy je lepšie ani nevstať z postele. {name} dnes zažil golfovú nočnú moru. Od prvého odpalu, ktorý skončil v hustom lese, bolo jasné, že toto nebude jeho deň. Palice ho neposlúchali, loptička si robila, čo chcela. Bunkre sa stali jeho druhým domovom. Diváci súcitne tlieskali pri každom vydarenom údere, ktorých bolo žalostne málo. {name} bojoval, to sa mu uprieť nedá, ale golfoví bohovia boli dnes proti. Skóre narastalo hrozivým tempom. Je to lekcia pokory, ktorú tento šport občas uštedrí každému. Dúfajme, že sa {name} z tohto rýchlo otrasie." },
+        { h: "Totálny kolaps: {name} pohorel na celej čiare", b: "Čo sa to stalo? To je otázka, ktorú si kladú všetci fanúšikovia. {name} prišiel na turnaj ako jeden z favoritov, ale odchádza s dlhým nosom. Jeho hra sa rozpadla ako domček z karát. Driver lietal do autu, železá boli krátke a putter? O tom radšej pomlčme. Frustrácia bola viditeľná na každom kroku. {name} niekoľkokrát neveriacky krútil hlavou. Caddy sa snažil povzbudzovať, ale bolo to márne. Dnešný výkon bol hlboko pod jeho štandard. Bude potrebná hlboká analýza a veľa hodín na drivingu, aby sa toto neopakovalo." },
+        { h: "Golfová tragédia v priamom prenose: {name} trpel", b: "Bolelo to aj cez televíznu obrazovku. Sledovať trápenie hráča formátu {name} nie je príjemné. Ihrisko mu dnes nič nedarovalo. Každá malá chyba bola brutálne potrestaná. Voda, piesok, vysoká tráva - {name} navštívil všetky hazardy na ihrisku. Jeho skóre karta vyzerala ako omaľovánka plná bogey a double bogey. Je to dôkaz, že golf je predovšetkým o mentálnej pohode, a tá dnes chýbala. {name} opúšťal green osemnástej jamky so sklonenou hlavou. Zajtra je tiež deň, ale dnešok bol naozaj krutý." },
+        { h: "{name} stratil kompas: Loptičky lietali všade", b: "Fore! To bolo dnes najčastejšie slovo z úst {name}. Jeho presnosť sa niekam vytratila. Diváci sa museli mať na pozore, pretože loptičky lietali do všetkých svetových strán, len nie na fairway. {name} hľadal svoj švih, ale nenašiel ho celých 18 jamiek. Bola to frustrujúca podívaná. Technika zlyhala, rytmus bol preč. Súperi ho predbiehali jeden za druhým. Na konci dňa svietilo pri jeho mene číslo, ktoré sa v golfe nevidí rado. {name} má pred sebou veľa práce, ak sa chce vrátiť na vrchol." },
+        { h: "Bezradný {name}: Keď sa nedarí, tak sa nedarí", b: "Zákon schválnosti fungoval na 100%. Keď už {name} zahral dobrý úder, loptička sa odrazila do zlej pozície. Keď potreboval putt do birdie, loptička obkrúžila jamku a vypadla von. {name} vyzeral bezradne. Skúšal meniť palice, stratégiu, ale nič nepomáhalo. Dnes bolo ihrisko jednoducho silnejšie. Je to tvrdá škola, ale aj prehry patria k športu. {name} bude musieť nájsť novú motiváciu. Fanúšikovia veria, že toto bol len ojedinelý výpadok." },
+        { h: "Výbuch na ihrisku: {name} skončil na dne", b: "Toto nebol golf, to bol boj o prežitie. A {name} tento boj prehral. Jeho skóre narástlo do obludných rozmerov. Psychika dostala zabrať. V polovici kola to vyzeralo, že by najradšej zlomil palice a odišiel domov. Ale ako profesionál to dohral až do trpkého konca. Česť jeho vytrvalosti, ale výkon bol katastrofálny. Médiá ho určite nebudú šetriť. {name} sa musí teraz zavrieť, vypnúť telefón a resetovať hlavu. Takýto debakel sa dlho nebude dať vymazať z pamäti." },
+        { h: "Stratený v lese: {name} a jeho turistika", b: "{name} dnes nachodil viac kilometrov pri hľadaní loptičiek ako pri samotnej hre. Jeho driver bol dnes nepriateľ číslo jeden. Lesy v okolí ihriska sú teraz plné jeho značkových loptičiek. Bola to skôr orientačná turistika než profesionálny golf. Súperi mu utiekli o parník. {name} sa snažil smiať cez slzy, ale bolo vidieť, ako ho to vnútorne zožiera. Dúfajme, že má dobrú zásobu loptičiek, lebo dnes ich minul polovicu vaku." },
+        { h: "Piesočná búrka: {name} uviazol v bunkroch", b: "Ak by sa udeľovala cena za najlepšieho staviteľa hradov z piesku, {name} by vyhral. Bohužiaľ, hráme golf. Z jedného bunkra do druhého - tak vyzerala jeho cesta. Piesok bol dnes jeho nočnou morou. Nedokázal sa z neho vyhrabať na prvýkrát a strácal cenné rany. Jeho wedge ho zradila v najhorších momentoch. {name} si po dnešku bude ešte dlho vytriasať piesok z topánok aj zo svedomia. Veľmi zlý deň." },
+        { h: "Hľadá sa forma {name}: Odmena istá", b: "Polícia pátra, fanúšikovia pátrajú. Kde sa podela forma hráča menom {name}? Dnes na ihrisku nebola. Videli sme len tieň hráča, ktorého poznáme. Odpaly bez energie, nepresné prihrávky, zúfalé patovanie. {name} vyzeral, akoby držal palicu prvýkrát v ruke. Je to záhada. Možno zlá noc, možno choroba, alebo len totálna strata sebavedomia. Výsledková tabuľa je nemilosrdná a ukazuje ho na samom chvoste. Smutný pohľad." },
+        { h: "Dno tabuľky patrí {name}", b: "Niekto musí byť posledný, ale prečo práve {name} a takýmto spôsobom? Dnes to bol výkon hodný amatéra na nedeľnom turnaji, nie profesionála. {name} sa trápil od prvej do poslednej minúty. Ani počasie sa na to nemohlo pozerať a začalo pršať. Symbolické. {name} odchádza z turnaja s hanbou, ale aj so skúsenosťou. Hovorí sa, že čo ťa nezabije, to ťa posilní. Dnes to {name} prežil len tak-tak." }
+    ],
+    choke: [
+        { h: "Psychický kolaps: {name} zahodil istú výhru", b: "Bolelo to. Naozaj to bolelo sledovať. {name} mal turnaj vo vrecku. Stačilo zahrať priemerné posledné kolo. Ale namiesto toho prišiel totálny rozklad. Tlak zvíťazil nad schopnosťami. Ruky sa triasli, rozhodnutia boli zbrklé. Na posledných jamkách stratil náskok, ktorý budoval tri dni. 'Neviem, čo sa stalo,' koktal po turnaji. Je to klasický prípad 'choke'. {name} bude mať bezsenné noci. Takto prehrať vyhratý turnaj zanechá jazvy na duši." },
+        { h: "Nedeľná katastrofa pre {name}", b: "Všetko išlo podľa plánu až do nedeľného rána. Potom sa niečo zlomilo. {name} vstúpil na ihrisko ako vymenený. Strach v očiach, neistota v rukách. Bogey striedalo double bogey. Súperi zacítili krv a využili jeho zaváhanie. {name} sa len bezmocne prizeral, ako mu trofej uniká pomedzi prsty. Bol to pád z výšin až na tvrdú zem. Fanúšikovia neveriacky krútili hlavami. Toto mal byť jeho deň, ale stal sa z neho deň, na ktorý chce navždy zabudnúť." },
+        { h: "Glass Chin: {name} nezvládol finiš", b: "V boxe sa hovorí o sklenenej brade, v golfe o sklenenej psychike. {name} dnes ukázal, že pod tlakom praská. Posledných 9 jamiek bolo utrpením. Každá jamka mu ukrajovala zo sebavedomia. Minuté krátke putty boli klincom do rakvy. {name} mal víťazstvo na dosah ruky, ale nedokázal ho uchopiť. Je to kruté, ale spravodlivé. Víťaz musí mať nervy zo železa, a tie dnes {name} nechal v šatni." },
+        { h: "Darček pre súperov od {name}", b: "{name} dnes rozdával darčeky ako Santa Claus. Svoj náskok premrhal sériou školáckych chýb. Súperi ani nemuseli hrať zázračne, stačilo čakať na chyby {name}. A tie prichádzali jedna za druhou. Voda na 15. jamke, aut na 16. jamke... Bolo to smutné divadlo. {name} sa psychicky zrútil v najhoršom možnom momente. Namiesto osláv ho čaká spytovanie svedomia." },
+        { h: "Výťah smerom dole: {name} a jeho pád", b: "Začať deň na prvom mieste a skončiť mimo pódia. To je príbeh dnešného dňa pre {name}. Jeho hra sa rozsypala v priamom prenose. Nenašiel odpoveď na tlak súperov. Každá chyba plodila ďalšiu. Bola to špirála skazy. {name} vyzeral, že by najradšej zmizol pod zem. Tento turnaj bude bolieť ešte dlho. Stratil nielen body, ale aj rešpekt súperov." }
+    ],
+    clutch: [
+        { h: "Fantastický finiš! {name} vstal z mŕtvych", b: "Kde sa to v ňom vzalo? {name} bol po troch kolách odpísaný. Ale nedeľa patrila jemu. Predviedol jazdu snov. Birdie striedalo birdie. Zatiaľ čo lídri strácali dych, {name} letel hore rebríčkom ako raketa. Bol to najlepší výkon dňa. 'Hral som bez tlaku, len som si to užíval,' povedal v cieli. Táto uvoľnenosť mu priniesla ovocie. Zrazu je z neho hrdina dňa. Skvelá ukážka toho, že sa oplatí bojovať až do poslednej loptičky." },
+        { h: "Nedeľný kráľ: {name} šokoval skvelým záverom", b: "Hovorí sa, že turnaj sa začína až na posledných 9 jamkách v nedeľu. {name} si to vzal k srdcu. Jeho záver bol strhujúci. Zahral skóre, o ktorom sa iným ani nesnívalo. Posunul sa o desiatky miest dopredu. Jeho putter bol magický. Premieňal všetko, na čo sa pozrel. {name} zachránil turnaj a ukázal obrovský charakter. Súperi len neveriacky pozerali na tabuľu, ako jeho meno stúpa vyššie a vyššie." },
+        { h: "Comeback snov v podaní {name}", b: "Vyzeralo to na priemerný výsledok, ale {name} zapol forsáž. Jeho posledné kolo bolo majstrovským dielom. Čistá hra, žiadne chyby, len skvelé údery. Diváci ho hnali dopredu a on im to vracal fantastickými ranami. {name} ukázal, že má srdce bojovníka. Aj keď nešlo o titul, tento posun v poradí má cenu zlata. Získal si rešpekt a dokázal, že s ním treba počítať v každej situácii." },
+        { h: "Z nuly hrdinom: {name} a jeho nedeľná show", b: "Všetci ho už odpisovali, ale {name} nepovedal posledné slovo. Vytiahol z rukáva esá v podobe neuveriteľných rán. Ihrisko, ktoré ho tri dni trápilo, dnes pokoril. Bol to koncert presnosti. {name} sa dostal do 'zóny', kde mu vychádzalo všetko. Skvelý pocit pre hráča aj fanúšikov. Tento výkon mu dodá sebavedomie do ďalších turnajov. Bravo!" },
+        { h: "Budíček na poslednú chvíľu: {name} zabral", b: "Lepšie neskoro ako nikdy. {name} sa zobudil až v nedeľu ráno, ale stálo to za to. Jeho hra bola konečne taká, akú od neho očakávame. Agresívna, presná a úspešná. Vymazal manko z predošlých dní a vyškriabal sa na slušné pozície. Je to dôkaz jeho potenciálu. Ak by takto hral celý víkend, bojuje o titul. Ale aj tento čiastkový úspech sa počíta." }
+    ],
+    random: [
+        { h: "Móda na ihrisku: {name} zaujal outfitom", b: "Dnes sa nehovorí len o golfe, ale aj o móde. {name} nastúpil v oblečení, ktoré sa nedalo prehliadnuť. Odvážne farby, netradičný strih. Niekomu sa to páčilo, iní krútili hlavami. Ale jedno je isté - {name} bol stredobodom pozornosti. A čo hra? Tá bola solídna, ale nie taká žiarivá ako jeho nohavice. Golf potrebuje osobnosti a {name} ňou rozhodne je. Uvidíme, čo si oblečie nabudúce." },
+        { h: "Dráma s Caddym: {name} mal ostrú výmenu názorov", b: "Na 12. jamke to iskrilo. {name} a jeho caddy sa nezhodli pri výbere palice. Kamery zachytili gestikuláciu a zvýšený hlas. {name} si nakoniec presadil svoje, ale loptička neskončila dobre. Nasledoval veľavravný pohľad caddyho. Aj takéto momenty prináša profesionálny šport pod tlakom. Po kole si vraj všetko vysvetlili, ale napätie bolo cítiť vo vzduchu. Dúfajme, že tento vzťah vydrží." },
+        { h: "Vietor úradoval, {name} bojoval s živlami", b: "Podmienky dnes boli brutálne. Vietor fúkal rýchlosťou víchrice. {name} musel ukázať všetok svoj um, aby udržal loptičku v hre. Boli to galeje. Niekedy musel mieriť 20 metrov mimo green, aby vietor loptičku stočil späť. {name} to zvládol so cťou, hoci skóre nebolo ideálne. Bol to boj o prežitie a {name} ukázal, že nie je z cukru. Diváci ocenili jeho bojovnosť potleskom." },
+        { h: "Šťastie v nešťastí: {name} trafil diváka", b: "Nepríjemný moment na 7. jamke. Odpal {name} letel hlboko do davu. Ozval sa tupý náraz. Loptička trafila jedného z fanúšikov do ramena a odrazila sa späť na fairway! Šťastie pre hráča, smola pre diváka. {name} sa okamžite išiel ospravedlniť a daroval podpísanú rukavicu. 'Mohlo to dopadnúť horšie,' vydýchol si. Paradoxne, táto nehoda mu zachránila par. Niekedy potrebujete aj kúsok šťastia." },
+        { h: "Nová zbraň v bagu: {name} testuje prototyp", b: "Golfoví nadšenci si všimli niečo nové. {name} dnes hral s driverom, ktorý ešte nie je na trhu. Čierny, matný povrch, žiadne logá. Vraj ide o tajný prototyp s novou technológiou. A výsledky? Loptičky lietali ďaleko. {name} sa po kole len tajomne usmieval a nechcel prezradiť detaily. Zdá sa, že konkurencia sa má na čo tešiť. Technologický doping v praxi?" },
+        { h: "Pomalá hra: {name} dostal varovanie", b: "Rozhodcom došla trpezlivosť. {name} dnes hral slimačím tempom. Každý putt študoval z piatich uhlov. Skupina za ním musela čakať na každom odpalisku. Na 14. jamke prišlo oficiálne varovanie. {name} musel zrýchliť, čo mu zjavne nevyhovovalo a spravil chybu. Je to večná téma golfu. Sústredenie je dôležité, ale plynulosť hry tiež. {name} si bude musieť dávať pozor na hodinky." },
+        { h: "Lokálny hrdina: {name} miláčikom publika", b: "Kdekoľvek sa {name} pohol, tam bol najväčší hluk. Fanúšikovia ho milujú. Podpisoval čiapky, loptičky, dokonca aj čelá detí. Atmosféra okolo jeho flightu bola ako na futbale. {name} si túto pozornosť užíval a komunikoval s davom. Aj keď nevyhral, získal si srdcia ľudí. Golf potrebuje takýchto ambasádorov. Je radosť vidieť takúto symbiózu medzi hráčom a fanúšikmi." },
+        { h: "Hladný {name}: Prestávka na hotdog", b: "Kuriózny moment. {name} bol videný, ako si medzi 9. a 10. jamkou kupuje hotdog. Asi mu došlo 'palivo'. S horčicou na kútiku úst potom odpálil jeden z najlepších drivov dňa. Možno je to nová diéta pre šampiónov? Komentátori sa na tom dobre bavili. {name} ukázal, že je len človek, ktorý potrebuje jesť. Snáď mu nebolo ťažko pri patovaní." },
+        { h: "Neuveriteľná záchrana z vody: {name} čaroval", b: "Loptička ležala na kraji vodnej prekážky, spolovice ponorená. Väčšina by dropovala s trestnou ranou. Ale nie {name}. Zull si topánky, vošiel do vody a... BUM! Loptička vyletela von, dopadla na green a zastavila sa meter od jamky. Dav šalel! Bol to úder roka. {name} bol mokrý a špinavý, ale s úsmevom na tvári zachránil par. Odvaha sa niekedy vypláca. Tento moment bude v zostrihoch ešte veľmi dlho." },
+        { h: "Stratená loptička, nájdené nervy", b: "{name} zažil minúty hrôzy. Po odpale nikto nevedel nájsť jeho loptičku. Časový limit 3 minúty bežal. Caddy, rozhodcovia aj diváci prehľadávali vysokú trávu. {name} už bol pripravený ísť späť na odpalisko, keď zrazu divák zakričal: 'Mám ju!' Loptička bola v nore po zvierati. Podľa pravidiel dostal voľný drop. {name} si zhlboka vydýchol a nakoniec zahral bogey. Mohlo to byť oveľa horšie." },
+        { h: "Interview dňa: {name} perlil", b: "Po kole prišiel {name} pred mikrofóny a bavil novinárov. Žiadne klišé, ale vtipné poznámky a úprimnosť. 'Dnes som hral ako ponocný,' zhodnotil svoj výkon. Alebo: 'Ten putt na desiatke bol taký zlý, že sa za neho hanbila aj jamka.' {name} je mediálny poklad. Jeho tlačovky sú niekedy zaujímavejšie ako samotná hra. Ľudia majú radi autenticitu a {name} jej má na rozdávanie." },
+        { h: "Rodinná podpora pre {name}", b: "V hľadisku dnes bola celá rodina {name}. Manželka, deti aj rodičia. Keď videl svoje deti pri greene, rozžiaril sa. Hneď zahral birdie. Je vidieť, aká dôležitá je psychická pohoda. Po kole sa namiesto tréningu venoval rodine. 'Oni sú moja najväčšia trofej,' povedal dojemne. Krásny moment v inak drsnom svete profesionálneho športu." },
+        { h: "Zlomená palica: {name} neudržal nervy", b: "Aj majster tesár sa utne a aj {name} má nervy. Po zlom odpale na par 3 neudržal emócie. Palica letela vzduchom a pri dopade sa zlomila. Diváci stíchli. {name} okamžite oľutoval svoj čin, ale bolo neskoro. Zvyšok kola musel dohrať s o jednou palicou menej. Je to varovanie pre všetkých juniorov - takto sa profesionál nemá správať. Neskôr sa za svoje správanie ospravedlnil." },
+        { h: "Eso bolo blízko! {name} trafil tyčku", b: "To bola rana! Na krátkej trojke {name} poslal loptičku priamo na vlajku. Diváci vstávali zo sedadiel. Loptička dopadla, rolovala a... CINK! Trafila tyčku a odrazila sa pol metra vedľa. Hole-in-one viselo vo vzduchu. {name} sa chytil za hlavu a potom sa rozosmial. Také je šťastie. Niekedy chýbajú milimetre. Ale aj birdie sa počíta." },
+        { h: "Dlhý deň pre {name}: Play sa vlieklo", b: "Kolo trvalo takmer 6 hodín. {name} bol viditeľne unavený a frustrovaný z čakania na každom odpale. 'Je ťažké udržať rytmus, keď pred každou ranou stojíte 10 minút,' sťažoval sa. Organizátori majú problém. Pomalá hra zabíja atraktivitu golfu. {name} sa snažil udržať v teple a robil strečing, ale na jeho skóre sa to podpísalo. Dúfajme, že zajtra to pôjde rýchlejšie." },
+        { h: "Včela útočí: {name} utekal z greenu", b: "Komická vložka dňa. {name} sa pripravoval na putt, keď na neho zaútočila dotieravá včela/osa. {name} začal mávať rukami a nakoniec musel utiecť z greenu. Diváci sa smiali, {name} tiež, keď sa vrátil. 'Asi chcela vidieť ten putt zblízka,' žartoval. Nakoniec zahral par. Aj príroda sa chce niekedy zapojiť do hry." },
+        { h: "Rekord ihriska v ohrození? {name} začal divoko", b: "Prvých 9 jamiek bolo ako z inej planéty. {name} zahral 29 rán! Všetci začali šepkať o rekorde ihriska, možno aj o magickej 59-ke. Ale golf je hra dvoch polovíc. Na druhej deviatke kúzlo trochu vyprchalo a prišli aj chyby. Aj tak je to skvelé kolo, ale história sa dnes neprepísala. {name} ukázal, aký má potenciál, keď mu všetko sadne." },
+        { h: "Tajomstvo úspechu {name}? Nový tréner", b: "{name} vymenil trénera a zdá sa, že to funguje. Jeho švih vyzerá inak, je plynulejší. 'Pracovali sme na stabilite a psychike,' prezradil. Výsledky sú viditeľné okamžite. {name} hrá sebavedomejšie. Niekedy je zmena nevyhnutná na to, aby sa človek posunul vpred. Uvidíme, či mu táto forma vydrží dlhodobo." },
+        { h: "Bunkrová škola pre {name}", b: "Ak niečo dnes nešlo, boli to bunkre. {name} sa trápil v piesku ako začiatočník. Dvakrát nechal loptičku v prekážke. 'Dnes pôjdem na pláž trénovať,' povedal ironicky. Piesok bol mokrý a ťažký, čo situáciu komplikovalo. {name} stratil v bunkroch minimálne 3 rany. To je rozdiel medzi úspechom a neúspechom. Zajtra ho čaká tréningová jama s pieskom." },
+        { h: "Perfektný putt: {name} premenil 20 metrov", b: "Záver kola ako hrom. {name} bol na greene, ale strašne ďaleko. Terén bol vlnitý ako horská dráha. Nikto nečakal, že to tam padne. {name} len chcel priblížiť. Ale loptička chytila stopu, prešla cez dva zlomy a zmizla v jamke! Obrovský rev na tribúne. {name} zdvihol putter ako meč. 'Videl som dráhu, tak som to tam poslal,' komentoval sucho. Niekedy to tam proste padne." }
+    ]
+};
+
 </script>
 </body>
 </html>
