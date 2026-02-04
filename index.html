@@ -3669,6 +3669,7 @@ window.setVitrineTheme = function(themeName, fileId = null) {
     window.calculateRecordLeaders = function() {
         const players = calculateAllPlayerStatsForRecords();
         const leaders = {};
+        const proTours = ['PGA', 'EA SPORTS', 'THE PLAYERS', 'FED EX']; // Definícia Pro Tours
 
         // Zoznam rekordov, kde MENŠIE číslo je LEPŠIE (Ascending sort)
         const lowIsGoodRecords = [
@@ -3683,7 +3684,16 @@ window.setVitrineTheme = function(themeName, fileId = null) {
         ];
 
         recordsDef.forEach(rec => {
-             const candidates = players.map(p => ({ realName: p.realName, val: getRecordValueForPlayer(p, rec.id) }))
+             // 1. KROK: Filter hráčov (Iba PRO, s výnimkou KFT King)
+             const eligiblePlayers = players.filter(p => {
+                 if (rec.id === 'kft_king') return true; // KFT King môže byť aj amatér
+                 
+                 // Kontrola či hral na PRO tour (či má v zozname uniqueTours aspoň jednu PRO tour)
+                 const isPro = [...p.uniqueTours].some(t => proTours.includes(t));
+                 return isPro;
+             });
+
+             const candidates = eligiblePlayers.map(p => ({ realName: p.realName, val: getRecordValueForPlayer(p, rec.id) }))
                                        .filter(x => x.val !== null && x.val !== undefined && x.val !== 999 && x.val !== -999 && x.val !== 0);
              
              if(lowIsGoodRecords.includes(rec.id) || rec.id.includes('lowest') || rec.id.includes('avg')) {
