@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta id="viewportMeta" name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ArciWeb - PGA StatsKeeper v.6.41(Gallery Edition)</title>
+    <title>ArciWeb - PGA StatsKeeper v.6.47(Gallery Edition)</title>
     <style>
         :root {
             --bg-color: #1e1e1e;
@@ -892,7 +892,7 @@
 
     <header>
         <div class="header-left">
-            <h1>ArciWeb - PGA StatsKeeper <span class="version">v6.41</span></h1>
+            <h1>ArciWeb - PGA StatsKeeper <span class="version">v6.47</span></h1>
             <div class="header-ranks">
                 <span class="header-rank-link" style="color:var(--highlight-gold)" onclick="showRankTable('PGA')">PGA Rank</span>
                 <span class="header-rank-link" style="color:var(--accent-blue)" onclick="showRankTable('Official')">Official Rank</span>
@@ -29451,6 +29451,28 @@ const newsTemplates = {
         const themeClass = getThemeClass(paperId);
         const brandName = NEWSPAPER_BRANDS.find(b => b.id === paperId)?.name || 'Noviny';
         
+        // --- NOVÉ: Získanie dát o turnaji pre hlavičku ---
+        // Musíme nájsť súbor, ktorý zodpovedá tomuto fileKey
+        const file = db.files.find(f => `${f.season}_${f.eventNum}_${f.eventName}` === fileKey);
+        
+        let metaInfoHtml = '';
+        if (file) {
+            const dateStr = getTournamentDate(file.season, file.eventName);
+            // Výpočet čísla vydania: (Sezóna - 1) * 45 + Číslo turnaja
+            const sNum = parseInt(file.season) || 1;
+            const eNum = file.eventNum || 1;
+            const issueNum = ((sNum - 1) * 45) + eNum;
+            
+            metaInfoHtml = `
+                <div style="text-align:center; font-family:'Segoe UI', sans-serif; font-size:0.8rem; color:#666; margin-bottom:15px; border-bottom:1px solid rgba(0,0,0,0.1); padding-bottom:10px; text-transform:uppercase; letter-spacing:1px;">
+                    <span style="margin-right:8px;">📅 ${dateStr}</span> | 
+                    <span style="margin:0 8px; font-weight:bold;">Vydanie č. ${issueNum}</span> | 
+                    <span style="margin-left:8px; color:var(--accent-blue);">${file.eventName}</span>
+                </div>
+            `;
+        }
+        // ------------------------------------------------
+
         const html = `
             <div class="news-modal-body ${themeClass}">
                 <div class="news-nav-bar">
@@ -29460,7 +29482,8 @@ const newsTemplates = {
                 </div>
                 <div class="news-content-area">
                     <div class="article-full-content">
-                        <div class="news-header-title">${brandName}</div>
+                        
+                        ${metaInfoHtml} <div class="news-header-title">${brandName}</div>
                         <h1 class="article-headline" style="font-size:2.5rem; margin-bottom:20px;">${art.headline}</h1>
                         <hr style="border-color:#ccc; margin-bottom:20px;">
                         <div class="article-body" style="font-size:1.2rem; line-height:1.6; text-align:justify;">
@@ -29472,6 +29495,7 @@ const newsTemplates = {
         `;
         createModal(html);
     }
+
 
     window.openNewsCalendar = function() {
         // Zoradenie od najnovšieho
