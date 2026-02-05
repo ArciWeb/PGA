@@ -28908,13 +28908,16 @@ const newsTemplates = {
     }
 
     function getTournamentDate(season, eventName) {
-        // 1. Zistiť číslo turnaja v sezóne podľa názvu
+        // 1. Zistiť číslo turnaja v sezóne
+        // Najprv skúsime nájsť názov v kalendári
         let cleanName = eventName;
+        // Odstránenie prefixov pre čisté hľadanie
         const prefixMatch = eventName.match(/^\d+\s+[^-]+-\s+(.+)$/);
         if (prefixMatch) cleanName = prefixMatch[1];
         
-        let weekNum = 1;
-        // Hľadáme v mape turnajov
+        let weekNum = 0;
+
+        // Hľadáme v mape turnajov (podľa názvu)
         for (const [key, val] of Object.entries(TOURNAMENT_SCHEDULE)) {
             if (cleanName.includes(key)) {
                 weekNum = val;
@@ -28922,27 +28925,40 @@ const newsTemplates = {
             }
         }
         
-        // Ak sme nenašli v mape, skúsime vyparsovať číslo zo súboru ak existuje
-        if (weekNum === 1 && eventName.match(/^\d+/)) {
-            weekNum = parseInt(eventName.match(/^(\d+)/)[1]);
+        // UPRAVA: Ak sme nenašli týždeň podľa názvu, skúsime ho vytiahnuť z názvu súboru (napr. "01 Turnaj")
+        if (weekNum === 0) {
+            const numMatch = eventName.match(/^(\d+)/);
+            if (numMatch) {
+                // Ak je to napr. turnaj 01, dáme týždeň 2 (začiatok roka) + číslo turnaja
+                weekNum = parseInt(numMatch[1]) + 1; 
+            } else {
+                // Fallback ak nič nenájdeme
+                weekNum = 10; 
+            }
         }
 
         // 2. Výpočet dátumu
-        // Base: 5.1.2026 (Pondelok)
+        // Base year: 2026. Každá ďalšia sezóna pridá 1 rok.
         let seasonInt = parseInt(season);
-        if (isNaN(seasonInt)) seasonInt = 10; 
+        if (isNaN(seasonInt)) seasonInt = 1; 
         
-        const yearOffset = Math.max(0, seasonInt - 10); 
-        const year = SCHEDULE_START_YEAR + yearOffset;
+        // Sezóna 01 = 2026, Sezóna 02 = 2027, atď.
+        const startYear = 2026;
+        const currentYear = startYear + (seasonInt - 1);
         
-        const baseDate = new Date(`${year}-01-05`); 
+        // Začiatok sezóny dáme na prvý Januárový týždeň daného roku
+        const baseDate = new Date(`${currentYear}-01-05`); 
+        
+        // Pripočítame týždne
         const daysToAdd = (weekNum - 1) * 7;
         
         const finalDate = new Date(baseDate);
         finalDate.setDate(baseDate.getDate() + daysToAdd);
         
+        // Formátovanie dátumu po slovensky
         return finalDate.toLocaleDateString('sk-SK', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
     }
+
 
     // Hlavná funkcia na otvorenie novín
     window.openArciNews = function(fileId = null) {
@@ -29272,11 +29288,12 @@ const newsTemplates = {
             add('loser', loser);
             
             // Stats sekcia - vyberáme zaujímavých
-            const statsCount = 5 + Math.floor(Math.random() * 20);
+ const statsCount = 2; 
+            
             for(let i=0; i<statsCount; i++) {
-                // Skúsime vybrať niekoho kto si zlepšil priemer alebo dosiahol milestone
-                const p = players[Math.floor(Math.random() * Math.min(25, players.length))];
-                add('stats', p);
+                // Skúsime vybrať náhodného hráča z poľa (okrem víťaza a losera, aby sa neopakovali)
+                const randomPlayer = players[Math.floor(Math.random() * players.length)];
+                add('stats', randomPlayer);
             }
             
             add('rank', winner);
@@ -29457,23 +29474,35 @@ const newsTemplates = {
     }
 
     window.openNewsCalendar = function() {
+        // Zoradenie od najnovšieho
         const files = [...db.files].sort((a,b) => compareFiles(b, a));
+        
         const html = `
             <div class="modal-header"><h2>Archív Vydaní</h2><button class="close-btn" onclick="closeTopModal()">&times;</button></div>
             <div class="modal-body">
                 <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(200px, 1fr)); gap:10px;">
-                    ${files.map(f => `
+                    ${files.map(f => {
+                        // VÝPOČET ČÍSLA VYDANIA (ISSUE NUMBER)
+                        // Predpoklad: 45 turnajov na sezónu.
+                        // Sezóna 1 = 1 až 45, Sezóna 2 = 46 až 90, atď.
+                        const seasonNum = parseInt(f.season) || 1;
+                        const eventNum = f.eventNum || 1;
+                        const issueNumber = ((seasonNum - 1) * 45) + eventNum;
+
+                        return `
                         <button class="btn btn-grey" style="text-align:left; padding:10px;" onclick="closeTopModal(); openArciNews('${f.id}')">
-                            <div style="font-weight:bold; color:var(--highlight-gold)">Sezóna ${f.season} - Týždeň ${f.week || TOURNAMENT_SCHEDULE[f.eventName] || '?'}</div>
-                            <div style="font-size:0.9rem;">${f.eventName}</div>
+                            <div style="font-weight:bold; color:var(--highlight-gold)">Vydanie č. ${issueNumber}</div>
+                            <div style="font-size:0.8rem; margin-bottom:2px;">Sezóna ${f.season}</div>
+                            <div style="font-size:0.9rem; font-weight:bold; color:#fff;">${f.eventName}</div>
                             <div style="font-size:0.7rem; color:#aaa;">${getTournamentDate(f.season, f.eventName)}</div>
                         </button>
-                    `).join('')}
+                    `}).join('')}
                 </div>
             </div>
         `;
         createModal(html);
     }
+
 
 
 
