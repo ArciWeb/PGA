@@ -1,0 +1,35 @@
+#arci-city-game-container {
+    overflow: hidden;
+    user-select: none;
+}
+
+.map-wrapper {
+    position: relative;
+    width: 2000px; /* Šírka tvojho Map_Background.png */
+    height: 1125px; /* Výška tvojho Map_Background.png */
+}
+
+.map-bg {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 1;
+}
+
+.building, #player-character {
+    position: absolute;
+    transform: translate(-50%, -100%); /* Bod uchytenia je spodok budovy/postavy */
+    cursor: pointer;
+    transition: filter 0.3s;
+}
+
+.building:hover {
+    filter: brightness(1.2) drop-shadow(0 0 10px gold);
+}
+
+#player-character {
+    z-index: 500; /* Bude sa meniť dynamicky pre Y-sorting */
+    width: 50px; /* Uprav podľa veľkosti tvojho panáčika */
+    transition: left 1s linear, top 1s linear; /* Tu sa deje to "kĺzanie" */
+    pointer-events: none;
+}
