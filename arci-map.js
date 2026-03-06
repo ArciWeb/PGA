@@ -14,7 +14,6 @@ const buildingsData = {
     "kniznica": { name: "Knižnica", x: 39.5, y: 42.5, img: "buda_kniznica.png", detail: "mapa-hof.png", action: "openHallOfFame" },
     "invest": { name: "ArciInvest", x: 34.2, y: 78.5, img: "buda_arciinvest.png", detail: "mapa-invest.png", action: "openArciInvest" },
     "bankomat": { name: "Bankomat", x: 28.5, y: 63.5, img: "buda_bankomat.png", detail: "mapa-balance.png", action: "openMyPlayer" },
-    // Tieto ranky potrebujú parametre, to ošetríme vo funkcii dole
     "official": { name: "Official Rank", x: 49.5, y: 25.5, img: "buda_official.png", detail: "mapa-official.png", action: "showRankTable_Official" },
     "pga": { name: "PGA Rank", x: 55.5, y: 23.0, img: "buda_pga.png", detail: "mapa-pga.png", action: "showRankTable_PGA" },
     "vila": { name: "Moja Vila", x: 51.5, y: 47.5, img: "buda_vila.png", detail: "mapa-villa.png", action: "openLifestyleManager" },
@@ -36,32 +35,42 @@ const buildingsData = {
 };
 
 // ==========================================
-// 2. JADRO MOTORU (Generovanie a pamäť)
+// 2. JADRO MOTORU MAPY (Z-Index vrstvy)
 // ==========================================
 
 function startArciCityGame() {
     const container = document.getElementById('arci-city-game-container');
     
+    // Načítanie súradníc z pamäte
     const savedX = localStorage.getItem('arciPlayerX') || "10";
     const savedY = localStorage.getItem('arciPlayerY') || "40";
 
+    // Nastavenie kontajnera mapy (Z-Index 900 je priamo pod tvojimi hrami)
     container.style.display = 'block';
+    container.style.position = 'fixed';
+    container.style.top = '0';
+    container.style.left = '0';
+    container.style.width = '100vw';
+    container.style.height = '100vh';
+    container.style.zIndex = '900'; 
+    container.style.background = '#000';
+    container.style.overflow = 'auto'; // Umožní scrollovanie na mobile
     
     container.innerHTML = `
-        <div class="map-wrapper" id="mapWrapper">
-            <img src="Map_Background.png" class="map-bg" onclick="handleMapClick(event)">
+        <div class="map-wrapper" id="mapWrapper" style="position: relative; width: 2000px; height: 1125px; overflow: hidden;">
+            <img src="Map_Background.png" class="map-bg" onclick="handleMapClick(event)" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1;">
             <div id="buildingsLayer"></div>
-            <img src="panáčik_stoji.png" id="player-character" style="left: ${savedX}%; top: ${savedY}%; transition: none;">
+            <img src="panáčik_stoji.png" id="player-character" style="position: absolute; left: ${savedX}%; top: ${savedY}%; width: 45px; transform: translate(-50%, -100%); z-index: 500; transition: none; pointer-events: none; filter: drop-shadow(0px 5px 5px rgba(0,0,0,0.5));">
         </div>
         
-        <div id="buildingDetailLayer" onclick="closeBuildingDetail()">
-            <img id="detailImg" src="" onclick="executeBuildingAction(event)">
+        <div id="buildingDetailLayer" onclick="closeBuildingDetail()" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.85); z-index: 950; flex-direction: column; align-items: center; justify-content: center;">
+            <img id="detailImg" src="" onclick="executeBuildingAction(event)" style="width: 95vw; max-height: 80vh; object-fit: contain; border: 5px solid gold; border-radius: 20px; box-shadow: 0 0 50px gold; cursor: pointer; transition: transform 0.2s;">
             <div style="color: gold; font-weight: bold; margin-top: 15px; font-size: 1.5rem; text-shadow: 2px 2px #000; background: rgba(0,0,0,0.7); padding: 10px; border-radius: 10px;">
-                👆 KLIKNI NA FOTKU PRE VSTUP
+                👆 KLIKNI NA FOTKU PRE VSTUP DO BUDOVY
             </div>
         </div>
 
-        <button onclick="exitMap()" style="position:fixed; top:15px; right:15px; z-index:2100000; padding:15px 25px; background: red; color: white; border: 3px solid white; border-radius: 50px; font-weight: 900; font-size: 1.2rem; cursor: pointer;">ZAVRIEŤ MAPU</button>
+        <button onclick="exitMap()" style="position:fixed; top:15px; right:15px; z-index:960; padding:15px 25px; background: red; color: white; border: 3px solid white; border-radius: 50px; font-weight: 900; font-size: 1.2rem; cursor: pointer; box-shadow: 0 0 15px rgba(0,0,0,0.5);">NÁVRAT DO MENU</button>
     `;
 
     renderBuildings();
@@ -74,42 +83,51 @@ function startArciCityGame() {
 }
 
 function exitMap() {
+    // Toto tlačidlo ťa vráti na pôvodné domovské menu tvojej hry
     const container = document.getElementById('arci-city-game-container');
     container.style.display = 'none';
     container.innerHTML = ""; 
 }
 
-// === TOTO JE TÁ OPRAVENÁ, FUNKČNÁ ČASŤ ===
+// ==========================================
+// 3. OTVORENIE HRY BEZ ZATVORENIA MAPY!
+// ==========================================
+
 function executeBuildingAction(event) {
-    if (event) event.stopPropagation();
+    if (event) event.stopPropagation(); // Zabráni zavretiu fotky pri kliknutí na ňu
     
     if (window.currentMapAction) {
-        document.getElementById('arci-city-game-container').style.display = 'none';
+        
+        // TOTO JE TO KÚZLO - mapu ani fotku nezatvárame!
+        // Tvoja hra (napr. Kasíno) má v tvojom CSS nastavený Z-Index 1000, 
+        // takže sa automaticky a dokonale prekryje cez túto vrstvu.
         
         const action = window.currentMapAction;
         
-        // Špeciálna kontrola pre Ranky (ktoré predtým vyžadovali zátvorky)
-        if (action.startsWith('showRankTable_')) {
-            const rankType = action.split('_')[1]; // Vytiahne napr. 'Official'
-            if (typeof window.showRankTable === 'function') {
-                window.showRankTable(rankType);
-            } else {
-                console.error("Funkcia showRankTable nebola nájdená!");
+        try {
+            if (action.startsWith('showRankTable_')) {
+                const rankType = action.split('_')[1]; 
+                if (typeof window.showRankTable === 'function') {
+                    window.showRankTable(rankType);
+                } else {
+                    console.error("Tabuľka nenájdená!");
+                }
+            } 
+            else {
+                if (typeof window[action] === 'function') {
+                    window[action]();
+                } else {
+                    console.error("Akcia " + action + " nebola nájdená v tvojom kóde!");
+                }
             }
-        } 
-        // Štandardné funkcie
-        else {
-            if (typeof window[action] === 'function') {
-                window[action]();
-            } else {
-                console.error("Akcia " + action + " nebola nájdená v tvojom kóde!");
-            }
+        } catch(e) { 
+            console.error("Chyba pri spúšťaní akcie: ", e); 
         }
     }
 }
 
 // ==========================================
-// 3. POHYB A VYKRESLOVANIE
+// 4. POHYB A VYKRESLOVANIE
 // ==========================================
 
 function renderBuildings() {
@@ -120,9 +138,18 @@ function renderBuildings() {
         const b = buildingsData[key];
         const img = document.createElement('img');
         img.src = b.img; 
-        img.className = 'building';
+        
+        // Štýly budov pridané priamo sem
+        img.style.position = 'absolute';
+        img.style.transform = 'translate(-50%, -100%)';
+        img.style.cursor = 'pointer';
+        img.style.filter = 'drop-shadow(2px 2px 5px rgba(0,0,0,0.5))';
+        img.style.maxWidth = '180px';
+        
         img.style.left = b.x + '%'; 
         img.style.top = b.y + '%';
+        img.style.zIndex = Math.floor(b.y); // Y-sorting (aby bol panáčik za budovou správne)
+        
         img.onclick = (e) => { e.stopPropagation(); moveToBuilding(key); };
         layer.appendChild(img);
     }
@@ -142,7 +169,9 @@ function movePlayer(x, y) {
     
     player.style.left = x + '%'; 
     player.style.top = y + '%';
+    player.style.zIndex = Math.floor(y) + 1; // Panáčik má správny z-index voči budovám
     
+    // Uloženie súradníc pre ďalší štart
     localStorage.setItem('arciPlayerX', x); 
     localStorage.setItem('arciPlayerY', y);
     
@@ -157,7 +186,7 @@ function centerCamera() {
 function moveToBuilding(key) {
     const b = buildingsData[key];
     movePlayer(b.x, b.y);
-    setTimeout(() => { showBuildingDetail(b); }, 900);
+    setTimeout(() => { showBuildingDetail(b); }, 900); // Počkáme, kým panáčik dokráča
 }
 
 function showBuildingDetail(b) {
@@ -167,10 +196,11 @@ function showBuildingDetail(b) {
     
     img.src = b.detail;
     window.currentMapAction = b.action; 
-    layer.style.display = 'flex';
+    layer.style.display = 'flex'; // Zobrazí sa veľká fotka
 }
 
 function closeBuildingDetail() {
+    // Zavrie fotku, keď klikneš mimo nej. Pod ňou ostane viditeľná mapa.
     const layer = document.getElementById('buildingDetailLayer');
     if(layer) layer.style.display = 'none';
 }
