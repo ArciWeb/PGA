@@ -46,24 +46,9 @@
     position: fixed;
     top: 0; left: 0;
     width: 100%; height: 100%;
-    background: rgba(0,0,0,0.95);
+    background: rgba(0,0,0,0.9);
     z-index: 2000000;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-}
-
-#detailImg {
-    width: 98vw; /* Skoro celá šírka */
-    max-height: 85vh; /* Skoro celá výška */
-    object-fit: contain;
-    border: 4px solid gold;
-    border-radius: 15px;
-    box-shadow: 0 0 50px rgba(255, 215, 0, 0.6);
-    cursor: pointer;
-    transition: transform 0.2s;
-}
-
-#detailImg:active {
-    transform: scale(0.98);
 }
