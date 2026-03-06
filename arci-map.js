@@ -45,7 +45,7 @@ function startArciCityGame() {
     const savedX = localStorage.getItem('arciPlayerX') || "10";
     const savedY = localStorage.getItem('arciPlayerY') || "40";
 
-    // Nastavenie kontajnera mapy (Z-Index 900 je priamo pod tvojimi hrami)
+    // Nastavenie kontajnera mapy
     container.style.display = 'block';
     container.style.position = 'fixed';
     container.style.top = '0';
@@ -54,10 +54,10 @@ function startArciCityGame() {
     container.style.height = '100vh';
     container.style.zIndex = '900'; 
     container.style.background = '#000';
-    container.style.overflow = 'auto'; // Umožní scrollovanie na mobile
+    container.style.overflow = 'auto'; 
     
     container.innerHTML = `
-        <div class="map-wrapper" id="mapWrapper" style="position: relative; width: 2000px; height: 1125px; overflow: hidden;">
+        <div class="map-wrapper" id="mapWrapper" style="position: relative; width: 2000px; height: 1125px; overflow: hidden; transform-origin: 0 0; transition: transform 0.1s ease-out;">
             <img src="Map_Background.png" class="map-bg" onclick="handleMapClick(event)" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1;">
             <div id="buildingsLayer"></div>
             <img src="panáčik_stoji.png" id="player-character" style="position: absolute; left: ${savedX}%; top: ${savedY}%; width: 45px; transform: translate(-50%, -100%); z-index: 500; transition: none; pointer-events: none; filter: drop-shadow(0px 5px 5px rgba(0,0,0,0.5));">
@@ -75,15 +75,41 @@ function startArciCityGame() {
 
     renderBuildings();
     
+    // Aktivácia Pinch-to-Zoom pre mobil
+    const mapWrapper = document.getElementById('mapWrapper');
+    initArciPinchZoom(mapWrapper);
+    
     setTimeout(centerCamera, 150);
     setTimeout(() => { 
         const p = document.getElementById('player-character');
-        if(p) p.style.transition = "left 0.8s ease-out, top 0.8s ease-out"; 
+        // UPRAVENÉ: Pohyb teraz trvá 3 sekundy
+        if(p) p.style.transition = "left 3.0s ease-out, top 3.0s ease-out"; 
     }, 300);
 }
 
+// POMOCNÁ FUNKCIA PRE ZOOMOVANIE MAPY PRSTAMI
+let arciScale = 1;
+function initArciPinchZoom(el) {
+    let initialDist = 0;
+    el.addEventListener('touchstart', e => {
+        if (e.touches.length === 2) {
+            initialDist = Math.hypot(e.touches[0].pageX - e.touches[1].pageX, e.touches[0].pageY - e.touches[1].pageY);
+        }
+    }, {passive: false});
+
+    el.addEventListener('touchmove', e => {
+        if (e.touches.length === 2) {
+            e.preventDefault();
+            const dist = Math.hypot(e.touches[0].pageX - e.touches[1].pageX, e.touches[0].pageY - e.touches[1].pageY);
+            const zoom = dist / initialDist;
+            arciScale = Math.min(Math.max(0.5, arciScale * zoom), 3);
+            el.style.transform = `scale(${arciScale})`;
+            initialDist = dist;
+        }
+    }, {passive: false});
+}
+
 function exitMap() {
-    // Toto tlačidlo ťa vráti na pôvodné domovské menu tvojej hry
     const container = document.getElementById('arci-city-game-container');
     container.style.display = 'none';
     container.innerHTML = ""; 
@@ -94,16 +120,10 @@ function exitMap() {
 // ==========================================
 
 function executeBuildingAction(event) {
-    if (event) event.stopPropagation(); // Zabráni zavretiu fotky pri kliknutí na ňu
+    if (event) event.stopPropagation(); 
     
     if (window.currentMapAction) {
-        
-        // TOTO JE TO KÚZLO - mapu ani fotku nezatvárame!
-        // Tvoja hra (napr. Kasíno) má v tvojom CSS nastavený Z-Index 1000, 
-        // takže sa automaticky a dokonale prekryje cez túto vrstvu.
-        
         const action = window.currentMapAction;
-        
         try {
             if (action.startsWith('showRankTable_')) {
                 const rankType = action.split('_')[1]; 
@@ -117,7 +137,7 @@ function executeBuildingAction(event) {
                 if (typeof window[action] === 'function') {
                     window[action]();
                 } else {
-                    console.error("Akcia " + action + " nebola nájdená v tvojom kóde!");
+                    console.error("Akcia " + action + " nebola nájdená!");
                 }
             }
         } catch(e) { 
@@ -139,7 +159,6 @@ function renderBuildings() {
         const img = document.createElement('img');
         img.src = b.img; 
         
-        // Štýly budov pridané priamo sem
         img.style.position = 'absolute';
         img.style.transform = 'translate(-50%, -100%)';
         img.style.cursor = 'pointer';
@@ -148,7 +167,7 @@ function renderBuildings() {
         
         img.style.left = b.x + '%'; 
         img.style.top = b.y + '%';
-        img.style.zIndex = Math.floor(b.y); // Y-sorting (aby bol panáčik za budovou správne)
+        img.style.zIndex = Math.floor(b.y); 
         
         img.onclick = (e) => { e.stopPropagation(); moveToBuilding(key); };
         layer.appendChild(img);
@@ -158,6 +177,7 @@ function renderBuildings() {
 function handleMapClick(e) {
     const wrapper = document.getElementById('mapWrapper');
     const rect = wrapper.getBoundingClientRect();
+    // Prepočet súradníc funguje správne aj pri scale vďaka getBoundingClientRect
     const x = ((e.clientX - rect.left) / rect.width) * 100;
     const y = ((e.clientY - rect.top) / rect.height) * 100;
     movePlayer(x, y);
@@ -169,9 +189,8 @@ function movePlayer(x, y) {
     
     player.style.left = x + '%'; 
     player.style.top = y + '%';
-    player.style.zIndex = Math.floor(y) + 1; // Panáčik má správny z-index voči budovám
+    player.style.zIndex = Math.floor(y) + 1; 
     
-    // Uloženie súradníc pre ďalší štart
     localStorage.setItem('arciPlayerX', x); 
     localStorage.setItem('arciPlayerY', y);
     
@@ -186,7 +205,8 @@ function centerCamera() {
 function moveToBuilding(key) {
     const b = buildingsData[key];
     movePlayer(b.x, b.y);
-    setTimeout(() => { showBuildingDetail(b); }, 900); // Počkáme, kým panáčik dokráča
+    // UPRAVENÉ: Čakanie na otvorenie detailu predĺžené na 3.1s, aby panáčik najprv došiel
+    setTimeout(() => { showBuildingDetail(b); }, 3100); 
 }
 
 function showBuildingDetail(b) {
@@ -196,11 +216,10 @@ function showBuildingDetail(b) {
     
     img.src = b.detail;
     window.currentMapAction = b.action; 
-    layer.style.display = 'flex'; // Zobrazí sa veľká fotka
+    layer.style.display = 'flex'; 
 }
 
 function closeBuildingDetail() {
-    // Zavrie fotku, keď klikneš mimo nej. Pod ňou ostane viditeľná mapa.
     const layer = document.getElementById('buildingDetailLayer');
     if(layer) layer.style.display = 'none';
 }
