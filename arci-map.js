@@ -56,6 +56,12 @@ function startArciCityGame() {
     const savedX = localStorage.getItem('arciPlayerX') || "10";
     const savedY = localStorage.getItem('arciPlayerY') || "40";
 
+    // Generovanie HTML pre bočné menu budov
+    let buildingMenuItems = "";
+    for (let key in buildingsData) {
+        buildingMenuItems += `<div onclick="navigateFromMenu('${key}', event)" style="padding: 12px; color: white; border-bottom: 1px solid rgba(255,215,0,0.3); cursor: pointer; text-align: left; font-weight: bold; font-family: sans-serif; font-size: 0.9rem;">🏢 ${buildingsData[key].name}</div>`;
+    }
+
     // Nastavenie kontajnera mapy
     container.style.display = 'block';
     container.style.position = 'fixed';
@@ -70,7 +76,7 @@ function startArciCityGame() {
     container.style.scrollbarWidth = 'none'; 
     
     container.innerHTML = `
-        <style>#arci-city-game-container::-webkit-scrollbar { display: none; }</style>
+        <style>#arci-city-game-container::-webkit-scrollbar { display: none; } #buildingNavMenu::-webkit-scrollbar { display: none; }</style>
         <div class="map-wrapper" id="mapWrapper" style="position: relative; width: 2000px; height: 1125px; overflow: hidden; transform-origin: 0 0; transition: transform 0.1s ease-out;">
             <img src="Map_Background.png" class="map-bg" onclick="handleMapClick(event)" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1;">
             <div id="buildingsLayer"></div>
@@ -79,12 +85,18 @@ function startArciCityGame() {
         
         <div id="buildingDetailLayer" onclick="closeBuildingDetail()" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.85); z-index: 950; flex-direction: column; align-items: center; justify-content: center;">
             <img id="detailImg" src="" onclick="executeBuildingAction(event)" style="width: 95vw; max-height: 80vh; object-fit: contain; border: 5px solid gold; border-radius: 20px; box-shadow: 0 0 50px gold; cursor: pointer; transition: transform 0.2s;">
-            <div style="color: gold; font-weight: bold; margin-top: 15px; font-size: 1.5rem; text-shadow: 2px 2px #000; background: rgba(0,0,0,0.7); padding: 10px; border-radius: 10px;">
-                👆 KLIKNI NA FOTKU PRE VSTUP DO BUDOVY
+            <div id="buildingActionText" style="color: gold; font-weight: bold; margin-top: 15px; font-size: 1.2rem; text-shadow: 2px 2px #000; background: rgba(0,0,0,0.7); padding: 10px; border-radius: 10px; text-align: center;">
+                👆 KLIKNI NA FOTKU PRE VSTUP
             </div>
         </div>
 
-        <button onclick="exitMap()" style="position:fixed; top:15px; right:15px; z-index:960; padding:5px 15px; background: red; color: white; border: 3px solid white; border-radius: 30px; font-weight: 900; font-size: 0.5rem; cursor: pointer; box-shadow: 0 0 15px rgba(0,0,0,0.5);">MENU</button>
+        <button onclick="toggleBuildingMenu(event)" style="position:fixed; top:15px; right:85px; z-index:940; padding:5px 15px; background: #333; color: gold; border: 3px solid white; border-radius: 30px; font-weight: 900; font-size: 1rem; cursor: pointer; box-shadow: 0 0 15px rgba(0,0,0,0.5);">⋮</button>
+        
+        <div id="buildingNavMenu" style="display:none; position:fixed; top:50px; right:15px; width: 220px; max-height: 70vh; background: rgba(0,0,0,0.95); border: 2px solid gold; border-radius: 10px; z-index: 945; overflow-y: auto; box-shadow: 0 0 20px rgba(0,0,0,0.8); flex-direction: column; scrollbar-width: none;">
+            ${buildingMenuItems}
+        </div>
+
+        <button onclick="exitMap()" style="position:fixed; top:15px; right:15px; z-index:940; padding:5px 15px; background: red; color: white; border: 3px solid white; border-radius: 30px; font-weight: 900; font-size: 0.5rem; cursor: pointer; box-shadow: 0 0 15px rgba(0,0,0,0.5);">MENU</button>
     `;
 
     renderBuildings();
@@ -103,6 +115,32 @@ function startArciCityGame() {
         const p = document.getElementById('player-character');
         if(p) p.style.transition = "left 3.0s ease-out, top 3.0s ease-out"; 
     }, 300);
+}
+
+// ==========================================
+// FUNKCIE PRE ROZBAĽOVACIE MENU BUDOV
+// ==========================================
+
+function toggleBuildingMenu(event) {
+    if (event) event.stopPropagation();
+    const menu = document.getElementById('buildingNavMenu');
+    if (menu) {
+        if (menu.style.display === 'none') {
+            menu.style.display = 'flex';
+        } else {
+            menu.style.display = 'none';
+        }
+    }
+}
+
+function navigateFromMenu(key, event) {
+    if (event) event.stopPropagation();
+    // Skryť menu
+    const menu = document.getElementById('buildingNavMenu');
+    if (menu) menu.style.display = 'none';
+    
+    // Ísť do budovy
+    moveToBuilding(key);
 }
 
 // POMOCNÁ FUNKCIA PRE ZOOMOVANIE MAPY PRSTAMI
@@ -203,6 +241,10 @@ function renderBuildings() {
 }
 
 function handleMapClick(e) {
+    // Schovať menu ak užívateľ klikne hocikde na mapu
+    const menu = document.getElementById('buildingNavMenu');
+    if (menu) menu.style.display = 'none';
+
     const wrapper = document.getElementById('mapWrapper');
     const rect = wrapper.getBoundingClientRect();
     
@@ -269,9 +311,15 @@ function moveToBuilding(key) {
 function showBuildingDetail(b) {
     const layer = document.getElementById('buildingDetailLayer');
     const img = document.getElementById('detailImg');
-    if(!layer || !img) return;
+    const textLayer = document.getElementById('buildingActionText'); // Zacielenie na text
+    
+    if(!layer || !img || !textLayer) return;
     
     img.src = b.detail;
+    
+    // Zmena textu podľa mena budovy, prekonvertované na veľké písmená nech to ladí so zvyškom
+    textLayer.innerText = `👆 KLIKNI NA FOTKU PRE VSTUP DO ${b.name.toUpperCase()}`;
+    
     window.currentMapAction = b.action; 
     layer.style.display = 'flex'; 
 }
