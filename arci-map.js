@@ -112,7 +112,6 @@ function startArciCityGame() {
     initArciPinchZoom(mapWrapper);
     
     setTimeout(() => { centerCamera(); }, 150);
-    // ZMENA: Pôvodný pevný timeout pre plynulý presun bol odstránený, rieši to dynamický systém v sekcii 5
 }
 
 // ==========================================
@@ -173,7 +172,6 @@ function exitMap() {
     container.style.display = 'none';
     container.innerHTML = ""; 
     isTrackingCamera = false; 
-    // Zastavíme pohyb pri odchode
     clearTimeout(currentMovementTimeout);
     isMoving = false;
 }
@@ -253,14 +251,12 @@ function handleMapClick(e) {
     const y = ((e.clientY - rect.top) / rect.height) * 100;
     
     console.log(`📍 Klikol si na súradnice: x: ${x.toFixed(1)}, y: ${y.toFixed(1)}`);
-    // ZMENA: Využitie obmedzeného pohybu namiesto priameho skoku
     navigatePlayerIntelligently(x, y);
 }
 
 let isTrackingCamera = false;
 let trackEndTime = 0;
 
-// ZMENA: movePlayer funkcia teraz animuje len jeden krok z fronty ciest a volá sa rekurzívne
 function movePlayerStep(x, y, timeInSeconds) {
     const player = document.getElementById('player-character');
     if(!player) return;
@@ -304,7 +300,6 @@ function centerCamera() {
 
 function moveToBuilding(key) {
     const b = buildingsData[key];
-    // ZMENA: Akonáhle dorazí inteligentne k budove, otvorí sa detail
     navigatePlayerIntelligently(b.x, b.y, () => {
         showBuildingDetail(b);
     });
@@ -334,33 +329,45 @@ function closeBuildingDetail() {
 // 5. OBMEDZENÝ POHYB POSTAVIČKY (WAYPOINTY)
 // ==========================================
 
-// Tu sú definované "križovatky" a cesty v % z tvojej mapy. 
-// Tieto súradnice môžeš jemne ladiť, aby lepšie lícovali s grafikou ciest.
+// KOMPLETNE PREROBENÉ BODY - zamerané len na hlavné asfaltové cesty podľa obrázka mapy.
 const roadNodes = [
-    { id: 1, x: 25, y: 70 },  // Hlavná križovatka dole vľavo
-    { id: 2, x: 45, y: 70 },  // Križovatka dole stred (pred ArciInvest)
-    { id: 3, x: 75, y: 70 },  // Križovatka dole vpravo (pri Kasíne)
-    { id: 4, x: 25, y: 50 },  // Križovatka stred vľavo (pri Knižnici)
-    { id: 5, x: 45, y: 50 },  // Križovatka stred stred
-    { id: 6, x: 75, y: 50 },  // Križovatka stred vpravo
-    { id: 7, x: 25, y: 35 },  // Križovatka hore vľavo
-    { id: 8, x: 45, y: 35 },  // Križovatka hore stred
-    { id: 9, x: 75, y: 35 },  // Križovatka hore vpravo
-    { id: 10, x: 8, y: 70 },  // Slepá ulica vľavo dole (pri osobné úspechy)
-    { id: 11, x: 92, y: 70 }, // Slepá ulica vpravo dole (podsvetie)
-    { id: 12, x: 25, y: 92 }  // Cesta dole ku Globálnym úspechom
+    // Horná cesta (od kostola doprava)
+    { id: 1, x: 24, y: 28 },  // Križovatka pri Kostole
+    { id: 2, x: 46, y: 31 },  // Križovatka pod Pyramídou a Bankou
+    { id: 3, x: 68, y: 35 },  // Križovatka pri PGA a Fedex
+    { id: 4, x: 88, y: 38 },  // Slepá ulica vpravo hore pri EA
+
+    // Stredná cesta (od parku nad štadiónom doprava)
+    { id: 5, x: 14, y: 43 },  // Slepá ulica pri údržbe vľavo
+    { id: 6, x: 28, y: 46 },  // Križovatka nad Štadiónom a Knižnicou
+    { id: 7, x: 46, y: 49 },  // Križovatka uprostred mapy (pod Knižnicou)
+    { id: 8, x: 68, y: 53 },  // Križovatka pri Telocvični
+    { id: 9, x: 86, y: 56 },  // Križovatka nad Plavárňou
+
+    // Spodná cesta (od ArciInvest doprava)
+    { id: 10, x: 10, y: 68 }, // Slepá ulica pri Globálnych úspechoch
+    { id: 11, x: 33, y: 73 }, // Križovatka pri ArciInvest a Fontáne
+    { id: 12, x: 52, y: 75 }, // Križovatka pod Vilou / nad ArciShop
+    { id: 13, x: 82, y: 79 }, // Križovatka pri Casine a ArciTip
+    { id: 14, x: 94, y: 86 }, // Slepá ulica úplne dole vpravo (Podsvetie)
+
+    // Úplný spodok vľavo
+    { id: 15, x: 12, y: 88 }  // Mostík vľavo dole
 ];
 
-// Prepojenia medzi uzlami (hrany), t.j. kade vedú cesty
+// Presné prepojenia zodpovedajúce nakresleným cestám
 const roadEdges = [
-    [1, 2], [2, 3],       // Horizontálna cesta dole
-    [4, 5], [5, 6],       // Horizontálna cesta stred
-    [7, 8], [8, 9],       // Horizontálna cesta hore
-    [1, 4], [4, 7],       // Vertikálna cesta vľavo
-    [2, 5], [5, 8],       // Vertikálna cesta stred
-    [3, 6], [6, 9],       // Vertikálna cesta vpravo
-    [10, 1], [3, 11],     // Okrajové cesty dole
-    [1, 12]               // Odbočka úplne dole
+    // Horizontálne trasy
+    [1, 2], [2, 3], [3, 4],           // Horná ulica
+    [5, 6], [6, 7], [7, 8], [8, 9],   // Stredná ulica
+    [10, 11], [11, 12], [12, 13], [13, 14], // Spodná ulica
+
+    // Vertikálne trasy
+    [1, 6], [6, 11],                  // Ľavá vertikálna cesta (Kostol -> Štadión -> ArciInvest)
+    [2, 7], [7, 12],                  // Stredná vertikálna cesta (Banka -> Knižnica -> ArciShop)
+    [3, 8], [8, 13],                  // Pravá vertikálna cesta (Fedex -> Gym -> Casino)
+    [9, 13],                          // Cesta zhora dole popri Plavárni
+    [11, 15]                          // Cesta od ArciInvest dole k mostu
 ];
 
 let pathQueue = [];
@@ -368,30 +375,30 @@ let isMoving = false;
 let currentMovementTimeout = null;
 let activeCallback = null;
 
-// Hlavná funkcia, ktorá vypočíta trasu a spustí animáciu
 function navigatePlayerIntelligently(targetX, targetY, onComplete = null) {
     activeCallback = onComplete;
+    
+    // Zásadná úprava proti zasekávaniu: kompletne zrušíme predchádzajúci stav!
     clearTimeout(currentMovementTimeout);
+    isMoving = false; 
     
     const player = document.getElementById('player-character');
     let startX = parseFloat(player.style.left || localStorage.getItem('arciPlayerX') || "10");
     let startY = parseFloat(player.style.top || localStorage.getItem('arciPlayerY') || "40");
 
-    // Ak je cieľ veľmi blízko (menej ako 12% mapy), ide rovno na cieľ (aby mohol chodiť trochu po tráve)
+    // Znížil som vzdialenosť pre "priamy prechod" na 5%. Zabezpečí to, že na dlhšie trate 
+    // VŽDY použije sieť ciest. Iba ak klikneš tesne vedľa neho, prejde priamo.
     const directDist = Math.hypot(targetX - startX, targetY - startY);
-    if (directDist < 12) {
+    if (directDist < 5) {
         pathQueue = [{ x: targetX, y: targetY }];
     } else {
-        // Získame najkratšiu cestu cez vyznačené uzly
         pathQueue = calculateShortestPathGraph(startX, startY, targetX, targetY);
     }
 
-    if (!isMoving) {
-        processNextMovementStep();
-    }
+    // Bez ohľadu na predchádzajúci stav začne kráčať novú cestu
+    processNextMovementStep();
 }
 
-// Rekurzívne spracovanie cesty bod po bode
 function processNextMovementStep() {
     if (pathQueue.length === 0) {
         isMoving = false;
@@ -410,23 +417,18 @@ function processNextMovementStep() {
     
     let dist = Math.hypot(nextPoint.x - currentX, nextPoint.y - currentY);
     
-    // Rýchlosť pohybu: prejdenie 10% mapy trvá 0.6 sekundy
     let timeInSeconds = (dist / 10.0) * 0.6; 
     if (timeInSeconds < 0.1) timeInSeconds = 0.1;
 
     movePlayerStep(nextPoint.x, nextPoint.y, timeInSeconds);
 
-    // Počkáme kým dôjde do bodu a pokračujeme ďalším
     currentMovementTimeout = setTimeout(() => {
         processNextMovementStep();
     }, timeInSeconds * 1000);
 }
 
-// Algoritmus na nájdenie cesty (A* / Dijkstra štýl)
 function calculateShortestPathGraph(startX, startY, targetX, targetY) {
-    // 1. Nájdeme uzol najbližší k postavičke
     let startNodeId = getClosestNode(startX, startY);
-    // 2. Nájdeme uzol najbližší k cieľu
     let targetNodeId = getClosestNode(targetX, targetY);
 
     let distances = {};
@@ -465,7 +467,6 @@ function calculateShortestPathGraph(startX, startY, targetX, targetY) {
         });
     }
 
-    // Rekonštrukcia cesty
     let calculatedPath = [];
     let currentTrace = targetNodeId;
     
@@ -477,7 +478,6 @@ function calculateShortestPathGraph(startX, startY, targetX, targetY) {
         }
     }
 
-    // Pridáme na koniec presný cieľ, aby vždy došiel k finálnemu itemu
     calculatedPath.push({ x: targetX, y: targetY });
 
     return calculatedPath;
