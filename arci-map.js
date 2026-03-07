@@ -249,7 +249,16 @@ function renderBuildings() {
         hitbox.style.transform = 'translate(-50%, -100%)';
         hitbox.style.cursor = 'pointer';
         hitbox.style.zIndex = Math.floor(b.y) + 10; 
-        hitbox.onclick = (e) => { e.stopPropagation(); moveToBuilding(key); };
+        
+        // UPRAVENÉ: Ak je debug, neotvorí budovu, ale vypíše súradnice
+        hitbox.onclick = (e) => { 
+            e.stopPropagation(); 
+            if (isDebugMode) {
+                console.log(`🏢 Budova: ${b.name} | Súradnice: x: ${b.x.toFixed(1)}, y: ${b.y.toFixed(1)}`);
+            } else {
+                moveToBuilding(key);
+            }
+        };
 
         const img = document.createElement('img');
         img.style.position = 'absolute';
@@ -421,7 +430,7 @@ const roadEdges = [
     
     
         // nove 
-​[14,15], [9,15], [15,16], [19,17], [19,18], [19,4], [19,2],
+[14,15], [9,15], [15,16], [19,17], [19,18], [19,4], [19,2],
 [21,19], [21,17], [21,18], [21,2], [21,4], [17,18], [17,4], [17,2],
 [18,2], [18,4],
 [6,25], [11,25], [26,25], [26,3],
@@ -456,9 +465,16 @@ function drawDebugWaypoints() {
         }
     });
 
+    // Vykreslenie žltých bodov pre cesty
     roadNodes.forEach(node => {
         svgHTML += `<circle cx="${node.x}" cy="${node.y}" r="0.4" fill="yellow" stroke="red" stroke-width="0.1" vector-effect="non-scaling-stroke" />`;
     });
+
+    // PRIDANÉ: Vykreslenie červených bodov pre budovy
+    for (let key in buildingsData) {
+        const b = buildingsData[key];
+        svgHTML += `<circle cx="${b.x}" cy="${b.y}" r="0.5" fill="red" stroke="white" stroke-width="0.1" vector-effect="non-scaling-stroke" />`;
+    }
 
     svgHTML += `</svg>`;
     layer.innerHTML = svgHTML;
