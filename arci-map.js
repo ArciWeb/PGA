@@ -1,3 +1,4 @@
+
 // ==========================================
 // 1. DÁTA BUDOV A SÚRADNICE
 // ==========================================
@@ -41,7 +42,6 @@ const buildingsData = {
 let arciScale = 1;
 
 function getMinScale() {
-    // Vypočíta presný pomer displeja voči mape, aby nikdy nevznikol čierny okraj
     const mapW = 2000;
     const mapH = 1125;
     const winW = window.innerWidth;
@@ -52,11 +52,15 @@ function getMinScale() {
 function startArciCityGame() {
     const container = document.getElementById('arci-city-game-container');
     
-    // Načítanie súradníc z pamäte
     const savedX = localStorage.getItem('arciPlayerX') || "10";
     const savedY = localStorage.getItem('arciPlayerY') || "40";
 
-    // Nastavenie kontajnera mapy
+    // Generovanie HTML pre bočné menu budov
+    let buildingMenuItems = "";
+    for (let key in buildingsData) {
+        buildingMenuItems += `<div onclick="navigateFromMenu('${key}', event)" style="padding: 12px; color: white; border-bottom: 1px solid rgba(255,215,0,0.3); cursor: pointer; text-align: left; font-weight: bold; font-family: sans-serif; font-size: 0.9rem;">🏢 ${buildingsData[key].name}</div>`;
+    }
+
     container.style.display = 'block';
     container.style.position = 'fixed';
     container.style.top = '0';
@@ -66,22 +70,31 @@ function startArciCityGame() {
     container.style.zIndex = '900'; 
     container.style.background = '#000';
     container.style.overflow = 'auto'; 
-    // Odstránime scrollbary vizuálne pre lepší zážitok (fungovať rolovanie bude)
     container.style.scrollbarWidth = 'none'; 
     
+    // ZMENA: Znova pridaný div #scaleContainer, ktorý drží fyzickú veľkosť rolovania pod kontrolou
     container.innerHTML = `
-        <style>#arci-city-game-container::-webkit-scrollbar { display: none; }</style>
-        <div class="map-wrapper" id="mapWrapper" style="position: relative; width: 2000px; height: 1125px; overflow: hidden; transform-origin: 0 0; transition: transform 0.1s ease-out;">
-            <img src="Map_Background.png" class="map-bg" onclick="handleMapClick(event)" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1;">
-            <div id="buildingsLayer"></div>
-            <img src="panáčik_stoji.png" id="player-character" style="position: absolute; left: ${savedX}%; top: ${savedY}%; width: 45px; transform: translate(-50%, -100%); z-index: 500; transition: none; pointer-events: none; filter: drop-shadow(0px 5px 5px rgba(0,0,0,0.5));">
+        <style>#arci-city-game-container::-webkit-scrollbar { display: none; } #buildingNavMenu::-webkit-scrollbar { display: none; }</style>
+        
+        <div id="scaleContainer" style="width: 2000px; height: 1125px; transition: width 0.1s ease-out, height 0.1s ease-out;">
+            <div class="map-wrapper" id="mapWrapper" style="position: relative; width: 2000px; height: 1125px; overflow: hidden; transform-origin: 0 0; transition: transform 0.1s ease-out;">
+                <img src="Map_Background.png" class="map-bg" onclick="handleMapClick(event)" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1;">
+                <div id="buildingsLayer"></div>
+                <img src="panáčik_stoji.png" id="player-character" style="position: absolute; left: ${savedX}%; top: ${savedY}%; width: 45px; transform: translate(-50%, -100%); z-index: 500; transition: none; pointer-events: none; filter: drop-shadow(0px 5px 5px rgba(0,0,0,0.5));">
+            </div>
         </div>
         
         <div id="buildingDetailLayer" onclick="closeBuildingDetail()" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.85); z-index: 950; flex-direction: column; align-items: center; justify-content: center;">
             <img id="detailImg" src="" onclick="executeBuildingAction(event)" style="width: 95vw; max-height: 80vh; object-fit: contain; border: 5px solid gold; border-radius: 20px; box-shadow: 0 0 50px gold; cursor: pointer; transition: transform 0.2s;">
-            <div style="color: gold; font-weight: bold; margin-top: 15px; font-size: 1.5rem; text-shadow: 2px 2px #000; background: rgba(0,0,0,0.7); padding: 10px; border-radius: 10px;">
-                👆 KLIKNI NA FOTKU PRE VSTUP DO BUDOVY
+            <div id="buildingActionText" style="color: gold; font-weight: bold; margin-top: 15px; font-size: 1.2rem; text-shadow: 2px 2px #000; background: rgba(0,0,0,0.7); padding: 10px; border-radius: 10px; text-align: center;">
+                👆 KLIKNI NA FOTKU PRE VSTUP
             </div>
+        </div>
+
+        <button onclick="toggleBuildingMenu(event)" style="position:fixed; top:15px; right:85px; z-index:940; padding:5px 15px; background: #333; color: gold; border: 3px solid white; border-radius: 30px; font-weight: 900; font-size: 1rem; cursor: pointer; box-shadow: 0 0 15px rgba(0,0,0,0.5);">⋮</button>
+        
+        <div id="buildingNavMenu" style="display:none; position:fixed; top:50px; right:15px; width: 220px; max-height: 70vh; background: rgba(0,0,0,0.95); border: 2px solid gold; border-radius: 10px; z-index: 945; overflow-y: auto; box-shadow: 0 0 20px rgba(0,0,0,0.8); flex-direction: column; scrollbar-width: none;">
+            ${buildingMenuItems}
         </div>
 
         <button onclick="exitMap()" style="position:fixed; top:15px; right:15px; z-index:940; padding:5px 15px; background: red; color: white; border: 3px solid white; border-radius: 30px; font-weight: 900; font-size: 0.5rem; cursor: pointer; box-shadow: 0 0 15px rgba(0,0,0,0.5);">MENU</button>
@@ -89,12 +102,15 @@ function startArciCityGame() {
 
     renderBuildings();
     
-    // Aktivácia Pinch-to-Zoom pre mobil
     const mapWrapper = document.getElementById('mapWrapper');
+    const scaleContainer = document.getElementById('scaleContainer');
     
-    // Úvodné nastavenie bezpečného priblíženia pri štarte
     arciScale = Math.max(getMinScale(), 1);
     mapWrapper.style.transform = `scale(${arciScale})`;
+    
+    // Rovno odrežeme prebytočný priestor pri štarte
+    scaleContainer.style.width = (2000 * arciScale) + 'px';
+    scaleContainer.style.height = (1125 * arciScale) + 'px';
     
     initArciPinchZoom(mapWrapper);
     
@@ -105,9 +121,34 @@ function startArciCityGame() {
     }, 300);
 }
 
+// ==========================================
+// FUNKCIE PRE ROZBAĽOVACIE MENU BUDOV
+// ==========================================
+
+function toggleBuildingMenu(event) {
+    if (event) event.stopPropagation();
+    const menu = document.getElementById('buildingNavMenu');
+    if (menu) {
+        if (menu.style.display === 'none') {
+            menu.style.display = 'flex';
+        } else {
+            menu.style.display = 'none';
+        }
+    }
+}
+
+function navigateFromMenu(key, event) {
+    if (event) event.stopPropagation();
+    const menu = document.getElementById('buildingNavMenu');
+    if (menu) menu.style.display = 'none';
+    
+    moveToBuilding(key);
+}
+
 // POMOCNÁ FUNKCIA PRE ZOOMOVANIE MAPY PRSTAMI
 function initArciPinchZoom(el) {
     let initialDist = 0;
+    const scaleContainer = document.getElementById('scaleContainer');
 
     el.addEventListener('touchstart', e => {
         if (e.touches.length === 2) {
@@ -121,11 +162,15 @@ function initArciPinchZoom(el) {
             const dist = Math.hypot(e.touches[0].pageX - e.touches[1].pageX, e.touches[0].pageY - e.touches[1].pageY);
             const zoom = dist / initialDist;
             
-            // Absolútna dynamická brzda zmenšenia voči displeju
             const minScale = getMinScale();
             
             arciScale = Math.min(Math.max(minScale, arciScale * zoom), 3);
             el.style.transform = `scale(${arciScale})`;
+            
+            // Reálne orezanie veľkosti kontajnera
+            scaleContainer.style.width = (2000 * arciScale) + 'px';
+            scaleContainer.style.height = (1125 * arciScale) + 'px';
+            
             initialDist = dist;
         }
     }, {passive: false});
@@ -135,7 +180,7 @@ function exitMap() {
     const container = document.getElementById('arci-city-game-container');
     container.style.display = 'none';
     container.innerHTML = ""; 
-    isTrackingCamera = false; // Zastavenie kamery pri odchode
+    isTrackingCamera = false; 
 }
 
 // ==========================================
@@ -203,6 +248,9 @@ function renderBuildings() {
 }
 
 function handleMapClick(e) {
+    const menu = document.getElementById('buildingNavMenu');
+    if (menu) menu.style.display = 'none';
+
     const wrapper = document.getElementById('mapWrapper');
     const rect = wrapper.getBoundingClientRect();
     
@@ -213,7 +261,6 @@ function handleMapClick(e) {
     movePlayer(x, y);
 }
 
-// PREMENNÉ PRE SLEDOVANIE KAMERY
 let isTrackingCamera = false;
 let trackEndTime = 0;
 
@@ -228,7 +275,6 @@ function movePlayer(x, y) {
     localStorage.setItem('arciPlayerX', x); 
     localStorage.setItem('arciPlayerY', y);
     
-    // Spustenie plynulého sledovania kamery (na 3 sekundy)
     trackEndTime = Date.now() + 3000;
     if (!isTrackingCamera) {
         isTrackingCamera = true;
@@ -245,7 +291,6 @@ function trackCameraLoop() {
     requestAnimationFrame(trackCameraLoop);
 }
 
-// Upravená funkcia plynulého centrovania na bežiacu postavičku
 function centerCamera() {
     const player = document.getElementById('player-character');
     const container = document.getElementById('arci-city-game-container');
@@ -254,7 +299,6 @@ function centerCamera() {
         const pRect = player.getBoundingClientRect();
         const cRect = container.getBoundingClientRect();
         
-        // Vypočíta rozdiel medzi stredom panáčika a stredom obrazovky a o ten rozdiel posunie rolovanie mapy
         container.scrollLeft += (pRect.left + pRect.width / 2) - (cRect.left + cRect.width / 2);
         container.scrollTop += (pRect.top + pRect.height / 2) - (cRect.top + cRect.height / 2);
     }
@@ -269,9 +313,14 @@ function moveToBuilding(key) {
 function showBuildingDetail(b) {
     const layer = document.getElementById('buildingDetailLayer');
     const img = document.getElementById('detailImg');
-    if(!layer || !img) return;
+    const textLayer = document.getElementById('buildingActionText'); 
+    
+    if(!layer || !img || !textLayer) return;
     
     img.src = b.detail;
+    
+    textLayer.innerText = `👆 KLIKNI NA FOTKU PRE VSTUP DO ${b.name.toUpperCase()}`;
+    
     window.currentMapAction = b.action; 
     layer.style.display = 'flex'; 
 }
