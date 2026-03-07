@@ -13,7 +13,7 @@ const buildingsData = {
     "ea": { name: "EA Rank", x: 84.5, y: 35.5, size: 100, img: "buda_ea.png", detail: "mapa-ea.png", action: "showRankTable_EA" },
     "amateur": { name: "Amateur Rank", x: 73.0, y: 39.5, size: 65, img: "buda_amateur.png", detail: "mapa-amateur.png", action: "showRankTable_Amateur" },
     "elo": { name: "ELO Rank", x: 95.5, y: 44.5, size: 95, img: "buda_elo.png", detail: "mapa-elo.png", action: "showRankTable_ELO" },
-    "stadion": { name: "Štadión", x: 24.0, y: 60.5, size: 380, img: "buda_stadion.png", detail: "mapa-cards.png", action: "showGlobalPlayerCards" },
+    "stadion": { name: "Štadión", x: 25.0, y: 61.5, size: 380, img: "buda_stadion.png", detail: "mapa-cards.png", action: "showGlobalPlayerCards" },
     "osobne": { name: "Osobné úspechy", x: 13.5, y: 87.0, size: 160, img: "buda_zahradka.png", detail: "mapa-personal.png", action: "openPersonalAchievements" },
     "global": { name: "Globálne úspechy", x: 26.5, y: 95.0, size: 110, img: "buda_tabula.png", detail: "mapa-global.png", action: "openGlobalAchievementsList" },
     "kniznica": { name: "Knižnica", x: 41.0, y: 48.5, size: 115, img: "buda_kniznica.png", detail: "mapa-hof.png", action: "openHallOfFame" },
@@ -379,11 +379,11 @@ const roadNodes = [
     // --- Horná cesta ---
     { id: 1, x: 28, y: 26 }, // Začiatok pri Kostole
     { id: 2, x: 46, y: 33 }, // Križovatka pod Official Rank
-    { id: 3, x: 68, y: 40 }, // Križovatka pod PGA Rank
+    { id: 3, x: 11.7, y: 74.2 }, // skratka okolo stadiona 
     { id: 4, x: 88, y: 47 }, // Koniec pri EA Rank
     
     // --- Stredná cesta ---
-    { id: 5, x: 16, y: 49 }, // Slepá ulička nad Štadiónom
+    { id: 5, x: 8.6, y: 44.6 }, // Slepá ulička nad Štadiónom
     { id: 6, x: 35, y: 56 }, // Križovatka pri Knižnici
     { id: 7, x: 57, y: 63 }, // Križovatka pod Súperov dom / Gym
     { id: 8, x: 75, y: 69 }, // Križovatka pri Plavárni
@@ -392,21 +392,21 @@ const roadNodes = [
     // --- Spodná cesta ---
     { id: 10, x: 12, y: 88 }, // Mostík vľavo dole
     { id: 11, x: 24, y: 75 }, // Križovatka pod Fontánou / pri ArciInvest
-    { id: 12, x: 46, y: 82 }, // Križovatka pod ArciShop / Vila
-    { id: 13, x: 64, y: 88 }, // Križovatka pod ArciTip / Casino
+    { id: 12, x: 41.8, y: 95 }, // Križovatka pod arciinvest
+    { id: 13, x: 51.9, y: 80.8 }, // Križovatka pod arcicards
     { id: 14, x: 86, y: 95 }  // Spodný pravý roh
 ];
 
 const roadEdges = [
     // Horizontálne (šikmé zľava doprava)
-    [1, 2], [2, 3], [3, 4],
-    [5, 6], [6, 7], [7, 8], [8, 9],
+    [1, 2], [2, 4], [3, 5],
+    [6, 7], [7, 8], [8, 9],
     [10, 11], [11, 12], [12, 13], [13, 14],
     
     // Vertikálne (šikmé prepojenia zhora nadol)
     [2, 6], [6, 11], // Centrálna chrbtica 1
-    [3, 7], [7, 12], // Centrálna chrbtica 2
-    [8, 13]          // Pravá spojnica
+    [9,14], [3, 11], [7, 13] // Centrálna chrbtica 2
+
 ];
 
 function drawDebugWaypoints() {
