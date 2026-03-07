@@ -209,8 +209,12 @@ function executeBuildingAction(event) {
 }
 
 // ==========================================
-// 4. POHYB A VYKRESLOVANIE (HITBOXY)
+// 4. POHYB A VYKRESLOVANIE (MÓD LADENIA A HITBOXY)
 // ==========================================
+
+// ZMENA 1: Hlavný prepínač pre ladenie súradníc! 
+// Nastav na 'true', ak chceš schovať obrázky budov a vidieť presne mapu.
+const HIDE_BUILDINGS_FOR_DEBUG = true; 
 
 function renderBuildings() {
     const layer = document.getElementById('buildingsLayer');
@@ -221,21 +225,20 @@ function renderBuildings() {
         const sizePercent = b.size !== undefined ? b.size : 100;
         const widthPx = 180 * (sizePercent / 100);
 
-        // NEVIDITEĽNÝ HITBOX PRE PRESNÉ KLIKNUTIE NA BUDOVU
+        // ZMENA 2: Miniatúrny hitbox presne v strede dole (len dvere budovy)
         const hitbox = document.createElement('div');
         hitbox.style.position = 'absolute';
         hitbox.style.left = b.x + '%';
-        hitbox.style.top = (b.y - 2) + '%'; 
-        hitbox.style.width = (widthPx * 0.5) + 'px'; 
-        hitbox.style.height = (widthPx * 0.6) + 'px';
+        hitbox.style.top = b.y + '%'; 
+        // Extrémne malá plocha (cca štvrtina šírky budovy a fixná malá výška)
+        hitbox.style.width = (widthPx * 0.25) + 'px'; 
+        hitbox.style.height = '40px';
         hitbox.style.transform = 'translate(-50%, -100%)';
         hitbox.style.cursor = 'pointer';
         hitbox.style.zIndex = Math.floor(b.y) + 10; 
         hitbox.onclick = (e) => { e.stopPropagation(); moveToBuilding(key); };
-        
-        // SAMOTNÝ OBRÁZOK
+
         const img = document.createElement('img');
-        img.src = b.img; 
         img.style.position = 'absolute';
         img.style.left = b.x + '%'; 
         img.style.top = b.y + '%';
@@ -243,15 +246,32 @@ function renderBuildings() {
         img.style.width = widthPx + 'px';
         img.style.maxWidth = 'none'; 
         img.style.zIndex = Math.floor(b.y); 
-        img.style.filter = 'drop-shadow(2px 2px 5px rgba(0,0,0,0.5))';
         img.style.pointerEvents = 'none'; 
+
+        // Režim skrývania budov pre ladenie ciest
+        if (HIDE_BUILDINGS_FOR_DEBUG) {
+            img.src = ""; // Nenačíta obrázok
+            img.alt = `🏢 ${b.name}`; // Ukáže len text
+            img.style.border = "1px solid red";
+            img.style.background = "rgba(0,0,0,0.6)";
+            img.style.color = "white";
+            img.style.padding = "5px";
+            img.style.fontSize = "12px";
+            
+            // Zároveň ukážeme viditeľne náš malý hitbox, aby si videl, kde presne sa kliká
+            hitbox.style.border = '2px solid lime';
+            hitbox.style.background = 'rgba(0, 255, 0, 0.3)';
+        } else {
+            img.src = b.img; 
+            img.style.filter = 'drop-shadow(2px 2px 5px rgba(0,0,0,0.5))';
+        }
         
         layer.appendChild(img);
         layer.appendChild(hitbox);
     }
 }
 
-// ZMENA: Ak klikneš na mapu, ide rovno tam!
+// ZMENA 3: Ak klikneš na mapu, ide rovno tam (bez ciar)
 function handleMapClick(e) {
     const menu = document.getElementById('buildingNavMenu');
     if (menu) menu.style.display = 'none';
@@ -262,7 +282,7 @@ function handleMapClick(e) {
     const x = ((e.clientX - rect.left) / rect.width) * 100;
     const y = ((e.clientY - rect.top) / rect.height) * 100;
     
-    console.log(`📍 Klik na mapu: x: ${x.toFixed(1)}, y: ${y.toFixed(1)} -> Priamy pohyb.`);
+    console.log(`📍 Klik na mapu: x: ${x.toFixed(1)}, y: ${y.toFixed(1)} -> Priamy voľný pohyb.`);
     navigatePlayerDirectly(x, y);
 }
 
@@ -310,10 +330,10 @@ function centerCamera() {
     }
 }
 
-// ZMENA: Ak klikneš na budovu, ide výhradne po cestách!
+// ZMENA 3 (pokračovanie): Ak klikneš na budovu, ide prísne po sieti ciest
 function moveToBuilding(key) {
     const b = buildingsData[key];
-    console.log(`📍 Klik na budovu: ${b.name} -> Pohyb po sieti ciest.`);
+    console.log(`📍 Klik na budovu: ${b.name} -> Prísny pohyb po sieti ciest.`);
     navigatePlayerViaRoads(b.x, b.y, () => {
         showBuildingDetail(b);
     });
@@ -377,23 +397,24 @@ const roadEdges = [
     [8, 13]          // Pravá spojnica
 ];
 
-// ZMENA: Kreslenie pomocou SVG rieši problém nadväznosti bodov a nesprávneho CSS uhlu
+// ZMENA 4: Kreslenie pomocou prísnej viewBox SVG grafiky. 
+// Teraz do seba body zapadajú úplne presne a čiary sa neohýbajú.
 function drawDebugWaypoints() {
     const layer = document.getElementById('debugLayer');
     if (!layer) return;
     
-    let svgHTML = `<svg width="100%" height="100%" style="overflow: visible;">`;
+    let svgHTML = `<svg viewBox="0 0 100 100" preserveAspectRatio="none" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; overflow: visible;">`;
     
     roadEdges.forEach(edge => {
         const n1 = roadNodes.find(n => n.id === edge[0]);
         const n2 = roadNodes.find(n => n.id === edge[1]);
         if (n1 && n2) {
-            svgHTML += `<line x1="${n1.x}%" y1="${n1.y}%" x2="${n2.x}%" y2="${n2.y}%" stroke="rgba(255,0,0,0.8)" stroke-width="6" stroke-linecap="round" />`;
+            svgHTML += `<line x1="${n1.x}" y1="${n1.y}" x2="${n2.x}" y2="${n2.y}" stroke="rgba(255,0,0,0.8)" stroke-width="0.3" vector-effect="non-scaling-stroke" />`;
         }
     });
 
     roadNodes.forEach(node => {
-        svgHTML += `<circle cx="${node.x}%" cy="${node.y}%" r="6" fill="yellow" stroke="red" stroke-width="2" />`;
+        svgHTML += `<circle cx="${node.x}" cy="${node.y}" r="0.4" fill="yellow" stroke="red" stroke-width="0.1" vector-effect="non-scaling-stroke" />`;
     });
 
     svgHTML += `</svg>`;
@@ -405,7 +426,7 @@ let isMoving = false;
 let currentMovementTimeout = null;
 let activeCallback = null;
 
-// === MÓD 1: PRIAMY POHYB (Kliknutie na voľnú mapu) ===
+// MÓD 1: PRIAMY POHYB - postavička prejde rovno priamo tam, kam si klikol mimo ciest
 function navigatePlayerDirectly(targetX, targetY) {
     activeCallback = null;
     clearTimeout(currentMovementTimeout);
@@ -415,7 +436,7 @@ function navigatePlayerDirectly(targetX, targetY) {
     processNextMovementStep();
 }
 
-// === MÓD 2: POHYB PO CESTÁCH (Kliknutie na budovu) ===
+// MÓD 2: PRÍSNY POHYB PO CESTE - postavička hľadá uzly a ide presne len po nich
 function navigatePlayerViaRoads(targetX, targetY, onComplete = null) {
     activeCallback = onComplete;
     clearTimeout(currentMovementTimeout);
@@ -425,7 +446,6 @@ function navigatePlayerViaRoads(targetX, targetY, onComplete = null) {
     let startX = parseFloat(player.style.left || localStorage.getItem('arciPlayerX') || "10");
     let startY = parseFloat(player.style.top || localStorage.getItem('arciPlayerY') || "40");
 
-    // Pre pohyb do budovy používame už len prísne graf sietí bez ohľadu na vzdialenosť
     pathQueue = calculateShortestPathGraph(startX, startY, targetX, targetY);
     processNextMovementStep();
 }
