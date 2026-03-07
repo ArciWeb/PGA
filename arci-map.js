@@ -16,7 +16,7 @@ const buildingsData = {
     "stadion": { name: "Štadión", x: 25.0, y: 61.5, size: 380, img: "buda_stadion.png", detail: "mapa-cards.png", action: "showGlobalPlayerCards" },
     "osobne": { name: "Osobné úspechy", x: 13.5, y: 87.0, size: 160, img: "buda_zahradka.png", detail: "mapa-personal.png", action: "openPersonalAchievements" },
     "global": { name: "Globálne úspechy", x: 26.5, y: 95.0, size: 110, img: "buda_tabula.png", detail: "mapa-global.png", action: "openGlobalAchievementsList" },
-    "kniznica": { name: "Knižnica", x: 41.0, y: 48.5, size: 115, img: "buda_kniznica.png", detail: "mapa-hof.png", action: "openHallOfFame" },
+    "kniznica": { name: "Knižnica", x: 42.0, y: 51.5, size: 115, img: "buda_kniznica.png", detail: "mapa-hof.png", action: "openHallOfFame" },
     "super": { name: "Súperov dom", x: 62.5, y: 54.0, size: 90, img: "buda_super.png", detail: "mapa-vs.png", action: "openComparator" },
     "gym": { name: "Telocvičňa", x: 71.0, y: 56.0, size: 95, img: "buda_gym.png", detail: "mapa-trophy.png", action: "openTrophyGallery" },
     "udrzba": { name: "Údržba", x: 8.5, y: 42.0, size: 75, img: "buda_udrzba.png", detail: "mapa-udrzba.png", action: "openSettings" },
@@ -31,7 +31,7 @@ const buildingsData = {
     "invest": { name: "ArciInvest", x: 38.5, y: 88.0, size: 135, img: "buda_arciinvest.png", detail: "mapa-invest.png", action: "openArciInvest" },
     "tip": { name: "ArciTip", x: 66.5, y: 83.5, size: 95, img: "buda_arcitip.png", detail: "mapa-tip.png", action: "openArciTip" },
     "casino": { name: "ArciBet Casino", x: 78.5, y: 82.5, size: 105, img: "buda_arcibet.png", detail: "mapa-arcibet.png", action: "openArciCasino" },
-    "illegal": { name: "Podsvetie", x: 91.0, y: 87.5, size: 85, img: "buda_illegal.png", detail: "mapa-illegal.png", action: "openArciUnderground" }
+    "illegal": { name: "Podsvetie", x: 94.7, y: 76.9, size: 85, img: "buda_illegal.png", detail: "mapa-illegal.png", action: "openArciUnderground" }
 };
 
 // ==========================================
@@ -377,35 +377,62 @@ function closeBuildingDetail() {
 
 const roadNodes = [
     // --- Horná cesta ---
-    { id: 1, x: 28, y: 26 }, // Začiatok pri Kostole
-    { id: 2, x: 46, y: 33 }, // Križovatka pod Official Rank
+    { id: 1, x: 24.9, y: 32.7 }, // Začiatok pri Kostole
+    { id: 2, x: 53.3, y: 41.6 }, // Križovatka pod Official Rank
     { id: 3, x: 11.7, y: 74.2 }, // skratka okolo stadiona 
-    { id: 4, x: 88, y: 47 }, // Koniec pri EA Rank
+    { id: 4, x: 85.4, y: 49.9 }, // Koniec pri EA Rank
     
+        { id: 17, x: 55, y: 40.8 }, // pga
+            { id: 18, x: 66.9, y: 44.9 }, // fedex Amateur players
+        { id: 19, x: 79.9, y: 47.0 }, // ea 
+            { id: 21, x: 93.2, y: 50.3 }, // Elo
+                { id: 22, x: 80.4, y: 58.9 }, // noviny a plaváreň 
+                    { id: 23, x: 65.9, y: 63.3 }, //gym
+                        { id: 24, x: 48.9, y: 56.3 }, // dom
+                            { id: 25, x: 36.8, y: 66.6 }, //  odbočka na štadión 
+                                { id: 26, x: 24.5, y: 61.7 }, // štadión 
+                                    { id: 27, x: 33.5, y: 90.3 }, // invest
+                                        { id: 28, x: 56.5, y: 82.7 }, // cards
+                                        { id: 29, x: 65.3, y: 86.9 }, // tip
+                                            { id: 30, x: 72.6, y: 87 }, // casino
+                                                { id: 31, x: 76, y: 82.6 }, // parkovisko kasino
     // --- Stredná cesta ---
     { id: 5, x: 8.6, y: 44.6 }, // Slepá ulička nad Štadiónom
-    { id: 6, x: 35, y: 56 }, // Križovatka pri Knižnici
-    { id: 7, x: 57, y: 63 }, // Križovatka pod Súperov dom / Gym
-    { id: 8, x: 75, y: 69 }, // Križovatka pri Plavárni
-    { id: 9, x: 92, y: 75 }, // Koniec pri Podsvetí
-    
+    { id: 6, x: 45, y: 53 }, // Križovatka pri Knižnici
+    { id: 7, x: 59.1, y: 60.6 }, // Križovatka pod Súperov dom / Gym
+    { id: 8, x: 76.2, y: 67.4 }, // Križovatka pri Plavárni
+    { id: 9, x: 86.7, y: 73.4 }, // Koniec pri Podsvetí
+        { id: 15, x: 81.7, y: 85.5 }, // odbocka pri Podsvetí
+            { id: 16, x: 93.5, y: 80.1 }, // Podsvetie
+            
     // --- Spodná cesta ---
-    { id: 10, x: 12, y: 88 }, // Mostík vľavo dole
-    { id: 11, x: 24, y: 75 }, // Križovatka pod Fontánou / pri ArciInvest
+    { id: 10, x: 22.9, y: 92.6 }, // Mostík vľavo dole
+    { id: 11, x: 24, y: 82.7 }, // Križovatka pod Fontánou / pri ArciInvest
     { id: 12, x: 41.8, y: 95 }, // Križovatka pod arciinvest
     { id: 13, x: 51.9, y: 80.8 }, // Križovatka pod arcicards
-    { id: 14, x: 86, y: 95 }  // Spodný pravý roh
+    { id: 14, x: 77.9, y: 91.8 }  // Spodný pravý roh
 ];
 
 const roadEdges = [
     // Horizontálne (šikmé zľava doprava)
-    [1, 2], [2, 4], [3, 5],
+    [1, 2], [2, 4], [3, 5],[1, 3], 
     [6, 7], [7, 8], [8, 9],
     [10, 11], [11, 12], [12, 13], [13, 14],
     
+    
+        // nove 
+​[14,15], [9,15], [15,16], [19,17], [19,18], [19,4], [19,2],
+[21,19], [21,17], [21,18], [21,2], [21,4], [17,18], [17,4], [17,2],
+[18,2], [18,4],
+[6,25], [11,25], [26,25], [26,3],
+[22,4], [22,8], [24,6], [24,7],
+[27,12], [27,11], [23,7], [23,8],
+[29,30], [13,28], [13,29], [13,30],
+[30,14], [29,14], [28,29], [28,3], [28,14],
+
     // Vertikálne (šikmé prepojenia zhora nadol)
     [2, 6], [6, 11], // Centrálna chrbtica 1
-    [9,14], [3, 11], [7, 13] // Centrálna chrbtica 2
+    [9, 14], [3, 11], [7, 13] // Centrálna chrbtica 2
 
 ];
 
