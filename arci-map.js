@@ -329,50 +329,74 @@ function closeBuildingDetail() {
 // 5. OBMEDZENÝ POHYB POSTAVIČKY (WAYPOINTY)
 // ==========================================
 
-// KOMPLETNE NOVÉ BODY PRESNE PODĽA VIZUÁLU TVOJEJ MAPY
-// Odmerané podľa izometrickej (šikmej) perspektívy, kopírujú len reálne asfaltové cesty.
+// KOMPLETNE NOVÁ MATEMATICKY PRESNÁ MRIEŽKA
+// Zaručuje 100% rovný pravouhlý pohyb bez kľučkovania.
 const roadNodes = [
-    // Hlavná ľavá "chrbtica" (cesta zhora nadol)
-    { id: 1, x: 24, y: 20 },  // Začiatok cesty úplne hore vľavo
-    { id: 2, x: 34, y: 34 },  // Križovatka pod Kostolom
-    { id: 3, x: 38, y: 56 },  // Veľká križovatka pri Parku / pod Štadiónom
-    { id: 4, x: 26, y: 75 },  // Križovatka pri Fontáne
-    { id: 5, x: 12, y: 88 },  // Spodný kamenný mostík vľavo
+    // --- HORIZONTÁLNA CESTA 1 (HORNÁ) - y: 38 ---
+    { id: 101, x: 8, y: 38 },
+    { id: 102, x: 20, y: 38 }, // Pri Kostole
+    { id: 103, x: 28, y: 38 }, // Križovatka V1
+    { id: 104, x: 38, y: 38 }, 
+    { id: 105, x: 46, y: 38 }, // Križovatka V2
+    { id: 106, x: 60, y: 38 }, // Pri PGA
+    { id: 107, x: 68, y: 38 }, // Križovatka V3
+    { id: 108, x: 80, y: 38 }, 
+    { id: 109, x: 88, y: 38 }, // Križovatka V4
+    { id: 110, x: 96, y: 38 },
 
-    // Horná horizontálna cesta
-    { id: 6, x: 50, y: 39 },  // Cesta nad Official Rank
-    { id: 7, x: 66, y: 44 },  // Križovatka nad Pyramídou / Bankou
-    { id: 8, x: 88, y: 50 },  // Slepý koniec cesty pri EA úplne vpravo hore
+    // --- HORIZONTÁLNA CESTA 2 (STREDNÁ) - y: 62 ---
+    { id: 201, x: 8, y: 62 },
+    { id: 202, x: 20, y: 62 }, // Pri Štadióne
+    { id: 203, x: 28, y: 62 }, // Križovatka V1
+    { id: 204, x: 38, y: 62 },
+    { id: 205, x: 46, y: 62 }, // Križovatka V2
+    { id: 206, x: 55, y: 62 }, // Pri Vile
+    { id: 207, x: 68, y: 62 }, // Križovatka V3
+    { id: 208, x: 80, y: 62 },
+    { id: 209, x: 88, y: 62 }, // Križovatka V4
+    { id: 210, x: 96, y: 62 },
 
-    // Stredná horizontálna cesta
-    { id: 9, x: 49, y: 59 },  // Cesta pod Knižnicou
-    { id: 10, x: 60, y: 63 }, // T-križovatka v strede (napojenie zhora)
-    { id: 11, x: 72, y: 66 }, // Križovatka pri Gym / pod Súperom
-    { id: 12, x: 88, y: 70 }, // Koniec cesty pri Plavárni
+    // --- HORIZONTÁLNA CESTA 3 (SPODNÁ) - y: 84 ---
+    { id: 301, x: 8, y: 84 },
+    { id: 302, x: 14, y: 84 }, // Pri Osobné úspechy
+    { id: 303, x: 28, y: 84 }, // Križovatka V1
+    { id: 304, x: 38.5, y: 84 }, // PRESNE pod ArciInvest! Zamedzí kľučkovaniu.
+    { id: 305, x: 46, y: 84 }, // Križovatka V2
+    { id: 306, x: 58, y: 84 }, // Pri Cards
+    { id: 307, x: 68, y: 84 }, // Križovatka V3
+    { id: 308, x: 78, y: 84 }, // Pri Casino
+    { id: 309, x: 88, y: 84 }, // Križovatka V4
+    { id: 310, x: 96, y: 84 },
 
-    // Spodná horizontálna cesta
-    { id: 13, x: 45, y: 80 }, // Cesta pod ArciShop / ArciInvest
-    { id: 14, x: 62, y: 85 }, // Cesta pod ArciTip / ArciCards
-    { id: 15, x: 80, y: 90 }  // Križovatka pod Casinom vpravo dole
+    // --- VERTIKÁLNE PREDĹŽENIA HORE (y: 20) ---
+    { id: 401, x: 28, y: 20 },
+    { id: 402, x: 46, y: 20 },
+    { id: 403, x: 68, y: 20 },
+    { id: 404, x: 88, y: 20 },
+
+    // --- VERTIKÁLNE PREDĹŽENIA DOLE (y: 95) ---
+    { id: 501, x: 28, y: 95 },
+    { id: 502, x: 46, y: 95 },
+    { id: 503, x: 68, y: 95 },
+    { id: 504, x: 88, y: 95 }
 ];
 
-// Presné prepojenia zodpovedajúce nakresleným cestám
 const roadEdges = [
-    // Ľavá chrbtica (vedie kľukato zhora dole)
-    [1, 2], [2, 3], [3, 4], [4, 5],
+    // Prepojenia horizontálnej cesty 1
+    [101, 102], [102, 103], [103, 104], [104, 105], [105, 106], [106, 107], [107, 108], [108, 109], [109, 110],
+    // Prepojenia horizontálnej cesty 2
+    [201, 202], [202, 203], [203, 204], [204, 205], [205, 206], [206, 207], [207, 208], [208, 209], [209, 210],
+    // Prepojenia horizontálnej cesty 3
+    [301, 302], [302, 303], [303, 304], [304, 305], [305, 306], [306, 307], [307, 308], [308, 309], [309, 310],
     
-    // Horná cesta (od kostola doprava)
-    [2, 6], [6, 7], [7, 8],
-    
-    // Stredná cesta (od parku doprava)
-    [3, 9], [9, 10], [10, 11], [11, 12],
-    
-    // Spodná cesta (od fontány doprava)
-    [4, 13], [13, 14], [14, 15],
-
-    // Vertikálne prepojenia (cesty idúce šikmo nadol)
-    [7, 10], // Cesta vedúca od Pyramídy nadol ku strednej ceste
-    [11, 15] // Cesta vedúca od Gymu nadol ku Casinu
+    // Vertikála 1 (okolo Štadióna)
+    [401, 103], [103, 203], [203, 303], [303, 501],
+    // Vertikála 2 (okolo Knižnice)
+    [402, 105], [105, 205], [205, 305], [305, 502],
+    // Vertikála 3 (okolo Telocvične)
+    [403, 107], [107, 207], [207, 307], [307, 503],
+    // Vertikála 4 (okolo Plavárne)
+    [404, 109], [109, 209], [209, 309], [309, 504]
 ];
 
 let pathQueue = [];
@@ -390,9 +414,8 @@ function navigatePlayerIntelligently(targetX, targetY, onComplete = null) {
     let startX = parseFloat(player.style.left || localStorage.getItem('arciPlayerX') || "10");
     let startY = parseFloat(player.style.top || localStorage.getItem('arciPlayerY') || "40");
 
-    // Ak klikneš veľmi blízko neho (menej ako 5% vzdialenosť), prejde rovno
     const directDist = Math.hypot(targetX - startX, targetY - startY);
-    if (directDist < 5) {
+    if (directDist < 8) {
         pathQueue = [{ x: targetX, y: targetY }];
     } else {
         pathQueue = calculateShortestPathGraph(startX, startY, targetX, targetY);
@@ -480,7 +503,6 @@ function calculateShortestPathGraph(startX, startY, targetX, targetY) {
         }
     }
 
-    // Na konci sa z cesty vyberie rovno presne na miesto, kam si klikol
     calculatedPath.push({ x: targetX, y: targetY });
 
     return calculatedPath;
