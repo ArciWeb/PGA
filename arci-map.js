@@ -84,7 +84,7 @@ function startArciCityGame() {
             </div>
         </div>
 
-        <button onclick="exitMap()" style="position:fixed; top:15px; right:15px; z-index:960; padding:5px 15px; background: red; color: white; border: 3px solid white; border-radius: 50px; font-weight: 900; font-size: 0.5rem; cursor: pointer; box-shadow: 0 0 15px rgba(0,0,0,0.5);">MENU</button>
+        <button onclick="exitMap()" style="position:fixed; top:15px; right:15px; z-index:960; padding:5px 15px; background: red; color: white; border: 3px solid white; border-radius: 30px; font-weight: 900; font-size: 0.5rem; cursor: pointer; box-shadow: 0 0 15px rgba(0,0,0,0.5);">MENU</button>
     `;
 
     renderBuildings();
