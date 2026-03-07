@@ -209,7 +209,7 @@ function executeBuildingAction(event) {
 }
 
 // ==========================================
-// 4. POHYB A VYKRESLOVANIE (OPRAVENÉ HITBOXY)
+// 4. POHYB A VYKRESLOVANIE (HITBOXY)
 // ==========================================
 
 function renderBuildings() {
@@ -221,24 +221,19 @@ function renderBuildings() {
         const sizePercent = b.size !== undefined ? b.size : 100;
         const widthPx = 180 * (sizePercent / 100);
 
-        // 1. NEVIDITEĽNÝ HITBOX PRE PRESNÉ KLIKNUTIE
+        // NEVIDITEĽNÝ HITBOX PRE PRESNÉ KLIKNUTIE NA BUDOVU
         const hitbox = document.createElement('div');
         hitbox.style.position = 'absolute';
         hitbox.style.left = b.x + '%';
-        // Hitbox posunieme kúsok nižšie, aby pokrýval dvere/spodok budovy a nie vzduch nad ňou
         hitbox.style.top = (b.y - 2) + '%'; 
-        hitbox.style.width = (widthPx * 0.5) + 'px'; // Hitbox je o polovicu menší ako obrázok
+        hitbox.style.width = (widthPx * 0.5) + 'px'; 
         hitbox.style.height = (widthPx * 0.6) + 'px';
         hitbox.style.transform = 'translate(-50%, -100%)';
         hitbox.style.cursor = 'pointer';
-        hitbox.style.zIndex = Math.floor(b.y) + 10; // Musí byť vysoko, aby chytal kliky
+        hitbox.style.zIndex = Math.floor(b.y) + 10; 
         hitbox.onclick = (e) => { e.stopPropagation(); moveToBuilding(key); };
         
-        // Ak by si chcel vidieť, kde presne je klikacia zóna, odkomentuj toto:
-        // hitbox.style.border = '2px solid rgba(0, 255, 0, 0.5)';
-        // hitbox.style.background = 'rgba(0, 255, 0, 0.2)';
-
-        // 2. SAMOTNÝ OBRÁZOK
+        // SAMOTNÝ OBRÁZOK
         const img = document.createElement('img');
         img.src = b.img; 
         img.style.position = 'absolute';
@@ -249,7 +244,6 @@ function renderBuildings() {
         img.style.maxWidth = 'none'; 
         img.style.zIndex = Math.floor(b.y); 
         img.style.filter = 'drop-shadow(2px 2px 5px rgba(0,0,0,0.5))';
-        // TOTO JE MÁGIA: Obrázok ignoruje kliknutia na svoje priehľadné miesta!
         img.style.pointerEvents = 'none'; 
         
         layer.appendChild(img);
@@ -257,6 +251,7 @@ function renderBuildings() {
     }
 }
 
+// ZMENA: Ak klikneš na mapu, ide rovno tam!
 function handleMapClick(e) {
     const menu = document.getElementById('buildingNavMenu');
     if (menu) menu.style.display = 'none';
@@ -267,8 +262,8 @@ function handleMapClick(e) {
     const x = ((e.clientX - rect.left) / rect.width) * 100;
     const y = ((e.clientY - rect.top) / rect.height) * 100;
     
-    console.log(`📍 Klikol si na súradnice: x: ${x.toFixed(1)}, y: ${y.toFixed(1)}`);
-    navigatePlayerIntelligently(x, y);
+    console.log(`📍 Klik na mapu: x: ${x.toFixed(1)}, y: ${y.toFixed(1)} -> Priamy pohyb.`);
+    navigatePlayerDirectly(x, y);
 }
 
 let isTrackingCamera = false;
@@ -315,9 +310,11 @@ function centerCamera() {
     }
 }
 
+// ZMENA: Ak klikneš na budovu, ide výhradne po cestách!
 function moveToBuilding(key) {
     const b = buildingsData[key];
-    navigatePlayerIntelligently(b.x, b.y, () => {
+    console.log(`📍 Klik na budovu: ${b.name} -> Pohyb po sieti ciest.`);
+    navigatePlayerViaRoads(b.x, b.y, () => {
         showBuildingDetail(b);
     });
 }
@@ -330,9 +327,7 @@ function showBuildingDetail(b) {
     if(!layer || !img || !textLayer) return;
     
     img.src = b.detail;
-    
     textLayer.innerText = `👆 KLIKNI NA FOTKU PRE VSTUP DO ${b.name.toUpperCase()}`;
-    
     window.currentMapAction = b.action; 
     layer.style.display = 'flex'; 
 }
@@ -346,10 +341,8 @@ function closeBuildingDetail() {
 // 5. OBMEDZENÝ POHYB POSTAVIČKY (WAYPOINTY)
 // ==========================================
 
-// Nechaj na TRUE a v hre uvidíš červené čiary. Ak budú sedieť, prepni na false!
 const DEBUG_WAYPOINTS = true; 
 
-// NOVÁ, PRESNE VYPOČÍTANÁ IZOMETRICKÁ SIEŤ (kopíruje šedý asfalt)
 const roadNodes = [
     // --- Horná cesta ---
     { id: 1, x: 28, y: 26 }, // Začiatok pri Kostole
@@ -372,7 +365,6 @@ const roadNodes = [
     { id: 14, x: 86, y: 95 }  // Spodný pravý roh
 ];
 
-// Prepojenia (červené čiary)
 const roadEdges = [
     // Horizontálne (šikmé zľava doprava)
     [1, 2], [2, 3], [3, 4],
@@ -385,43 +377,27 @@ const roadEdges = [
     [8, 13]          // Pravá spojnica
 ];
 
+// ZMENA: Kreslenie pomocou SVG rieši problém nadväznosti bodov a nesprávneho CSS uhlu
 function drawDebugWaypoints() {
     const layer = document.getElementById('debugLayer');
     if (!layer) return;
+    
+    let svgHTML = `<svg width="100%" height="100%" style="overflow: visible;">`;
     
     roadEdges.forEach(edge => {
         const n1 = roadNodes.find(n => n.id === edge[0]);
         const n2 = roadNodes.find(n => n.id === edge[1]);
         if (n1 && n2) {
-            const line = document.createElement('div');
-            const dist = Math.hypot(n2.x - n1.x, n2.y - n1.y);
-            const angle = Math.atan2(n2.y - n1.y, n2.x - n1.x) * 180 / Math.PI;
-            
-            line.style.position = 'absolute';
-            line.style.left = `${n1.x}%`;
-            line.style.top = `${n1.y}%`;
-            line.style.width = `${dist}%`;
-            line.style.height = '4px';
-            line.style.background = 'rgba(255, 0, 0, 0.7)';
-            line.style.transformOrigin = '0 50%';
-            line.style.transform = `rotate(${angle}deg)`;
-            layer.appendChild(line);
+            svgHTML += `<line x1="${n1.x}%" y1="${n1.y}%" x2="${n2.x}%" y2="${n2.y}%" stroke="rgba(255,0,0,0.8)" stroke-width="6" stroke-linecap="round" />`;
         }
     });
 
     roadNodes.forEach(node => {
-        const dot = document.createElement('div');
-        dot.style.position = 'absolute';
-        dot.style.left = `${node.x}%`;
-        dot.style.top = `${node.y}%`;
-        dot.style.width = '12px';
-        dot.style.height = '12px';
-        dot.style.background = 'yellow';
-        dot.style.border = '2px solid red';
-        dot.style.borderRadius = '50%';
-        dot.style.transform = 'translate(-50%, -50%)';
-        layer.appendChild(dot);
+        svgHTML += `<circle cx="${node.x}%" cy="${node.y}%" r="6" fill="yellow" stroke="red" stroke-width="2" />`;
     });
+
+    svgHTML += `</svg>`;
+    layer.innerHTML = svgHTML;
 }
 
 let pathQueue = [];
@@ -429,9 +405,19 @@ let isMoving = false;
 let currentMovementTimeout = null;
 let activeCallback = null;
 
-function navigatePlayerIntelligently(targetX, targetY, onComplete = null) {
-    activeCallback = onComplete;
+// === MÓD 1: PRIAMY POHYB (Kliknutie na voľnú mapu) ===
+function navigatePlayerDirectly(targetX, targetY) {
+    activeCallback = null;
+    clearTimeout(currentMovementTimeout);
+    isMoving = false; 
     
+    pathQueue = [{ x: targetX, y: targetY }];
+    processNextMovementStep();
+}
+
+// === MÓD 2: POHYB PO CESTÁCH (Kliknutie na budovu) ===
+function navigatePlayerViaRoads(targetX, targetY, onComplete = null) {
+    activeCallback = onComplete;
     clearTimeout(currentMovementTimeout);
     isMoving = false; 
     
@@ -439,13 +425,8 @@ function navigatePlayerIntelligently(targetX, targetY, onComplete = null) {
     let startX = parseFloat(player.style.left || localStorage.getItem('arciPlayerX') || "10");
     let startY = parseFloat(player.style.top || localStorage.getItem('arciPlayerY') || "40");
 
-    const directDist = Math.hypot(targetX - startX, targetY - startY);
-    if (directDist < 8) {
-        pathQueue = [{ x: targetX, y: targetY }];
-    } else {
-        pathQueue = calculateShortestPathGraph(startX, startY, targetX, targetY);
-    }
-
+    // Pre pohyb do budovy používame už len prísne graf sietí bez ohľadu na vzdialenosť
+    pathQueue = calculateShortestPathGraph(startX, startY, targetX, targetY);
     processNextMovementStep();
 }
 
@@ -528,6 +509,11 @@ function calculateShortestPathGraph(startX, startY, targetX, targetY) {
         }
     }
 
+    // Najprv musí dôjsť k najbližšiemu uzlu z miesta, kde práve stojí
+    let startNode = roadNodes.find(n => n.id === startNodeId);
+    if (startNode) calculatedPath.unshift({ x: startNode.x, y: startNode.y });
+
+    // A úplne na koniec zíde z cesty presne pred dvere budovy
     calculatedPath.push({ x: targetX, y: targetY });
 
     return calculatedPath;
