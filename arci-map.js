@@ -90,9 +90,6 @@ function startArciCityGame() {
 let arciScale = 1;
 function initArciPinchZoom(el) {
     let initialDist = 0;
-    
-    // Zabezpečí, že sa mapa nedá oddialiť natoľko, aby vznikol na pravej strane čierny pás
-    const minScale = window.innerWidth / 2000; 
 
     el.addEventListener('touchstart', e => {
         if (e.touches.length === 2) {
@@ -106,7 +103,11 @@ function initArciPinchZoom(el) {
             const dist = Math.hypot(e.touches[0].pageX - e.touches[1].pageX, e.touches[0].pageY - e.touches[1].pageY);
             const zoom = dist / initialDist;
             
-            // Nahradená fixná hodnota 0.5 dynamickou premennou minScale
+            // NATVRDO: Vypočítame aktuálnu vnútornú šírku kontajnera pri každom pohybe
+            const containerWidth = el.parentElement.clientWidth;
+            // Zabezpečíme, že mapa (2000px) nikdy nebude užšia ako samotný kontajner/obrazovka
+            const minScale = containerWidth / 2000;
+            
             arciScale = Math.min(Math.max(minScale, arciScale * zoom), 3);
             el.style.transform = `scale(${arciScale})`;
             initialDist = dist;
