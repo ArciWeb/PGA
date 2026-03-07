@@ -90,6 +90,10 @@ function startArciCityGame() {
 let arciScale = 1;
 function initArciPinchZoom(el) {
     let initialDist = 0;
+    
+    // Zabezpečí, že sa mapa nedá oddialiť natoľko, aby vznikol na pravej strane čierny pás
+    const minScale = window.innerWidth / 2000; 
+
     el.addEventListener('touchstart', e => {
         if (e.touches.length === 2) {
             initialDist = Math.hypot(e.touches[0].pageX - e.touches[1].pageX, e.touches[0].pageY - e.touches[1].pageY);
@@ -101,7 +105,9 @@ function initArciPinchZoom(el) {
             e.preventDefault();
             const dist = Math.hypot(e.touches[0].pageX - e.touches[1].pageX, e.touches[0].pageY - e.touches[1].pageY);
             const zoom = dist / initialDist;
-            arciScale = Math.min(Math.max(0.5, arciScale * zoom), 3);
+            
+            // Nahradená fixná hodnota 0.5 dynamickou premennou minScale
+            arciScale = Math.min(Math.max(minScale, arciScale * zoom), 3);
             el.style.transform = `scale(${arciScale})`;
             initialDist = dist;
         }
