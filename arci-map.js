@@ -69,15 +69,12 @@ function startArciCityGame() {
     // Odstránime scrollbary vizuálne pre lepší zážitok (fungovať rolovanie bude)
     container.style.scrollbarWidth = 'none'; 
     
-    // TOTO JE TÁ HLAVNÁ ZMENA: Pridali sme "scaleContainer", ktorý mení svoju reálnu fyzickú veľkosť.
     container.innerHTML = `
         <style>#arci-city-game-container::-webkit-scrollbar { display: none; }</style>
-        <div id="scaleContainer" style="width: 2000px; height: 1125px; transition: width 0.1s ease-out, height 0.1s ease-out;">
-            <div class="map-wrapper" id="mapWrapper" style="position: relative; width: 2000px; height: 1125px; overflow: hidden; transform-origin: 0 0; transition: transform 0.1s ease-out;">
-                <img src="Map_Background.png" class="map-bg" onclick="handleMapClick(event)" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1;">
-                <div id="buildingsLayer"></div>
-                <img src="panáčik_stoji.png" id="player-character" style="position: absolute; left: ${savedX}%; top: ${savedY}%; width: 45px; transform: translate(-50%, -100%); z-index: 500; transition: none; pointer-events: none; filter: drop-shadow(0px 5px 5px rgba(0,0,0,0.5));">
-            </div>
+        <div class="map-wrapper" id="mapWrapper" style="position: relative; width: 2000px; height: 1125px; overflow: hidden; transform-origin: 0 0; transition: transform 0.1s ease-out;">
+            <img src="Map_Background.png" class="map-bg" onclick="handleMapClick(event)" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1;">
+            <div id="buildingsLayer"></div>
+            <img src="panáčik_stoji.png" id="player-character" style="position: absolute; left: ${savedX}%; top: ${savedY}%; width: 45px; transform: translate(-50%, -100%); z-index: 500; transition: none; pointer-events: none; filter: drop-shadow(0px 5px 5px rgba(0,0,0,0.5));">
         </div>
         
         <div id="buildingDetailLayer" onclick="closeBuildingDetail()" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.85); z-index: 950; flex-direction: column; align-items: center; justify-content: center;">
@@ -87,22 +84,17 @@ function startArciCityGame() {
             </div>
         </div>
 
-        <button onclick="exitMap()" style="position:fixed; top:15px; right:15px; z-index:960; padding:15px 25px; background: red; color: white; border: 3px solid white; border-radius: 50px; font-weight: 900; font-size: 1.2rem; cursor: pointer; box-shadow: 0 0 15px rgba(0,0,0,0.5);">NÁVRAT DO MENU</button>
+        <button onclick="exitMap()" style="position:fixed; top:15px; right:15px; z-index:960; padding:15px 25px; background: red; color: white; border: 3px solid white; border-radius: 50px; font-weight: 900; font-size: 0.5rem; cursor: pointer; box-shadow: 0 0 15px rgba(0,0,0,0.5);">MENU</button>
     `;
 
     renderBuildings();
     
     // Aktivácia Pinch-to-Zoom pre mobil
     const mapWrapper = document.getElementById('mapWrapper');
-    const scaleContainer = document.getElementById('scaleContainer');
     
     // Úvodné nastavenie bezpečného priblíženia pri štarte
     arciScale = Math.max(getMinScale(), 1);
     mapWrapper.style.transform = `scale(${arciScale})`;
-    
-    // Hneď pri štarte odrežeme ten prebytočný fyzický okraj
-    scaleContainer.style.width = (2000 * arciScale) + 'px';
-    scaleContainer.style.height = (1125 * arciScale) + 'px';
     
     initArciPinchZoom(mapWrapper);
     
@@ -116,7 +108,6 @@ function startArciCityGame() {
 // POMOCNÁ FUNKCIA PRE ZOOMOVANIE MAPY PRSTAMI
 function initArciPinchZoom(el) {
     let initialDist = 0;
-    const scaleContainer = document.getElementById('scaleContainer');
 
     el.addEventListener('touchstart', e => {
         if (e.touches.length === 2) {
@@ -135,12 +126,6 @@ function initArciPinchZoom(el) {
             
             arciScale = Math.min(Math.max(minScale, arciScale * zoom), 3);
             el.style.transform = `scale(${arciScale})`;
-            
-            // TOTO DRŽÍ MAPU BEZ ČIERNYCH BOKOV:
-            // Súčasne so zmenou pohľadu, ustrihneme aj fyzický priestor na rolovanie
-            scaleContainer.style.width = (2000 * arciScale) + 'px';
-            scaleContainer.style.height = (1125 * arciScale) + 'px';
-            
             initialDist = dist;
         }
     }, {passive: false});
