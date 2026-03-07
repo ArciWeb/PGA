@@ -35,8 +35,19 @@ const buildingsData = {
 };
 
 // ==========================================
-// 2. JADRO MOTORU MAPY (Z-Index vrstvy)
+// 2. JADRO MOTORU MAPY (Z-Index vrstvy a Zoom)
 // ==========================================
+
+let arciScale = 1;
+
+function getMinScale() {
+    // Vypočíta presný pomer displeja voči mape, aby nikdy nevznikol čierny okraj
+    const mapW = 2000;
+    const mapH = 1125;
+    const winW = window.innerWidth;
+    const winH = window.innerHeight;
+    return Math.max(winW / mapW, winH / mapH);
+}
 
 function startArciCityGame() {
     const container = document.getElementById('arci-city-game-container');
@@ -55,8 +66,11 @@ function startArciCityGame() {
     container.style.zIndex = '900'; 
     container.style.background = '#000';
     container.style.overflow = 'auto'; 
+    // Odstránime scrollbary vizuálne pre lepší zážitok (fungovať rolovanie bude)
+    container.style.scrollbarWidth = 'none'; 
     
     container.innerHTML = `
+        <style>#arci-city-game-container::-webkit-scrollbar { display: none; }</style>
         <div class="map-wrapper" id="mapWrapper" style="position: relative; width: 2000px; height: 1125px; overflow: hidden; transform-origin: 0 0; transition: transform 0.1s ease-out;">
             <img src="Map_Background.png" class="map-bg" onclick="handleMapClick(event)" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1;">
             <div id="buildingsLayer"></div>
@@ -77,9 +91,14 @@ function startArciCityGame() {
     
     // Aktivácia Pinch-to-Zoom pre mobil
     const mapWrapper = document.getElementById('mapWrapper');
+    
+    // Úvodné nastavenie bezpečného priblíženia pri štarte
+    arciScale = Math.max(getMinScale(), 1);
+    mapWrapper.style.transform = `scale(${arciScale})`;
+    
     initArciPinchZoom(mapWrapper);
     
-    setTimeout(centerCamera, 150);
+    setTimeout(() => { centerCamera(); }, 150);
     setTimeout(() => { 
         const p = document.getElementById('player-character');
         if(p) p.style.transition = "left 3.0s ease-out, top 3.0s ease-out"; 
@@ -87,7 +106,6 @@ function startArciCityGame() {
 }
 
 // POMOCNÁ FUNKCIA PRE ZOOMOVANIE MAPY PRSTAMI
-let arciScale = 1;
 function initArciPinchZoom(el) {
     let initialDist = 0;
 
@@ -103,10 +121,8 @@ function initArciPinchZoom(el) {
             const dist = Math.hypot(e.touches[0].pageX - e.touches[1].pageX, e.touches[0].pageY - e.touches[1].pageY);
             const zoom = dist / initialDist;
             
-            // NATVRDO: Vypočítame aktuálnu vnútornú šírku kontajnera pri každom pohybe
-            const containerWidth = el.parentElement.clientWidth;
-            // Zabezpečíme, že mapa (2000px) nikdy nebude užšia ako samotný kontajner/obrazovka
-            const minScale = containerWidth / 2000;
+            // Absolútna dynamická brzda zmenšenia voči displeju
+            const minScale = getMinScale();
             
             arciScale = Math.min(Math.max(minScale, arciScale * zoom), 3);
             el.style.transform = `scale(${arciScale})`;
@@ -119,6 +135,7 @@ function exitMap() {
     const container = document.getElementById('arci-city-game-container');
     container.style.display = 'none';
     container.innerHTML = ""; 
+    isTrackingCamera = false; // Zastavenie kamery pri odchode
 }
 
 // ==========================================
@@ -153,7 +170,7 @@ function executeBuildingAction(event) {
 }
 
 // ==========================================
-// 4. POHYB A VYKRESLOVANIE
+// 4. POHYB, VYKRESLOVANIE A KAMERA
 // ==========================================
 
 function renderBuildings() {
@@ -170,7 +187,6 @@ function renderBuildings() {
         img.style.cursor = 'pointer';
         img.style.filter = 'drop-shadow(2px 2px 5px rgba(0,0,0,0.5))';
         
-        // Výpočet vlastnej šírky na základe parametra 'size'
         const sizePercent = b.size !== undefined ? b.size : 100;
         const widthPx = 180 * (sizePercent / 100);
         
@@ -193,11 +209,13 @@ function handleMapClick(e) {
     const x = ((e.clientX - rect.left) / rect.width) * 100;
     const y = ((e.clientY - rect.top) / rect.height) * 100;
     
-    // Pomôcka pre teba - Vypíše súradnice do konzoly (F12)
     console.log(`📍 Klikol si na súradnice: x: ${x.toFixed(1)}, y: ${y.toFixed(1)}`);
-    
     movePlayer(x, y);
 }
+
+// PREMENNÉ PRE SLEDOVANIE KAMERY
+let isTrackingCamera = false;
+let trackEndTime = 0;
 
 function movePlayer(x, y) {
     const player = document.getElementById('player-character');
@@ -210,12 +228,36 @@ function movePlayer(x, y) {
     localStorage.setItem('arciPlayerX', x); 
     localStorage.setItem('arciPlayerY', y);
     
-    setTimeout(centerCamera, 400);
+    // Spustenie plynulého sledovania kamery (na 3 sekundy)
+    trackEndTime = Date.now() + 3000;
+    if (!isTrackingCamera) {
+        isTrackingCamera = true;
+        requestAnimationFrame(trackCameraLoop);
+    }
 }
 
+function trackCameraLoop() {
+    if (Date.now() > trackEndTime) {
+        isTrackingCamera = false;
+        return;
+    }
+    centerCamera();
+    requestAnimationFrame(trackCameraLoop);
+}
+
+// Upravená funkcia plynulého centrovania na bežiacu postavičku
 function centerCamera() {
     const player = document.getElementById('player-character');
-    if(player) player.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+    const container = document.getElementById('arci-city-game-container');
+    
+    if(player && container) {
+        const pRect = player.getBoundingClientRect();
+        const cRect = container.getBoundingClientRect();
+        
+        // Vypočíta rozdiel medzi stredom panáčika a stredom obrazovky a o ten rozdiel posunie rolovanie mapy
+        container.scrollLeft += (pRect.left + pRect.width / 2) - (cRect.left + cRect.width / 2);
+        container.scrollTop += (pRect.top + pRect.height / 2) - (cRect.top + cRect.height / 2);
+    }
 }
 
 function moveToBuilding(key) {
