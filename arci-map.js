@@ -4,16 +4,16 @@
 
 const buildingsData = {
     "noviny": { name: "Novinový stánok", x: 78.0, y: 56.5, size: 85, img: "buda_noviny.png", detail: "mapa-news.png", action: "openArciNews" },
-    "kostol": { name: "Kostol", x: 19.5, y: 29.0, size: 95, img: "buda_kostol.png", detail: "mapa-kostol.png", action: "openGameCalendar" },
-    "official": { name: "Official Rank", x: 50.5, y: 37.5, size: 95, img: "buda_official.png", detail: "mapa-official.png", action: "showRankTable_Official" },
+    "kostol": { name: "Kostol", x: 19.5, y: 28.0, size: 95, img: "buda_kostol.png", detail: "mapa-kostol.png", action: "openGameCalendar" },
+    "official": { name: "Official Rank", x: 50.5, y: 36.5, size: 95, img: "buda_official.png", detail: "mapa-official.png", action: "showRankTable_Official" },
     "pga": { name: "PGA Rank", x: 60.0, y: 33.5, size: 100, img: "buda_pga.png", detail: "mapa-pga.png", action: "showRankTable_PGA" },
-    "fedex": { name: "Fedex Rank", x: 63.0, y: 41.5, size: 75, img: "buda_fedex.png", detail: "mapa-fedex.png", action: "showRankTable_FEDEX" },
+    "fedex": { name: "Fedex Rank", x: 63.0, y: 40.5, size: 75, img: "buda_fedex.png", detail: "mapa-fedex.png", action: "showRankTable_FEDEX" },
     "players": { name: "Players Rank", x: 72.5, y: 34.0, size: 100, img: "buda_players.png", detail: "mapa-players.png", action: "showRankTable_Association" },
     "world": { name: "World Tour Rank", x: 50.5, y: 24.0, size: 105, img: "buda_worldtour.png", detail: "mapa-worldtour.png", action: "showRankTable_Tour" },
     "ea": { name: "EA Rank", x: 84.5, y: 35.5, size: 100, img: "buda_ea.png", detail: "mapa-ea.png", action: "showRankTable_EA" },
-    "amateur": { name: "Amateur Rank", x: 73.0, y: 45.5, size: 65, img: "buda_amateur.png", detail: "mapa-amateur.png", action: "showRankTable_Amateur" },
+    "amateur": { name: "Amateur Rank", x: 73.0, y: 39.5, size: 65, img: "buda_amateur.png", detail: "mapa-amateur.png", action: "showRankTable_Amateur" },
     "elo": { name: "ELO Rank", x: 95.5, y: 44.5, size: 95, img: "buda_elo.png", detail: "mapa-elo.png", action: "showRankTable_ELO" },
-    "stadion": { name: "Štadión", x: 21.0, y: 59.5, size: 380, img: "buda_stadion.png", detail: "mapa-cards.png", action: "showGlobalPlayerCards" },
+    "stadion": { name: "Štadión", x: 24.0, y: 60.5, size: 380, img: "buda_stadion.png", detail: "mapa-cards.png", action: "showGlobalPlayerCards" },
     "osobne": { name: "Osobné úspechy", x: 13.5, y: 87.0, size: 160, img: "buda_zahradka.png", detail: "mapa-personal.png", action: "openPersonalAchievements" },
     "global": { name: "Globálne úspechy", x: 26.5, y: 95.0, size: 110, img: "buda_tabula.png", detail: "mapa-global.png", action: "openGlobalAchievementsList" },
     "kniznica": { name: "Knižnica", x: 41.0, y: 48.5, size: 115, img: "buda_kniznica.png", detail: "mapa-hof.png", action: "openHallOfFame" },
@@ -21,7 +21,7 @@ const buildingsData = {
     "gym": { name: "Telocvičňa", x: 71.0, y: 56.0, size: 95, img: "buda_gym.png", detail: "mapa-trophy.png", action: "openTrophyGallery" },
     "udrzba": { name: "Údržba", x: 8.5, y: 42.0, size: 75, img: "buda_udrzba.png", detail: "mapa-udrzba.png", action: "openSettings" },
     "plavaren": { name: "Plaváreň", x: 89.0, y: 65.0, size: 190, img: "buda_plavaren.png", detail: "mapa-happy.png", action: "openHappinessOverview" },
-    "sponsor": { name: "Sponsor Palác", x: 37.0, y: 32.0, size: 95, img: "buda_palac.png", detail: "mapa-sponsor.png", action: "openSponsorInfo" },
+    "sponsor": { name: "Sponsor Palác", x: 36.0, y: 31.0, size: 115, img: "buda_palac.png", detail: "mapa-sponsor.png", action: "openSponsorInfo" },
     "arcibot": { name: "ArciBot", x: 12.5, y: 65.5, size: 35, img: "buda_arcibot.png", detail: "mapa-arcibot.png", action: "openAiAssistant" },
     "banka": { name: "Net Worth Banka", x: 24.5, y: 73.5, size: 105, img: "buda_banka.png", detail: "mapa-bank.png", action: "openNetWorth" },
     "bankomat": { name: "Bankomat", x: 28.5, y: 74.0, size: 30, img: "buda_bankomat.png", detail: "mapa-balance.png", action: "openMyPlayer" },
@@ -329,45 +329,50 @@ function closeBuildingDetail() {
 // 5. OBMEDZENÝ POHYB POSTAVIČKY (WAYPOINTY)
 // ==========================================
 
-// KOMPLETNE PREROBENÉ BODY - zamerané len na hlavné asfaltové cesty podľa obrázka mapy.
+// KOMPLETNE NOVÉ BODY PRESNE PODĽA VIZUÁLU TVOJEJ MAPY
+// Odmerané podľa izometrickej (šikmej) perspektívy, kopírujú len reálne asfaltové cesty.
 const roadNodes = [
-    // Horná cesta (od kostola doprava)
-    { id: 1, x: 24, y: 28 },  // Križovatka pri Kostole
-    { id: 2, x: 46, y: 31 },  // Križovatka pod Pyramídou a Bankou
-    { id: 3, x: 68, y: 35 },  // Križovatka pri PGA a Fedex
-    { id: 4, x: 88, y: 38 },  // Slepá ulica vpravo hore pri EA
+    // Hlavná ľavá "chrbtica" (cesta zhora nadol)
+    { id: 1, x: 24, y: 20 },  // Začiatok cesty úplne hore vľavo
+    { id: 2, x: 34, y: 34 },  // Križovatka pod Kostolom
+    { id: 3, x: 38, y: 56 },  // Veľká križovatka pri Parku / pod Štadiónom
+    { id: 4, x: 26, y: 75 },  // Križovatka pri Fontáne
+    { id: 5, x: 12, y: 88 },  // Spodný kamenný mostík vľavo
 
-    // Stredná cesta (od parku nad štadiónom doprava)
-    { id: 5, x: 14, y: 43 },  // Slepá ulica pri údržbe vľavo
-    { id: 6, x: 28, y: 46 },  // Križovatka nad Štadiónom a Knižnicou
-    { id: 7, x: 46, y: 49 },  // Križovatka uprostred mapy (pod Knižnicou)
-    { id: 8, x: 68, y: 53 },  // Križovatka pri Telocvični
-    { id: 9, x: 86, y: 56 },  // Križovatka nad Plavárňou
+    // Horná horizontálna cesta
+    { id: 6, x: 50, y: 39 },  // Cesta nad Official Rank
+    { id: 7, x: 66, y: 44 },  // Križovatka nad Pyramídou / Bankou
+    { id: 8, x: 88, y: 50 },  // Slepý koniec cesty pri EA úplne vpravo hore
 
-    // Spodná cesta (od ArciInvest doprava)
-    { id: 10, x: 10, y: 68 }, // Slepá ulica pri Globálnych úspechoch
-    { id: 11, x: 33, y: 73 }, // Križovatka pri ArciInvest a Fontáne
-    { id: 12, x: 52, y: 75 }, // Križovatka pod Vilou / nad ArciShop
-    { id: 13, x: 82, y: 79 }, // Križovatka pri Casine a ArciTip
-    { id: 14, x: 94, y: 86 }, // Slepá ulica úplne dole vpravo (Podsvetie)
+    // Stredná horizontálna cesta
+    { id: 9, x: 49, y: 59 },  // Cesta pod Knižnicou
+    { id: 10, x: 60, y: 63 }, // T-križovatka v strede (napojenie zhora)
+    { id: 11, x: 72, y: 66 }, // Križovatka pri Gym / pod Súperom
+    { id: 12, x: 88, y: 70 }, // Koniec cesty pri Plavárni
 
-    // Úplný spodok vľavo
-    { id: 15, x: 12, y: 88 }  // Mostík vľavo dole
+    // Spodná horizontálna cesta
+    { id: 13, x: 45, y: 80 }, // Cesta pod ArciShop / ArciInvest
+    { id: 14, x: 62, y: 85 }, // Cesta pod ArciTip / ArciCards
+    { id: 15, x: 80, y: 90 }  // Križovatka pod Casinom vpravo dole
 ];
 
 // Presné prepojenia zodpovedajúce nakresleným cestám
 const roadEdges = [
-    // Horizontálne trasy
-    [1, 2], [2, 3], [3, 4],           // Horná ulica
-    [5, 6], [6, 7], [7, 8], [8, 9],   // Stredná ulica
-    [10, 11], [11, 12], [12, 13], [13, 14], // Spodná ulica
+    // Ľavá chrbtica (vedie kľukato zhora dole)
+    [1, 2], [2, 3], [3, 4], [4, 5],
+    
+    // Horná cesta (od kostola doprava)
+    [2, 6], [6, 7], [7, 8],
+    
+    // Stredná cesta (od parku doprava)
+    [3, 9], [9, 10], [10, 11], [11, 12],
+    
+    // Spodná cesta (od fontány doprava)
+    [4, 13], [13, 14], [14, 15],
 
-    // Vertikálne trasy
-    [1, 6], [6, 11],                  // Ľavá vertikálna cesta (Kostol -> Štadión -> ArciInvest)
-    [2, 7], [7, 12],                  // Stredná vertikálna cesta (Banka -> Knižnica -> ArciShop)
-    [3, 8], [8, 13],                  // Pravá vertikálna cesta (Fedex -> Gym -> Casino)
-    [9, 13],                          // Cesta zhora dole popri Plavárni
-    [11, 15]                          // Cesta od ArciInvest dole k mostu
+    // Vertikálne prepojenia (cesty idúce šikmo nadol)
+    [7, 10], // Cesta vedúca od Pyramídy nadol ku strednej ceste
+    [11, 15] // Cesta vedúca od Gymu nadol ku Casinu
 ];
 
 let pathQueue = [];
@@ -378,7 +383,6 @@ let activeCallback = null;
 function navigatePlayerIntelligently(targetX, targetY, onComplete = null) {
     activeCallback = onComplete;
     
-    // Zásadná úprava proti zasekávaniu: kompletne zrušíme predchádzajúci stav!
     clearTimeout(currentMovementTimeout);
     isMoving = false; 
     
@@ -386,8 +390,7 @@ function navigatePlayerIntelligently(targetX, targetY, onComplete = null) {
     let startX = parseFloat(player.style.left || localStorage.getItem('arciPlayerX') || "10");
     let startY = parseFloat(player.style.top || localStorage.getItem('arciPlayerY') || "40");
 
-    // Znížil som vzdialenosť pre "priamy prechod" na 5%. Zabezpečí to, že na dlhšie trate 
-    // VŽDY použije sieť ciest. Iba ak klikneš tesne vedľa neho, prejde priamo.
+    // Ak klikneš veľmi blízko neho (menej ako 5% vzdialenosť), prejde rovno
     const directDist = Math.hypot(targetX - startX, targetY - startY);
     if (directDist < 5) {
         pathQueue = [{ x: targetX, y: targetY }];
@@ -395,7 +398,6 @@ function navigatePlayerIntelligently(targetX, targetY, onComplete = null) {
         pathQueue = calculateShortestPathGraph(startX, startY, targetX, targetY);
     }
 
-    // Bez ohľadu na predchádzajúci stav začne kráčať novú cestu
     processNextMovementStep();
 }
 
@@ -478,6 +480,7 @@ function calculateShortestPathGraph(startX, startY, targetX, targetY) {
         }
     }
 
+    // Na konci sa z cesty vyberie rovno presne na miesto, kam si klikol
     calculatedPath.push({ x: targetX, y: targetY });
 
     return calculatedPath;
