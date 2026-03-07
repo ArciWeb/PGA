@@ -19,20 +19,20 @@ const buildingsData = {
     "pga": { name: "PGA Rank", x: 60.0, y: 33.5, size: 100, img: "buda_pga.png", detail: "mapa-pga.png", action: "showRankTable_PGA" },
     "vila": { name: "Moja Vila", x: 53.0, y: 53.5, size: 120, img: "buda_vila.png", detail: "mapa-villa.png", action: "openLifestyleManager" },
     "shop": { name: "ArciShop", x: 47.5, y: 79.5, size: 135, img: "buda_arcishop.png", detail: "mapa-shop.png", action: "openArciShop" },
-    "fedex": { name: "Fedex Rank", x: 65.0, y: 41.5, size: 75, img: "buda_fedex.png", detail: "mapa-fedex.png", action: "showRankTable_FEDEX" },
+    "fedex": { name: "Fedex Rank", x: 63.0, y: 41.5, size: 75, img: "buda_fedex.png", detail: "mapa-fedex.png", action: "showRankTable_FEDEX" },
     "super": { name: "Súperov dom", x: 62.5, y: 54.0, size: 90, img: "buda_super.png", detail: "mapa-vs.png", action: "openComparator" },
     "cards": { name: "ArciCards", x: 59.0, y: 80.5, size: 95, img: "buda_arcicards.png", detail: "mapa-arcicards.png", action: "openArciCardsHub" },
-    "players": { name: "Players Rank", x: 72.5, y: 33.0, size: 100, img: "buda_players.png", detail: "mapa-players.png", action: "showRankTable_Association" },
+    "players": { name: "Players Rank", x: 72.5, y: 34.0, size: 100, img: "buda_players.png", detail: "mapa-players.png", action: "showRankTable_Association" },
     "gym": { name: "Telocvičňa", x: 71.0, y: 56.0, size: 95, img: "buda_gym.png", detail: "mapa-trophy.png", action: "openTrophyGallery" },
     "tip": { name: "ArciTip", x: 66.5, y: 80.5, size: 95, img: "buda_arcitip.png", detail: "mapa-tip.png", action: "openArciTip" },
-    "world": { name: "World Tour Rank", x: 73.5, y: 44.0, size: 135, img: "buda_worldtour.png", detail: "mapa-worldtour.png", action: "showRankTable_Tour" },
+    "world": { name: "World Tour Rank", x: 75.5, y: 44.0, size: 135, img: "buda_worldtour.png", detail: "mapa-worldtour.png", action: "showRankTable_Tour" },
     "noviny": { name: "Novinový stánok", x: 78.0, y: 56.5, size: 85, img: "buda_noviny.png", detail: "mapa-news.png", action: "openArciNews" },
     "casino": { name: "ArciBet Casino", x: 78.5, y: 82.5, size: 105, img: "buda_arcibet.png", detail: "mapa-arcibet.png", action: "openArciCasino" },
-    "ea": { name: "EA Rank", x: 83.5, y: 33.5, size: 100, img: "buda_ea.png", detail: "mapa-ea.png", action: "showRankTable_EA" },
-    "amateur": { name: "Amateur Rank", x: 82.0, y: 44.5, size: 65, img: "buda_amateur.png", detail: "mapa-amateur.png", action: "showRankTable_Amateur" },
+    "ea": { name: "EA Rank", x: 84.5, y: 35.5, size: 100, img: "buda_ea.png", detail: "mapa-ea.png", action: "showRankTable_EA" },
+    "amateur": { name: "Amateur Rank", x: 86.0, y: 45.5, size: 65, img: "buda_amateur.png", detail: "mapa-amateur.png", action: "showRankTable_Amateur" },
     "plavaren": { name: "Plaváreň", x: 89.0, y: 65.0, size: 190, img: "buda_plavaren.png", detail: "mapa-happy.png", action: "openHappinessOverview" },
     "illegal": { name: "Podsvetie", x: 91.0, y: 87.5, size: 85, img: "buda_illegal.png", detail: "mapa-illegal.png", action: "openArciUnderground" },
-    "elo": { name: "ELO Rank", x: 96.5, y: 44.5, size: 95, img: "buda_elo.png", detail: "mapa-elo.png", action: "showRankTable_ELO" }
+    "elo": { name: "ELO Rank", x: 95.5, y: 44.5, size: 95, img: "buda_elo.png", detail: "mapa-elo.png", action: "showRankTable_ELO" }
 };
 
 // ==========================================
