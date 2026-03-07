@@ -117,6 +117,87 @@ function startArciCityGame() {
 }
 
 // ==========================================
+// 2. JADRO MOTORU MAPY (Z-Index vrstvy a Zoom)
+// ==========================================
+
+let arciScale = 1;
+
+function getMinScale() {
+    const mapW = 2000;
+    const mapH = 1125;
+    const winW = window.innerWidth;
+    const winH = window.innerHeight;
+    return Math.max(winW / mapW, winH / mapH);
+}
+
+function startArciCityGame() {
+    const container = document.getElementById('arci-city-game-container');
+    
+    const savedX = localStorage.getItem('arciPlayerX') || "10";
+    const savedY = localStorage.getItem('arciPlayerY') || "40";
+
+    let buildingMenuItems = "";
+    for (let key in buildingsData) {
+        buildingMenuItems += `<div onclick="navigateFromMenu('${key}', event)" style="padding: 12px; color: white; border-bottom: 1px solid rgba(255,215,0,0.3); cursor: pointer; text-align: left; font-weight: bold; font-family: sans-serif; font-size: 0.9rem;">🏢 ${buildingsData[key].name}</div>`;
+    }
+
+    container.style.display = 'block';
+    container.style.position = 'fixed';
+    container.style.top = '0';
+    container.style.left = '0';
+    container.style.width = '100vw';
+    container.style.height = '100vh';
+    container.style.zIndex = '900'; 
+    container.style.background = '#000';
+    container.style.overflow = 'auto'; 
+    container.style.scrollbarWidth = 'none'; 
+    
+    container.innerHTML = `
+        <style>#arci-city-game-container::-webkit-scrollbar { display: none; } #buildingNavMenu::-webkit-scrollbar { display: none; }</style>
+        
+        <div id="scaleContainer" style="width: 2000px; height: 1125px; transition: width 0.1s ease-out, height 0.1s ease-out;">
+            <div class="map-wrapper" id="mapWrapper" style="position: relative; width: 2000px; height: 1125px; overflow: hidden; transform-origin: 0 0; transition: transform 0.1s ease-out;">
+                <img src="Map_Background.png" class="map-bg" onclick="handleMapClick(event)" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1;">
+                <div id="buildingsLayer"></div>
+                <div id="debugLayer" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 400;"></div>
+                <img src="panáčik_stoji.png" id="player-character" style="position: absolute; left: ${savedX}%; top: ${savedY}%; width: 45px; transform: translate(-50%, -100%); z-index: 500; transition: none; pointer-events: none; filter: drop-shadow(0px 5px 5px rgba(0,0,0,0.5));">
+            </div>
+        </div>
+        
+        <div id="buildingDetailLayer" onclick="closeBuildingDetail()" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.85); z-index: 950; flex-direction: column; align-items: center; justify-content: center;">
+            <img id="detailImg" src="" onclick="executeBuildingAction(event)" style="width: 95vw; max-height: 80vh; object-fit: contain; border: 5px solid gold; border-radius: 20px; box-shadow: 0 0 50px gold; cursor: pointer; transition: transform 0.2s;">
+            <div id="buildingActionText" style="color: gold; font-weight: bold; margin-top: 15px; font-size: 1.2rem; text-shadow: 2px 2px #000; background: rgba(0,0,0,0.7); padding: 10px; border-radius: 10px; text-align: center;">
+                👆 KLIKNI NA FOTKU PRE VSTUP
+            </div>
+        </div>
+
+        <button onclick="toggleBuildingMenu(event)" style="position:fixed; top:15px; right:85px; z-index:940; padding:5px 15px; background: #333; color: gold; border: 3px solid white; border-radius: 30px; font-weight: 900; font-size: 1rem; cursor: pointer; box-shadow: 0 0 15px rgba(0,0,0,0.5);">⋮</button>
+        
+        <div id="buildingNavMenu" style="display:none; position:fixed; top:50px; right:15px; width: 220px; max-height: 70vh; background: rgba(0,0,0,0.95); border: 2px solid gold; border-radius: 10px; z-index: 945; overflow-y: auto; box-shadow: 0 0 20px rgba(0,0,0,0.8); flex-direction: column; scrollbar-width: none;">
+            ${buildingMenuItems}
+        </div>
+
+        <button onclick="exitMap()" style="position:fixed; top:15px; right:15px; z-index:940; padding:5px 15px; background: red; color: white; border: 3px solid white; border-radius: 30px; font-weight: 900; font-size: 0.5rem; cursor: pointer; box-shadow: 0 0 15px rgba(0,0,0,0.5);">MENU</button>
+    `;
+
+    renderBuildings();
+    if (DEBUG_WAYPOINTS) drawDebugWaypoints();
+    
+    const mapWrapper = document.getElementById('mapWrapper');
+    const scaleContainer = document.getElementById('scaleContainer');
+    
+    arciScale = Math.max(getMinScale(), 1);
+    mapWrapper.style.transform = `scale(${arciScale})`;
+    
+    scaleContainer.style.width = (2000 * arciScale) + 'px';
+    scaleContainer.style.height = (1125 * arciScale) + 'px';
+    
+    initArciPinchZoom(mapWrapper);
+    
+    setTimeout(() => { centerCamera(); }, 150);
+}
+
+// ==========================================
 // FUNKCIE PRE ROZBAĽOVACIE MENU BUDOV
 // ==========================================
 
@@ -210,7 +291,7 @@ function executeBuildingAction(event) {
 }
 
 // ==========================================
-// 4. POHYB, VYKRESLOVANIE A KAMERA
+// 4. POHYB A VYKRESLOVANIE (OPRAVENÉ HITBOXY)
 // ==========================================
 
 function renderBuildings() {
@@ -219,26 +300,42 @@ function renderBuildings() {
     
     for (let key in buildingsData) {
         const b = buildingsData[key];
-        const img = document.createElement('img');
-        img.src = b.img; 
-        
-        img.style.position = 'absolute';
-        img.style.transform = 'translate(-50%, -100%)';
-        img.style.cursor = 'pointer';
-        img.style.filter = 'drop-shadow(2px 2px 5px rgba(0,0,0,0.5))';
-        
         const sizePercent = b.size !== undefined ? b.size : 100;
         const widthPx = 180 * (sizePercent / 100);
+
+        // 1. NEVIDITEĽNÝ HITBOX PRE PRESNÉ KLIKNUTIE
+        const hitbox = document.createElement('div');
+        hitbox.style.position = 'absolute';
+        hitbox.style.left = b.x + '%';
+        // Hitbox posunieme kúsok nižšie, aby pokrýval dvere/spodok budovy a nie vzduch nad ňou
+        hitbox.style.top = (b.y - 2) + '%'; 
+        hitbox.style.width = (widthPx * 0.5) + 'px'; // Hitbox je o polovicu menší ako obrázok
+        hitbox.style.height = (widthPx * 0.6) + 'px';
+        hitbox.style.transform = 'translate(-50%, -100%)';
+        hitbox.style.cursor = 'pointer';
+        hitbox.style.zIndex = Math.floor(b.y) + 10; // Musí byť vysoko, aby chytal kliky
+        hitbox.onclick = (e) => { e.stopPropagation(); moveToBuilding(key); };
         
-        img.style.width = widthPx + 'px';
-        img.style.maxWidth = 'none'; 
-        
+        // Ak by si chcel vidieť, kde presne je klikacia zóna, odkomentuj toto:
+        // hitbox.style.border = '2px solid rgba(0, 255, 0, 0.5)';
+        // hitbox.style.background = 'rgba(0, 255, 0, 0.2)';
+
+        // 2. SAMOTNÝ OBRÁZOK
+        const img = document.createElement('img');
+        img.src = b.img; 
+        img.style.position = 'absolute';
         img.style.left = b.x + '%'; 
         img.style.top = b.y + '%';
+        img.style.transform = 'translate(-50%, -100%)';
+        img.style.width = widthPx + 'px';
+        img.style.maxWidth = 'none'; 
         img.style.zIndex = Math.floor(b.y); 
+        img.style.filter = 'drop-shadow(2px 2px 5px rgba(0,0,0,0.5))';
+        // TOTO JE MÁGIA: Obrázok ignoruje kliknutia na svoje priehľadné miesta!
+        img.style.pointerEvents = 'none'; 
         
-        img.onclick = (e) => { e.stopPropagation(); moveToBuilding(key); };
         layer.appendChild(img);
+        layer.appendChild(hitbox);
     }
 }
 
@@ -331,51 +428,45 @@ function closeBuildingDetail() {
 // 5. OBMEDZENÝ POHYB POSTAVIČKY (WAYPOINTY)
 // ==========================================
 
-// ZMENA: Ak si chceš vizuálne skontrolovať, kade vedú cesty, zmeň toto na true!
+// Nechaj na TRUE a v hre uvidíš červené čiary. Ak budú sedieť, prepni na false!
 const DEBUG_WAYPOINTS = true; 
 
-// Izometrická mriežka (šikmé cesty)
+// NOVÁ, PRESNE VYPOČÍTANÁ IZOMETRICKÁ SIEŤ (kopíruje šedý asfalt)
 const roadNodes = [
-    // --- Hlavná diagonála 1 (Zhora zľava doprava dole) ---
-    { id: 101, x: 15, y: 35 },
-    { id: 102, x: 30, y: 43 },
-    { id: 103, x: 45, y: 51 }, // Centrálna križovatka
-    { id: 104, x: 60, y: 59 },
-    { id: 105, x: 75, y: 67 },
-    { id: 106, x: 90, y: 75 },
-
-    // --- Hlavná diagonála 2 (Zdola zľava doprava hore) ---
-    { id: 201, x: 15, y: 67 },
-    { id: 202, x: 30, y: 59 },
-    // 103 tu slúži ako prepojenie
-    { id: 204, x: 60, y: 43 },
-    { id: 205, x: 75, y: 35 },
-    { id: 206, x: 90, y: 27 },
-
-    // --- Cesta okolo ArciInvest (Spodná časť) ---
-    { id: 301, x: 25, y: 80 }, // Prilezitost pre ArciInvest
-    { id: 302, x: 40, y: 88 },
-    { id: 303, x: 55, y: 79 },
-    { id: 304, x: 70, y: 87 },
-
-    // --- Cesta pre Štadión a vrchné budovy ---
-    { id: 401, x: 15, y: 51 },
-    { id: 402, x: 35, y: 30 },
-    { id: 403, x: 50, y: 38 }
+    // --- Horná cesta ---
+    { id: 1, x: 28, y: 26 }, // Začiatok pri Kostole
+    { id: 2, x: 46, y: 33 }, // Križovatka pod Official Rank
+    { id: 3, x: 68, y: 40 }, // Križovatka pod PGA Rank
+    { id: 4, x: 88, y: 47 }, // Koniec pri EA Rank
+    
+    // --- Stredná cesta ---
+    { id: 5, x: 16, y: 49 }, // Slepá ulička nad Štadiónom
+    { id: 6, x: 35, y: 56 }, // Križovatka pri Knižnici
+    { id: 7, x: 57, y: 63 }, // Križovatka pod Súperov dom / Gym
+    { id: 8, x: 75, y: 69 }, // Križovatka pri Plavárni
+    { id: 9, x: 92, y: 75 }, // Koniec pri Podsvetí
+    
+    // --- Spodná cesta ---
+    { id: 10, x: 12, y: 88 }, // Mostík vľavo dole
+    { id: 11, x: 24, y: 75 }, // Križovatka pod Fontánou / pri ArciInvest
+    { id: 12, x: 46, y: 82 }, // Križovatka pod ArciShop / Vila
+    { id: 13, x: 64, y: 88 }, // Križovatka pod ArciTip / Casino
+    { id: 14, x: 86, y: 95 }  // Spodný pravý roh
 ];
 
+// Prepojenia (červené čiary)
 const roadEdges = [
-    // Diagonála 1
-    [101, 102], [102, 103], [103, 104], [104, 105], [105, 106],
-    // Diagonála 2
-    [201, 202], [202, 103], [103, 204], [204, 205], [205, 206],
-    // ArciInvest zóna
-    [201, 301], [301, 302], [302, 303], [303, 304], [105, 304],
-    // Štadión a Kostol zóna
-    [101, 401], [401, 202], [102, 402], [402, 403], [403, 204]
+    // Horizontálne (šikmé zľava doprava)
+    [1, 2], [2, 3], [3, 4],
+    [5, 6], [6, 7], [7, 8], [8, 9],
+    [10, 11], [11, 12], [12, 13], [13, 14],
+    
+    // Vertikálne (šikmé prepojenia zhora nadol)
+    [2, 6], [6, 11], // Centrálna chrbtica 1
+    [3, 7], [7, 12], // Centrálna chrbtica 2
+    [8, 13]          // Pravá spojnica
 ];
 
-// Funkcia na vykreslenie bodov, ak je DEBUG_WAYPOINTS = true
 function drawDebugWaypoints() {
     const layer = document.getElementById('debugLayer');
     if (!layer) return;
@@ -393,7 +484,7 @@ function drawDebugWaypoints() {
             line.style.top = `${n1.y}%`;
             line.style.width = `${dist}%`;
             line.style.height = '4px';
-            line.style.background = 'rgba(255, 0, 0, 0.5)';
+            line.style.background = 'rgba(255, 0, 0, 0.7)';
             line.style.transformOrigin = '0 50%';
             line.style.transform = `rotate(${angle}deg)`;
             layer.appendChild(line);
@@ -411,7 +502,6 @@ function drawDebugWaypoints() {
         dot.style.border = '2px solid red';
         dot.style.borderRadius = '50%';
         dot.style.transform = 'translate(-50%, -50%)';
-        dot.style.zIndex = '401';
         layer.appendChild(dot);
     });
 }
