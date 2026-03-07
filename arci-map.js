@@ -78,6 +78,7 @@ function startArciCityGame() {
             <div class="map-wrapper" id="mapWrapper" style="position: relative; width: 2000px; height: 1125px; overflow: hidden; transform-origin: 0 0; transition: transform 0.1s ease-out;">
                 <img src="Map_Background.png" class="map-bg" onclick="handleMapClick(event)" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1;">
                 <div id="buildingsLayer"></div>
+                <div id="debugLayer" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 400;"></div>
                 <img src="panáčik_stoji.png" id="player-character" style="position: absolute; left: ${savedX}%; top: ${savedY}%; width: 45px; transform: translate(-50%, -100%); z-index: 500; transition: none; pointer-events: none; filter: drop-shadow(0px 5px 5px rgba(0,0,0,0.5));">
             </div>
         </div>
@@ -99,6 +100,7 @@ function startArciCityGame() {
     `;
 
     renderBuildings();
+    if (DEBUG_WAYPOINTS) drawDebugWaypoints();
     
     const mapWrapper = document.getElementById('mapWrapper');
     const scaleContainer = document.getElementById('scaleContainer');
@@ -329,75 +331,90 @@ function closeBuildingDetail() {
 // 5. OBMEDZENÝ POHYB POSTAVIČKY (WAYPOINTY)
 // ==========================================
 
-// KOMPLETNE NOVÁ MATEMATICKY PRESNÁ MRIEŽKA
-// Zaručuje 100% rovný pravouhlý pohyb bez kľučkovania.
+// ZMENA: Ak si chceš vizuálne skontrolovať, kade vedú cesty, zmeň toto na true!
+const DEBUG_WAYPOINTS = true; 
+
+// Izometrická mriežka (šikmé cesty)
 const roadNodes = [
-    // --- HORIZONTÁLNA CESTA 1 (HORNÁ) - y: 38 ---
-    { id: 101, x: 8, y: 38 },
-    { id: 102, x: 20, y: 38 }, // Pri Kostole
-    { id: 103, x: 28, y: 38 }, // Križovatka V1
-    { id: 104, x: 38, y: 38 }, 
-    { id: 105, x: 46, y: 38 }, // Križovatka V2
-    { id: 106, x: 60, y: 38 }, // Pri PGA
-    { id: 107, x: 68, y: 38 }, // Križovatka V3
-    { id: 108, x: 80, y: 38 }, 
-    { id: 109, x: 88, y: 38 }, // Križovatka V4
-    { id: 110, x: 96, y: 38 },
+    // --- Hlavná diagonála 1 (Zhora zľava doprava dole) ---
+    { id: 101, x: 15, y: 35 },
+    { id: 102, x: 30, y: 43 },
+    { id: 103, x: 45, y: 51 }, // Centrálna križovatka
+    { id: 104, x: 60, y: 59 },
+    { id: 105, x: 75, y: 67 },
+    { id: 106, x: 90, y: 75 },
 
-    // --- HORIZONTÁLNA CESTA 2 (STREDNÁ) - y: 62 ---
-    { id: 201, x: 8, y: 62 },
-    { id: 202, x: 20, y: 62 }, // Pri Štadióne
-    { id: 203, x: 28, y: 62 }, // Križovatka V1
-    { id: 204, x: 38, y: 62 },
-    { id: 205, x: 46, y: 62 }, // Križovatka V2
-    { id: 206, x: 55, y: 62 }, // Pri Vile
-    { id: 207, x: 68, y: 62 }, // Križovatka V3
-    { id: 208, x: 80, y: 62 },
-    { id: 209, x: 88, y: 62 }, // Križovatka V4
-    { id: 210, x: 96, y: 62 },
+    // --- Hlavná diagonála 2 (Zdola zľava doprava hore) ---
+    { id: 201, x: 15, y: 67 },
+    { id: 202, x: 30, y: 59 },
+    // 103 tu slúži ako prepojenie
+    { id: 204, x: 60, y: 43 },
+    { id: 205, x: 75, y: 35 },
+    { id: 206, x: 90, y: 27 },
 
-    // --- HORIZONTÁLNA CESTA 3 (SPODNÁ) - y: 84 ---
-    { id: 301, x: 8, y: 84 },
-    { id: 302, x: 14, y: 84 }, // Pri Osobné úspechy
-    { id: 303, x: 28, y: 84 }, // Križovatka V1
-    { id: 304, x: 38.5, y: 84 }, // PRESNE pod ArciInvest! Zamedzí kľučkovaniu.
-    { id: 305, x: 46, y: 84 }, // Križovatka V2
-    { id: 306, x: 58, y: 84 }, // Pri Cards
-    { id: 307, x: 68, y: 84 }, // Križovatka V3
-    { id: 308, x: 78, y: 84 }, // Pri Casino
-    { id: 309, x: 88, y: 84 }, // Križovatka V4
-    { id: 310, x: 96, y: 84 },
+    // --- Cesta okolo ArciInvest (Spodná časť) ---
+    { id: 301, x: 25, y: 80 }, // Prilezitost pre ArciInvest
+    { id: 302, x: 40, y: 88 },
+    { id: 303, x: 55, y: 79 },
+    { id: 304, x: 70, y: 87 },
 
-    // --- VERTIKÁLNE PREDĹŽENIA HORE (y: 20) ---
-    { id: 401, x: 28, y: 20 },
-    { id: 402, x: 46, y: 20 },
-    { id: 403, x: 68, y: 20 },
-    { id: 404, x: 88, y: 20 },
-
-    // --- VERTIKÁLNE PREDĹŽENIA DOLE (y: 95) ---
-    { id: 501, x: 28, y: 95 },
-    { id: 502, x: 46, y: 95 },
-    { id: 503, x: 68, y: 95 },
-    { id: 504, x: 88, y: 95 }
+    // --- Cesta pre Štadión a vrchné budovy ---
+    { id: 401, x: 15, y: 51 },
+    { id: 402, x: 35, y: 30 },
+    { id: 403, x: 50, y: 38 }
 ];
 
 const roadEdges = [
-    // Prepojenia horizontálnej cesty 1
-    [101, 102], [102, 103], [103, 104], [104, 105], [105, 106], [106, 107], [107, 108], [108, 109], [109, 110],
-    // Prepojenia horizontálnej cesty 2
-    [201, 202], [202, 203], [203, 204], [204, 205], [205, 206], [206, 207], [207, 208], [208, 209], [209, 210],
-    // Prepojenia horizontálnej cesty 3
-    [301, 302], [302, 303], [303, 304], [304, 305], [305, 306], [306, 307], [307, 308], [308, 309], [309, 310],
-    
-    // Vertikála 1 (okolo Štadióna)
-    [401, 103], [103, 203], [203, 303], [303, 501],
-    // Vertikála 2 (okolo Knižnice)
-    [402, 105], [105, 205], [205, 305], [305, 502],
-    // Vertikála 3 (okolo Telocvične)
-    [403, 107], [107, 207], [207, 307], [307, 503],
-    // Vertikála 4 (okolo Plavárne)
-    [404, 109], [109, 209], [209, 309], [309, 504]
+    // Diagonála 1
+    [101, 102], [102, 103], [103, 104], [104, 105], [105, 106],
+    // Diagonála 2
+    [201, 202], [202, 103], [103, 204], [204, 205], [205, 206],
+    // ArciInvest zóna
+    [201, 301], [301, 302], [302, 303], [303, 304], [105, 304],
+    // Štadión a Kostol zóna
+    [101, 401], [401, 202], [102, 402], [402, 403], [403, 204]
 ];
+
+// Funkcia na vykreslenie bodov, ak je DEBUG_WAYPOINTS = true
+function drawDebugWaypoints() {
+    const layer = document.getElementById('debugLayer');
+    if (!layer) return;
+    
+    roadEdges.forEach(edge => {
+        const n1 = roadNodes.find(n => n.id === edge[0]);
+        const n2 = roadNodes.find(n => n.id === edge[1]);
+        if (n1 && n2) {
+            const line = document.createElement('div');
+            const dist = Math.hypot(n2.x - n1.x, n2.y - n1.y);
+            const angle = Math.atan2(n2.y - n1.y, n2.x - n1.x) * 180 / Math.PI;
+            
+            line.style.position = 'absolute';
+            line.style.left = `${n1.x}%`;
+            line.style.top = `${n1.y}%`;
+            line.style.width = `${dist}%`;
+            line.style.height = '4px';
+            line.style.background = 'rgba(255, 0, 0, 0.5)';
+            line.style.transformOrigin = '0 50%';
+            line.style.transform = `rotate(${angle}deg)`;
+            layer.appendChild(line);
+        }
+    });
+
+    roadNodes.forEach(node => {
+        const dot = document.createElement('div');
+        dot.style.position = 'absolute';
+        dot.style.left = `${node.x}%`;
+        dot.style.top = `${node.y}%`;
+        dot.style.width = '12px';
+        dot.style.height = '12px';
+        dot.style.background = 'yellow';
+        dot.style.border = '2px solid red';
+        dot.style.borderRadius = '50%';
+        dot.style.transform = 'translate(-50%, -50%)';
+        dot.style.zIndex = '401';
+        layer.appendChild(dot);
+    });
+}
 
 let pathQueue = [];
 let isMoving = false;
