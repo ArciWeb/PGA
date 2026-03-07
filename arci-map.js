@@ -39,6 +39,7 @@ const buildingsData = {
 // ==========================================
 
 let arciScale = 1;
+let isDebugMode = false; // Predvolene je vývojársky režim VYPNUTÝ
 
 function getMinScale() {
     const mapW = 2000;
@@ -99,7 +100,7 @@ function startArciCityGame() {
     `;
 
     renderBuildings();
-    if (DEBUG_WAYPOINTS) drawDebugWaypoints();
+    drawDebugWaypoints();
     
     const mapWrapper = document.getElementById('mapWrapper');
     const scaleContainer = document.getElementById('scaleContainer');
@@ -209,28 +210,40 @@ function executeBuildingAction(event) {
 }
 
 // ==========================================
-// 4. POHYB A VYKRESLOVANIE (MÓD LADENIA A HITBOXY)
+// 4. POHYB, VYKRESLOVANIE A DYNAMICKÝ DEBUG MÓD
 // ==========================================
 
-// ZMENA 1: Hlavný prepínač pre ladenie súradníc! 
-// Nastav na 'true', ak chceš schovať obrázky budov a vidieť presne mapu.
-const HIDE_BUILDINGS_FOR_DEBUG = true; 
+// TOTO MÔŽEŠ NAPÍSAŤ DO F12 KONZOLY PRE ZAPNUTIE/VYPNUTIE LADENIA
+window.arciDebug = function() {
+    isDebugMode = !isDebugMode;
+    console.log(`🛠️ Režim ladenia bol ${isDebugMode ? 'ZAPNUTÝ' : 'VYPNUTÝ'}`);
+    renderBuildings();
+    drawDebugWaypoints();
+};
+
+// ... alebo stlač Shift + D priamo v hre!
+window.addEventListener('keydown', (e) => {
+    if (e.shiftKey && e.key.toLowerCase() === 'd') {
+        window.arciDebug();
+    }
+});
 
 function renderBuildings() {
     const layer = document.getElementById('buildingsLayer');
     if(!layer) return;
+    
+    // Vyčistíme vrstvu, aby sa budovy neduplikovali pri prepínaní režimov
+    layer.innerHTML = "";
     
     for (let key in buildingsData) {
         const b = buildingsData[key];
         const sizePercent = b.size !== undefined ? b.size : 100;
         const widthPx = 180 * (sizePercent / 100);
 
-        // ZMENA 2: Miniatúrny hitbox presne v strede dole (len dvere budovy)
         const hitbox = document.createElement('div');
         hitbox.style.position = 'absolute';
         hitbox.style.left = b.x + '%';
         hitbox.style.top = b.y + '%'; 
-        // Extrémne malá plocha (cca štvrtina šírky budovy a fixná malá výška)
         hitbox.style.width = (widthPx * 0.25) + 'px'; 
         hitbox.style.height = '40px';
         hitbox.style.transform = 'translate(-50%, -100%)';
@@ -248,22 +261,25 @@ function renderBuildings() {
         img.style.zIndex = Math.floor(b.y); 
         img.style.pointerEvents = 'none'; 
 
-        // Režim skrývania budov pre ladenie ciest
-        if (HIDE_BUILDINGS_FOR_DEBUG) {
-            img.src = ""; // Nenačíta obrázok
-            img.alt = `🏢 ${b.name}`; // Ukáže len text
+        // AK JE ZAPNUTÝ DEBUG MÓD
+        if (isDebugMode) {
+            img.src = ""; 
+            img.alt = `🏢 ${b.name}`; 
             img.style.border = "1px solid red";
             img.style.background = "rgba(0,0,0,0.6)";
             img.style.color = "white";
             img.style.padding = "5px";
             img.style.fontSize = "12px";
             
-            // Zároveň ukážeme viditeľne náš malý hitbox, aby si videl, kde presne sa kliká
             hitbox.style.border = '2px solid lime';
-            hitbox.style.background = 'rgba(0, 255, 0, 0.3)';
+            hitbox.style.background = 'rgba(0, 255, 0, 0.4)';
         } else {
+            // NORMÁLNA HRA
             img.src = b.img; 
             img.style.filter = 'drop-shadow(2px 2px 5px rgba(0,0,0,0.5))';
+            img.alt = "";
+            hitbox.style.border = 'none';
+            hitbox.style.background = 'transparent';
         }
         
         layer.appendChild(img);
@@ -271,7 +287,6 @@ function renderBuildings() {
     }
 }
 
-// ZMENA 3: Ak klikneš na mapu, ide rovno tam (bez ciar)
 function handleMapClick(e) {
     const menu = document.getElementById('buildingNavMenu');
     if (menu) menu.style.display = 'none';
@@ -282,7 +297,7 @@ function handleMapClick(e) {
     const x = ((e.clientX - rect.left) / rect.width) * 100;
     const y = ((e.clientY - rect.top) / rect.height) * 100;
     
-    console.log(`📍 Klik na mapu: x: ${x.toFixed(1)}, y: ${y.toFixed(1)} -> Priamy voľný pohyb.`);
+    if (isDebugMode) console.log(`📍 Klik na mapu: x: ${x.toFixed(1)}, y: ${y.toFixed(1)}`);
     navigatePlayerDirectly(x, y);
 }
 
@@ -330,10 +345,9 @@ function centerCamera() {
     }
 }
 
-// ZMENA 3 (pokračovanie): Ak klikneš na budovu, ide prísne po sieti ciest
 function moveToBuilding(key) {
     const b = buildingsData[key];
-    console.log(`📍 Klik na budovu: ${b.name} -> Prísny pohyb po sieti ciest.`);
+    if (isDebugMode) console.log(`📍 Pohyb po sieti ciest k: ${b.name}`);
     navigatePlayerViaRoads(b.x, b.y, () => {
         showBuildingDetail(b);
     });
@@ -360,8 +374,6 @@ function closeBuildingDetail() {
 // ==========================================
 // 5. OBMEDZENÝ POHYB POSTAVIČKY (WAYPOINTY)
 // ==========================================
-
-const DEBUG_WAYPOINTS = true; 
 
 const roadNodes = [
     // --- Horná cesta ---
@@ -397,11 +409,15 @@ const roadEdges = [
     [8, 13]          // Pravá spojnica
 ];
 
-// ZMENA 4: Kreslenie pomocou prísnej viewBox SVG grafiky. 
-// Teraz do seba body zapadajú úplne presne a čiary sa neohýbajú.
 function drawDebugWaypoints() {
     const layer = document.getElementById('debugLayer');
     if (!layer) return;
+    
+    // Ak je Debug mód vypnutý, vyčistíme SVG a končíme
+    if (!isDebugMode) {
+        layer.innerHTML = "";
+        return;
+    }
     
     let svgHTML = `<svg viewBox="0 0 100 100" preserveAspectRatio="none" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; overflow: visible;">`;
     
@@ -426,7 +442,6 @@ let isMoving = false;
 let currentMovementTimeout = null;
 let activeCallback = null;
 
-// MÓD 1: PRIAMY POHYB - postavička prejde rovno priamo tam, kam si klikol mimo ciest
 function navigatePlayerDirectly(targetX, targetY) {
     activeCallback = null;
     clearTimeout(currentMovementTimeout);
@@ -436,7 +451,6 @@ function navigatePlayerDirectly(targetX, targetY) {
     processNextMovementStep();
 }
 
-// MÓD 2: PRÍSNY POHYB PO CESTE - postavička hľadá uzly a ide presne len po nich
 function navigatePlayerViaRoads(targetX, targetY, onComplete = null) {
     activeCallback = onComplete;
     clearTimeout(currentMovementTimeout);
@@ -529,11 +543,9 @@ function calculateShortestPathGraph(startX, startY, targetX, targetY) {
         }
     }
 
-    // Najprv musí dôjsť k najbližšiemu uzlu z miesta, kde práve stojí
     let startNode = roadNodes.find(n => n.id === startNodeId);
     if (startNode) calculatedPath.unshift({ x: startNode.x, y: startNode.y });
 
-    // A úplne na koniec zíde z cesty presne pred dvere budovy
     calculatedPath.push({ x: targetX, y: targetY });
 
     return calculatedPath;
