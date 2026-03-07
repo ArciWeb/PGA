@@ -71,7 +71,6 @@ function startArciCityGame() {
     container.style.overflow = 'auto'; 
     container.style.scrollbarWidth = 'none'; 
     
-    // ZMENA: Znova pridaný div #scaleContainer, ktorý drží fyzickú veľkosť rolovania pod kontrolou
     container.innerHTML = `
         <style>#arci-city-game-container::-webkit-scrollbar { display: none; } #buildingNavMenu::-webkit-scrollbar { display: none; }</style>
         
@@ -107,17 +106,13 @@ function startArciCityGame() {
     arciScale = Math.max(getMinScale(), 1);
     mapWrapper.style.transform = `scale(${arciScale})`;
     
-    // Rovno odrežeme prebytočný priestor pri štarte
     scaleContainer.style.width = (2000 * arciScale) + 'px';
     scaleContainer.style.height = (1125 * arciScale) + 'px';
     
     initArciPinchZoom(mapWrapper);
     
     setTimeout(() => { centerCamera(); }, 150);
-    setTimeout(() => { 
-        const p = document.getElementById('player-character');
-        if(p) p.style.transition = "left 3.0s ease-out, top 3.0s ease-out"; 
-    }, 300);
+    // ZMENA: Pôvodný pevný timeout pre plynulý presun bol odstránený, rieši to dynamický systém v sekcii 5
 }
 
 // ==========================================
@@ -144,7 +139,6 @@ function navigateFromMenu(key, event) {
     moveToBuilding(key);
 }
 
-// POMOCNÁ FUNKCIA PRE ZOOMOVANIE MAPY PRSTAMI
 function initArciPinchZoom(el) {
     let initialDist = 0;
     const scaleContainer = document.getElementById('scaleContainer');
@@ -166,7 +160,6 @@ function initArciPinchZoom(el) {
             arciScale = Math.min(Math.max(minScale, arciScale * zoom), 3);
             el.style.transform = `scale(${arciScale})`;
             
-            // Reálne orezanie veľkosti kontajnera
             scaleContainer.style.width = (2000 * arciScale) + 'px';
             scaleContainer.style.height = (1125 * arciScale) + 'px';
             
@@ -180,6 +173,9 @@ function exitMap() {
     container.style.display = 'none';
     container.innerHTML = ""; 
     isTrackingCamera = false; 
+    // Zastavíme pohyb pri odchode
+    clearTimeout(currentMovementTimeout);
+    isMoving = false;
 }
 
 // ==========================================
@@ -257,16 +253,19 @@ function handleMapClick(e) {
     const y = ((e.clientY - rect.top) / rect.height) * 100;
     
     console.log(`📍 Klikol si na súradnice: x: ${x.toFixed(1)}, y: ${y.toFixed(1)}`);
-    movePlayer(x, y);
+    // ZMENA: Využitie obmedzeného pohybu namiesto priameho skoku
+    navigatePlayerIntelligently(x, y);
 }
 
 let isTrackingCamera = false;
 let trackEndTime = 0;
 
-function movePlayer(x, y) {
+// ZMENA: movePlayer funkcia teraz animuje len jeden krok z fronty ciest a volá sa rekurzívne
+function movePlayerStep(x, y, timeInSeconds) {
     const player = document.getElementById('player-character');
     if(!player) return;
     
+    player.style.transition = `left ${timeInSeconds}s linear, top ${timeInSeconds}s linear`;
     player.style.left = x + '%'; 
     player.style.top = y + '%';
     player.style.zIndex = Math.floor(y) + 1; 
@@ -274,7 +273,7 @@ function movePlayer(x, y) {
     localStorage.setItem('arciPlayerX', x); 
     localStorage.setItem('arciPlayerY', y);
     
-    trackEndTime = Date.now() + 3000;
+    trackEndTime = Date.now() + (timeInSeconds * 1000) + 500;
     if (!isTrackingCamera) {
         isTrackingCamera = true;
         requestAnimationFrame(trackCameraLoop);
@@ -305,8 +304,10 @@ function centerCamera() {
 
 function moveToBuilding(key) {
     const b = buildingsData[key];
-    movePlayer(b.x, b.y);
-    setTimeout(() => { showBuildingDetail(b); }, 3100); 
+    // ZMENA: Akonáhle dorazí inteligentne k budove, otvorí sa detail
+    navigatePlayerIntelligently(b.x, b.y, () => {
+        showBuildingDetail(b);
+    });
 }
 
 function showBuildingDetail(b) {
@@ -327,4 +328,171 @@ function showBuildingDetail(b) {
 function closeBuildingDetail() {
     const layer = document.getElementById('buildingDetailLayer');
     if(layer) layer.style.display = 'none';
+}
+
+// ==========================================
+// 5. OBMEDZENÝ POHYB POSTAVIČKY (WAYPOINTY)
+// ==========================================
+
+// Tu sú definované "križovatky" a cesty v % z tvojej mapy. 
+// Tieto súradnice môžeš jemne ladiť, aby lepšie lícovali s grafikou ciest.
+const roadNodes = [
+    { id: 1, x: 25, y: 70 },  // Hlavná križovatka dole vľavo
+    { id: 2, x: 45, y: 70 },  // Križovatka dole stred (pred ArciInvest)
+    { id: 3, x: 75, y: 70 },  // Križovatka dole vpravo (pri Kasíne)
+    { id: 4, x: 25, y: 50 },  // Križovatka stred vľavo (pri Knižnici)
+    { id: 5, x: 45, y: 50 },  // Križovatka stred stred
+    { id: 6, x: 75, y: 50 },  // Križovatka stred vpravo
+    { id: 7, x: 25, y: 35 },  // Križovatka hore vľavo
+    { id: 8, x: 45, y: 35 },  // Križovatka hore stred
+    { id: 9, x: 75, y: 35 },  // Križovatka hore vpravo
+    { id: 10, x: 8, y: 70 },  // Slepá ulica vľavo dole (pri osobné úspechy)
+    { id: 11, x: 92, y: 70 }, // Slepá ulica vpravo dole (podsvetie)
+    { id: 12, x: 25, y: 92 }  // Cesta dole ku Globálnym úspechom
+];
+
+// Prepojenia medzi uzlami (hrany), t.j. kade vedú cesty
+const roadEdges = [
+    [1, 2], [2, 3],       // Horizontálna cesta dole
+    [4, 5], [5, 6],       // Horizontálna cesta stred
+    [7, 8], [8, 9],       // Horizontálna cesta hore
+    [1, 4], [4, 7],       // Vertikálna cesta vľavo
+    [2, 5], [5, 8],       // Vertikálna cesta stred
+    [3, 6], [6, 9],       // Vertikálna cesta vpravo
+    [10, 1], [3, 11],     // Okrajové cesty dole
+    [1, 12]               // Odbočka úplne dole
+];
+
+let pathQueue = [];
+let isMoving = false;
+let currentMovementTimeout = null;
+let activeCallback = null;
+
+// Hlavná funkcia, ktorá vypočíta trasu a spustí animáciu
+function navigatePlayerIntelligently(targetX, targetY, onComplete = null) {
+    activeCallback = onComplete;
+    clearTimeout(currentMovementTimeout);
+    
+    const player = document.getElementById('player-character');
+    let startX = parseFloat(player.style.left || localStorage.getItem('arciPlayerX') || "10");
+    let startY = parseFloat(player.style.top || localStorage.getItem('arciPlayerY') || "40");
+
+    // Ak je cieľ veľmi blízko (menej ako 12% mapy), ide rovno na cieľ (aby mohol chodiť trochu po tráve)
+    const directDist = Math.hypot(targetX - startX, targetY - startY);
+    if (directDist < 12) {
+        pathQueue = [{ x: targetX, y: targetY }];
+    } else {
+        // Získame najkratšiu cestu cez vyznačené uzly
+        pathQueue = calculateShortestPathGraph(startX, startY, targetX, targetY);
+    }
+
+    if (!isMoving) {
+        processNextMovementStep();
+    }
+}
+
+// Rekurzívne spracovanie cesty bod po bode
+function processNextMovementStep() {
+    if (pathQueue.length === 0) {
+        isMoving = false;
+        if (activeCallback) {
+            activeCallback();
+            activeCallback = null;
+        }
+        return;
+    }
+
+    isMoving = true;
+    const nextPoint = pathQueue.shift();
+    const player = document.getElementById('player-character');
+    let currentX = parseFloat(player.style.left || "0");
+    let currentY = parseFloat(player.style.top || "0");
+    
+    let dist = Math.hypot(nextPoint.x - currentX, nextPoint.y - currentY);
+    
+    // Rýchlosť pohybu: prejdenie 10% mapy trvá 0.6 sekundy
+    let timeInSeconds = (dist / 10.0) * 0.6; 
+    if (timeInSeconds < 0.1) timeInSeconds = 0.1;
+
+    movePlayerStep(nextPoint.x, nextPoint.y, timeInSeconds);
+
+    // Počkáme kým dôjde do bodu a pokračujeme ďalším
+    currentMovementTimeout = setTimeout(() => {
+        processNextMovementStep();
+    }, timeInSeconds * 1000);
+}
+
+// Algoritmus na nájdenie cesty (A* / Dijkstra štýl)
+function calculateShortestPathGraph(startX, startY, targetX, targetY) {
+    // 1. Nájdeme uzol najbližší k postavičke
+    let startNodeId = getClosestNode(startX, startY);
+    // 2. Nájdeme uzol najbližší k cieľu
+    let targetNodeId = getClosestNode(targetX, targetY);
+
+    let distances = {};
+    let previous = {};
+    let queue = [];
+
+    roadNodes.forEach(node => {
+        distances[node.id] = Infinity;
+        previous[node.id] = null;
+        queue.push(node.id);
+    });
+
+    distances[startNodeId] = 0;
+
+    while (queue.length > 0) {
+        queue.sort((a, b) => distances[a] - distances[b]);
+        let currId = queue.shift();
+
+        if (currId === targetNodeId) break;
+
+        let neighbors = roadEdges.filter(e => e[0] === currId || e[1] === currId)
+                                 .map(e => e[0] === currId ? e[1] : e[0]);
+
+        neighbors.forEach(neighborId => {
+            if (queue.includes(neighborId)) {
+                let currNode = roadNodes.find(n => n.id === currId);
+                let neighborNode = roadNodes.find(n => n.id === neighborId);
+                let dist = Math.hypot(currNode.x - neighborNode.x, currNode.y - neighborNode.y);
+                
+                let altDistance = distances[currId] + dist;
+                if (altDistance < distances[neighborId]) {
+                    distances[neighborId] = altDistance;
+                    previous[neighborId] = currId;
+                }
+            }
+        });
+    }
+
+    // Rekonštrukcia cesty
+    let calculatedPath = [];
+    let currentTrace = targetNodeId;
+    
+    if (previous[currentTrace] !== null || currentTrace === startNodeId) {
+        while (currentTrace !== null) {
+            let n = roadNodes.find(node => node.id === currentTrace);
+            calculatedPath.unshift({ x: n.x, y: n.y });
+            currentTrace = previous[currentTrace];
+        }
+    }
+
+    // Pridáme na koniec presný cieľ, aby vždy došiel k finálnemu itemu
+    calculatedPath.push({ x: targetX, y: targetY });
+
+    return calculatedPath;
+}
+
+function getClosestNode(x, y) {
+    let closestId = null;
+    let minPath = Infinity;
+    
+    roadNodes.forEach(node => {
+        let dist = Math.hypot(node.x - x, node.y - y);
+        if (dist < minPath) {
+            minPath = dist;
+            closestId = node.id;
+        }
+    });
+    return closestId;
 }
