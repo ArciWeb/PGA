@@ -3,9 +3,35 @@
 // ==========================================
 
 const buildingsData = {
+	    "udrzba": { name: "Údržba", x: 8.5, y: 42.0, size: 75, img: "buda_udrzba.png", detail: "mapa-udrzba.png", action: "openSettings" },
+	    "bankomat": { name: "Bankomat", x: 28.5, y: 74.0, size: 30, img: "buda_bankomat.png", detail: "mapa-balance.png", action: "openMyPlayer" },
     "noviny": { name: "Novinový stánok", x: 78.0, y: 56.5, size: 85, img: "buda_noviny.png", detail: "mapa-news.png", action: "openArciNews" },
-    "kostol": { name: "Kostol", x: 19.5, y: 28.0, size: 95, img: "buda_kostol.png", detail: "mapa-kostol.png", action: "openGameCalendar" },
-    "official": { name: "Official Rank", x: 50.2, y: 36.5, size: 95, img: "buda_official.png", detail: "mapa-official.png", action: "showRankTable_Official" },
+        "vila": { name: "Životný Štýl", x: 53.0, y: 53.5, size: 120, img: "buda_vila.png", detail: "mapa-villa.png", action: "openLifestyleManager" },
+            "shop": { name: "ArciShop", x: 47.5, y: 79.5, size: 135, img: "buda_arcishop.png", detail: "mapa-shop.png", action: "openArciShop" },
+                "illegal": { name: "Podsvetie", x: 94.7, y: 76.9, size: 85, img: "buda_illegal.png", detail: "mapa-illegal.png", action: "openArciUnderground" }, 
+    "cards": { name: "ArciCards", x: 59.0, y: 80.5, size: 95, img: "buda_arcicards.png", detail: "mapa-arcicards.png", action: "openArciCardsHub" },
+    "invest": { name: "ArciInvest", x: 39.8, y: 89.6, size: 135, img: "buda_arciinvest.png", detail: "mapa-invest.png", action: "openArciInvest" },
+    "tip": { name: "ArciTip Stávková", x: 66.5, y: 83.5, size: 95, img: "buda_arcitip.png", detail: "mapa-tip.png", action: "openArciTip" },
+    "casino": { name: "ArciBet Casino", x: 78.5, y: 82.5, size: 105, img: "buda_arcibet.png", detail: "mapa-arcibet.png", action: "openArciCasino" },
+
+    "kostol": { name: "Kalendár", x: 19.5, y: 28.0, size: 95, img: "buda_kostol.png", detail: "mapa-kostol.png", action: "openGameCalendar" },
+    "osobne": { name: "Osobné úspechy", x: 13.5, y: 87.0, size: 160, img: "buda_zahradka.png", detail: "mapa-personal.png", action: "openPersonalAchievements" },
+        "banka": { name: "Net Worth Banka", x: 24.9, y: 73, size: 105, img: "buda_banka.png", detail: "mapa-bank.png", action: "openNetWorth" },
+            "plavaren": { name: "História Spokojnosti", x: 89.0, y: 65.0, size: 190, img: "buda_plavaren.png", detail: "mapa-happy.png", action: "openHappinessOverview" },
+    "global": { name: "Globálne Achievmenty", x: 26.5, y: 95.0, size: 110, img: "buda_tabula.png", detail: "mapa-global.png", action: "openGlobalAchievementsList" },
+    "kniznica": { name: "Sieň Slávy", x: 40.7, y: 50.5, size: 115, img: "buda_kniznica.png", detail: "mapa-hof.png", action: "openHallOfFame" },
+
+
+    "sponsor": { name: "Sponzori", x: 37.2, y: 31.8, size: 115, img: "buda_palac.png", detail: "mapa-sponsor.png", action: "openSponsorInfo" },
+    "arcibot": { name: "ArciBot", x: 12.5, y: 65.5, size: 35, img: "buda_arcibot.png", detail: "mapa-arcibot.png", action: "openAiAssistant" },
+
+    "super": { name: "Porovnanie Hráčov", x: 62.5, y: 54.0, size: 90, img: "buda_super.png", detail: "mapa-vs.png", action: "openComparator" },
+    "gym": { name: "Trofeje", x: 71.0, y: 56.0, size: 95, img: "buda_gym.png", detail: "mapa-trophy.png", action: "openTrophyGallery" },
+
+
+
+    
+        "official": { name: "Official Rank", x: 50.2, y: 36.5, size: 95, img: "buda_official.png", detail: "mapa-official.png", action: "showRankTable_Official" },
     "pga": { name: "PGA Rank", x: 60.0, y: 33.5, size: 100, img: "buda_pga.png", detail: "mapa-pga.png", action: "showRankTable_PGA" },
     "fedex": { name: "Fedex Rank", x: 63.0, y: 39.5, size: 75, img: "buda_fedex.png", detail: "mapa-fedex.png", action: "showRankTable_FEDEX" },
     "players": { name: "Players Rank", x: 72.5, y: 34.0, size: 100, img: "buda_players.png", detail: "mapa-players.png", action: "showRankTable_Association" },
@@ -13,25 +39,8 @@ const buildingsData = {
     "ea": { name: "EA Rank", x: 84.5, y: 35.5, size: 100, img: "buda_ea.png", detail: "mapa-ea.png", action: "showRankTable_EA" },
     "amateur": { name: "Amateur Rank", x: 74.7, y: 39.5, size: 65, img: "buda_amateur.png", detail: "mapa-amateur.png", action: "showRankTable_Amateur" },
     "elo": { name: "ELO Rank", x: 95.8, y: 44.5, size: 95, img: "buda_elo.png", detail: "mapa-elo.png", action: "showRankTable_ELO" },
-    "stadion": { name: "Štadión", x: 24.5, y: 63.2, size: 380, img: "buda_stadion.png", detail: "mapa-cards.png", action: "showGlobalPlayerCards" },
-    "osobne": { name: "Osobné úspechy", x: 13.5, y: 87.0, size: 160, img: "buda_zahradka.png", detail: "mapa-personal.png", action: "openPersonalAchievements" },
-    "global": { name: "Globálne úspechy", x: 26.5, y: 95.0, size: 110, img: "buda_tabula.png", detail: "mapa-global.png", action: "openGlobalAchievementsList" },
-    "kniznica": { name: "Knižnica", x: 40.7, y: 50.5, size: 115, img: "buda_kniznica.png", detail: "mapa-hof.png", action: "openHallOfFame" },
-    "super": { name: "Súperov dom", x: 62.5, y: 54.0, size: 90, img: "buda_super.png", detail: "mapa-vs.png", action: "openComparator" },
-    "gym": { name: "Telocvičňa", x: 71.0, y: 56.0, size: 95, img: "buda_gym.png", detail: "mapa-trophy.png", action: "openTrophyGallery" },
-    "udrzba": { name: "Údržba", x: 8.5, y: 42.0, size: 75, img: "buda_udrzba.png", detail: "mapa-udrzba.png", action: "openSettings" },
-    "plavaren": { name: "Plaváreň", x: 89.0, y: 65.0, size: 190, img: "buda_plavaren.png", detail: "mapa-happy.png", action: "openHappinessOverview" },
-    "sponsor": { name: "Sponsor Palác", x: 37.2, y: 31.8, size: 115, img: "buda_palac.png", detail: "mapa-sponsor.png", action: "openSponsorInfo" },
-    "arcibot": { name: "ArciBot", x: 12.5, y: 65.5, size: 35, img: "buda_arcibot.png", detail: "mapa-arcibot.png", action: "openAiAssistant" },
-    "banka": { name: "Net Worth Banka", x: 24.9, y: 73, size: 105, img: "buda_banka.png", detail: "mapa-bank.png", action: "openNetWorth" },
-    "bankomat": { name: "Bankomat", x: 28.5, y: 74.0, size: 30, img: "buda_bankomat.png", detail: "mapa-balance.png", action: "openMyPlayer" },
-    "vila": { name: "Moja Vila", x: 53.0, y: 53.5, size: 120, img: "buda_vila.png", detail: "mapa-villa.png", action: "openLifestyleManager" },
-    "shop": { name: "ArciShop", x: 47.5, y: 79.5, size: 135, img: "buda_arcishop.png", detail: "mapa-shop.png", action: "openArciShop" },
-    "cards": { name: "ArciCards", x: 59.0, y: 80.5, size: 95, img: "buda_arcicards.png", detail: "mapa-arcicards.png", action: "openArciCardsHub" },
-    "invest": { name: "ArciInvest", x: 39.8, y: 89.6, size: 135, img: "buda_arciinvest.png", detail: "mapa-invest.png", action: "openArciInvest" },
-    "tip": { name: "ArciTip", x: 66.5, y: 83.5, size: 95, img: "buda_arcitip.png", detail: "mapa-tip.png", action: "openArciTip" },
-    "casino": { name: "ArciBet Casino", x: 78.5, y: 82.5, size: 105, img: "buda_arcibet.png", detail: "mapa-arcibet.png", action: "openArciCasino" },
-    "illegal": { name: "Podsvetie", x: 94.7, y: 76.9, size: 85, img: "buda_illegal.png", detail: "mapa-illegal.png", action: "openArciUnderground" }
+    "stadion": { name: "Rebríček PGA Cards", x: 24.5, y: 63.2, size: 380, img: "buda_stadion.png", detail: "mapa-cards.png", action: "showGlobalPlayerCards" }
+
 };
 
 // ==========================================
