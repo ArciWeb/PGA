@@ -52,11 +52,11 @@ const buildingsData = {
 let arciScale = 1;
 let isDebugMode = false; // Predvolene je vývojársky režim VYPNUTÝ
 
-// Nové premenné pre nastavenia a sledovanie postupu
-let speedMultiplier = 0.6; // Predvolená rýchlosť (Stredne)
-let walkOnRoadsOnly = false; // Predvolené správanie (Voľný pohyb po kliknutí do prázdna)
+// Nové premenné pre nastavenia (Načítavajú sa z uloženej pamäte, alebo dajú predvolené)
+let speedMultiplier = parseFloat(localStorage.getItem('arciSpeed')) || 0.6;
+let walkOnRoadsOnly = localStorage.getItem('arciRoads') === 'true'; 
 let currentBuildingIndex = -1; // Sleduje, pri ktorej budove hráč naposledy bol
-let directEntry = false; // Predvolené: najprv zobraziť fotku budovy (Kliknúť)
+let directEntry = localStorage.getItem('arciEntry') === 'true'; 
 
 function getMinScale() {
     const mapW = 2000;
@@ -205,14 +205,17 @@ function toggleSettingsMenu(event) {
 
 function changeMovementSpeed(val) {
     speedMultiplier = parseFloat(val);
+    localStorage.setItem('arciSpeed', speedMultiplier); // Uloží rýchlosť
 }
 
 function changeMovementMode(val) {
     walkOnRoadsOnly = (val === 'roads');
+    localStorage.setItem('arciRoads', walkOnRoadsOnly); // Uloží režim pohybu
 }
 
 function changeEntryMode(val) {
     directEntry = (val === 'direct');
+    localStorage.setItem('arciEntry', directEntry); // Uloží režim vstupu
 }
 
 function openMiniMap(event) {
