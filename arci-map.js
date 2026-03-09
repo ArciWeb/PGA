@@ -18,12 +18,12 @@ const buildingsData = {
     "kostol": { name: "Kalendár", x: 19.5, y: 28.0, size: 95, img: "buda_kostol.png", detail: "mapa-kostol.png", action: "openGameCalendar" },
     "osobne": { name: "Osobné úspechy", x: 13.3, y: 86.8, size: 160, img: "buda_zahradka.png", detail: "mapa-personal.png", action: "openPersonalAchievements" },
 
-            "plavaren": { name: "História Spokojnosti", x: 89.6, y: 62.0, size: 162, img: "buda_plavaren.png", detail: "mapa-happy.png", action: "openHappinessOverview" },
+            "plavaren": { name: "História Spokojnosti", x: 89.9, y: 62.0, size: 162, img: "buda_plavaren.png", detail: "mapa-happy.png", action: "openHappinessOverview" },
     "global": { name: "Globálne Achievmenty", x: 26.5, y: 95.0, size: 110, img: "buda_tabula.png", detail: "mapa-global.png", action: "openGlobalAchievementsList" },
     "kniznica": { name: "Sieň Slávy", x: 40.7, y: 50.5, size: 115, img: "buda_kniznica.png", detail: "mapa-hof.png", action: "openHallOfFame" },
 
 
-    "sponsor": { name: "Sponzori", x: 36.8, y: 31.6, size: 115, img: "buda_palac.png", detail: "mapa-sponsor.png", action: "openSponsorInfo" },
+    "sponsor": { name: "Sponzori", x: 36.4, y: 31.3, size: 115, img: "buda_palac.png", detail: "mapa-sponsor.png", action: "openSponsorInfo" },
     "arcibot": { name: "ArciBot", x: 12.5, y: 65.5, size: 35, img: "buda_arcibot.png", detail: "mapa-arcibot.png", action: "openAiAssistant" },
 
     "super": { name: "Porovnanie Hráčov", x: 62.5, y: 54.0, size: 90, img: "buda_super.png", detail: "mapa-vs.png", action: "openComparator" },
@@ -32,11 +32,11 @@ const buildingsData = {
 
 
     
-        "official": { name: "Official Rank", x: 51.6, y: 35., size: 95, img: "buda_official.png", detail: "mapa-official.png", action: "showRankTable_Official" },
+        "official": { name: "Official Rank", x: 51.9, y: 35., size: 95, img: "buda_official.png", detail: "mapa-official.png", action: "showRankTable_Official" },
     "pga": { name: "PGA Rank", x: 60.0, y: 33.5, size: 100, img: "buda_pga.png", detail: "mapa-pga.png", action: "showRankTable_PGA" },
     "fedex": { name: "Fedex Rank", x: 63.0, y: 37.8, size: 75, img: "buda_fedex.png", detail: "mapa-fedex.png", action: "showRankTable_FEDEX" },
     "players": { name: "Players Rank", x: 72.5, y: 34.0, size: 100, img: "buda_players.png", detail: "mapa-players.png", action: "showRankTable_Association" },
-    "world": { name: "World Tour Rank", x: 33.5, y: 24.6, size: 105, img: "buda_worldtour.png", detail: "mapa-worldtour.png", action: "showRankTable_Tour" },
+    "world": { name: "World Tour Rank", x: 33.5, y: 24.5, size: 105, img: "buda_worldtour.png", detail: "mapa-worldtour.png", action: "showRankTable_Tour" },
     "ea": { name: "EA Rank", x: 84.5, y: 35.5, size: 100, img: "buda_ea.png", detail: "mapa-ea.png", action: "showRankTable_EA" },
     "amateur": { name: "Amateur Rank", x: 74.7, y: 40.2, size: 65, img: "buda_amateur.png", detail: "mapa-amateur.png", action: "showRankTable_Amateur" },
     "elo": { name: "ELO Rank", x: 95.8, y: 44.5, size: 95, img: "buda_elo.png", detail: "mapa-elo.png", action: "showRankTable_ELO" },
@@ -51,9 +51,10 @@ const buildingsData = {
 let arciScale = 1;
 let isDebugMode = false; // Predvolene je vývojársky režim VYPNUTÝ
 
-// Nové premenné pre nastavenia
+// Nové premenné pre nastavenia a sledovanie postupu
 let speedMultiplier = 0.6; // Predvolená rýchlosť (Stredne)
 let walkOnRoadsOnly = false; // Predvolené správanie (Voľný pohyb po kliknutí do prázdna)
+let currentBuildingIndex = -1; // Sleduje, pri ktorej budove hráč naposledy bol
 
 function getMinScale() {
     const mapW = 2000;
@@ -115,6 +116,8 @@ function startArciCityGame() {
         <button onclick="toggleBuildingMenu(event)" style="position:fixed; top:15px; right:85px; z-index:940; padding:5px 15px; background: #333; color: gold; border: 3px solid white; border-radius: 30px; font-weight: 900; font-size: 1rem; cursor: pointer; box-shadow: 0 0 15px rgba(0,0,0,0.5);">⋮</button>
         <button onclick="exitMap()" style="position:fixed; top:15px; right:15px; z-index:940; padding:5px 15px; background: red; color: white; border: 3px solid white; border-radius: 30px; font-weight: 900; font-size: 0.5rem; cursor: pointer; box-shadow: 0 0 15px rgba(0,0,0,0.5);">MENU</button>
         
+        <button onclick="goToNextBuilding(event)" style="position:fixed; bottom:20px; right:20px; z-index:940; width:60px; height:60px; background: #333; color: gold; border: 3px solid gold; border-radius: 50%; font-weight: 900; font-size: 1.8rem; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 0 20px rgba(0,0,0,0.8);">➡️</button>
+
         <div id="settingsNavMenu" style="display:none; position:fixed; top:55px; right:145px; width: 220px; background: rgba(0,0,0,0.95); border: 2px solid gold; border-radius: 10px; z-index: 945; flex-direction: column; padding: 15px; box-shadow: 0 0 20px rgba(0,0,0,0.8); color: white; font-family: sans-serif;">
             <h3 style="margin-top: 0; color: gold; text-align: center; border-bottom: 1px solid rgba(255,215,0,0.3); padding-bottom: 10px;">Nastavenia</h3>
             
@@ -123,6 +126,7 @@ function startArciCityGame() {
                 <option value="1.2" ${speedMultiplier === 1.2 ? 'selected' : ''}>Pomaly</option>
                 <option value="0.6" ${speedMultiplier === 0.6 ? 'selected' : ''}>Stredne</option>
                 <option value="0.25" ${speedMultiplier === 0.25 ? 'selected' : ''}>Rýchlo</option>
+                <option value="0.08" ${speedMultiplier === 0.08 ? 'selected' : ''}>Piker (Super rýchlo)</option>
             </select>
 
             <label style="font-size: 0.85rem; font-weight: bold; margin-bottom: 5px;">Kliknutie na mapu:</label>
@@ -157,8 +161,25 @@ function startArciCityGame() {
 }
 
 // ==========================================
-// FUNKCIE PRE NASTAVENIA A MAPU
+// FUNKCIE PRE NASTAVENIA, MAPU A ĎALŠIU BUDOVU
 // ==========================================
+
+function goToNextBuilding(event) {
+    if (event) event.stopPropagation();
+    
+    const keys = Object.keys(buildingsData); // Získa zoznam všetkých ID budov v poradí
+    if (keys.length === 0) return;
+
+    currentBuildingIndex++; // Posun na ďalšiu
+    
+    // Ak sme prešli všetky budovy, vrátime sa na začiatok
+    if (currentBuildingIndex >= keys.length) {
+        currentBuildingIndex = 0;
+    }
+
+    const nextBuildingKey = keys[currentBuildingIndex];
+    moveToBuilding(nextBuildingKey);
+}
 
 function toggleSettingsMenu(event) {
     if (event) event.stopPropagation();
@@ -444,6 +465,8 @@ function centerCamera() {
 }
 
 function moveToBuilding(key) {
+    currentBuildingIndex = Object.keys(buildingsData).indexOf(key); // Uloží si budovu pre tlačidlo "Ďalšia"
+    
     const b = buildingsData[key];
     if (isDebugMode) console.log(`📍 Pohyb po sieti ciest k: ${b.name}`);
     navigatePlayerViaRoads(b.x, b.y, () => {
@@ -702,3 +725,4 @@ function getClosestNode(x, y) {
     });
     return closestId;
 }
+
