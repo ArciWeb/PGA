@@ -17,7 +17,7 @@ const buildingsData = {
     "kostol": { name: "Kalendár", x: 19.5, y: 28.0, size: 95, img: "buda_kostol.png", detail: "mapa-kostol.png", action: "openGameCalendar" },
     "osobne": { name: "Osobné úspechy", x: 13.3, y: 86.8, size: 160, img: "buda_zahradka.png", detail: "mapa-personal.png", action: "openPersonalAchievements" },
         "banka": { name: "Net Worth Banka", x: 24.9, y: 73, size: 105, img: "buda_banka.png", detail: "mapa-bank.png", action: "openNetWorth" },
-            "plavaren": { name: "História Spokojnosti", x: 89.0, y: 65.0, size: 190, img: "buda_plavaren.png", detail: "mapa-happy.png", action: "openHappinessOverview" },
+            "plavaren": { name: "História Spokojnosti", x: 89.0, y: 65.0, size: 162, img: "buda_plavaren.png", detail: "mapa-happy.png", action: "openHappinessOverview" },
     "global": { name: "Globálne Achievmenty", x: 26.5, y: 95.0, size: 110, img: "buda_tabula.png", detail: "mapa-global.png", action: "openGlobalAchievementsList" },
     "kniznica": { name: "Sieň Slávy", x: 40.7, y: 50.5, size: 115, img: "buda_kniznica.png", detail: "mapa-hof.png", action: "openHallOfFame" },
 
@@ -35,11 +35,11 @@ const buildingsData = {
     "pga": { name: "PGA Rank", x: 60.0, y: 33.5, size: 100, img: "buda_pga.png", detail: "mapa-pga.png", action: "showRankTable_PGA" },
     "fedex": { name: "Fedex Rank", x: 63.0, y: 38.1, size: 75, img: "buda_fedex.png", detail: "mapa-fedex.png", action: "showRankTable_FEDEX" },
     "players": { name: "Players Rank", x: 72.5, y: 34.0, size: 100, img: "buda_players.png", detail: "mapa-players.png", action: "showRankTable_Association" },
-    "world": { name: "World Tour Rank", x: 35.2, y: 24.6, size: 105, img: "buda_worldtour.png", detail: "mapa-worldtour.png", action: "showRankTable_Tour" },
+    "world": { name: "World Tour Rank", x: 34.2, y: 24.6, size: 105, img: "buda_worldtour.png", detail: "mapa-worldtour.png", action: "showRankTable_Tour" },
     "ea": { name: "EA Rank", x: 84.5, y: 35.5, size: 100, img: "buda_ea.png", detail: "mapa-ea.png", action: "showRankTable_EA" },
     "amateur": { name: "Amateur Rank", x: 74.7, y: 40.2, size: 65, img: "buda_amateur.png", detail: "mapa-amateur.png", action: "showRankTable_Amateur" },
     "elo": { name: "ELO Rank", x: 95.8, y: 44.5, size: 95, img: "buda_elo.png", detail: "mapa-elo.png", action: "showRankTable_ELO" },
-    "stadion": { name: "Rebríček PGA Cards", x: 24.5, y: 57, size: 240, img: "buda_stadion.png", detail: "mapa-cards.png", action: "showGlobalPlayerCards" }
+    "stadion": { name: "Rebríček PGA Cards", x: 24, y: 56, size: 240, img: "buda_stadion.png", detail: "mapa-cards.png", action: "showGlobalPlayerCards" }
 
 };
 
@@ -414,6 +414,9 @@ const roadNodes = [
                                         { id: 29, x: 65.3, y: 86.9 }, // tip
                                             { id: 30, x: 72.6, y: 87 }, // casino
                                                 { id: 31, x: 76, y: 82.6 }, // parkovisko kasino
+                        { id: 32, x: 10.9, y: 80.5 }, // zahradka
+                             { id: 33, x: 36.4, y: 36.9 }, // sponzori
+             { id: 34, x: 27, y: 29.5 }, // kalendár 
     // --- Stredná cesta ---
     { id: 5, x: 8.6, y: 44.6 }, // Slepá ulička nad Štadiónom
     { id: 6, x: 45, y: 53 }, // Križovatka pri Knižnici
@@ -447,6 +450,7 @@ const roadEdges = [
 [27,12], [27,11], [23,7], [23,8],
 [29,30], [13,28], [13,29], [13,30],
 [30,14], [29,14], [28,29], [28,30], [28,14],
+[32,3],[33,1],[33,2],[34,1],
 
     // Vertikálne (šikmé prepojenia zhora nadol)
     [2, 6], [6, 11], // Centrálna chrbtica 1
