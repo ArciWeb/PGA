@@ -61,12 +61,29 @@ let walkOnRoadsOnly = localStorage.getItem('arciRoads') === 'true';
 let currentBuildingIndex = -1; // Sleduje, pri ktorej budove hráč naposledy bol
 let directEntry = localStorage.getItem('arciEntry') === 'true'; 
 
-// --- NPC KONFIGURÁCIA ---
-let activeNPCs = [];
-const MIN_NPCS = 4;
-const MAX_NPCS = 7;
-const NPC_WAIT_TIME = 10000; // 10 sekúnd stáť pri budove
-const occupiedDoors = new Set(); // Sleduje obsadené vchody
+// --- KONFIGURÁCIA NPC ---
+// Tu môžeš pridávať nové postavy. Stačí pridať riadok s novým ID.
+const npcConfigs = {
+    "npc1":  { width: 20 },
+    "npc2":  { width: 45 },
+    "npc3":  { width: 48 },
+    "npc4":  { width: 42 },
+    "npc5":  { width: 50 },
+    "npc6":  { width: 45 },
+    "npc7":  { width: 45 },
+    "npc8":  { width: 45 },
+    "npc9":  { width: 25 },
+    "npc10": { width: 45 },
+    "npc11": { width: 45 },
+    "npc12": { width: 22 }
+    // "npc13": { width: 55 } <- Pridanie novej postavy
+};
+
+let activeNPCs = []; // Sledovanie aktívnych objektov postáv
+const MIN_NPCS = 7;
+const MAX_NPCS = 11;
+const NPC_WAIT_AT_DOOR = 10000; // 10 sekúnd státia
+const occupiedDoors = new Set(); // Sleduje, či pri dverách niekto stojí (NPC alebo hráč)
 
 function getMinScale() {
     const mapW = 2000;
@@ -105,7 +122,7 @@ function startArciCityGame() {
             <div class="map-wrapper" id="mapWrapper" style="position: relative; width: 2000px; height: 1125px; overflow: hidden; transform-origin: 0 0; transition: transform 0.1s ease-out;">
                 <img src="Map_Background.png" class="map-bg" onclick="handleMapClick(event)" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1;">
                 <div id="buildingsLayer"></div>
-                <div id="npcLayer" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 450;"></div>
+                <div id="npcLayer" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 2;"></div>
                 <div id="debugLayer" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 400;"></div>
                 <img src="panáčik_stoji.png" id="player-character" style="position: absolute; left: ${savedX}%; top: ${savedY}%; width: 45px; transform: translate(-50%, -100%); z-index: 500; transition: none; pointer-events: none; filter: drop-shadow(0px 5px 5px rgba(0,0,0,0.5));">
             </div>
@@ -176,9 +193,10 @@ function startArciCityGame() {
     
     initArciPinchZoom(mapWrapper);
     
+    // Spustenie systému postáv po krátkom oneskorení
     setTimeout(() => { 
         centerCamera(); 
-        initNPCSystem(); // Spustenie NPC po štarte mapy
+        initNPCSystem();
     }, 150);
 }
 
@@ -189,12 +207,10 @@ function startArciCityGame() {
 function goToNextBuilding(event) {
     if (event) event.stopPropagation();
     
-    const keys = Object.keys(buildingsData); // Získa zoznam všetkých ID budov v poradí
+    const keys = Object.keys(buildingsData);
     if (keys.length === 0) return;
 
-    currentBuildingIndex++; // Posun na ďalšiu
-    
-    // Ak sme prešli všetky budovy, vrátime sa na začiatok
+    currentBuildingIndex++;
     if (currentBuildingIndex >= keys.length) {
         currentBuildingIndex = 0;
     }
@@ -210,7 +226,7 @@ function toggleSettingsMenu(event) {
     if (sMenu) {
         if (sMenu.style.display === 'none') {
             sMenu.style.display = 'flex';
-            if (bMenu) bMenu.style.display = 'none'; // Zavrie budovy
+            if (bMenu) bMenu.style.display = 'none';
         } else {
             sMenu.style.display = 'none';
         }
@@ -219,17 +235,17 @@ function toggleSettingsMenu(event) {
 
 function changeMovementSpeed(val) {
     speedMultiplier = parseFloat(val);
-    localStorage.setItem('arciSpeed', speedMultiplier); // Uloží rýchlosť
+    localStorage.setItem('arciSpeed', speedMultiplier);
 }
 
 function changeMovementMode(val) {
     walkOnRoadsOnly = (val === 'roads');
-    localStorage.setItem('arciRoads', walkOnRoadsOnly); // Uloží režim pohybu
+    localStorage.setItem('arciRoads', walkOnRoadsOnly);
 }
 
 function changeEntryMode(val) {
     directEntry = (val === 'direct');
-    localStorage.setItem('arciEntry', directEntry); // Uloží režim vstupu
+    localStorage.setItem('arciEntry', directEntry);
 }
 
 function openMiniMap(event) {
@@ -237,7 +253,7 @@ function openMiniMap(event) {
     const layer = document.getElementById('miniMapLayer');
     const sMenu = document.getElementById('settingsNavMenu');
     if (layer) layer.style.display = 'flex';
-    if (sMenu) sMenu.style.display = 'none'; // Zavrie nastavenia po otvorení mapy
+    if (sMenu) sMenu.style.display = 'none';
 }
 
 function closeMiniMap() {
@@ -256,7 +272,7 @@ function toggleBuildingMenu(event) {
     if (bMenu) {
         if (bMenu.style.display === 'none') {
             bMenu.style.display = 'flex';
-            if (sMenu) sMenu.style.display = 'none'; // Zavrie nastavenia
+            if (sMenu) sMenu.style.display = 'none';
         } else {
             bMenu.style.display = 'none';
         }
@@ -267,7 +283,6 @@ function navigateFromMenu(key, event) {
     if (event) event.stopPropagation();
     const menu = document.getElementById('buildingNavMenu');
     if (menu) menu.style.display = 'none';
-    
     moveToBuilding(key);
 }
 
@@ -308,8 +323,10 @@ function exitMap() {
     clearTimeout(currentMovementTimeout);
     isMoving = false;
     
-    // Zastavenie NPC systému pri vypnutí mapy
-    activeNPCs.forEach(npc => npc.el.remove());
+    // Vyčistenie NPC pri odchode
+    activeNPCs.forEach(npc => {
+        if(npc.timeout) clearTimeout(npc.timeout);
+    });
     activeNPCs = [];
 }
 
@@ -437,8 +454,6 @@ function handleMapClick(e) {
     const x = ((e.clientX - rect.left) / rect.width) * 100;
     const y = ((e.clientY - rect.top) / rect.height) * 100;
     
-    if (isDebugMode) console.log(`📍 Klik na mapu: x: ${x.toFixed(1)}, y: ${y.toFixed(1)}`);
-    
     if (walkOnRoadsOnly) {
         navigatePlayerViaRoads(x, y);
     } else {
@@ -456,7 +471,8 @@ function movePlayerStep(x, y, timeInSeconds) {
     player.style.transition = `left ${timeInSeconds}s linear, top ${timeInSeconds}s linear`;
     player.style.left = x + '%'; 
     player.style.top = y + '%';
-    player.style.zIndex = Math.floor(y) + 1; 
+    // Hĺbka postavy hráča podľa Y
+    player.style.zIndex = Math.floor(y) + 5; 
     
     localStorage.setItem('arciPlayerX', x); 
     localStorage.setItem('arciPlayerY', y);
@@ -491,13 +507,11 @@ function centerCamera() {
 }
 
 function moveToBuilding(key) {
-    currentBuildingIndex = Object.keys(buildingsData).indexOf(key); 
+    currentBuildingIndex = Object.keys(buildingsData).indexOf(key);
     const b = buildingsData[key];
     const targetX = b.doorX !== undefined ? b.doorX : b.x;
     const targetY = b.doorY !== undefined ? b.doorY : b.y;
 
-    if (isDebugMode) console.log(`📍 Pohyb po sieti ciest k: ${b.name} (Dvere: x:${targetX.toFixed(1)}, y:${targetY.toFixed(1)})`);
-    
     navigatePlayerViaRoads(targetX, targetY, () => {
         if (directEntry) {
             window.currentMapAction = b.action;
@@ -531,51 +545,59 @@ function closeBuildingDetail() {
 // ==========================================
 
 const roadNodes = [
-    { id: 1, x: 24.9, y: 32.7 }, 
-    { id: 2, x: 53.3, y: 41.6 }, 
-    { id: 3, x: 11.1, y: 72 }, 
-    { id: 4, x: 85.4, y: 49.9 }, 
-    { id: 17, x: 55, y: 40.8 }, 
-    { id: 18, x: 66.9, y: 44.9 }, 
-    { id: 19, x: 79.9, y: 47.0 }, 
-    { id: 21, x: 93.2, y: 50.3 }, 
-    { id: 22, x: 80.4, y: 58.9 }, 
-    { id: 23, x: 65.9, y: 63.3 }, 
-    { id: 24, x: 48.9, y: 56.3 }, 
-    { id: 25, x: 36.8, y: 66.6 }, 
-    { id: 26, x: 28.4, y: 58.3 }, 
-    { id: 27, x: 33.5, y: 90.3 }, 
-    { id: 28, x: 56.5, y: 82.7 }, 
-    { id: 29, x: 65.3, y: 86.9 }, 
-    { id: 30, x: 72.6, y: 87 }, 
-    { id: 31, x: 76, y: 82.6 }, 
-    { id: 32, x: 5.3, y: 67.6 }, 
-    { id: 33, x: 36.4, y: 36.9 }, 
-    { id: 34, x: 27, y: 29.5 }, 
-    { id: 35, x: 29.6, y: 72.8 }, 
-    { id: 36, x: 45, y: 85.7 }, 
-    { id: 37, x: 6.7, y: 99.7 }, // Spawn point pre npc
-    { id: 5, x: 8.6, y: 44.6 }, 
-    { id: 6, x: 45, y: 53 }, 
-    { id: 7, x: 59.1, y: 60.6 }, 
-    { id: 8, x: 76.2, y: 67.4 }, 
-    { id: 9, x: 86.7, y: 73.4 }, 
-    { id: 15, x: 81.7, y: 85.5 }, 
-    { id: 16, x: 93.5, y: 80.1 }, 
-    { id: 10, x: 22.9, y: 92.6 }, 
-    { id: 11, x: 24, y: 82.7 }, 
-    { id: 12, x: 41.8, y: 95 }, 
-    { id: 13, x: 51.9, y: 80.8 }, 
-    { id: 14, x: 77.9, y: 91.8 }  
+    { id: 1, x: 24.9, y: 32.7 },
+    { id: 2, x: 53.3, y: 41.6 },
+    { id: 3, x: 11.1, y: 72 },
+    { id: 4, x: 85.4, y: 49.9 },
+    { id: 17, x: 55, y: 40.8 },
+    { id: 18, x: 66.9, y: 44.9 },
+    { id: 19, x: 79.9, y: 47.0 },
+    { id: 21, x: 93.2, y: 50.3 },
+    { id: 22, x: 80.4, y: 58.9 },
+    { id: 23, x: 65.9, y: 63.3 },
+    { id: 24, x: 48.9, y: 56.3 },
+    { id: 25, x: 36.8, y: 66.6 },
+    { id: 26, x: 28.4, y: 58.3 },
+    { id: 27, x: 33.5, y: 90.3 },
+    { id: 28, x: 56.5, y: 82.7 },
+    { id: 29, x: 65.3, y: 86.9 },
+    { id: 30, x: 72.6, y: 87 },
+    { id: 31, x: 76, y: 82.6 },
+    { id: 32, x: 5.3, y: 67.6 },
+    { id: 33, x: 36.4, y: 36.9 },
+    { id: 34, x: 27, y: 29.5 },
+    { id: 35, x: 29.6, y: 72.8 },
+    { id: 36, x: 45, y: 85.7 },
+    { id: 37, x: 6.7, y: 99.7 }, // Spawn point pre NPC
+    { id: 5, x: 8.6, y: 44.6 },
+    { id: 6, x: 45, y: 53 },
+    { id: 7, x: 59.1, y: 60.6 },
+    { id: 8, x: 76.2, y: 67.4 },
+    { id: 9, x: 86.7, y: 73.4 },
+    { id: 15, x: 81.7, y: 85.5 },
+    { id: 16, x: 93.5, y: 80.1 },
+    { id: 10, x: 22.9, y: 92.6 },
+    { id: 11, x: 24, y: 82.7 },
+    { id: 12, x: 41.8, y: 95 },
+    { id: 13, x: 51.9, y: 80.8 },
+    { id: 14, x: 77.9, y: 91.8 }
 ];
 
 const roadEdges = [
-    [1, 2], [2, 4], [3, 5],[1, 5], [6, 7], [7, 8], [8, 9], [10, 11], [11, 12], [12, 13], [13, 14],
-    [14,15], [9,15], [15,16], [19,17], [19,18], [19,4], [19,2], [21,19], [21,17], [21,18], [21,2], [21,4], [17,18], [17,4], [17,2],
-    [18,2], [18,4], [6,25], [11,25], [26,25], [26,3], [22,4], [22,8], [24,6], [24,7], [27,12], [27,11], [23,7], [23,8],
-    [29,30], [13,28], [13,29], [13,30], [30,14], [29,14], [28,29], [28,30], [28,14],[37,11],
+    [1, 2], [2, 4], [3, 5],[1, 5], 
+    [6, 7], [7, 8], [8, 9],
+    [10, 11], [11, 12], [12, 13], [13, 14],
+    [14,15], [9,15], [15,16], [19,17], [19,18], [19,4], [19,2],
+    [21,19], [21,17], [21,18], [21,2], [21,4], [17,18], [17,4], [17,2],
+    [18,2], [18,4],
+    [6,25], [11,25], [26,25], [26,3],
+    [22,4], [22,8], [24,6], [24,7],
+    [27,12], [27,11], [23,7], [23,8],
+    [29,30], [13,28], [13,29], [13,30],
+    [30,14], [29,14], [28,29], [28,30], [28,14],[37,11],
     [32,3],[33,1],[33,2],[34,1],[11,35], [25,35], [36,12],[36,13],
-    [2, 6], [6, 11], [9, 14], [3, 11], [7, 13]
+    [2, 6], [6, 11],
+    [9, 14], [3, 11], [7, 13]
 ];
 
 function drawDebugWaypoints() {
@@ -587,7 +609,9 @@ function drawDebugWaypoints() {
     roadEdges.forEach(edge => {
         const n1 = roadNodes.find(n => n.id === edge[0]);
         const n2 = roadNodes.find(n => n.id === edge[1]);
-        if (n1 && n2) svgHTML += `<line x1="${n1.x}" y1="${n1.y}" x2="${n2.x}" y2="${n2.y}" stroke="rgba(255,0,0,0.8)" stroke-width="0.3" vector-effect="non-scaling-stroke" />`;
+        if (n1 && n2) {
+            svgHTML += `<line x1="${n1.x}" y1="${n1.y}" x2="${n2.x}" y2="${n2.y}" stroke="rgba(255,0,0,0.8)" stroke-width="0.3" vector-effect="non-scaling-stroke" />`;
+        }
     });
     roadNodes.forEach(node => {
         svgHTML += `<circle cx="${node.x}" cy="${node.y}" r="0.4" fill="yellow" stroke="red" stroke-width="0.1" vector-effect="non-scaling-stroke" />`;
@@ -651,7 +675,11 @@ function calculateShortestPathGraph(startX, startY, targetX, targetY) {
     let distances = {};
     let previous = {};
     let queue = [];
-    roadNodes.forEach(node => { distances[node.id] = Infinity; previous[node.id] = null; queue.push(node.id); });
+    roadNodes.forEach(node => {
+        distances[node.id] = Infinity;
+        previous[node.id] = null;
+        queue.push(node.id);
+    });
     distances[startNodeId] = 0;
     while (queue.length > 0) {
         queue.sort((a, b) => distances[a] - distances[b]);
@@ -664,7 +692,10 @@ function calculateShortestPathGraph(startX, startY, targetX, targetY) {
                 let neighborNode = roadNodes.find(n => n.id === neighborId);
                 let dist = Math.hypot(currNode.x - neighborNode.x, currNode.y - neighborNode.y);
                 let altDistance = distances[currId] + dist;
-                if (altDistance < distances[neighborId]) { distances[neighborId] = altDistance; previous[neighborId] = currId; }
+                if (altDistance < distances[neighborId]) {
+                    distances[neighborId] = altDistance;
+                    previous[neighborId] = currId;
+                }
             }
         });
     }
@@ -688,130 +719,143 @@ function getClosestNode(x, y) {
     let minPath = Infinity;
     roadNodes.forEach(node => {
         let dist = Math.hypot(node.x - x, node.y - y);
-        if (dist < minPath) { minPath = dist; closestId = node.id; }
+        if (dist < minPath) {
+            minPath = dist;
+            closestId = node.id;
+        }
     });
     return closestId;
 }
 
 // ==========================================
-// 6. NPC SYSTÉM (MOZOG A POHYB)
+// 6. SYSTÉM NPC POSTÁV (LOGIKA POHYBU A SPAWNU)
 // ==========================================
 
 function initNPCSystem() {
-    // Spawnovanie prvej vlny
-    for(let i = 0; i < MIN_NPCS; i++) {
-        setTimeout(() => spawnNPC(), i * 3000);
+    // Spustíme nekonečnú slučku kontroly populácie
+    setInterval(manageNPCPopulation, 5000); 
+    manageNPCPopulation();
+}
+
+function manageNPCPopulation() {
+    // Ak je postáv menej ako minimum, okamžite pridáme jednu
+    if (activeNPCs.length < MIN_NPCS) {
+        spawnNPC();
+        return;
     }
-    
-    // Periodická kontrola počtu postáv každých 15 sekúnd
-    setInterval(() => {
-        if (activeNPCs.length < MIN_NPCS) {
-            spawnNPC();
-        } else if (activeNPCs.length < MAX_NPCS && Math.random() > 0.5) {
-            spawnNPC();
-        }
-    }, 15000);
+    // Ak je ich medzi min a max, náhodne pridáme postavu
+    if (activeNPCs.length < MAX_NPCS) {
+        if (Math.random() > 0.7) spawnNPC();
+    }
 }
 
 function spawnNPC() {
-    if (activeNPCs.length >= MAX_NPCS) return;
-
-    const spawn = roadNodes.find(n => n.id === 37);
-    const id = "npc_" + Date.now() + "_" + Math.floor(Math.random() * 100);
-    const imgNum = Math.floor(Math.random() * 12) + 1; // npc1 až npc12
-
+    // 1. Získame zoznam ID, ktoré momentálne nie sú na mape
+    const usedIDs = activeNPCs.map(npc => npc.configID);
+    const availableIDs = Object.keys(npcConfigs).filter(id => !usedIDs.includes(id));
+    
+    // Ak nie je žiadne ID voľné, postavu nevytvoríme
+    if (availableIDs.length === 0) return;
+    
+    // 2. Vyberieme náhodné voľné ID a jeho nastavenia
+    const configID = availableIDs[Math.floor(Math.random() * availableIDs.length)];
+    const config = npcConfigs[configID];
+    const spawnNode = roadNodes.find(n => n.id === 37);
+    
+    // 3. Vytvoríme vizuálny element
     const npcEl = document.createElement('img');
-    npcEl.id = id;
-    npcEl.src = `npc${imgNum}.png`;
+    npcEl.src = configID + ".png"; // npc1.png, npc2.png...
     npcEl.style.position = 'absolute';
-    npcEl.style.left = spawn.x + '%';
-    npcEl.style.top = spawn.y + '%';
-    npcEl.style.width = '45px';
+    npcEl.style.left = spawnNode.x + '%';
+    npcEl.style.top = spawnNode.y + '%';
+    npcEl.style.width = config.width + 'px';
     npcEl.style.transform = 'translate(-50%, -100%)';
-    npcEl.style.zIndex = Math.floor(spawn.y);
-    npcEl.style.transition = 'none';
+    npcEl.style.zIndex = Math.floor(spawnNode.y) + 2; 
     npcEl.style.pointerEvents = 'none';
     npcEl.style.filter = 'drop-shadow(0px 3px 3px rgba(0,0,0,0.4))';
     
     document.getElementById('npcLayer').appendChild(npcEl);
-
+    
+    // 4. Objekt postavy pre engine
     const npcObj = {
-        id: id,
+        configID: configID,
         el: npcEl,
-        x: spawn.x,
-        y: spawn.y,
-        visits: Math.floor(Math.random() * 2) + 3, // 3-4 budovy
-        targetKey: null
+        x: spawnNode.x,
+        y: spawnNode.y,
+        visitsLeft: Math.floor(Math.random() * 2) + 3, // 3-4 ciele
+        timeout: null
     };
-
+    
     activeNPCs.push(npcObj);
-    npcPickNextAction(npcObj);
+    npcBrain(npcObj);
 }
 
-function npcPickNextAction(npc) {
-    if (npc.visits <= 0) {
-        // Cesta preč z mesta
-        const exit = roadNodes.find(n => n.id === 37);
-        const path = calculateShortestPathGraph(npc.x, npc.y, exit.x, exit.y);
+function npcBrain(npc) {
+    // Ak postava splnila všetky ciele, ide domov
+    if (npc.visitsLeft <= 0) {
+        const exitNode = roadNodes.find(n => n.id === 37);
+        const path = calculateShortestPathGraph(npc.x, npc.y, exitNode.x, exitNode.y);
         moveNPCAlongPath(npc, path, () => {
-            despawnNPC(npc.id);
+            despawnNPC(npc);
         });
         return;
     }
+    
+    // Vyberieme náhodnú budovu
+    const bKeys = Object.keys(buildingsData);
+    const targetKey = bKeys[Math.floor(Math.random() * bKeys.length)];
+    const b = buildingsData[targetKey];
+    
+    const targetX = b.doorX !== undefined ? b.doorX : b.x;
+    const targetY = b.doorY !== undefined ? b.doorY : b.y;
 
-    const buildingKeys = Object.keys(buildingsData);
-    const randomKey = buildingKeys[Math.floor(Math.random() * buildingKeys.length)];
-    const b = buildingsData[randomKey];
-    const doorX = b.doorX !== undefined ? b.doorX : b.x;
-    const doorY = b.doorY !== undefined ? b.doorY : b.y;
-
-    // Kontrola kolízie: Ak je niekto na dverách, NPC počká alebo pôjde inde
-    if (occupiedDoors.has(randomKey)) {
-        setTimeout(() => npcPickNextAction(npc), 2000);
+    // Kontrola kolízie (či nie je niekto na dverách)
+    if (occupiedDoors.has(targetKey)) {
+        npc.timeout = setTimeout(() => npcBrain(npc), 2000);
         return;
     }
 
-    npc.targetKey = randomKey;
-    npc.visits--;
+    npc.visitsLeft--;
+    const path = calculateShortestPathGraph(npc.x, npc.y, targetX, targetY);
     
-    const path = calculateShortestPathGraph(npc.x, npc.y, doorX, doorY);
     moveNPCAlongPath(npc, path, () => {
-        // Dorazil k budove
-        occupiedDoors.add(npc.targetKey);
-        setTimeout(() => {
-            occupiedDoors.delete(npc.targetKey);
-            npcPickNextAction(npc);
-        }, NPC_WAIT_TIME);
+        // Po príchode obsadí miesto a stojí
+        occupiedDoors.add(targetKey);
+        npc.timeout = setTimeout(() => {
+            occupiedDoors.delete(targetKey);
+            npcBrain(npc);
+        }, NPC_WAIT_AT_DOOR);
     });
 }
 
-function moveNPCAlongPath(npc, path, callback) {
-    if (!path || path.length === 0) {
-        callback();
+function moveNPCAlongPath(npc, path, onComplete) {
+    if (path.length === 0) {
+        onComplete();
         return;
     }
+    
+    const nextPoint = path.shift();
+    const dist = Math.hypot(nextPoint.x - npc.x, nextPoint.y - npc.y);
+    
+    // NPC chodia konštantnou pomalou rýchlosťou
+    let timeInSeconds = (dist / 10.0) * 1.8; 
+    if (timeInSeconds < 0.1) timeInSeconds = 0.1;
+    
+    npc.el.style.transition = `left ${timeInSeconds}s linear, top ${timeInSeconds}s linear`;
+    npc.el.style.left = nextPoint.x + '%';
+    npc.el.style.top = nextPoint.y + '%';
+    // Hĺbka postavy (Z-index) podľa aktuálnej Y polohy bodu, do ktorého kráča
+    npc.el.style.zIndex = Math.floor(nextPoint.y) + 2;
 
-    const next = path.shift();
-    const dist = Math.hypot(next.x - npc.x, next.y - npc.y);
-    const duration = (dist / 10.0) * 1.5; // Konštantná pomalá rýchlosť pre NPC
-
-    npc.el.style.transition = `left ${duration}s linear, top ${duration}s linear`;
-    npc.el.style.left = next.x + '%';
-    npc.el.style.top = next.y + '%';
-    npc.el.style.zIndex = Math.floor(next.y);
-
-    npc.x = next.x;
-    npc.y = next.y;
-
-    setTimeout(() => {
-        moveNPCAlongPath(npc, path, callback);
-    }, duration * 1000);
+    npc.x = nextPoint.x;
+    npc.y = nextPoint.y;
+    
+    npc.timeout = setTimeout(() => {
+        moveNPCAlongPath(npc, path, onComplete);
+    }, timeInSeconds * 1000);
 }
 
-function despawnNPC(id) {
-    const idx = activeNPCs.findIndex(n => n.id === id);
-    if (idx !== -1) {
-        activeNPCs[idx].el.remove();
-        activeNPCs.splice(idx, 1);
-    }
+function despawnNPC(npc) {
+    npc.el.remove();
+    activeNPCs = activeNPCs.filter(item => item !== npc);
 }
