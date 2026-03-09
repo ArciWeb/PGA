@@ -34,7 +34,8 @@ const buildingsData = {
     "sponsor": { name: "Sponzori", x: 36.4, y: 31.3, doorX: 34.5, doorY: 30.6, size: 115, img: "buda_palac.png", detail: "mapa-sponsor.png", action: "openSponsorInfo" },
     "arcibot": { name: "ArciBot", x: 12.5, y: 65.5, doorX: 12.5, doorY: 65.5, size: 35, img: "buda_arcibot.png", detail: "mapa-arcibot.png", action: "openAiAssistant" },
 
-    "super": { name: "Porovnanie Hráčov", x: 62.5, y: 54.0, doorX: 62.5, doorY: 54.0, size: 90, img: "buda_super.png", detail: "mapa-vs.png", action: "openComparator" },
+    "super": { name: "Porovnanie Hráčov", x: 62.5, y: 54.0, doorX: 60.5, doorY: 54.0, size: 90, img: "buda_super.png", detail: "mapa-vs.png", action: "openComparator" },
+
 
     "world": { name: "World Tour Rank", x: 33.5, y: 24.5, doorX: 31.9, doorY: 23.2, size: 105, img: "buda_worldtour.png", detail: "mapa-worldtour.png", action: "showRankTable_Tour" },
     "official": { name: "Official Rank", x: 51.9, y: 35.0, doorX: 50.9, doorY: 35.0, size: 95, img: "buda_official.png", detail: "mapa-official.png", action: "showRankTable_Official" },
@@ -558,7 +559,7 @@ const roadNodes = [
     { id: 21, x: 93.2, y: 50.3 },
     { id: 22, x: 80.4, y: 58.9 },
     { id: 23, x: 65.9, y: 63.3 },
-    { id: 24, x: 48.9, y: 56.3 },
+    { id: 24, x: 48.9, y: 55 },
     { id: 25, x: 36.8, y: 66.6 },
     { id: 26, x: 28.4, y: 58.3 },
     { id: 27, x: 33.5, y: 90.3 },
@@ -574,7 +575,7 @@ const roadNodes = [
     { id: 37, x: 6.7, y: 99.7 }, // Spawn point pre npc
     { id: 5, x: 8.6, y: 44.6 },
     { id: 6, x: 45, y: 53 },
-    { id: 7, x: 59.1, y: 60.6 },
+    { id: 7, x: 59.1, y: 59.6 },
     { id: 8, x: 76.2, y: 67.4 },
     { id: 9, x: 86.7, y: 73.4 },
     { id: 15, x: 81.7, y: 85.5 },
