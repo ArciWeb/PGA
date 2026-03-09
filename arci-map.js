@@ -61,6 +61,13 @@ let walkOnRoadsOnly = localStorage.getItem('arciRoads') === 'true';
 let currentBuildingIndex = -1; // Sleduje, pri ktorej budove hráč naposledy bol
 let directEntry = localStorage.getItem('arciEntry') === 'true'; 
 
+// --- NPC KONFIGURÁCIA ---
+let activeNPCs = [];
+const MIN_NPCS = 4;
+const MAX_NPCS = 7;
+const NPC_WAIT_TIME = 10000; // 10 sekúnd stáť pri budove
+const occupiedDoors = new Set(); // Sleduje obsadené vchody
+
 function getMinScale() {
     const mapW = 2000;
     const mapH = 1125;
@@ -98,6 +105,7 @@ function startArciCityGame() {
             <div class="map-wrapper" id="mapWrapper" style="position: relative; width: 2000px; height: 1125px; overflow: hidden; transform-origin: 0 0; transition: transform 0.1s ease-out;">
                 <img src="Map_Background.png" class="map-bg" onclick="handleMapClick(event)" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1;">
                 <div id="buildingsLayer"></div>
+                <div id="npcLayer" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 450;"></div>
                 <div id="debugLayer" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 400;"></div>
                 <img src="panáčik_stoji.png" id="player-character" style="position: absolute; left: ${savedX}%; top: ${savedY}%; width: 45px; transform: translate(-50%, -100%); z-index: 500; transition: none; pointer-events: none; filter: drop-shadow(0px 5px 5px rgba(0,0,0,0.5));">
             </div>
@@ -168,7 +176,10 @@ function startArciCityGame() {
     
     initArciPinchZoom(mapWrapper);
     
-    setTimeout(() => { centerCamera(); }, 150);
+    setTimeout(() => { 
+        centerCamera(); 
+        initNPCSystem(); // Spustenie NPC po štarte mapy
+    }, 150);
 }
 
 // ==========================================
@@ -296,6 +307,10 @@ function exitMap() {
     isTrackingCamera = false; 
     clearTimeout(currentMovementTimeout);
     isMoving = false;
+    
+    // Zastavenie NPC systému pri vypnutí mapy
+    activeNPCs.forEach(npc => npc.el.remove());
+    activeNPCs = [];
 }
 
 // ==========================================
@@ -333,7 +348,6 @@ function executeBuildingAction(event) {
 // 4. POHYB, VYKRESLOVANIE A DYNAMICKÝ DEBUG MÓD
 // ==========================================
 
-// TOTO MÔŽEŠ NAPÍSAŤ DO F12 KONZOLY PRE ZAPNUTIE/VYPNUTIE LADENIA
 window.arciDebug = function() {
     isDebugMode = !isDebugMode;
     console.log(`🛠️ Režim ladenia bol ${isDebugMode ? 'ZAPNUTÝ' : 'VYPNUTÝ'}`);
@@ -341,7 +355,6 @@ window.arciDebug = function() {
     drawDebugWaypoints();
 };
 
-// ... alebo stlač Shift + D priamo v hre!
 window.addEventListener('keydown', (e) => {
     if (e.shiftKey && e.key.toLowerCase() === 'd') {
         window.arciDebug();
@@ -352,7 +365,6 @@ function renderBuildings() {
     const layer = document.getElementById('buildingsLayer');
     if(!layer) return;
     
-    // Vyčistíme vrstvu, aby sa budovy neduplikovali pri prepínaní režimov
     layer.innerHTML = "";
     
     for (let key in buildingsData) {
@@ -370,7 +382,6 @@ function renderBuildings() {
         hitbox.style.cursor = 'pointer';
         hitbox.style.zIndex = Math.floor(b.y) + 10; 
         
-        // UPRAVENÉ: Ak je debug, neotvorí budovu, ale vypíše súradnice
         hitbox.onclick = (e) => { 
             e.stopPropagation(); 
             if (isDebugMode) {
@@ -390,7 +401,6 @@ function renderBuildings() {
         img.style.zIndex = Math.floor(b.y); 
         img.style.pointerEvents = 'none'; 
 
-        // AK JE ZAPNUTÝ DEBUG MÓD
         if (isDebugMode) {
             img.src = ""; 
             img.alt = `🏢 ${b.name}`; 
@@ -403,7 +413,6 @@ function renderBuildings() {
             hitbox.style.border = '2px solid lime';
             hitbox.style.background = 'rgba(0, 255, 0, 0.4)';
         } else {
-            // NORMÁLNA HRA
             img.src = b.img; 
             img.style.filter = 'drop-shadow(2px 2px 5px rgba(0,0,0,0.5))';
             img.alt = "";
@@ -430,7 +439,6 @@ function handleMapClick(e) {
     
     if (isDebugMode) console.log(`📍 Klik na mapu: x: ${x.toFixed(1)}, y: ${y.toFixed(1)}`);
     
-    // Nová logika pohybu podľa nastavení
     if (walkOnRoadsOnly) {
         navigatePlayerViaRoads(x, y);
     } else {
@@ -483,11 +491,8 @@ function centerCamera() {
 }
 
 function moveToBuilding(key) {
-    currentBuildingIndex = Object.keys(buildingsData).indexOf(key); // Uloží si budovu pre tlačidlo "Ďalšia"
-    
+    currentBuildingIndex = Object.keys(buildingsData).indexOf(key); 
     const b = buildingsData[key];
-    
-    // Použijeme súradnice dverí (doorX a doorY). Ak neexistujú, použijeme stred budovy.
     const targetX = b.doorX !== undefined ? b.doorX : b.x;
     const targetY = b.doorY !== undefined ? b.doorY : b.y;
 
@@ -496,9 +501,9 @@ function moveToBuilding(key) {
     navigatePlayerViaRoads(targetX, targetY, () => {
         if (directEntry) {
             window.currentMapAction = b.action;
-            executeBuildingAction(null); // Otvorí rovno rank/budovu
+            executeBuildingAction(null);
         } else {
-            showBuildingDetail(b); // Ukáže klasicky najprv fotku
+            showBuildingDetail(b);
         }
     });
 }
@@ -526,108 +531,74 @@ function closeBuildingDetail() {
 // ==========================================
 
 const roadNodes = [
-    // --- Horná cesta ---
-    { id: 1, x: 24.9, y: 32.7 }, // Začiatok pri Kostole
-    { id: 2, x: 53.3, y: 41.6 }, // Križovatka pod Official Rank
-    { id: 3, x: 11.1, y: 72 }, // skratka okolo stadiona 
-    { id: 4, x: 85.4, y: 49.9 }, // Koniec pri EA Rank
-    
-    { id: 17, x: 55, y: 40.8 }, // pga
-    { id: 18, x: 66.9, y: 44.9 }, // fedex Amateur players
-    { id: 19, x: 79.9, y: 47.0 }, // ea 
-    { id: 21, x: 93.2, y: 50.3 }, // Elo
-    { id: 22, x: 80.4, y: 58.9 }, // noviny a plaváreň 
-    { id: 23, x: 65.9, y: 63.3 }, //gym
-    { id: 24, x: 48.9, y: 56.3 }, // dom
-    { id: 25, x: 36.8, y: 66.6 }, //  odbočka na štadión 
-    { id: 26, x: 28.4, y: 58.3 }, // štadión 
-    { id: 27, x: 33.5, y: 90.3 }, // invest
-    { id: 28, x: 56.5, y: 82.7 }, // cards
-    { id: 29, x: 65.3, y: 86.9 }, // tip
-    { id: 30, x: 72.6, y: 87 }, // casino
-    { id: 31, x: 76, y: 82.6 }, // parkovisko kasino
-    { id: 32, x: 5.3, y: 67.6 }, // jamka
-    { id: 33, x: 36.4, y: 36.9 }, // sponzori
-    { id: 34, x: 27, y: 29.5 }, // kalendár
-    { id: 35, x: 29.6, y: 72.8 }, // banka 
-    { id: 36, x: 45, y: 85.7 }, // medzi arciinvest a arcishop
-    // --- Stredná cesta ---
-    { id: 5, x: 8.6, y: 44.6 }, // Slepá ulička nad Štadiónom
-    { id: 6, x: 45, y: 53 }, // Križovatka pri Knižnici
-    { id: 7, x: 59.1, y: 60.6 }, // Križovatka pod Súperov dom / Gym
-    { id: 8, x: 76.2, y: 67.4 }, // Križovatka pri Plavárni
-    { id: 9, x: 86.7, y: 73.4 }, // Koniec pri Podsvetí
-    { id: 15, x: 81.7, y: 85.5 }, // odbocka pri Podsvetí
-    { id: 16, x: 93.5, y: 80.1 }, // Podsvetie
-            
-    // --- Spodná cesta ---
-    { id: 10, x: 22.9, y: 92.6 }, // Mostík vľavo dole
-    { id: 11, x: 24, y: 82.7 }, // Križovatka pod Fontánou / pri ArciInvest
-    { id: 12, x: 41.8, y: 95 }, // Križovatka pod arciinvest
-    { id: 13, x: 51.9, y: 80.8 }, // Križovatka pod arcicards
-    { id: 14, x: 77.9, y: 91.8 }  // Spodný pravý roh
+    { id: 1, x: 24.9, y: 32.7 }, 
+    { id: 2, x: 53.3, y: 41.6 }, 
+    { id: 3, x: 11.1, y: 72 }, 
+    { id: 4, x: 85.4, y: 49.9 }, 
+    { id: 17, x: 55, y: 40.8 }, 
+    { id: 18, x: 66.9, y: 44.9 }, 
+    { id: 19, x: 79.9, y: 47.0 }, 
+    { id: 21, x: 93.2, y: 50.3 }, 
+    { id: 22, x: 80.4, y: 58.9 }, 
+    { id: 23, x: 65.9, y: 63.3 }, 
+    { id: 24, x: 48.9, y: 56.3 }, 
+    { id: 25, x: 36.8, y: 66.6 }, 
+    { id: 26, x: 28.4, y: 58.3 }, 
+    { id: 27, x: 33.5, y: 90.3 }, 
+    { id: 28, x: 56.5, y: 82.7 }, 
+    { id: 29, x: 65.3, y: 86.9 }, 
+    { id: 30, x: 72.6, y: 87 }, 
+    { id: 31, x: 76, y: 82.6 }, 
+    { id: 32, x: 5.3, y: 67.6 }, 
+    { id: 33, x: 36.4, y: 36.9 }, 
+    { id: 34, x: 27, y: 29.5 }, 
+    { id: 35, x: 29.6, y: 72.8 }, 
+    { id: 36, x: 45, y: 85.7 }, 
+    { id: 37, x: 6.7, y: 99.7 }, // Spawn point pre npc
+    { id: 5, x: 8.6, y: 44.6 }, 
+    { id: 6, x: 45, y: 53 }, 
+    { id: 7, x: 59.1, y: 60.6 }, 
+    { id: 8, x: 76.2, y: 67.4 }, 
+    { id: 9, x: 86.7, y: 73.4 }, 
+    { id: 15, x: 81.7, y: 85.5 }, 
+    { id: 16, x: 93.5, y: 80.1 }, 
+    { id: 10, x: 22.9, y: 92.6 }, 
+    { id: 11, x: 24, y: 82.7 }, 
+    { id: 12, x: 41.8, y: 95 }, 
+    { id: 13, x: 51.9, y: 80.8 }, 
+    { id: 14, x: 77.9, y: 91.8 }  
 ];
 
 const roadEdges = [
-    // Horizontálne (šikmé zľava doprava)
-    [1, 2], [2, 4], [3, 5],[1, 5], 
-    [6, 7], [7, 8], [8, 9],
-    [10, 11], [11, 12], [12, 13], [13, 14],
-    
-    // nove 
-    [14,15], [9,15], [15,16], [19,17], [19,18], [19,4], [19,2],
-    [21,19], [21,17], [21,18], [21,2], [21,4], [17,18], [17,4], [17,2],
-    [18,2], [18,4],
-    [6,25], [11,25], [26,25], [26,3],
-    [22,4], [22,8], [24,6], [24,7],
-    [27,12], [27,11], [23,7], [23,8],
-    [29,30], [13,28], [13,29], [13,30],
-    [30,14], [29,14], [28,29], [28,30], [28,14],
+    [1, 2], [2, 4], [3, 5],[1, 5], [6, 7], [7, 8], [8, 9], [10, 11], [11, 12], [12, 13], [13, 14],
+    [14,15], [9,15], [15,16], [19,17], [19,18], [19,4], [19,2], [21,19], [21,17], [21,18], [21,2], [21,4], [17,18], [17,4], [17,2],
+    [18,2], [18,4], [6,25], [11,25], [26,25], [26,3], [22,4], [22,8], [24,6], [24,7], [27,12], [27,11], [23,7], [23,8],
+    [29,30], [13,28], [13,29], [13,30], [30,14], [29,14], [28,29], [28,30], [28,14],[37,11],
     [32,3],[33,1],[33,2],[34,1],[11,35], [25,35], [36,12],[36,13],
-
-    // Vertikálne (šikmé prepojenia zhora nadol)
-    [2, 6], [6, 11], // Centrálna chrbtica 1
-    [9, 14], [3, 11], [7, 13] // Centrálna chrbtica 2
-
+    [2, 6], [6, 11], [9, 14], [3, 11], [7, 13]
 ];
 
 function drawDebugWaypoints() {
     const layer = document.getElementById('debugLayer');
     if (!layer) return;
-    
-    // Ak je Debug mód vypnutý, vyčistíme SVG a končíme
-    if (!isDebugMode) {
-        layer.innerHTML = "";
-        return;
-    }
+    if (!isDebugMode) { layer.innerHTML = ""; return; }
     
     let svgHTML = `<svg viewBox="0 0 100 100" preserveAspectRatio="none" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; overflow: visible;">`;
-    
     roadEdges.forEach(edge => {
         const n1 = roadNodes.find(n => n.id === edge[0]);
         const n2 = roadNodes.find(n => n.id === edge[1]);
-        if (n1 && n2) {
-            svgHTML += `<line x1="${n1.x}" y1="${n1.y}" x2="${n2.x}" y2="${n2.y}" stroke="rgba(255,0,0,0.8)" stroke-width="0.3" vector-effect="non-scaling-stroke" />`;
-        }
+        if (n1 && n2) svgHTML += `<line x1="${n1.x}" y1="${n1.y}" x2="${n2.x}" y2="${n2.y}" stroke="rgba(255,0,0,0.8)" stroke-width="0.3" vector-effect="non-scaling-stroke" />`;
     });
-
-    // Vykreslenie žltých bodov pre cesty
     roadNodes.forEach(node => {
         svgHTML += `<circle cx="${node.x}" cy="${node.y}" r="0.4" fill="yellow" stroke="red" stroke-width="0.1" vector-effect="non-scaling-stroke" />`;
     });
-
-    // Vykreslenie červených bodov pre stred budovy a ZELENÝCH pre dvere
     for (let key in buildingsData) {
         const b = buildingsData[key];
-        // Červený bod (stred budovy / hitbox)
         svgHTML += `<circle cx="${b.x}" cy="${b.y}" r="0.5" fill="red" stroke="white" stroke-width="0.1" vector-effect="non-scaling-stroke" />`;
-        
-        // Zelený bod (miesto, kam postavička reálne dôjde = dvere)
         const doorX = b.doorX !== undefined ? b.doorX : b.x;
         const doorY = b.doorY !== undefined ? b.doorY : b.y;
         svgHTML += `<circle cx="${doorX}" cy="${doorY}" r="0.4" fill="lime" stroke="black" stroke-width="0.1" vector-effect="non-scaling-stroke" />`;
     }
-
     svgHTML += `</svg>`;
     layer.innerHTML = svgHTML;
 }
@@ -641,7 +612,6 @@ function navigatePlayerDirectly(targetX, targetY) {
     activeCallback = null;
     clearTimeout(currentMovementTimeout);
     isMoving = false; 
-    
     pathQueue = [{ x: targetX, y: targetY }];
     processNextMovementStep();
 }
@@ -650,11 +620,9 @@ function navigatePlayerViaRoads(targetX, targetY, onComplete = null) {
     activeCallback = onComplete;
     clearTimeout(currentMovementTimeout);
     isMoving = false; 
-    
     const player = document.getElementById('player-character');
     let startX = parseFloat(player.style.left || localStorage.getItem('arciPlayerX') || "10");
     let startY = parseFloat(player.style.top || localStorage.getItem('arciPlayerY') || "40");
-
     pathQueue = calculateShortestPathGraph(startX, startY, targetX, targetY);
     processNextMovementStep();
 }
@@ -662,75 +630,46 @@ function navigatePlayerViaRoads(targetX, targetY, onComplete = null) {
 function processNextMovementStep() {
     if (pathQueue.length === 0) {
         isMoving = false;
-        if (activeCallback) {
-            activeCallback();
-            activeCallback = null;
-        }
+        if (activeCallback) { activeCallback(); activeCallback = null; }
         return;
     }
-
     isMoving = true;
     const nextPoint = pathQueue.shift();
     const player = document.getElementById('player-character');
     let currentX = parseFloat(player.style.left || "0");
     let currentY = parseFloat(player.style.top || "0");
-    
     let dist = Math.hypot(nextPoint.x - currentX, nextPoint.y - currentY);
-    
-    // Zohľadnenie vybranej rýchlosti v nastaveniach
     let timeInSeconds = (dist / 10.0) * speedMultiplier; 
     if (timeInSeconds < 0.1) timeInSeconds = 0.1;
-
     movePlayerStep(nextPoint.x, nextPoint.y, timeInSeconds);
-
-    currentMovementTimeout = setTimeout(() => {
-        processNextMovementStep();
-    }, timeInSeconds * 1000);
+    currentMovementTimeout = setTimeout(() => { processNextMovementStep(); }, timeInSeconds * 1000);
 }
 
 function calculateShortestPathGraph(startX, startY, targetX, targetY) {
     let startNodeId = getClosestNode(startX, startY);
     let targetNodeId = getClosestNode(targetX, targetY);
-
     let distances = {};
     let previous = {};
     let queue = [];
-
-    roadNodes.forEach(node => {
-        distances[node.id] = Infinity;
-        previous[node.id] = null;
-        queue.push(node.id);
-    });
-
+    roadNodes.forEach(node => { distances[node.id] = Infinity; previous[node.id] = null; queue.push(node.id); });
     distances[startNodeId] = 0;
-
     while (queue.length > 0) {
         queue.sort((a, b) => distances[a] - distances[b]);
         let currId = queue.shift();
-
         if (currId === targetNodeId) break;
-
-        let neighbors = roadEdges.filter(e => e[0] === currId || e[1] === currId)
-                                 .map(e => e[0] === currId ? e[1] : e[0]);
-
+        let neighbors = roadEdges.filter(e => e[0] === currId || e[1] === currId).map(e => e[0] === currId ? e[1] : e[0]);
         neighbors.forEach(neighborId => {
             if (queue.includes(neighborId)) {
                 let currNode = roadNodes.find(n => n.id === currId);
                 let neighborNode = roadNodes.find(n => n.id === neighborId);
                 let dist = Math.hypot(currNode.x - neighborNode.x, currNode.y - neighborNode.y);
-                
                 let altDistance = distances[currId] + dist;
-                if (altDistance < distances[neighborId]) {
-                    distances[neighborId] = altDistance;
-                    previous[neighborId] = currId;
-                }
+                if (altDistance < distances[neighborId]) { distances[neighborId] = altDistance; previous[neighborId] = currId; }
             }
         });
     }
-
     let calculatedPath = [];
     let currentTrace = targetNodeId;
-    
     if (previous[currentTrace] !== null || currentTrace === startNodeId) {
         while (currentTrace !== null) {
             let n = roadNodes.find(node => node.id === currentTrace);
@@ -738,25 +677,141 @@ function calculateShortestPathGraph(startX, startY, targetX, targetY) {
             currentTrace = previous[currentTrace];
         }
     }
-
     let startNode = roadNodes.find(n => n.id === startNodeId);
     if (startNode) calculatedPath.unshift({ x: startNode.x, y: startNode.y });
-
     calculatedPath.push({ x: targetX, y: targetY });
-
     return calculatedPath;
 }
 
 function getClosestNode(x, y) {
     let closestId = null;
     let minPath = Infinity;
-    
     roadNodes.forEach(node => {
         let dist = Math.hypot(node.x - x, node.y - y);
-        if (dist < minPath) {
-            minPath = dist;
-            closestId = node.id;
-        }
+        if (dist < minPath) { minPath = dist; closestId = node.id; }
     });
     return closestId;
+}
+
+// ==========================================
+// 6. NPC SYSTÉM (MOZOG A POHYB)
+// ==========================================
+
+function initNPCSystem() {
+    // Spawnovanie prvej vlny
+    for(let i = 0; i < MIN_NPCS; i++) {
+        setTimeout(() => spawnNPC(), i * 3000);
+    }
+    
+    // Periodická kontrola počtu postáv každých 15 sekúnd
+    setInterval(() => {
+        if (activeNPCs.length < MIN_NPCS) {
+            spawnNPC();
+        } else if (activeNPCs.length < MAX_NPCS && Math.random() > 0.5) {
+            spawnNPC();
+        }
+    }, 15000);
+}
+
+function spawnNPC() {
+    if (activeNPCs.length >= MAX_NPCS) return;
+
+    const spawn = roadNodes.find(n => n.id === 37);
+    const id = "npc_" + Date.now() + "_" + Math.floor(Math.random() * 100);
+    const imgNum = Math.floor(Math.random() * 12) + 1; // npc1 až npc12
+
+    const npcEl = document.createElement('img');
+    npcEl.id = id;
+    npcEl.src = `npc${imgNum}.png`;
+    npcEl.style.position = 'absolute';
+    npcEl.style.left = spawn.x + '%';
+    npcEl.style.top = spawn.y + '%';
+    npcEl.style.width = '45px';
+    npcEl.style.transform = 'translate(-50%, -100%)';
+    npcEl.style.zIndex = Math.floor(spawn.y);
+    npcEl.style.transition = 'none';
+    npcEl.style.pointerEvents = 'none';
+    npcEl.style.filter = 'drop-shadow(0px 3px 3px rgba(0,0,0,0.4))';
+    
+    document.getElementById('npcLayer').appendChild(npcEl);
+
+    const npcObj = {
+        id: id,
+        el: npcEl,
+        x: spawn.x,
+        y: spawn.y,
+        visits: Math.floor(Math.random() * 2) + 3, // 3-4 budovy
+        targetKey: null
+    };
+
+    activeNPCs.push(npcObj);
+    npcPickNextAction(npcObj);
+}
+
+function npcPickNextAction(npc) {
+    if (npc.visits <= 0) {
+        // Cesta preč z mesta
+        const exit = roadNodes.find(n => n.id === 37);
+        const path = calculateShortestPathGraph(npc.x, npc.y, exit.x, exit.y);
+        moveNPCAlongPath(npc, path, () => {
+            despawnNPC(npc.id);
+        });
+        return;
+    }
+
+    const buildingKeys = Object.keys(buildingsData);
+    const randomKey = buildingKeys[Math.floor(Math.random() * buildingKeys.length)];
+    const b = buildingsData[randomKey];
+    const doorX = b.doorX !== undefined ? b.doorX : b.x;
+    const doorY = b.doorY !== undefined ? b.doorY : b.y;
+
+    // Kontrola kolízie: Ak je niekto na dverách, NPC počká alebo pôjde inde
+    if (occupiedDoors.has(randomKey)) {
+        setTimeout(() => npcPickNextAction(npc), 2000);
+        return;
+    }
+
+    npc.targetKey = randomKey;
+    npc.visits--;
+    
+    const path = calculateShortestPathGraph(npc.x, npc.y, doorX, doorY);
+    moveNPCAlongPath(npc, path, () => {
+        // Dorazil k budove
+        occupiedDoors.add(npc.targetKey);
+        setTimeout(() => {
+            occupiedDoors.delete(npc.targetKey);
+            npcPickNextAction(npc);
+        }, NPC_WAIT_TIME);
+    });
+}
+
+function moveNPCAlongPath(npc, path, callback) {
+    if (!path || path.length === 0) {
+        callback();
+        return;
+    }
+
+    const next = path.shift();
+    const dist = Math.hypot(next.x - npc.x, next.y - npc.y);
+    const duration = (dist / 10.0) * 1.5; // Konštantná pomalá rýchlosť pre NPC
+
+    npc.el.style.transition = `left ${duration}s linear, top ${duration}s linear`;
+    npc.el.style.left = next.x + '%';
+    npc.el.style.top = next.y + '%';
+    npc.el.style.zIndex = Math.floor(next.y);
+
+    npc.x = next.x;
+    npc.y = next.y;
+
+    setTimeout(() => {
+        moveNPCAlongPath(npc, path, callback);
+    }, duration * 1000);
+}
+
+function despawnNPC(id) {
+    const idx = activeNPCs.findIndex(n => n.id === id);
+    if (idx !== -1) {
+        activeNPCs[idx].el.remove();
+        activeNPCs.splice(idx, 1);
+    }
 }
