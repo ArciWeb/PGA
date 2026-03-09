@@ -65,15 +65,15 @@ let directEntry = localStorage.getItem('arciEntry') === 'true';
 // Tu môžeš pridávať nové ID (npc13, npc14...) a nastavovať im vlastnú veľkosť (width)
 const npcConfigs = {
     "npc1":  { width: 20 },
-    "npc2":  { width: 45 },
-    "npc3":  { width: 48 },
+    "npc2":  { width: 20 },
+    "npc3":  { width: 18 },
     "npc4":  { width: 42 },
     "npc5":  { width: 50 },
     "npc6":  { width: 45 },
     "npc7":  { width: 45 },
     "npc8":  { width: 45 },
     "npc9":  { width: 25 },
-    "npc10": { width: 45 },
+    "npc10": { width: 25 },
     "npc11": { width: 45 },
     "npc12": { width: 22 }
 };
