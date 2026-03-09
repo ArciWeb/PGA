@@ -82,7 +82,7 @@ let activeNPCs = []; // Sledovanie aktívnych postáv na mape
 const MIN_NPCS = 8;
 const MAX_NPCS = 11;
 const NPC_STAY_DURATION = 10000; // 10 sekúnd státia pri budove
-const occupiedDoors = new Set(); // Sleduje obsadené vchody (aby sa tam netlačili viacerí)
+const occupiedDoors = {}; // OBJEKT: Sleduje počet ľudí pri vchode (kľúč = key budovy, hodnota = počet)
 
 function getMinScale() {
     const mapW = 2000;
@@ -121,7 +121,7 @@ function startArciCityGame() {
             <div class="map-wrapper" id="mapWrapper" style="position: relative; width: 2000px; height: 1125px; overflow: hidden; transform-origin: 0 0; transition: transform 0.1s ease-out;">
                 <img src="Map_Background.png" class="map-bg" onclick="handleMapClick(event)" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1;">
                 <div id="buildingsLayer"></div>
-                <div id="npcLayer" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 2;"></div>
+                <div id="npcLayer" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: auto;"></div>
                 <div id="debugLayer" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 400;"></div>
                 <img src="panáčik_stoji.png" id="player-character" style="position: absolute; left: ${savedX}%; top: ${savedY}%; width: 45px; transform: translate(-50%, -100%); z-index: 500; transition: none; pointer-events: none; filter: drop-shadow(0px 5px 5px rgba(0,0,0,0.5));">
             </div>
@@ -397,7 +397,8 @@ function renderBuildings() {
         hitbox.style.height = '40px';
         hitbox.style.transform = 'translate(-50%, -100%)';
         hitbox.style.cursor = 'pointer';
-        hitbox.style.zIndex = Math.floor(b.y) + 10; 
+        // OPRAVA: Hitbox musí byť vždy nad obrázkom budovy aj postavami
+        hitbox.style.zIndex = Math.floor(b.y) + 20; 
         
         hitbox.onclick = (e) => { 
             e.stopPropagation(); 
@@ -415,6 +416,7 @@ function renderBuildings() {
         img.style.transform = 'translate(-50%, -100%)';
         img.style.width = widthPx + 'px';
         img.style.maxWidth = 'none'; 
+        // OPRAVA: Základný z-index budovy pre porovnanie s postavami
         img.style.zIndex = Math.floor(b.y); 
         img.style.pointerEvents = 'none'; 
 
@@ -471,7 +473,7 @@ function movePlayerStep(x, y, timeInSeconds) {
     player.style.transition = `left ${timeInSeconds}s linear, top ${timeInSeconds}s linear`;
     player.style.left = x + '%'; 
     player.style.top = y + '%';
-    // UPRAVENÉ: Používame presne Math.floor(y) + 1 pre správne prekresľovanie (rovnako ako NPC)
+    // OPRAVA: Z-index nastavený na y + 1 pre správne prekrytie (vždy pred budovou na rovnakom Y)
     player.style.zIndex = Math.floor(y) + 1; 
     
     localStorage.setItem('arciPlayerX', x); 
@@ -740,44 +742,36 @@ function getClosestNode(x, y) {
 // ==========================================
 
 function initNPCSystem() {
-    // Spustíme slučku manažmentu postáv každých 5 sekúnd
     setInterval(manageNPCs, 5000);
-    manageNPCs(); // Prvotné spustenie
+    manageNPCs(); 
 }
 
 function manageNPCs() {
-    // Ak je postáv menej ako minimum, skúsime jednu pridať
     if (activeNPCs.length < MIN_NPCS) {
         spawnNPC();
-    } 
-    // Ak je postáv dosť, ale menej ako maximum, skúsime náhodne pridať ďalšiu
-    else if (activeNPCs.length < MAX_NPCS) {
+    } else if (activeNPCs.length < MAX_NPCS) {
         if (Math.random() > 0.6) spawnNPC();
     }
 }
 
 function spawnNPC() {
-    // Zistíme, ktoré ID sú momentálne "voľné" (nie sú na mape)
     const currentActiveIDs = activeNPCs.map(npc => npc.configID);
     const availableIDs = Object.keys(npcConfigs).filter(id => !currentActiveIDs.includes(id));
     
-    // Ak už sú všetky postavy na mape, nepúšťame duplikát
     if (availableIDs.length === 0) return;
     
-    // Vyberieme náhodné voľné ID a jeho konfiguráciu
     const chosenID = availableIDs[Math.floor(Math.random() * availableIDs.length)];
     const config = npcConfigs[chosenID];
     const spawnNode = roadNodes.find(n => n.id === 37);
     
-    // Vytvorenie elementu postavy
     const npcEl = document.createElement('img');
-    npcEl.src = chosenID + ".png"; // Predpokladá súbory npc1.png, npc2.png...
+    npcEl.src = chosenID + ".png"; 
     npcEl.style.position = 'absolute';
     npcEl.style.left = spawnNode.x + '%';
     npcEl.style.top = spawnNode.y + '%';
     npcEl.style.width = config.width + 'px';
     npcEl.style.transform = 'translate(-50%, -100%)';
-    // UPRAVENÉ: NPC používa rovnakú logiku Z-Indexu ako hráč (+1)
+    // OPRAVA: Počiatočný z-index postavy
     npcEl.style.zIndex = Math.floor(spawnNode.y) + 1;
     npcEl.style.pointerEvents = 'none';
     npcEl.style.filter = 'drop-shadow(0px 3px 3px rgba(0,0,0,0.4))';
@@ -789,7 +783,7 @@ function spawnNPC() {
         el: npcEl,
         x: spawnNode.x,
         y: spawnNode.y,
-        visitsLeft: Math.floor(Math.random() * 2) + 3, // Navštívi 3 až 4 miesta
+        visitsLeft: Math.floor(Math.random() * 2) + 3, 
         timeout: null
     };
     
@@ -798,7 +792,6 @@ function spawnNPC() {
 }
 
 function npcBrain(npc) {
-    // Ak už postava pochodila mesto, ide naspäť na spawn point
     if (npc.visitsLeft <= 0) {
         const exitNode = roadNodes.find(n => n.id === 37);
         const path = calculateShortestPathGraph(npc.x, npc.y, exitNode.x, exitNode.y);
@@ -808,28 +801,30 @@ function npcBrain(npc) {
         return;
     }
     
-    // Vyberieme náhodnú budovu zo zoznamu
     const keys = Object.keys(buildingsData);
     const targetKey = keys[Math.floor(Math.random() * keys.length)];
     const b = buildingsData[targetKey];
     
-    const doorX = b.doorX !== undefined ? b.doorX : b.x;
-    const doorY = b.doorY !== undefined ? b.doorY : b.y;
+    let doorX = b.doorX !== undefined ? b.doorX : b.x;
+    let doorY = b.doorY !== undefined ? b.doorY : b.y;
 
-    // Ak niekto na bode stojí, postava nájde iný cieľ
-    if (occupiedDoors.has(targetKey)) {
-        npc.timeout = setTimeout(() => npcBrain(npc), 2000);
-        return;
+    // --- LOGIKA ODSTUPOV (OPRAVA) ---
+    // Ak už pri budove niekto stojí, vypočítame posun X
+    const occupants = occupiedDoors[targetKey] || 0;
+    if (occupants > 0) {
+        doorX += (occupants * 2.0); // Každý ďalší stojí o 2 súradnice vedľa
     }
 
     npc.visitsLeft--;
     const path = calculateShortestPathGraph(npc.x, npc.y, doorX, doorY);
     
     moveNPC(npc, path, () => {
-        // Postava prišla pred budovu, obsadí miesto a stojí 10s
-        occupiedDoors.add(targetKey);
+        // Zvýšime počet osôb pri danej budove po príchode
+        occupiedDoors[targetKey] = (occupiedDoors[targetKey] || 0) + 1;
+
         npc.timeout = setTimeout(() => {
-            occupiedDoors.delete(targetKey);
+            // Pred odchodom uvoľníme miesto
+            occupiedDoors[targetKey] = Math.max(0, (occupiedDoors[targetKey] || 0) - 1);
             npcBrain(npc);
         }, NPC_STAY_DURATION);
     });
@@ -844,7 +839,6 @@ function moveNPC(npc, path, onComplete) {
     const next = path.shift();
     const dist = Math.hypot(next.x - npc.x, next.y - npc.y);
     
-    // NPC chodia konštantnou pomalou rýchlosťou (1.8 je koeficient pomalosti)
     let duration = (dist / 10.0) * 1.8; 
     if (duration < 0.1) duration = 0.1;
     
@@ -852,7 +846,7 @@ function moveNPC(npc, path, onComplete) {
     npc.el.style.left = next.x + '%';
     npc.el.style.top = next.y + '%';
     
-    // UPRAVENÉ: Z-index sa aktualizuje počas pohybu, aby postava správne zachádzala za budovy
+    // OPRAVA: Dynamická aktualizácia z-indexu počas pohybu
     npc.el.style.zIndex = Math.floor(next.y) + 1;
 
     npc.x = next.x;
