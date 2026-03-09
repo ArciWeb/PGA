@@ -23,7 +23,7 @@ const buildingsData = {
     "oblubene": { name: "Obľúbený Hrači", x: 58.1, y: 88.4, doorX: 58, doorY: 83.2, size: 38, img: "buda_oblubene.png", detail: "mapa-oblubene.png", action: "openFavoritesModal" },
     
     "osobne": { name: "Osobné úspechy", x: 13.3, y: 86.8, doorX: 9.3, doorY: 77.8, size: 160, img: "buda_zahradka.png", detail: "mapa-personal.png", action: "openPersonalAchievements" },
-    "plavaren": { name: "História Spokojnosti", x: 89.9, y: 62.0, doorX: 86.9, doorY: 63.4, size: 162, img: "buda_plavaren.png", detail: "mapa-happy.png", action: "openHappinessOverview" },
+    "plavaren": { name: "História Spokojnosti", x: 90.9, y: 62.3, doorX: 86.9, doorY: 63.4, size: 162, img: "buda_plavaren.png", detail: "mapa-happy.png", action: "openHappinessOverview" },
     "kostol": { name: "Kalendár", x: 19.5, y: 28.0, doorX: 19.5, doorY: 28.0, size: 95, img: "buda_kostol.png", detail: "mapa-kostol.png", action: "openGameCalendar" },
 
 
