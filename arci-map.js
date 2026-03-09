@@ -3,7 +3,7 @@
 // ==========================================
 
 const buildingsData = {
-	    "jamka": { name: "Turnaj", x: 2.2, y: 59.2, doorX: 1.3, doorY: 61.2, size: 75, img: "buda_turnaj.png", detail: "mapa-turnaj.png", action: "openScannerModal" },
+	    "jamka": { name: "Turnaj", x: 2.2, y: 61.2, doorX: 1.3, doorY: 61.2, size: 35, img: "buda_turnaj.png", detail: "mapa-turnaj.png", action: "openScannerModal" },
 
     "udrzba": { name: "Údržba", x: 8.5, y: 42.0, doorX: 8.5, doorY: 42.0, size: 75, img: "buda_udrzba.png", detail: "mapa-udrzba.png", action: "openSettings" },
     "bankomat": { name: "Bankomat", x: 29.5, y: 69.4, doorX: 30.4, doorY: 70.7, size: 30, img: "buda_bankomat.png", detail: "mapa-balance.png", action: "openMyPlayer" },
