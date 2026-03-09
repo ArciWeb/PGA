@@ -549,7 +549,7 @@ function closeBuildingDetail() {
 
 const roadNodes = [
     { id: 1, x: 24.9, y: 32.7 },
-    { id: 2, x: 53.3, y: 41.6 },
+    { id: 2, x: 50.3, y: 39.6 },
     { id: 3, x: 11.1, y: 72 },
     { id: 4, x: 85.4, y: 49.9 },
     { id: 17, x: 55, y: 40.8 },
