@@ -394,9 +394,15 @@ function renderBuildings() {
         hitbox.style.position = 'absolute';
         hitbox.style.left = b.x + '%';
         hitbox.style.top = b.y + '%'; 
-        hitbox.style.width = (widthPx * 0.25) + 'px'; 
-        hitbox.style.height = '40px';
+        
+        // Zväčšenie hitboxu:
+        // Nastavíme šírku na 85% celkovej veľkosti budovy (aby sa susedné budovy neprekryli)
+        hitbox.style.width = (widthPx * 0.85) + 'px'; 
+        // Výšku nastavíme dynamicky podľa šírky budovy (napríklad 70% zo šírky), aby veľké budovy mali aj vysoký hitbox
+        hitbox.style.height = (widthPx * 0.70) + 'px'; 
+        
         hitbox.style.transform = 'translate(-50%, -100%)';
+
         hitbox.style.cursor = 'pointer';
         // OPRAVA: Hitbox musí byť vždy nad obrázkom budovy aj postavami
         hitbox.style.zIndex = Math.floor(b.y) + 20; 
