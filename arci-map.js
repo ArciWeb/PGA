@@ -148,6 +148,8 @@ function startArciCityGame() {
         
         <button onclick="goToNextBuilding(event)" style="position:fixed; bottom:20px; right:20px; z-index:940; width:60px; height:60px; background: #333; color: gold; border: 3px solid gold; border-radius: 50%; font-weight: 900; font-size: 1.8rem; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 0 20px rgba(0,0,0,0.8);">➡️</button>
 
+        <button onclick="goToPreviousBuilding(event)" style="position:fixed; bottom:20px; left:20px; z-index:940; width:60px; height:60px; background: #333; color: gold; border: 3px solid gold; border-radius: 50%; font-weight: 900; font-size: 1.8rem; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 0 20px rgba(0,0,0,0.8);">⬅️</button>
+
         <div id="settingsNavMenu" style="display:none; position:fixed; top:55px; right:145px; width: 220px; background: rgba(0,0,0,0.95); border: 2px solid gold; border-radius: 10px; z-index: 945; flex-direction: column; padding: 15px; box-shadow: 0 0 20px rgba(0,0,0,0.8); color: white; font-family: sans-serif;">
             <h3 style="margin-top: 0; color: gold; text-align: center; border-bottom: 1px solid rgba(255,215,0,0.3); padding-bottom: 10px;">Nastavenia</h3>
             
@@ -218,6 +220,23 @@ function goToNextBuilding(event) {
     const nextBuildingKey = keys[currentBuildingIndex];
     moveToBuilding(nextBuildingKey);
 }
+
+function goToPreviousBuilding(event) {
+    if (event) event.stopPropagation();
+    
+    const keys = Object.keys(buildingsData); 
+    if (keys.length === 0) return;
+
+    if (currentBuildingIndex <= 0) {
+        currentBuildingIndex = keys.length - 1;
+    } else {
+        currentBuildingIndex--; 
+    }
+
+    const prevBuildingKey = keys[currentBuildingIndex];
+    moveToBuilding(prevBuildingKey);
+}
+
 
 function toggleSettingsMenu(event) {
     if (event) event.stopPropagation();
