@@ -12,7 +12,7 @@ const buildingsData = {
     "cards": { name: "ArciCards", x: 59.2, y: 80.5, doorX: 59.2, doorY: 80.5, size: 95, img: "buda_arcicards.png", detail: "mapa-arcicards.png", action: "openArciCardsHub" },
     "vila": { name: "Životný Štýl", x: 53.0, y: 53.5, doorX: 53.0, doorY: 53.5, size: 120, img: "buda_vila.png", detail: "mapa-villa.png", action: "openLifestyleManager" },
     "illegal": { name: "Podsvetie", x: 94.7, y: 76.9, doorX: 94.7, doorY: 76.9, size: 85, img: "buda_illegal.png", detail: "mapa-illegal.png", action: "openArciUnderground" }, 
-    "chillspot": { name: "Chill Spot", x: 3.0, y: 48.0, doorX: 3.0, doorY: 50.0, size: 110, img: "buda_joint.png", detail: "joint.png", action: "openJointSpot" },
+    "chillspot": { name: "Chill Spot", x: 3.0, y: 52.0, doorX: 3.0, doorY: 50.0, size: 110, img: "buda_joint.png", detail: "joint.png", action: "openJointSpot" },
     "invest": { name: "ArciInvest", x: 39.8, y: 89.6, doorX: 39.8, doorY: 89.6, size: 135, img: "buda_arciinvest.png", detail: "mapa-invest.png", action: "openArciInvest" },
     "casino": { name: "ArciBet Casino", x: 78.5, y: 82.5, doorX: 78.5, doorY: 82.5, size: 105, img: "buda_arcibet.png", detail: "mapa-arcibet.png", action: "openArciCasino" },
     "tip": { name: "ArciTip Stávková", x: 66.7, y: 83.5, doorX: 66.7, doorY: 83.5, size: 95, img: "buda_arcitip.png", detail: "mapa-tip.png", action: "openArciTip" },
@@ -1014,7 +1014,7 @@ function checkNpcStatusAfterDeal(npcObj) {
 
                 if (customerData && customerData.status === 'done') {
                     // Predal si mu, okradol si ho, odmietol si ho... ide preč (na x:80, y:80)
-                    const path = calculateShortestPathGraph(npcObj.x, npcObj.y, 80, 80);
+                    const path = calculateShortestPathGraph(npcObj.x, npcObj.y, 3, 50);
                     moveNPC(npcObj, path, () => {
                         // Zdrží sa 10 sekúnd na x80 y80
                         npcObj.timeout = setTimeout(() => {
