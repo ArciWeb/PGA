@@ -49,1017 +49,935 @@ const buildingsData = {
     "stadion": { name: "Rebríček PGA Cards", x: 22.8, y: 55.5, doorX: 27.6, doorY: 55, size: 240, img: "buda_stadion.png", detail: "mapa-cards.png", action: "showGlobalPlayerCards" }
 };
 
-<style>
-    /* IZOLOVANÉ ŠTÝLY PRE PODSVETIE */
-    #modalUnderground.modal-overlay {
-        display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-        background: rgba(0,0,0,0.9); z-index: 9999; justify-content: center; align-items: center;
-        backdrop-filter: blur(5px);
-    }
-    .ug-content-box {
-        width: 95%; max-width: 700px; background: #050505; border: 2px solid #4834d4;
-        border-radius: 15px; position: relative; color: #fff; display: flex; flex-direction: column;
-        max-height: 90vh; box-shadow: 0 0 50px rgba(72, 52, 212, 0.4);
-    }
-    .ug-header-v2 {
-        padding: 20px; border-bottom: 1px solid #222; display: flex; justify-content: space-between; align-items: center;
-        background: linear-gradient(to right, #000, #130f40); border-radius: 15px 15px 0 0;
-    }
-    .ug-tab-nav {
-        display: flex; background: #111; padding: 5px; gap: 5px; margin: 10px 20px; border-radius: 10px;
-    }
-    .ug-tab-v2 {
-        flex: 1; padding: 12px; border: none; background: transparent; color: #555;
-        font-weight: 900; cursor: pointer; border-radius: 8px; transition: 0.3s; font-size: 0.8rem;
-    }
-    .ug-tab-v2.active { background: #4834d4; color: #fff; }
-    
-    .ug-body { flex: 1; overflow-y: auto; padding: 20px; scrollbar-width: thin; }
-    
-    /* Karty tovaru */
-    .drug-item {
-        background: #111; border: 1px solid #222; border-radius: 12px; padding: 15px;
-        margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center;
-        transition: 0.2s; border-left: 4px solid #4834d4;
-    }
-    .drug-item:hover { border-color: #686de0; background: #161616; }
-    .drug-meta h4 { margin: 0; color: #fff; font-size: 1.1rem; }
-    .drug-meta span { font-size: 0.75rem; color: #666; text-transform: uppercase; }
-    
-    .buy-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
-    .btn-buy-v2 {
-        padding: 6px; border: 1px solid #333; background: #000; color: #aaa;
-        font-size: 0.7rem; cursor: pointer; border-radius: 4px; font-weight: bold;
-    }
-    .btn-buy-v2:hover { background: #4834d4; color: #fff; border-color: #fff; }
+// ==========================================
+// 2. JADRO MOTORU MAPY (Z-Index vrstvy a Zoom)
+// ==========================================
 
-    /* Vyjednávanie */
-    .neg-screen { text-align: center; padding: 20px; animation: ugSlideIn 0.3s ease; }
-    @keyframes ugSlideIn { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-    
-    .patience-container { display: flex; justify-content: center; gap: 8px; margin: 15px 0; }
-    .p-dot { width: 12px; height: 12px; border-radius: 50%; background: #222; border: 1px solid #444; }
-    .p-dot.active { background: #f9ca24; box-shadow: 0 0 10px #f9ca24; }
+let arciScale = 1;
+let isDebugMode = false; // Predvolene je vývojársky režim VYPNUTÝ
 
-    .price-display {
-        font-size: 3rem; font-weight: 900; color: #686de0; margin: 10px 0;
-        text-shadow: 0 0 20px rgba(104, 109, 224, 0.4);
-    }
-    .btn-action {
-        width: 100%; padding: 15px; margin-top: 10px; border: none; border-radius: 10px;
-        font-weight: 900; cursor: pointer; text-transform: uppercase; letter-spacing: 1px;
-    }
+// Nové premenné pre nastavenia (Načítavajú sa z uloženej pamäte, alebo dajú predvolené)
+let speedMultiplier = parseFloat(localStorage.getItem('arciSpeed')) || 0.6;
+let walkOnRoadsOnly = localStorage.getItem('arciRoads') === 'true'; 
+let currentBuildingIndex = -1; // Sleduje, pri ktorej budove hráč naposledy bol
+let directEntry = localStorage.getItem('arciEntry') === 'true'; 
 
-    /* CUSTOM POPUP OKIENKA */
-    #ug-custom-alert-overlay {
-        display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-        background: rgba(0,0,0,0.8); z-index: 10000; justify-content: center; align-items: center;
-        backdrop-filter: blur(3px);
-    }
-    .ug-custom-alert-box {
-        background: #111; border: 2px solid #4834d4; border-radius: 12px; padding: 25px;
-        max-width: 400px; width: 90%; text-align: center; color: #fff;
-        box-shadow: 0 0 30px rgba(72, 52, 212, 0.5); animation: ugPopIn 0.2s ease;
-    }
-    @keyframes ugPopIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-    .ug-custom-alert-title { font-size: 1.2rem; font-weight: 900; margin-bottom: 10px; color: #686de0; }
-    .ug-custom-alert-text { font-size: 0.9rem; color: #ccc; margin-bottom: 20px; white-space: pre-wrap; }
-    .ug-custom-alert-buttons { display: flex; gap: 10px; justify-content: center; }
-    .ug-alert-btn {
-        padding: 10px 20px; border: none; border-radius: 8px; font-weight: bold;
-        cursor: pointer; text-transform: uppercase; transition: 0.2s;
-    }
-    .ug-alert-btn-ok { background: #4834d4; color: #fff; }
-    .ug-alert-btn-ok:hover { background: #686de0; }
-    .ug-alert-btn-cancel { background: #333; color: #aaa; }
-    .ug-alert-btn-cancel:hover { background: #444; color: #fff; }
-    .ug-alert-input {
-        width: 80%; padding: 10px; margin-bottom: 20px; border: 1px solid #444;
-        background: #000; color: #fff; border-radius: 6px; text-align: center; font-size: 1rem;
-    }
-</style>
+// --- KONFIGURÁCIA NPC POSTÁV ---
+// Tu môžeš pridávať nové ID (npc13, npc14...) a nastavovať im vlastnú veľkosť (width)
+const npcConfigs = {
+    "npc1":  { width: 20 },
+    "npc2":  { width: 15 },
+    "npc3":  { width: 18 },
+    "npc4":  { width: 42 },
+    "npc5":  { width: 50 },
+    "npc6":  { width: 45 },
+    "npc7":  { width: 45 },
+    "npc8":  { width: 45 },
+    "npc9":  { width: 25 },
+    "npc10": { width: 25 },
+    "npc11": { width: 45 },
+    "npc12": { width: 22 }
+};
 
-<div id="modalUnderground" class="modal-overlay">
-    <div class="ug-content-box">
-        <div class="ug-header-v2">
-            <div>
-                <h2 style="margin:0; letter-spacing:2px; color:#fff;">ARCI<span style="color:#4834d4;">UNDERGROUND</span></h2>
-                <small id="ug-balance-display" style="color:#2ecc71; font-weight:bold;">Zostatok: 0.00 €</small>
-            </div>
-            <button onclick="closeUgModal()" style="background:#e74c3c; border:1px solid #c0392b; color:#fff; font-size:0.8rem; padding:8px 12px; border-radius:6px; font-weight:900; cursor:pointer; text-transform:uppercase; box-shadow: 0 0 10px rgba(231, 76, 60, 0.4); transition:0.2s;">🚪 Opustiť Ghetto</button>
-        </div>
+let activeNPCs = []; // Sledovanie aktívnych postáv na mape
+const MIN_NPCS = 8;
+const MAX_NPCS = 11;
+const NPC_STAY_DURATION = 10000; // 10 sekúnd státia pri budove
+const occupiedDoors = {}; // OBJEKT: Sleduje počet ľudí pri vchode (kľúč = key budovy, hodnota = počet)
 
-        <div style="display:flex; gap:10px; padding: 0 20px; margin-top:10px;">
-            <div onclick="openBribeMenu()" style="flex:1; background:#111; padding:10px; border-radius:8px; border-bottom: 2px solid #ff4757; cursor:pointer; transition:0.2s;" onmouseover="this.style.background='#222'" onmouseout="this.style.background='#111'" title="Klikni pre podplatenie polície">
-                <div style="display:flex; justify-content:space-between; font-size:0.6rem; color:#ff4757; font-weight:bold;"><span>🚨 POLICE HEAT (Úplatok)</span><span id="txt-ug-heat">0%</span></div>
-                <div style="width:100%; height:4px; background:#222; margin-top:5px;"><div id="bar-ug-heat" style="width:0%; height:100%; background:#ff4757; transition: 0.3s;"></div></div>
-            </div>
-            <div style="flex:1; background:#111; padding:10px; border-radius:8px; border-bottom: 2px solid #2ecc71;">
-                <div style="display:flex; justify-content:space-between; font-size:0.6rem; color:#888;"><span>LOYALTY</span><span id="txt-ug-loy">0%</span></div>
-                <div style="width:100%; height:4px; background:#222; margin-top:5px;"><div id="bar-ug-loy" style="width:0%; height:100%; background:#2ecc71;"></div></div>
-            </div>
-        </div>
-
-        <div class="ug-tab-nav">
-            <button id="ug-btn-market" class="ug-tab-v2 active" onclick="ugSwitch('market')">🛒 ČIERNY TRH</button>
-            <button id="ug-btn-inv" class="ug-tab-v2" onclick="ugSwitch('inv')">📦 SKLAD (FIFO)</button>
-            <button id="ug-btn-deals" class="ug-tab-v2" onclick="ugSwitch('deals')">🤝 OBCHODY</button>
-        </div>
-
-        <div id="ug-body-content" class="ug-body">
-            </div>
-    </div>
-</div>
-
-<div id="ug-custom-alert-overlay">
-    <div class="ug-custom-alert-box">
-        <div id="ug-custom-alert-title" class="ug-custom-alert-title">Oznámenie</div>
-        <div id="ug-custom-alert-text" class="ug-custom-alert-text"></div>
-        <input type="number" id="ug-custom-alert-input" class="ug-alert-input" style="display:none;">
-        <div class="ug-custom-alert-buttons" id="ug-custom-alert-buttons">
-            </div>
-    </div>
-</div>
-
-<script>
-/* --- ENGINE 2.1 (DEGRADATION, TRASH SYSTEM & IN-GAME CALENDAR) --- */
-
-// --- CUSTOM POPUP FUNKCIE ---
-function ugAlert(message, title = "Oznámenie", callback = null) {
-    const overlay = document.getElementById('ug-custom-alert-overlay');
-    document.getElementById('ug-custom-alert-title').innerText = title;
-    document.getElementById('ug-custom-alert-text').innerText = message;
-    document.getElementById('ug-custom-alert-input').style.display = 'none';
-    
-    const btnContainer = document.getElementById('ug-custom-alert-buttons');
-    btnContainer.innerHTML = `<button class="ug-alert-btn ug-alert-btn-ok" onclick="ugCloseAlert(true)">OK</button>`;
-    
-    overlay.style.display = 'flex';
-    overlay.dataset.callbackType = 'alert';
-    window.ugCurrentCallback = callback;
+function getMinScale() {
+    const mapW = 2000;
+    const mapH = 1125;
+    const winW = window.innerWidth;
+    const winH = window.innerHeight;
+    return Math.max(winW / mapW, winH / mapH);
 }
 
-function ugConfirm(message, title = "Potvrdenie", callback) {
-    const overlay = document.getElementById('ug-custom-alert-overlay');
-    document.getElementById('ug-custom-alert-title').innerText = title;
-    document.getElementById('ug-custom-alert-text').innerText = message;
-    document.getElementById('ug-custom-alert-input').style.display = 'none';
+function startArciCityGame() {
+    const container = document.getElementById('arci-city-game-container');
     
-    const btnContainer = document.getElementById('ug-custom-alert-buttons');
-    btnContainer.innerHTML = `
-        <button class="ug-alert-btn ug-alert-btn-cancel" onclick="ugCloseAlert(false)">Zrušiť</button>
-        <button class="ug-alert-btn ug-alert-btn-ok" onclick="ugCloseAlert(true)">Potvrdiť</button>
+    const savedX = localStorage.getItem('arciPlayerX') || "10";
+    const savedY = localStorage.getItem('arciPlayerY') || "40";
+
+    let buildingMenuItems = "";
+    for (let key in buildingsData) {
+        buildingMenuItems += `<div onclick="navigateFromMenu('${key}', event)" style="padding: 12px; color: white; border-bottom: 1px solid rgba(255,215,0,0.3); cursor: pointer; text-align: left; font-weight: bold; font-family: sans-serif; font-size: 0.9rem;">🏢 ${buildingsData[key].name}</div>`;
+    }
+
+    container.style.display = 'block';
+    container.style.position = 'fixed';
+    container.style.top = '0';
+    container.style.left = '0';
+    container.style.width = '100vw';
+    container.style.height = '100vh';
+    container.style.zIndex = '900'; 
+    container.style.background = '#000';
+    container.style.overflow = 'auto'; 
+    container.style.scrollbarWidth = 'none'; 
+    
+    // --- VLOŽENÉ CSS PRE HOJDACIU ANIMÁCIU ---
+    container.innerHTML = `
+        <style>
+            #arci-city-game-container::-webkit-scrollbar { display: none; } 
+            #buildingNavMenu::-webkit-scrollbar { display: none; } 
+            #settingsNavMenu::-webkit-scrollbar { display: none; }
+            
+            /* Animácia hojdania pre všetky chodiace postavy */
+            @keyframes hojdanie {
+                0%   { transform: translate(-50%, -100%) rotate(0deg) translateY(0); }
+                25%  { transform: translate(-50%, -100%) rotate(-5deg) translateY(-5px); }
+                50%  { transform: translate(-50%, -100%) rotate(0deg) translateY(0); }
+                75%  { transform: translate(-50%, -100%) rotate(5deg) translateY(-5px); }
+                100% { transform: translate(-50%, -100%) rotate(0deg) translateY(0); }
+            }
+            
+            /* Animácia pre chôdzu doľava (pridané zrkadlenie cez scaleX) */
+            @keyframes hojdanie-vlavo {
+                0%   { transform: translate(-50%, -100%) scaleX(-1) rotate(0deg) translateY(0); }
+                25%  { transform: translate(-50%, -100%) scaleX(-1) rotate(-5deg) translateY(-5px); }
+                50%  { transform: translate(-50%, -100%) scaleX(-1) rotate(0deg) translateY(0); }
+                75%  { transform: translate(-50%, -100%) scaleX(-1) rotate(5deg) translateY(-5px); }
+                100% { transform: translate(-50%, -100%) scaleX(-1) rotate(0deg) translateY(0); }
+            }
+
+            .wobble-walk {
+                animation: hojdanie 0.5s infinite linear;
+            }
+            
+            .wobble-walk-left {
+                animation: hojdanie-vlavo 0.5s infinite linear;
+            }
+
+            /* Statické otočenie, ak by postava zastala s pohľadom doľava */
+            .face-left {
+                transform: translate(-50%, -100%) scaleX(-1) !important;
+            }
+            
+            /* Štandardná statická pozícia pre stojacu postavu */
+            .face-right {
+                transform: translate(-50%, -100%) scaleX(1) !important;
+            }
+        </style>
+        
+        <div id="scaleContainer" style="width: 2000px; height: 1125px; transition: width 0.1s ease-out, height 0.1s ease-out;">
+            <div class="map-wrapper" id="mapWrapper" style="position: relative; width: 2000px; height: 1125px; overflow: hidden; transform-origin: 0 0; transition: transform 0.1s ease-out;">
+                <img src="Map_Background.png" class="map-bg" onclick="handleMapClick(event)" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1;">
+                <div id="buildingsLayer"></div>
+                <div id="npcLayer" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: auto;"></div>
+                <div id="debugLayer" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 400;"></div>
+                
+                <img src="panáčik_stoji.png" id="player-character" class="face-right" style="position: absolute; left: ${savedX}%; top: ${savedY}%; width: 45px; z-index: 500; transition: none; pointer-events: none; filter: drop-shadow(0px 5px 5px rgba(0,0,0,0.5));">
+            </div>
+        </div>
+        
+        <div id="buildingDetailLayer" onclick="closeBuildingDetail()" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.85); z-index: 950; flex-direction: column; align-items: center; justify-content: center;">
+            <img id="detailImg" src="" onclick="executeBuildingAction(event)" style="width: 95vw; max-height: 80vh; object-fit: contain; border: 5px solid gold; border-radius: 20px; box-shadow: 0 0 50px gold; cursor: pointer; transition: transform 0.2s;">
+            <div id="buildingActionText" style="color: gold; font-weight: bold; margin-top: 15px; font-size: 1.2rem; text-shadow: 2px 2px #000; background: rgba(0,0,0,0.7); padding: 10px; border-radius: 10px; text-align: center;">
+                👆 KLIKNI NA FOTKU PRE VSTUP
+            </div>
+        </div>
+
+        <div id="miniMapLayer" onclick="closeMiniMap()" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.9); z-index: 960; flex-direction: column; align-items: center; justify-content: center;">
+            <img src="Map_Background_Small.png" style="width: 95vw; max-height: 85vh; object-fit: contain; border: 3px solid gold; border-radius: 15px; box-shadow: 0 0 30px gold;">
+            <div style="color: gold; font-weight: bold; margin-top: 15px; font-size: 1.2rem; text-shadow: 2px 2px #000; background: rgba(0,0,0,0.7); padding: 10px; border-radius: 10px; text-align: center;">
+                👆 KLIKNI KAMKOĽVEK PRE ZATVORENIE MAPY
+            </div>
+        </div>
+
+        <button onclick="toggleSettingsMenu(event)" style="position:fixed; top:15px; right:145px; z-index:940; padding:5px 15px; background: #333; color: gold; border: 3px solid white; border-radius: 30px; font-weight: 900; font-size: 1rem; cursor: pointer; box-shadow: 0 0 15px rgba(0,0,0,0.5);">⚙️</button>
+        <button onclick="toggleBuildingMenu(event)" style="position:fixed; top:15px; right:85px; z-index:940; padding:5px 15px; background: #333; color: gold; border: 3px solid white; border-radius: 30px; font-weight: 900; font-size: 1rem; cursor: pointer; box-shadow: 0 0 15px rgba(0,0,0,0.5);">⋮</button>
+        <button onclick="exitMap()" style="position:fixed; top:15px; right:15px; z-index:940; padding:5px 15px; background: red; color: white; border: 3px solid white; border-radius: 30px; font-weight: 900; font-size: 0.5rem; cursor: pointer; box-shadow: 0 0 15px rgba(0,0,0,0.5);">MENU</button>
+        
+        <button onclick="goToNextBuilding(event)" style="position:fixed; bottom:20px; right:20px; z-index:940; width:60px; height:60px; background: #333; color: gold; border: 3px solid gold; border-radius: 50%; font-weight: 900; font-size: 1.8rem; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 0 20px rgba(0,0,0,0.8);">➡️</button>
+
+        <button onclick="goToPreviousBuilding(event)" style="position:fixed; bottom:20px; left:20px; z-index:940; width:60px; height:60px; background: #333; color: gold; border: 3px solid gold; border-radius: 50%; font-weight: 900; font-size: 1.8rem; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 0 20px rgba(0,0,0,0.8);">⬅️</button>
+
+        <div id="settingsNavMenu" style="display:none; position:fixed; top:55px; right:145px; width: 220px; background: rgba(0,0,0,0.95); border: 2px solid gold; border-radius: 10px; z-index: 945; flex-direction: column; padding: 15px; box-shadow: 0 0 20px rgba(0,0,0,0.8); color: white; font-family: sans-serif;">
+            <h3 style="margin-top: 0; color: gold; text-align: center; border-bottom: 1px solid rgba(255,215,0,0.3); padding-bottom: 10px;">Nastavenia</h3>
+            
+            <label style="font-size: 0.85rem; font-weight: bold; margin-bottom: 5px;">Rýchlosť chôdze:</label>
+            <select onchange="changeMovementSpeed(this.value)" style="width: 100%; margin-bottom: 15px; padding: 5px; background: #222; color: white; border: 1px solid gold; border-radius: 5px;">
+                <option value="1.2" ${speedMultiplier === 1.2 ? 'selected' : ''}>Pomaly</option>
+                <option value="0.6" ${speedMultiplier === 0.6 ? 'selected' : ''}>Stredne</option>
+                <option value="0.25" ${speedMultiplier === 0.25 ? 'selected' : ''}>Rýchlo</option>
+                <option value="0.08" ${speedMultiplier === 0.08 ? 'selected' : ''}>Piker (Super rýchlo)</option>
+            </select>
+
+            <label style="font-size: 0.85rem; font-weight: bold; margin-bottom: 5px;">Kliknutie na mapu:</label>
+            <select onchange="changeMovementMode(this.value)" style="width: 100%; margin-bottom: 15px; padding: 5px; background: #222; color: white; border: 1px solid gold; border-radius: 5px;">
+                <option value="free" ${!walkOnRoadsOnly ? 'selected' : ''}>Voľný pohyb</option>
+                <option value="roads" ${walkOnRoadsOnly ? 'selected' : ''}>Len po cestičkách</option>
+            </select>
+
+            <label style="font-size: 0.85rem; font-weight: bold; margin-bottom: 5px;">Vstup do budovy:</label>
+            <select onchange="changeEntryMode(this.value)" style="width: 100%; margin-bottom: 15px; padding: 5px; background: #222; color: white; border: 1px solid gold; border-radius: 5px;">
+                <option value="click" ${!directEntry ? 'selected' : ''}>Kliknúť na fotku</option>
+                <option value="direct" ${directEntry ? 'selected' : ''}>Rovno vstúpiť</option>
+            </select>
+
+            <button onclick="openMiniMap(event)" style="width: 100%; padding: 8px; background: gold; color: black; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; margin-top: 5px;">Zobraziť Mapu</button>
+        </div>
+
+        <div id="buildingNavMenu" style="display:none; position:fixed; top:55px; right:85px; width: 220px; max-height: 70vh; background: rgba(0,0,0,0.95); border: 2px solid gold; border-radius: 10px; z-index: 945; overflow-y: auto; box-shadow: 0 0 20px rgba(0,0,0,0.8); flex-direction: column; scrollbar-width: none;">
+            ${buildingMenuItems}
+        </div>
     `;
+
+    renderBuildings();
+    drawDebugWaypoints();
     
-    overlay.style.display = 'flex';
-    overlay.dataset.callbackType = 'confirm';
-    window.ugCurrentCallback = callback;
-}
-
-function ugPrompt(message, title = "Zadaj hodnotu", callback) {
-    const overlay = document.getElementById('ug-custom-alert-overlay');
-    document.getElementById('ug-custom-alert-title').innerText = title;
-    document.getElementById('ug-custom-alert-text').innerText = message;
+    const mapWrapper = document.getElementById('mapWrapper');
+    const scaleContainer = document.getElementById('scaleContainer');
     
-    const input = document.getElementById('ug-custom-alert-input');
-    input.style.display = 'block';
-    input.value = '';
-    input.focus();
-
-    const btnContainer = document.getElementById('ug-custom-alert-buttons');
-    btnContainer.innerHTML = `
-        <button class="ug-alert-btn ug-alert-btn-cancel" onclick="ugCloseAlert(null)">Zrušiť</button>
-        <button class="ug-alert-btn ug-alert-btn-ok" onclick="ugCloseAlert(document.getElementById('ug-custom-alert-input').value)">OK</button>
-    `;
+    arciScale = Math.max(getMinScale(), 1);
+    mapWrapper.style.transform = `scale(${arciScale})`;
     
-    overlay.style.display = 'flex';
-    overlay.dataset.callbackType = 'prompt';
-    window.ugCurrentCallback = callback;
+    scaleContainer.style.width = (2000 * arciScale) + 'px';
+    scaleContainer.style.height = (1125 * arciScale) + 'px';
+    
+    initArciPinchZoom(mapWrapper);
+    
+    setTimeout(() => { 
+        centerCamera(); 
+        initNPCSystem(); // Spustenie NPC po načítaní mapy
+    }, 150);
 }
 
-function ugCloseAlert(result) {
-    document.getElementById('ug-custom-alert-overlay').style.display = 'none';
-    if (typeof window.ugCurrentCallback === 'function') {
-        window.ugCurrentCallback(result);
+// ==========================================
+// FUNKCIE PRE NASTAVENIA, MAPU A ĎALŠIU BUDOVU
+// ==========================================
+
+function goToNextBuilding(event) {
+    if (event) event.stopPropagation();
+    
+    const keys = Object.keys(buildingsData); 
+    if (keys.length === 0) return;
+
+    currentBuildingIndex++; 
+    
+    if (currentBuildingIndex >= keys.length) {
+        currentBuildingIndex = 0;
     }
-    window.ugCurrentCallback = null;
+
+    const nextBuildingKey = keys[currentBuildingIndex];
+    moveToBuilding(nextBuildingKey);
 }
 
-// --- POMOCNÉ FUNKCIE PRE HERNÝ ČAS ---
-function ugGetLatestGameFile() {
-    if (typeof db !== 'undefined' && db.files && db.files.length > 0) {
-        const sortedFiles = [...db.files].sort((a, b) => a.timestamp - b.timestamp);
-        return sortedFiles[sortedFiles.length - 1];
+function goToPreviousBuilding(event) {
+    if (event) event.stopPropagation();
+    
+    const keys = Object.keys(buildingsData); 
+    if (keys.length === 0) return;
+
+    if (currentBuildingIndex <= 0) {
+        currentBuildingIndex = keys.length - 1;
+    } else {
+        currentBuildingIndex--; 
     }
-    return null;
+
+    const prevBuildingKey = keys[currentBuildingIndex];
+    moveToBuilding(prevBuildingKey);
 }
 
-function ugGetCurrentTime() {
-    const file = ugGetLatestGameFile();
-    if (file && typeof getTournamentDateObj === 'function') {
-        return getTournamentDateObj(file.season, file.eventName).getTime();
+
+function toggleSettingsMenu(event) {
+    if (event) event.stopPropagation();
+    const sMenu = document.getElementById('settingsNavMenu');
+    const bMenu = document.getElementById('buildingNavMenu');
+    if (sMenu) {
+        if (sMenu.style.display === 'none') {
+            sMenu.style.display = 'flex';
+            if (bMenu) bMenu.style.display = 'none'; 
+        } else {
+            sMenu.style.display = 'none';
+        }
     }
-    return Date.now();
 }
 
-function ugGetCurrentDateString() {
-    const file = ugGetLatestGameFile();
-    if (file && typeof getTournamentDate === 'function') {
-        return getTournamentDate(file.season, file.eventName);
+function changeMovementSpeed(val) {
+    speedMultiplier = parseFloat(val);
+    localStorage.setItem('arciSpeed', speedMultiplier); 
+}
+
+function changeMovementMode(val) {
+    walkOnRoadsOnly = (val === 'roads');
+    localStorage.setItem('arciRoads', walkOnRoadsOnly); 
+}
+
+function changeEntryMode(val) {
+    directEntry = (val === 'direct');
+    localStorage.setItem('arciEntry', directEntry); 
+}
+
+function openMiniMap(event) {
+    if (event) event.stopPropagation();
+    const layer = document.getElementById('miniMapLayer');
+    const sMenu = document.getElementById('settingsNavMenu');
+    if (layer) layer.style.display = 'flex';
+    if (sMenu) sMenu.style.display = 'none'; 
+}
+
+function closeMiniMap() {
+    const layer = document.getElementById('miniMapLayer');
+    if (layer) layer.style.display = 'none';
+}
+
+// ==========================================
+// FUNKCIE PRE ROZBAĽOVACIE MENU BUDOV
+// ==========================================
+
+function toggleBuildingMenu(event) {
+    if (event) event.stopPropagation();
+    const bMenu = document.getElementById('buildingNavMenu');
+    const sMenu = document.getElementById('settingsNavMenu');
+    if (bMenu) {
+        if (bMenu.style.display === 'none') {
+            bMenu.style.display = 'flex';
+            if (sMenu) sMenu.style.display = 'none'; 
+        } else {
+            bMenu.style.display = 'none';
+        }
     }
-    const skMonths = ['januára', 'februára', 'marca', 'apríla', 'mája', 'júna', 'júla', 'augusta', 'septembra', 'októbra', 'novembra', 'decembra'];
-    const d = new Date();
-    return `${d.getDate()}. ${skMonths[d.getMonth()]} ${d.getFullYear()}`;
 }
 
-const DRUGS_CATALOG = [
-    { id: 'jh', name: 'Jack Herer', cat: 'WEED', price: 14, qual: 'High' },
-    { id: 'ww', name: 'Biela Vdova', cat: 'WEED', price: 11, qual: 'Mid' },
-    { id: 'ak', name: 'AK-47', cat: 'WEED', price: 12, qual: 'Mid' },
-    { id: 'og', name: 'OG Kush', cat: 'WEED', price: 16, qual: 'High' },
-    { id: 'nl', name: 'Northern Lights', cat: 'WEED', price: 13, qual: 'High' },
-    { id: 'ah', name: 'Amnesia Haze', cat: 'WEED', price: 15, qual: 'High' },
-    { id: 'sk', name: 'Skunk #1', cat: 'WEED', price: 9, qual: 'Low' },
-    { id: 'ck_col', name: 'Kokaín Kolumbia', cat: 'HARD', price: 95, qual: 'Elite' },
-    { id: 'ck_bol', name: 'Kokaín Bolívia', cat: 'HARD', price: 80, qual: 'High' },
-    { id: 'md_blue', name: 'MDMA Punisher', cat: 'PILLS', price: 28, qual: 'High' },
-    { id: 'md_pink', name: 'MDMA Ferrari', cat: 'PILLS', price: 22, qual: 'Mid' },
-    { id: 'meth_cz', name: 'Pervitín (Czech)', cat: 'HARD', price: 45, qual: 'High' },
-    { id: 'lsd_hof', name: 'LSD Hoffman', cat: 'PSY', price: 35, qual: 'Epická' },
-    { id: 'her_br', name: 'Heroín Brown', cat: 'HARD', price: 60, qual: 'Mid' }
+function navigateFromMenu(key, event) {
+    if (event) event.stopPropagation();
+    const menu = document.getElementById('buildingNavMenu');
+    if (menu) menu.style.display = 'none';
+    
+    moveToBuilding(key);
+}
+
+function initArciPinchZoom(el) {
+    let initialDist = 0;
+    const scaleContainer = document.getElementById('scaleContainer');
+
+    el.addEventListener('touchstart', e => {
+        if (e.touches.length === 2) {
+            initialDist = Math.hypot(e.touches[0].pageX - e.touches[1].pageX, e.touches[0].pageY - e.touches[1].pageY);
+        }
+    }, {passive: false});
+
+    el.addEventListener('touchmove', e => {
+        if (e.touches.length === 2) {
+            e.preventDefault();
+            const dist = Math.hypot(e.touches[0].pageX - e.touches[1].pageX, e.touches[0].pageY - e.touches[1].pageY);
+            const zoom = dist / initialDist;
+            
+            const minScale = getMinScale();
+            
+            arciScale = Math.min(Math.max(minScale, arciScale * zoom), 3);
+            el.style.transform = `scale(${arciScale})`;
+            
+            scaleContainer.style.width = (2000 * arciScale) + 'px';
+            scaleContainer.style.height = (1125 * arciScale) + 'px';
+            
+            initialDist = dist;
+        }
+    }, {passive: false});
+}
+
+function exitMap() {
+    const container = document.getElementById('arci-city-game-container');
+    container.style.display = 'none';
+    container.innerHTML = ""; 
+    isTrackingCamera = false; 
+    clearTimeout(currentMovementTimeout);
+    isMoving = false;
+    
+    // Vyčistenie NPC pri ukončení
+    activeNPCs.forEach(npc => {
+        if(npc.timeout) clearTimeout(npc.timeout);
+    });
+    activeNPCs = [];
+}
+
+// ==========================================
+// 3. OTVORENIE HRY BEZ ZATVORENIA MAPY!
+// ==========================================
+
+function executeBuildingAction(event) {
+    if (event) event.stopPropagation(); 
+    
+    if (window.currentMapAction) {
+        const action = window.currentMapAction;
+        try {
+            if (action.startsWith('showRankTable_')) {
+                const rankType = action.split('_')[1]; 
+                if (typeof window.showRankTable === 'function') {
+                    window.showRankTable(rankType);
+                } else {
+                    console.error("Tabuľka nenájdená!");
+                }
+            } 
+            else {
+                if (typeof window[action] === 'function') {
+                    window[action]();
+                } else {
+                    console.error("Akcia " + action + " nebola nájdená!");
+                }
+            }
+        } catch(e) { 
+            console.error("Chyba pri spúšťaní akcie: ", e); 
+        }
+    }
+}
+
+// ==========================================
+// 4. POHYB, VYKRESLOVANIE A DYNAMICKÝ DEBUG MÓD
+// ==========================================
+
+window.arciDebug = function() {
+    isDebugMode = !isDebugMode;
+    console.log(`🛠️ Režim ladenia bol ${isDebugMode ? 'ZAPNUTÝ' : 'VYPNUTÝ'}`);
+    renderBuildings();
+    drawDebugWaypoints();
+};
+
+window.addEventListener('keydown', (e) => {
+    if (e.shiftKey && e.key.toLowerCase() === 'd') {
+        window.arciDebug();
+    }
+});
+
+function renderBuildings() {
+    const layer = document.getElementById('buildingsLayer');
+    if(!layer) return;
+    
+    layer.innerHTML = "";
+    
+    for (let key in buildingsData) {
+        const b = buildingsData[key];
+        const sizePercent = b.size !== undefined ? b.size : 100;
+        const widthPx = 180 * (sizePercent / 100);
+
+        const hitbox = document.createElement('div');
+        hitbox.style.position = 'absolute';
+        hitbox.style.left = b.x + '%';
+        hitbox.style.top = b.y + '%'; 
+        
+        hitbox.style.width = (widthPx * 0.85) + 'px'; 
+        hitbox.style.height = (widthPx * 0.70) + 'px'; 
+        
+        hitbox.style.transform = 'translate(-50%, -100%)';
+
+        hitbox.style.cursor = 'pointer';
+        hitbox.style.zIndex = Math.floor(b.y) + 20; 
+        
+        hitbox.onclick = (e) => { 
+            e.stopPropagation(); 
+            if (isDebugMode) {
+                console.log(`🏢 Budova: ${b.name} | Súradnice: x: ${b.x.toFixed(1)}, y: ${b.y.toFixed(1)}`);
+            } else {
+                moveToBuilding(key);
+            }
+        };
+
+        const img = document.createElement('img');
+        img.style.position = 'absolute';
+        img.style.left = b.x + '%'; 
+        img.style.top = b.y + '%';
+        img.style.transform = 'translate(-50%, -100%)';
+        img.style.width = widthPx + 'px';
+        img.style.maxWidth = 'none'; 
+        img.style.zIndex = Math.floor(b.y); 
+        img.style.pointerEvents = 'none'; 
+
+        if (isDebugMode) {
+            img.src = ""; 
+            img.alt = `🏢 ${b.name}`; 
+            img.style.border = "1px solid red";
+            img.style.background = "rgba(0,0,0,0.6)";
+            img.style.color = "white";
+            img.style.padding = "5px";
+            img.style.fontSize = "12px";
+            
+            hitbox.style.border = '2px solid lime';
+            hitbox.style.background = 'rgba(0, 255, 0, 0.4)';
+        } else {
+            img.src = b.img; 
+            img.style.filter = 'drop-shadow(2px 2px 5px rgba(0,0,0,0.5))';
+            img.alt = "";
+            hitbox.style.border = 'none';
+            hitbox.style.background = 'transparent';
+        }
+        
+        layer.appendChild(img);
+        layer.appendChild(hitbox);
+    }
+}
+
+function handleMapClick(e) {
+    const bMenu = document.getElementById('buildingNavMenu');
+    const sMenu = document.getElementById('settingsNavMenu');
+    if (bMenu) bMenu.style.display = 'none';
+    if (sMenu) sMenu.style.display = 'none';
+
+    const wrapper = document.getElementById('mapWrapper');
+    const rect = wrapper.getBoundingClientRect();
+    
+    const x = ((e.clientX - rect.left) / rect.width) * 100;
+    const y = ((e.clientY - rect.top) / rect.height) * 100;
+    
+    if (walkOnRoadsOnly) {
+        navigatePlayerViaRoads(x, y);
+    } else {
+        navigatePlayerDirectly(x, y);
+    }
+}
+
+let isTrackingCamera = false;
+let trackEndTime = 0;
+
+function movePlayerStep(x, y, timeInSeconds) {
+    const player = document.getElementById('player-character');
+    if(!player) return;
+    
+    player.style.transition = `left ${timeInSeconds}s linear, top ${timeInSeconds}s linear`;
+    player.style.left = x + '%'; 
+    player.style.top = y + '%';
+    player.style.zIndex = Math.floor(y) + 1; 
+    
+    localStorage.setItem('arciPlayerX', x); 
+    localStorage.setItem('arciPlayerY', y);
+    
+    trackEndTime = Date.now() + (timeInSeconds * 1000) + 500;
+    if (!isTrackingCamera) {
+        isTrackingCamera = true;
+        requestAnimationFrame(trackCameraLoop);
+    }
+}
+
+function trackCameraLoop() {
+    if (Date.now() > trackEndTime) {
+        isTrackingCamera = false;
+        return;
+    }
+    centerCamera();
+    requestAnimationFrame(trackCameraLoop);
+}
+
+function centerCamera() {
+    const player = document.getElementById('player-character');
+    const container = document.getElementById('arci-city-game-container');
+    
+    if(player && container) {
+        const pRect = player.getBoundingClientRect();
+        const cRect = container.getBoundingClientRect();
+        
+        container.scrollLeft += (pRect.left + pRect.width / 2) - (cRect.left + cRect.width / 2);
+        container.scrollTop += (pRect.top + pRect.height / 2) - (cRect.top + cRect.height / 2);
+    }
+}
+
+function moveToBuilding(key) {
+    currentBuildingIndex = Object.keys(buildingsData).indexOf(key); 
+    
+    const b = buildingsData[key];
+    const targetX = b.doorX !== undefined ? b.doorX : b.x;
+    const targetY = b.doorY !== undefined ? b.doorY : b.y;
+
+    navigatePlayerViaRoads(targetX, targetY, () => {
+        if (directEntry) {
+            window.currentMapAction = b.action;
+            executeBuildingAction(null); 
+        } else {
+            showBuildingDetail(b); 
+        }
+    });
+}
+
+function showBuildingDetail(b) {
+    const layer = document.getElementById('buildingDetailLayer');
+    const img = document.getElementById('detailImg');
+    const textLayer = document.getElementById('buildingActionText'); 
+    
+    if(!layer || !img || !textLayer) return;
+    
+    img.src = b.detail;
+    textLayer.innerText = `👆 KLIKNI NA FOTKU PRE VSTUP DO ${b.name.toUpperCase()}`;
+    window.currentMapAction = b.action; 
+    layer.style.display = 'flex'; 
+}
+
+function closeBuildingDetail() {
+    const layer = document.getElementById('buildingDetailLayer');
+    if(layer) layer.style.display = 'none';
+}
+
+// ==========================================
+// 5. OBMEDZENÝ POHYB POSTAVIČKY (WAYPOINTY)
+// ==========================================
+
+const roadNodes = [
+    { id: 1, x: 24.9, y: 32.7 },
+    { id: 2, x: 50.3, y: 39.6 },
+    { id: 3, x: 11.1, y: 72 },
+    { id: 4, x: 85.4, y: 49.9 },
+    { id: 17, x: 55, y: 40.8 },
+    { id: 18, x: 66.9, y: 44.9 },
+    { id: 19, x: 79.9, y: 47.0 },
+    { id: 21, x: 93.2, y: 50.3 },
+    { id: 22, x: 80.4, y: 58.9 },
+    { id: 23, x: 65.9, y: 63.3 },
+    { id: 24, x: 48.9, y: 55 },
+    { id: 25, x: 36.8, y: 66.6 },
+    { id: 26, x: 28.4, y: 58.3 },
+    { id: 27, x: 33.5, y: 90.3 },
+    { id: 28, x: 56.5, y: 82.7 },
+    { id: 29, x: 65.3, y: 86.9 },
+    { id: 30, x: 72.6, y: 87 },
+    { id: 31, x: 76, y: 82.6 },
+    { id: 32, x: 5.3, y: 67.6 },
+    { id: 33, x: 36.4, y: 36.9 },
+    { id: 34, x: 27, y: 29.5 },
+    { id: 35, x: 29.6, y: 72.8 },
+    { id: 36, x: 45, y: 85.7 },
+    { id: 37, x: 6.7, y: 99.7 }, // Spawn point pre npc
+    { id: 5, x: 8.6, y: 44.6 },
+    { id: 6, x: 45, y: 53 },
+    { id: 7, x: 59.1, y: 59.6 },
+    { id: 8, x: 76.2, y: 67.4 },
+    { id: 9, x: 86.7, y: 73.4 },
+    { id: 15, x: 81.7, y: 85.5 },
+    { id: 16, x: 93.5, y: 80.1 },
+    { id: 10, x: 22.9, y: 92.6 },
+    { id: 11, x: 24, y: 82.7 },
+    { id: 12, x: 41.8, y: 95 },
+    { id: 13, x: 51.9, y: 80.8 },
+    { id: 14, x: 77.9, y: 91.8 }
 ];
 
-// --- NOVÉ POMOCNÉ FUNKCIE PRE ROZPOZNANIE MAP ZÁKAZNÍKOV ---
-function ugGetCustomer(idStr) {
-    if (String(idStr).startsWith('map_')) {
-        return appState.underground.mapCustomers[idStr];
-    }
-    return appState.underground.customers[parseInt(idStr)];
-}
+const roadEdges = [
+    [1, 2], [2, 4], [3, 5],[1, 5], 
+    [6, 7], [7, 8], [8, 9],
+    [10, 11], [11, 12], [12, 13], [13, 14],
+    [14,15], [9,15], [15,16], [19,17], [19,18], [19,4], [19,2],
+    [21,19], [21,17], [21,18], [21,2], [21,4], [17,18], [17,4], [17,2],
+    [18,2], [18,4],
+    [6,25], [11,25], [26,25], [26,3],
+    [22,4], [22,8], [24,6], [24,7],
+    [27,12], [27,11], [23,7], [23,8],
+    [29,30], [13,28], [13,29], [13,30],
+    [30,14], [29,14], [28,29], [28,30], [28,14],[37,11],
+    [32,3],[33,1],[33,2],[34,1],[11,35], [25,35], [36,12],[36,13],
+    [2, 6], [6, 11],[31,30],[31,15],
+    [9, 14], [3, 11], [7, 13]
+];
 
-function ugMarkDoneOrRemove(idStr) {
-    if (String(idStr).startsWith('map_')) {
-        appState.underground.mapCustomers[idStr].status = 'done';
-    } else {
-        appState.underground.customers.splice(parseInt(idStr), 1);
-    }
-}
-
-function ugExitNeg(idStr) {
-    if (String(idStr).startsWith('map_')) {
-        closeUgModal(); // NPC na mape -> zatvoríme okno a vrátime sa k mape
-    } else {
-        ugSwitch('deals'); // Podsvetie -> vrátime sa do zoznamu ponúk
-    }
-}
-// -------------------------------------------------------------
-
-function initUg() {
-    if (!appState.underground) {
-        appState.underground = {
-            inventory: [],
-            loyalty: 2,
-            heat: 0,
-            customers: [],
-            lastUpdate: 0, 
-            totalSales: 0,
-            soldThisTurn: false,
-            knownCustomers: {}
-        };
-    }
-    if (appState.underground.soldThisTurn === undefined) appState.underground.soldThisTurn = false;
-    if (appState.underground.knownCustomers === undefined) appState.underground.knownCustomers = {};
-    
-    // Nové dáta pre zákazníkov z ulice (NPC na mape)
-    if (appState.underground.mapCustomers === undefined) appState.underground.mapCustomers = {};
-    if (appState.underground.mapLastUpdate === undefined) appState.underground.mapLastUpdate = 0;
-}
-
-// --- POLICAJNÁ RAZIA A ÚPLATKY ---
-function checkPoliceRaid() {
-    const ug = appState.underground;
-    if (ug.heat >= 100) {
-        ugAlert("🚨 POLICAJNÁ RAZIA! 🚨\n\nSkoro ťa chytili, ale stihol si všetok tovar spláchnuť do záchoda. Tvoj heat je teraz 0, ale tvoja lojalita padla na 0, pretože zákazníci ti prestali veriť a ušli.", "Zásah polície");
-        
-        if (!appState.personalStats) appState.personalStats = {};
-        let totalTrashed = 0;
-        ug.inventory.forEach(i => totalTrashed += i.amt);
-        
-        if (totalTrashed > 0) {
-            appState.personalStats.drugsTrashedTimes = (appState.personalStats.drugsTrashedTimes || 0) + 1;
-            appState.personalStats.drugsTrashedGrams = (appState.personalStats.drugsTrashedGrams || 0) + totalTrashed;
-            appState.personalStats.inventoryEmptied = 1;
-        }
-
-        ug.inventory = [];
-        ug.heat = 0;
-        ug.loyalty = 0;
-        ug.customers = []; // Utečú podsvetie
-        for (let k in ug.mapCustomers) ug.mapCustomers[k].status = 'done'; // Utečú aj z ulice
-        
-        ugRefreshStats();
-        ugSwitch('inv'); 
-        if(typeof saveAuto === 'function') saveAuto();
-        return true; 
-    }
-    return false; 
-}
-
-window.openBribeMenu = function() {
-    if (appState.underground.heat <= 0) {
-        ugAlert("Polícia o tebe momentálne nevie. Nie je dôvod platiť úplatky.", "Čistý štít");
+function drawDebugWaypoints() {
+    const layer = document.getElementById('debugLayer');
+    if (!layer) return;
+    if (!isDebugMode) {
+        layer.innerHTML = "";
         return;
     }
-
-    let html = `
-        <div class="modal-header" style="background: linear-gradient(90deg, #111, #ff4757); border-bottom: 2px solid #ff0000;">
-            <h2>🚔 Podplatenie Polície</h2>
-            <button class="close-btn" onclick="closeTopModal()">&times;</button>
-        </div>
-        <div class="modal-body" style="background: #0a0a0a; padding: 20px; text-align: center;">
-            <p style="color: #ccc; margin-bottom: 15px;">Máš aktívny Heat (<span style="color:#ff4757; font-weight:bold;">${Math.floor(appState.underground.heat)}%</span>). Ak dosiahne 100%, prebehne razia a prídeš o všetok tovar aj lojalitu zákazníkov.</p>
-            <p style="color: #fff; margin-bottom: 20px;">Koľko chceš zaplatiť skorumpovaným policajtom za vymazanie záznamov?</p>
-            
-            <div style="display:flex; flex-direction: column; gap: 10px; max-width: 400px; margin: 0 auto;">
-                <button onclick="payBribe(100, 10)" style="background: #2c3e50; color:#fff; padding:12px; border:1px solid #34495e; border-radius:8px; cursor:pointer; font-weight:bold; transition:0.2s;" onmouseover="this.style.background='#34495e'" onmouseout="this.style.background='#2c3e50'">Zaplatiť 100 € (-10% Heat)</button>
-                <button onclick="payBribe(200, 20)" style="background: #2c3e50; color:#fff; padding:12px; border:1px solid #34495e; border-radius:8px; cursor:pointer; font-weight:bold; transition:0.2s;" onmouseover="this.style.background='#34495e'" onmouseout="this.style.background='#2c3e50'">Zaplatiť 200 € (-20% Heat)</button>
-                <button onclick="payBribe(500, 50)" style="background: #2c3e50; color:#fff; padding:12px; border:1px solid #34495e; border-radius:8px; cursor:pointer; font-weight:bold; transition:0.2s;" onmouseover="this.style.background='#34495e'" onmouseout="this.style.background='#2c3e50'">Zaplatiť 500 € (-50% Heat)</button>
-                <button onclick="payBribe(1000, 100)" style="background: #8e44ad; color:#fff; padding:12px; border:1px solid #9b59b6; border-radius:8px; cursor:pointer; font-weight:bold; transition:0.2s;" onmouseover="this.style.background='#9b59b6'" onmouseout="this.style.background='#8e44ad'">Zaplatiť 1000 € (Heat na 0%)</button>
-            </div>
-        </div>
-    `;
-    createModal(html, 'bribe-modal');
-};
-
-window.payBribe = function(cost, heatReduction) {
-    if (appState.betting.balance < cost) {
-        ugAlert("Nemáš dostatok hotovosti na tento úplatok!", "Nedostatok peňazí");
-        return;
-    }
-
-    appState.betting.balance -= cost;
-    appState.underground.heat = Math.max(0, appState.underground.heat - heatReduction);
-    
-    ugLogTransaction(`Úplatok policajtom (-${heatReduction}% Heat)`, -cost);
-
-    if (typeof sfx !== 'undefined' && sfx.cash) sfx.cash.play();
-
-    ugAlert(`Úplatok úspešne odovzdaný. Tvoj Heat klesol o ${heatReduction}%.`, "Úplatok prijatý", () => {
-        ugRefreshStats();
-        closeTopModal();
-    });
-};
-
-function openArciUnderground() {
-    initUg();
-    document.getElementById('modalUnderground').style.display = 'flex';
-    ugRefreshStats();
-    ugSwitch('market');
-}
-
-// --- NOVÉ: FUNKCIA PRE OTVORENIE OBCHODU CEZ NPC NA MAPE ---
-window.openMapNpcNegotiation = function(npcId, npcName) {
-    initUg();
-    const ug = appState.underground;
-    const now = ugGetCurrentTime();
-
-    // Reset NPC zákazníkov na začiatku nového turnaja
-    if (ug.mapLastUpdate !== now) {
-        ug.mapCustomers = {};
-        ug.mapLastUpdate = now;
-    }
-
-    // Ak sme tohto NPC už tento turnaj riešili (okradli, odmietli, predali)
-    if (ug.mapCustomers[npcId] && ug.mapCustomers[npcId].status === 'done') {
-        ugAlert("Tento zákazník od teba pre tento týždeň už nič nepotrebuje.", "Žiadny dopyt");
-        return;
-    }
-
-    // Ak ho vidíme prvýkrát tento turnaj, vygenerujeme mu dopyt
-    if (!ug.mapCustomers[npcId]) {
-        const d = DRUGS_CATALOG[Math.floor(Math.random() * DRUGS_CATALOG.length)];
-        ug.mapCustomers[npcId] = {
-            name: npcName || "Zákazník z ulice",
-            baseName: npcName || "Zákazník z ulice",
-            drugId: d.id,
-            drugName: d.name,
-            amt: Math.floor(Math.random() * 6) + 1,
-            offer: d.price * (1.1 + (Math.random() * 0.2)),
-            patience: 3,
-            status: 'active'
-        };
-    }
-
-    document.getElementById('modalUnderground').style.display = 'flex';
-    ugRefreshStats();
-    
-    // Vizuálne prepneme UI na Deals (aj keď sme skryli zoznam)
-    document.querySelectorAll('.ug-tab-v2').forEach(b => b.classList.remove('active'));
-    document.getElementById('ug-btn-deals').classList.add('active');
-    
-    ugStartNeg(npcId); // Ideme rovno do vyjednávania s ID NPC
-};
-// -------------------------------------------------------------
-
-function closeUgModal() {
-    if(typeof saveAuto === 'function') saveAuto();
-    document.getElementById('modalUnderground').style.display = 'none';
-    
-    if (window.isMapActive) {
-        startArciCityGame();
-    }
-}
-
-function ugRefreshStats() {
-    const ug = appState.underground;
-    document.getElementById('ug-balance-display').innerText = `Zostatok: ${appState.betting.balance.toFixed(2)} €`;
-    document.getElementById('txt-ug-heat').innerText = Math.floor(ug.heat) + '%';
-    document.getElementById('bar-ug-heat').style.width = ug.heat + '%';
-    document.getElementById('txt-ug-loy').innerText = Math.floor(ug.loyalty) + '%';
-    document.getElementById('bar-ug-loy').style.width = ug.loyalty + '%';
-}
-
-function ugSwitch(tab) {
-    document.querySelectorAll('.ug-tab-v2').forEach(b => b.classList.remove('active'));
-    document.getElementById('ug-btn-' + tab).classList.add('active');
-    const container = document.getElementById('ug-body-content');
-    container.innerHTML = '';
-
-    if (!appState.personalStats) appState.personalStats = {};
-    if (tab === 'market') {
-        appState.personalStats.ugMarketVisits = (appState.personalStats.ugMarketVisits || 0) + 1;
-        ugRenderMarket(container);
-    }
-    if (tab === 'inv') ugRenderInventory(container);
-    if (tab === 'deals') ugRenderDeals(container);
-}
-
-function ugRenderMarket(el) {
-    let html = `<p style="color:#666; font-size:0.75rem; margin-bottom:15px;">VEĽKOOBCHOD: Čím viac kúpiš, tým lepšia cena.</p>`;
-    DRUGS_CATALOG.forEach(d => {
-        html += `
-        <div class="drug-item">
-            <div class="drug-meta">
-                <span>${d.cat}</span>
-                <h4>${d.name}</h4>
-                <small>Základ: ${d.price}€ / g</small>
-            </div>
-            <div class="buy-grid">
-                <button class="btn-buy-v2" onclick="ugBuy('${d.id}', 10)">10g</button>
-                <button class="btn-buy-v2" onclick="ugBuy('${d.id}', 20)">20g</button>
-                <button class="btn-buy-v2" onclick="ugBuy('${d.id}', 50)">50g</button>
-                <button class="btn-buy-v2" onclick="ugBuy('${d.id}', 100)">100g</button>
-            </div>
-        </div>`;
-    });
-    el.innerHTML = html;
-}
-
-function ugBuy(drugId, amt) {
-    const drug = DRUGS_CATALOG.find(d => d.id === drugId);
-    let total = drug.price * amt;
-    if (amt === 20) total *= 0.95;
-    if (amt === 50) total *= 0.90;
-    if (amt === 100) total *= 0.80;
-
-    ugConfirm(`Naozaj chceš nakúpiť ${amt}g drogy ${drug.name} za celkovú sumu ${total.toFixed(2)} €?`, "Nákup od dodávateľa", (confirmed) => {
-        if (!confirmed) return;
-
-        if (appState.betting.balance >= total) {
-            appState.betting.balance -= total;
-            
-            if (!appState.personalStats) appState.personalStats = {};
-            appState.personalStats.drugsBoughtGrams = (appState.personalStats.drugsBoughtGrams || 0) + amt;
-            appState.personalStats.moneySpentOnDrugs = (appState.personalStats.moneySpentOnDrugs || 0) + total;
-            if (amt === 100) appState.personalStats.bulk100Buys = (appState.personalStats.bulk100Buys || 0) + 1;
-
-            appState.underground.inventory.push({
-                id: drug.id,
-                name: drug.name,
-                amt: amt,
-                buyPrice: total / amt,
-                time: ugGetCurrentTime(), 
-                qual: drug.qual
-            });
-            
-            appState.underground.heat = Math.min(100, appState.underground.heat + (amt/40));
-            
-            ugLogTransaction(`Nákup: ${amt}g ${drug.name}`, -total);
-            ugRefreshStats();
-            
-            if (checkPoliceRaid()) return; 
-            
-            ugAlert(`Sklad prijal ${amt}g ${drug.name}.`, "Úspešný nákup", () => {
-                ugSwitch('inv');
-            });
-        } else { 
-            ugAlert("Nedostatok hotovosti!", "Chyba nákupu"); 
+    let svgHTML = `<svg viewBox="0 0 100 100" preserveAspectRatio="none" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; overflow: visible;">`;
+    roadEdges.forEach(edge => {
+        const n1 = roadNodes.find(n => n.id === edge[0]);
+        const n2 = roadNodes.find(n => n.id === edge[1]);
+        if (n1 && n2) {
+            svgHTML += `<line x1="${n1.x}" y1="${n1.y}" x2="${n2.x}" y2="${n2.y}" stroke="rgba(255,0,0,0.8)" stroke-width="0.3" vector-effect="non-scaling-stroke" />`;
         }
     });
-}
-
-function ugRenderInventory(el) {
-    let html = `<h3>Tvoj aktuálny sklad</h3>`;
-    if (appState.underground.inventory.length === 0) {
-        html += `<p style="text-align:center; color:#444; margin-top:40px;">Sklad je prázdny.</p>`;
-    }
-    appState.underground.inventory.forEach((item, index) => {
-        const ageDays = Math.floor((ugGetCurrentTime() - item.time) / (1000 * 60 * 60 * 24));
-        const ageWeeks = Math.floor(ageDays / 7);
-        let currentQuality = Math.max(0, 100 - (ageWeeks * 5)); 
-        let colorHex = '#2ecc71';
-        if(currentQuality < 75) colorHex = '#f1c40f';
-        if(currentQuality < 40) colorHex = '#e67e22';
-        if(currentQuality <= 10) colorHex = '#e74c3c';
-        
-        html += `
-        <div class="drug-item" style="border-left-color: ${colorHex}">
-            <div class="drug-meta">
-                <h4>${item.name} (${item.amt}g)</h4>
-                <small>Stav: <span style="color:${colorHex}; font-weight:bold;">${currentQuality}%</span> | Vek: ${ageWeeks} týžd.</small>
-            </div>
-            <div style="text-align:right">
-                <div style="font-weight:bold; color:#666; margin-bottom:5px;">${item.buyPrice.toFixed(2)}€/g</div>
-                <button onclick="ugTrashItem(${index})" style="background:#e74c3c; border:none; color:#fff; padding:4px 8px; border-radius:4px; font-size:0.7rem; cursor:pointer;">🚽 Spláchnuť</button>
-            </div>
-        </div>`;
+    roadNodes.forEach(node => {
+        svgHTML += `<circle cx="${node.x}" cy="${node.y}" r="0.4" fill="yellow" stroke="red" stroke-width="0.1" vector-effect="non-scaling-stroke" />`;
     });
-    el.innerHTML = html;
-}
-
-function ugTrashItem(index) {
-    ugConfirm('Naozaj chceš tento tovar spláchnuť do záchoda?', "Likvidácia tovaru", (confirmed) => {
-        if(confirmed) {
-            if (!appState.personalStats) appState.personalStats = {};
-            appState.personalStats.drugsTrashedTimes = (appState.personalStats.drugsTrashedTimes || 0) + 1;
-            appState.personalStats.drugsTrashedGrams = (appState.personalStats.drugsTrashedGrams || 0) + appState.underground.inventory[index].amt;
-
-            appState.underground.inventory.splice(index, 1);
-            
-            if (appState.underground.inventory.length === 0) appState.personalStats.inventoryEmptied = 1;
-
-            if(typeof saveAuto === 'function') saveAuto();
-            ugRenderInventory(document.getElementById('ug-body-content'));
-        }
-    });
-}
-
-function ugGenerateName() {
-    const names = ["Adam", "Boris", "Cyril", "Dávid", "Erik", "Filip", "Gabriel", "Hugo", "Ivan", "Jakub", "Karol", "Lukáš", "Martin", "Norbert", "Ondrej", "Patrik", "Richard", "Samuel", "Tomáš", "Viktor", "Zdeno", "Andrej", "Branislav", "Daniel", "Emil", "Igor", "Jozef", "Marek", "Milan","Juraj", "Roman", "Peter"];
-    const initials = "ABCDFGHJKLMNOPRSTVZ";
-    let n = names[Math.floor(Math.random() * names.length)];
-    let i = initials[Math.floor(Math.random() * initials.length)];
-    return n + " " + i + ".";
-}
-
-function ugRenderDeals(el) {
-    const ug = appState.underground;
-    const now = ugGetCurrentTime();
-
-    if (ug.lastUpdate !== now) {
-        if (!ug.soldThisTurn) {
-            ug.heat = Math.max(0, ug.heat - 15); 
-            if (ug.heat === 0) {
-                if (!appState.personalStats) appState.personalStats = {};
-                appState.personalStats.heatCooledToZero = 1;
-            }
-        }
-        
-        ug.soldThisTurn = false; 
-        ug.customers = [];
-        ug.lastUpdate = now;
-        
-        if (!ug.knownCustomers) ug.knownCustomers = {};
-
-        Object.keys(ug.knownCustomers).forEach(name => {
-            if (ug.knownCustomers[name] >= 20) {
-                const d = DRUGS_CATALOG[Math.floor(Math.random() * DRUGS_CATALOG.length)];
-                ug.customers.push({
-                    name: "⭐ " + name,
-                    baseName: name,
-                    drugId: d.id,
-                    drugName: d.name,
-                    amt: Math.floor(Math.random() * 6) + 1,
-                    offer: d.price * (1.1 + (Math.random() * 0.2)),
-                    patience: 3
-                });
-            }
-        });
-        
-        const count = Math.floor(ug.loyalty / 10) + 5; 
-        let nonVips = Object.keys(ug.knownCustomers).filter(n => ug.knownCustomers[n] < 20);
-
-        for (let i = 0; i < count; i++) {
-            let selectedName = "";
-            let attempts = 0;
-            
-            if (nonVips.length > 0 && Math.random() > 0.5) {
-                let rIdx = Math.floor(Math.random() * nonVips.length);
-                selectedName = nonVips[rIdx];
-                nonVips.splice(rIdx, 1); 
-            } else {
-                do {
-                    selectedName = ugGenerateName();
-                    attempts++;
-                } while (ug.customers.find(c => c.baseName === selectedName) && attempts < 50);
-            }
-
-            const d = DRUGS_CATALOG[Math.floor(Math.random() * DRUGS_CATALOG.length)];
-            ug.customers.push({
-                name: selectedName,
-                baseName: selectedName,
-                drugId: d.id,
-                drugName: d.name,
-                amt: Math.floor(Math.random() * 6) + 1,
-                offer: d.price * (1.1 + (Math.random() * 0.2)),
-                patience: 3
-            });
-        }
+    for (let key in buildingsData) {
+        const b = buildingsData[key];
+        svgHTML += `<circle cx="${b.x}" cy="${b.y}" r="0.5" fill="red" stroke="white" stroke-width="0.1" vector-effect="non-scaling-stroke" />`;
+        const doorX = b.doorX !== undefined ? b.doorX : b.x;
+        const doorY = b.doorY !== undefined ? b.doorY : b.y;
+        svgHTML += `<circle cx="${doorX}" cy="${doorY}" r="0.4" fill="lime" stroke="black" stroke-width="0.1" vector-effect="non-scaling-stroke" />`;
     }
-
-    let html = `<h3>Záujemcovia (Aktuálny turnaj)</h3>`;
-    if (ug.customers.length === 0) {
-        html += `<p style="text-align:center; color:#444;">V tomto týždni ťa nikto nezháňa.</p>`;
-    }
-
-    ug.customers.forEach((c, idx) => {
-        let isVIP = c.name.startsWith("⭐");
-        let nameColor = isVIP ? "#f9ca24" : "#fff";
-        let subText = isVIP ? `<span style="color:#f9ca24; font-size:0.65rem;">(VIP Štamgast)</span>` : "";
-
-        html += `
-        <div class="drug-item" ${isVIP ? 'style="border-left-color: #f9ca24; background: #1a1a00;"' : ''}>
-            <div class="drug-meta">
-                <h4 style="color:${nameColor}">${c.name} ${subText}</h4>
-                <small>Dopyt: ${c.amt}g ${c.drugName}</small>
-            </div>
-            <button class="btn-buy-v2" style="background:${isVIP ? '#f9ca24' : '#4834d4'}; color:${isVIP ? '#000' : '#fff'};" onclick="ugStartNeg('${idx}')">OBCHODOVAŤ</button>
-        </div>`;
-    });
-    el.innerHTML = html;
+    svgHTML += `</svg>`;
+    layer.innerHTML = svgHTML;
 }
 
-function ugStartNeg(idx) {
-    const c = ugGetCustomer(idx);
-    const container = document.getElementById('ug-body-content');
+let pathQueue = [];
+let isMoving = false;
+let currentMovementTimeout = null;
+let activeCallback = null;
+
+// --- POMOCNÁ FUNKCIA PRE ANIMÁCIE WOBBLE ---
+function applyWobbleAnimation(element, startX, targetX, isMoving) {
+    if (!element) return;
     
-    let dots = '';
-    for(let i=0; i<3; i++) dots += `<div class="p-dot ${i < c.patience ? 'active' : ''}"></div>`;
-
-    container.innerHTML = `
-    <div class="neg-screen">
-        <h2 style="margin:0;">${c.name}</h2>
-        <p style="color:#666;">Chce kúpiť ${c.amt}g ${c.drugName}</p>
-        <div class="patience-container">${dots}</div>
-        
-        <div class="price-display">${(c.offer * c.amt).toFixed(2)} €</div>
-        <small style="color:#444;">(${(c.offer).toFixed(2)} € / gram)</small>
-
-        <div style="margin-top:30px;">
-            <button class="btn-action" style="background:#2ecc71; color:#000;" onclick="ugAccept('${idx}')">PRIJAŤ OBCHOD</button>
-            <button class="btn-action" style="background:#f9ca24; color:#000;" onclick="ugRaise('${idx}')">SKÚSIŤ VYŠŠIU CENU (+10%)</button>
-            <button class="btn-action" style="background:#9b59b6; color:#fff;" onclick="ugOfferAlt('${idx}')">PONÚKNUŤ INÝ TOVAR</button>
-            <button class="btn-action" style="background:#3498db; color:#fff;" onclick="ugOfferAmount('${idx}')">PONÚKNUŤ INÉ MNOŽSTVO</button>
-            <button class="btn-action" style="background:#e74c3c; color:#fff;" onclick="ugScamDeal('${idx}')">POROBIŤ ZÁKAZNÍKA (OKRADNÚŤ)</button>
-            <button class="btn-action" style="background:none; color:#555; font-size:0.7rem;" onclick="ugIgnoreDeal('${idx}')">VRÁTIŤ SA SPÄŤ / ODMIETNUŤ</button>
-        </div>
-    </div>`;
+    // Zistíme smer posunu po X osi
+    const isGoingLeft = targetX < startX;
     
-    if (!appState.personalStats) appState.personalStats = {};
-    appState.personalStats.negotiationsStarted = (appState.personalStats.negotiationsStarted || 0) + 1;
-}
-
-function ugIgnoreDeal(idx) {
-    if (!appState.personalStats) appState.personalStats = {};
-    appState.personalStats.dealsIgnored = (appState.personalStats.dealsIgnored || 0) + 1;
+    // Odstránime staré animačné triedy
+    element.classList.remove('wobble-walk', 'wobble-walk-left', 'face-left', 'face-right');
     
-    // Ak ide o NPC z mapy, označíme ho, že pre tento týždeň odišiel s prázdnou
-    if (String(idx).startsWith('map_')) {
-        ugMarkDoneOrRemove(idx);
-    }
-    ugExitNeg(idx);
-}
-
-function ugRaise(idx) {
-    const c = ugGetCustomer(idx);
-    c.patience--;
-
-    if (!appState.personalStats) appState.personalStats = {};
-
-    if (c.patience < 0 || Math.random() > 0.6) {
-        appState.underground.loyalty = Math.max(0, appState.underground.loyalty - 1);
-        ugMarkDoneOrRemove(idx);
-        appState.personalStats.customersLostPatience = (appState.personalStats.customersLostPatience || 0) + 1;
-        
-        ugAlert("Zákazník stratil nervy a odišiel!", "Zlý odhad", () => {
-            ugRefreshStats();
-            ugExitNeg(idx);
-        });
-    } else {
-        c.offer *= 1.10; 
-        appState.personalStats.successfulPriceRaises = (appState.personalStats.successfulPriceRaises || 0) + 1;
-        ugStartNeg(idx);
-        ugRefreshStats();
-    }
-}
-
-function ugOfferAlt(idx) {
-    const c = ugGetCustomer(idx);
-    let html = `<h3 style="margin-top:0; color:#9b59b6;">Čo mu chceš ponúknuť namiesto ${c.drugName}?</h3>`;
-    
-    if (appState.underground.inventory.length === 0) {
-        html += `<p style="text-align:center; color:#555;">Sklad je prázdny!</p><button class="btn-action" style="background:#333; color:#fff;" onclick="ugStartNeg('${idx}')">SPÄŤ NA VYJEDNÁVANIE</button>`;
-    } else {
-        appState.underground.inventory.forEach((item, invIdx) => {
-            html += `
-            <div class="drug-item" style="cursor:pointer;" onclick="ugResolveAlt('${idx}', ${invIdx})">
-                <div class="drug-meta">
-                    <h4>${item.name}</h4>
-                    <small>Máš skladom: ${item.amt}g</small>
-                </div>
-                <div style="color:#f1c40f; font-weight:bold;">PONÚKNUŤ</div>
-            </div>`;
-        });
-        html += `<button class="btn-action" style="background:#222; color:#aaa; margin-top:15px;" onclick="ugStartNeg('${idx}')">ZRUŠIŤ A VRÁTIŤ SA</button>`;
-    }
-    document.getElementById('ug-body-content').innerHTML = html;
-}
-
-function ugResolveAlt(custIdx, invIdx) {
-    const c = ugGetCustomer(custIdx);
-    const ug = appState.underground;
-    const item = ug.inventory[invIdx];
-    
-    const catWanted = DRUGS_CATALOG.find(d => d.id === c.drugId)?.cat || '';
-    const catOffered = DRUGS_CATALOG.find(d => d.id === item.id)?.cat || '';
-    
-    let chance = 0;
-    if (catWanted === catOffered) chance = 0.70; 
-    else chance = 0.10; 
-
-    if (!appState.personalStats) appState.personalStats = {};
-
-    if (Math.random() > chance) {
-        ug.loyalty = Math.max(0, ug.loyalty - 1);
-        ugMarkDoneOrRemove(custIdx);
-        appState.personalStats.failedAltOffers = (appState.personalStats.failedAltOffers || 0) + 1;
-        
-        ugAlert("Zákazník: 'Čo mi to tu núkaš za blbosti?!' a nasrato odišiel.", "Odmietnutie", () => {
-            ugExitNeg(custIdx);
-        });
-        return;
-    }
-
-    const newPricePerGram = item.buyPrice * 1.15;
-    const offeredAmount = Math.min(c.amt, item.amt); 
-    
-    c.drugId = item.id;
-    c.drugName = item.name;
-    c.amt = offeredAmount;
-    c.offer = newPricePerGram;
-    
-    appState.personalStats.successfulAltOffers = (appState.personalStats.successfulAltOffers || 0) + 1;
-
-    ugAlert(`Zákazník s nechuťou súhlasil s náhradou. Pôvodnú cenu ale nedá, dostaneš zníženú sadzbu.`, "Kompromis", () => {
-        ugStartNeg(custIdx);
-    });
-}
-
-function ugOfferAmount(idx) {
-    const c = ugGetCustomer(idx);
-    const ug = appState.underground;
-    
-    let stock = 0;
-    ug.inventory.forEach(i => { if(i.id === c.drugId) stock += i.amt; });
-    
-    if (stock === 0) {
-        ugAlert("Nemáš tento tovar na sklade!", "Prázdny sklad");
-        return;
-    }
-
-    ugPrompt(`Zákazník chce ${c.amt}g ${c.drugName}. Na sklade máš ${stock}g.\nKoľko mu chceš ponúknuť? (Zadaj číslo od 1 do ${stock})`, "Zmena množstva", (input) => {
-        if (input === null || input === "") return;
-        
-        let offeredAmt = parseInt(input);
-        if (isNaN(offeredAmt) || offeredAmt < 1 || offeredAmt > stock) {
-            ugAlert("Neplatné množstvo.", "Chyba");
-            return;
-        }
-
-        let diff = Math.abs(c.amt - offeredAmt);
-        let baseChance = 0.8 - (diff * 0.15) + (ug.loyalty / 150);
-        baseChance = Math.max(0.1, Math.min(0.95, baseChance));
-
-        if (Math.random() > baseChance) {
-            ug.loyalty = Math.max(0, ug.loyalty - 1);
-            ugMarkDoneOrRemove(idx);
-            ugAlert("Zákazník: 'Z takého množstva nič nemám, maj sa!' Zákazník nasrato odišiel.", "Neúspešná dohoda", () => {
-                ugExitNeg(idx);
-            });
+    if (isMoving) {
+        if (isGoingLeft) {
+            element.classList.add('wobble-walk-left');
         } else {
-            c.amt = offeredAmt;
-            ugAlert(`Zákazník súhlasil s novým množstvom: ${offeredAmt}g.`, "Dohoda o množstve", () => {
-                ugStartNeg(idx); 
-            });
+            element.classList.add('wobble-walk');
         }
-    });
-}
-
-function ugScamDeal(idx) {
-    const c = ugGetCustomer(idx);
-    const ug = appState.underground;
-    const expectedMoney = c.offer * c.amt;
-    const loyaltyPenalty = expectedMoney / 10;
-    
-    const bName = c.baseName || c.name;
-
-    ugConfirm(`Naozaj chceš skúsiť tohto zákazníka porobiť o ${expectedMoney.toFixed(2)} €?\nŠanca je 50:50. Reputácia ti klesne o ${loyaltyPenalty.toFixed(1)}% bez ohľadu na výsledok.`, "Pokus o podvod", (confirmed) => {
-        if (!confirmed) return;
-
-        ug.loyalty = Math.max(0, ug.loyalty - loyaltyPenalty);
-        
-        // Strata dôvery pri pokuse o podvod - zákazník sa už nevráti
-        if (String(idx).startsWith('map_') && ug.knownCustomers[bName]) {
-            delete ug.knownCustomers[bName];
-        } else if (ug.knownCustomers[bName]) {
-            delete ug.knownCustomers[bName];
-        }
-
-        let message = "";
-        let title = "";
-
-        if (Math.random() > 0.5) {
-            title = "Úspešné porobenie!";
-            message = `Zákazník ti dal peniaze, vzal si "tovar" a rýchlo zmizol.\n\nZarobil si: ${expectedMoney.toFixed(2)} €\nStratil si lojalitu: ${loyaltyPenalty.toFixed(1)}%\n\nV štvrti sa ale rýchlo rozkríklo, čo si spravil a všetci ostatní záujemcovia ušli.`;
-            appState.betting.balance += expectedMoney;
-            ugLogTransaction(`Porobenie zákazníka (${c.name})`, expectedMoney);
-            ug.heat = Math.min(100, ug.heat + 2.0); 
+    } else {
+        // Pri zastavení zachováme natočenie podľa posledného pohybu
+        if (isGoingLeft) {
+            element.classList.add('face-left');
         } else {
-            title = "Podvod odhalený!";
-            message = `Zákazník ti na to neskočil! Rýchlo pochopil, že ho chceš natiahnuť a s nadávkami odišiel.\n\nNezarobil si nič.\nStratil si lojalitu: ${loyaltyPenalty.toFixed(1)}%\n\nV štvrti sa okamžite rozkríklo, o čo si sa pokúsil a všetci ostatní záujemcovia ušli.`;
+            element.classList.add('face-right');
         }
-        
-        // ZÁKAZNÍCI UTEČÚ - vyprázdnenie podsvetia aj mapy
-        ug.customers = [];
-        for (let k in ug.mapCustomers) ug.mapCustomers[k].status = 'done';
+    }
+}
+// --------------------------------------------
 
-        ugRefreshStats();
-        
-        ugAlert(message, title, () => {
-            if (checkPoliceRaid()) return;
-            ugExitNeg(idx);
-        });
-    });
+function navigatePlayerDirectly(targetX, targetY) {
+    activeCallback = null;
+    clearTimeout(currentMovementTimeout);
+    isMoving = false; 
+    pathQueue = [{ x: targetX, y: targetY }];
+    processNextMovementStep();
 }
 
-function ugAccept(idx) {
-    const c = ugGetCustomer(idx);
-    const ug = appState.underground;
-    const bName = c.baseName || c.name;
+function navigatePlayerViaRoads(targetX, targetY, onComplete = null) {
+    activeCallback = onComplete;
+    clearTimeout(currentMovementTimeout);
+    isMoving = false; 
+    const player = document.getElementById('player-character');
+    let startX = parseFloat(player.style.left || localStorage.getItem('arciPlayerX') || "10");
+    let startY = parseFloat(player.style.top || localStorage.getItem('arciPlayerY') || "40");
+    pathQueue = calculateShortestPathGraph(startX, startY, targetX, targetY);
+    processNextMovementStep();
+}
 
-    if (!appState.personalStats) appState.personalStats = {};
+// UPRAVENÁ FUNKCIA PRE POHYB HRÁČA (WOBBLE ANIMÁCIA)
+function processNextMovementStep() {
+    const player = document.getElementById('player-character');
 
-    let stock = 0;
-    ug.inventory.forEach(i => { if(i.id === c.drugId) stock += i.amt; });
-
-    if (stock < c.amt) {
-        appState.personalStats.notEnoughStockErrors = (appState.personalStats.notEnoughStockErrors || 0) + 1;
-        ugAlert("Nemáš dosť tovaru na sklade!", "Nedostatok tovaru");
+    if (pathQueue.length === 0) {
+        isMoving = false;
+        
+        // Zastavenie animácie, zachovanie aktuálneho natočenia (ak má napr. face-left, premení triedy na statické)
+        let wasGoingLeft = player.classList.contains('wobble-walk-left');
+        applyWobbleAnimation(player, wasGoingLeft ? 1 : 0, 0, false); 
+        
+        if (activeCallback) {
+            activeCallback();
+            activeCallback = null;
+        }
         return;
     }
-
-    let needed = c.amt;
-    let soldBadQuality = false;
-
-    for (let i = 0; i < ug.inventory.length; i++) {
-        if (ug.inventory[i].id === c.drugId) {
-            
-            const ageDays = Math.floor((ugGetCurrentTime() - ug.inventory[i].time) / (1000 * 60 * 60 * 24));
-            const ageWeeks = Math.floor(ageDays / 7);
-            const currentQuality = Math.max(0, 100 - (ageWeeks * 5));
-            if (currentQuality < 50) soldBadQuality = true;
-
-            if (ug.inventory[i].amt > needed) {
-                ug.inventory[i].amt -= needed;
-                needed = 0; break;
-            } else {
-                needed -= ug.inventory[i].amt;
-                ug.inventory.splice(i, 1);
-                i--;
-            }
-        }
-        if (needed <= 0) break;
-    }
-
-    if (ug.inventory.length === 0) appState.personalStats.inventoryEmptied = 1;
-
-    let isRobbed = (ug.loyalty < 5 && Math.random() < 0.10);
-    let earnedMoney = isRobbed ? 0 : c.offer * c.amt;
-
-    appState.betting.balance += earnedMoney;
+    isMoving = true;
+    const nextPoint = pathQueue.shift();
     
-    appState.personalStats.drugsSoldGrams = (appState.personalStats.drugsSoldGrams || 0) + c.amt;
-    appState.personalStats.totalDrugIncome = (appState.personalStats.totalDrugIncome || 0) + earnedMoney;
-    appState.personalStats.totalDealsCompleted = (appState.personalStats.totalDealsCompleted || 0) + 1;
+    let currentX = parseFloat(player.style.left || "0");
+    let currentY = parseFloat(player.style.top || "0");
     
-    if (earnedMoney >= 500) appState.personalStats.maxSingleDealIncome = 1;
+    // ZAPNUTIE ANIMÁCIE HOJDANIA
+    applyWobbleAnimation(player, currentX, nextPoint.x, true);
 
-    const catWanted = DRUGS_CATALOG.find(d => d.id === c.drugId)?.cat || '';
-    if (catWanted === 'WEED') appState.personalStats.weedSold = (appState.personalStats.weedSold || 0) + c.amt;
-    if (catWanted === 'PILLS') appState.personalStats.pillsSold = (appState.personalStats.pillsSold || 0) + c.amt;
-    if (catWanted === 'HARD') appState.personalStats.hardSold = (appState.personalStats.hardSold || 0) + c.amt;
-    if (catWanted === 'PSY') appState.personalStats.psySold = (appState.personalStats.psySold || 0) + c.amt;
-    if (c.drugId === 'ck_col' || c.drugId === 'ck_bol') appState.personalStats.cocaineSold = (appState.personalStats.cocaineSold || 0) + c.amt;
-    
-    let message = "";
-    let title = "";
-
-    if (isRobbed) {
-        title = "Okradli ťa!";
-        message = `Pretože máš v štvrti mizernú reputáciu, zákazník ti tovar vytrhol z rúk, vytiahol na teba zbraň a ušiel bez platenia!\n\nZarobené: 0.00 €`;
-        ug.loyalty = Math.min(100, ug.loyalty + 1.5); 
-        if (ug.knownCustomers[bName]) delete ug.knownCustomers[bName];
-    } else if (soldBadQuality) {
-        appState.personalStats.badQualitySales = (appState.personalStats.badQualitySales || 0) + 1;
-        title = "Sťažnosť zákazníka";
-        message = `⚠️ Zákazník zistil, že si mu predal starý a nekvalitný odpad! Tvoja reputácia utrpela.\n\nZarobil si: ${earnedMoney.toFixed(2)} €`;
-        ug.loyalty = Math.max(0, ug.loyalty - 5); 
-        if (ug.knownCustomers[bName]) delete ug.knownCustomers[bName]; 
-    } else {
-        appState.personalStats.goodQualitySales = (appState.personalStats.goodQualitySales || 0) + 1;
-        title = "Úspešný obchod";
-        message = `Zákazník bol spokojný s kvalitou.\n\nZarobené: ${earnedMoney.toFixed(2)} €`;
-        ug.loyalty = Math.min(100, ug.loyalty + 1.5); 
-        ug.knownCustomers[bName] = (ug.knownCustomers[bName] || 0) + 1; 
-    }
-
-    ug.heat = Math.min(100, ug.heat + 1.0);
-    ug.soldThisTurn = true; 
-    
-    ugLogTransaction(`Predaj: ${c.amt}g ${c.drugName}`, earnedMoney);
-    
-    ugMarkDoneOrRemove(idx); // Použitie novej funkcie namiesto splice
-    ugRefreshStats();
-    
-    ugAlert(message, title, () => {
-        if (checkPoliceRaid()) return; 
-        ugExitNeg(idx);
-    });
+    let dist = Math.hypot(nextPoint.x - currentX, nextPoint.y - currentY);
+    let timeInSeconds = (dist / 10.0) * speedMultiplier; 
+    if (timeInSeconds < 0.1) timeInSeconds = 0.1;
+    movePlayerStep(nextPoint.x, nextPoint.y, timeInSeconds);
+    currentMovementTimeout = setTimeout(() => {
+        processNextMovementStep();
+    }, timeInSeconds * 1000);
 }
 
-function ugLogTransaction(det, val) {
-    if (!appState.myPlayer) appState.myPlayer = { history: [] };
-    if (!appState.myPlayer.history) appState.myPlayer.history = [];
-    
-    const formattedDate = ugGetCurrentDateString();
-
-    let earningsVal = val > 0 ? val : 0;
-    let expensesVal = val < 0 ? Math.abs(val) : 0;
-
-    appState.myPlayer.history.push({
-        date: formattedDate,
-        type: 'DRUGS',
-        eventName: det, 
-        earnings: earningsVal,
-        expenses: expensesVal,
-        net: val
+function calculateShortestPathGraph(startX, startY, targetX, targetY) {
+    let startNodeId = getClosestNode(startX, startY);
+    let targetNodeId = getClosestNode(targetX, targetY);
+    let distances = {};
+    let previous = {};
+    let queue = [];
+    roadNodes.forEach(node => {
+        distances[node.id] = Infinity;
+        previous[node.id] = null;
+        queue.push(node.id);
     });
+    distances[startNodeId] = 0;
+    while (queue.length > 0) {
+        queue.sort((a, b) => distances[a] - distances[b]);
+        let currId = queue.shift();
+        if (currId === targetNodeId) break;
+        let neighbors = roadEdges.filter(e => e[0] === currId || e[1] === currId).map(e => e[0] === currId ? e[1] : e[0]);
+        neighbors.forEach(neighborId => {
+            if (queue.includes(neighborId)) {
+                let currNode = roadNodes.find(n => n.id === currId);
+                let neighborNode = roadNodes.find(n => n.id === neighborId);
+                let dist = Math.hypot(currNode.x - neighborNode.x, currNode.y - neighborNode.y);
+                let altDistance = distances[currId] + dist;
+                if (altDistance < distances[neighborId]) {
+                    distances[neighborId] = altDistance;
+                    previous[neighborId] = currId;
+                }
+            }
+        });
+    }
+    let calculatedPath = [];
+    let currentTrace = targetNodeId;
+    if (previous[currentTrace] !== null || currentTrace === startNodeId) {
+        while (currentTrace !== null) {
+            let n = roadNodes.find(node => node.id === currentTrace);
+            calculatedPath.unshift({ x: n.x, y: n.y });
+            currentTrace = previous[currentTrace];
+        }
+    }
+    let startNode = roadNodes.find(n => n.id === startNodeId);
+    if (startNode) calculatedPath.unshift({ x: startNode.x, y: startNode.y });
+    calculatedPath.push({ x: targetX, y: targetY });
+    return calculatedPath;
+}
 
-if (!appState.lifestyle) {
-    appState.lifestyle = {
-        housing: 0,        
-        upgrades: 0,       
-        wellness_sauna: 0, 
-        food: 0,           
-        kitchen_prep: 0,   
-        society: 0,        
-        coffee_life: 0,    
-        image_watches: 0,  
-        transport: 0,      
-        computing: 0,      
-        comm: 0,           
-        gadgets: 0,        
-        media: 0,          
-        trans_micro: 0,    
-        trans_luxury: 0,   
-        care_towel: 0,     
-        caddie: 0,         
-        training_net: 0,   
-        image: 0,          
-        subscription: 0,   
-        charity: 0         
+function getClosestNode(x, y) {
+    let closestId = null;
+    let minPath = Infinity;
+    roadNodes.forEach(node => {
+        let dist = Math.hypot(node.x - x, node.y - y);
+        if (dist < minPath) {
+            minPath = dist;
+            closestId = node.id;
+        }
+    });
+    return closestId;
+}
+
+// ==========================================
+// 6. SYSTÉM NPC POSTÁV (LOGIKA POHYBU A SPAWNU)
+// ==========================================
+
+function initNPCSystem() {
+    setInterval(manageNPCs, 5000);
+    manageNPCs(); 
+}
+
+function manageNPCs() {
+    if (activeNPCs.length < MIN_NPCS) {
+        spawnNPC();
+    } else if (activeNPCs.length < MAX_NPCS) {
+        if (Math.random() > 0.6) spawnNPC();
+    }
+}
+
+// UPRAVENÉ SPAWNOVANIE NPC PRE WOBBLE ANIMÁCIE (Používame znova <img> tag)
+function spawnNPC() {
+    const currentActiveIDs = activeNPCs.map(npc => npc.configID);
+    const availableIDs = Object.keys(npcConfigs).filter(id => !currentActiveIDs.includes(id));
+    
+    if (availableIDs.length === 0) return;
+    
+    const chosenID = availableIDs[Math.floor(Math.random() * availableIDs.length)];
+    const config = npcConfigs[chosenID];
+    const spawnNode = roadNodes.find(n => n.id === 37);
+    
+    const npcEl = document.createElement('img');
+    npcEl.src = chosenID + ".png"; 
+    // Pridáme základnú triedu face-right
+    npcEl.classList.add('face-right'); 
+    
+    npcEl.style.position = 'absolute';
+    npcEl.style.left = spawnNode.x + '%';
+    npcEl.style.top = spawnNode.y + '%';
+    npcEl.style.width = config.width + 'px';
+    npcEl.style.transform = 'translate(-50%, -100%)';
+    npcEl.style.zIndex = Math.floor(spawnNode.y) + 1;
+npcEl.style.pointerEvents = 'auto'; // Aby sa na postavu dalo kliknúť
+npcEl.style.cursor = 'pointer';
+
+// Zapojenie kliknutia pre Underground obchod
+npcEl.onclick = (e) => {
+    e.stopPropagation(); // Zabráni, aby hráč po kliknutí na NPC začal na to miesto kráčať
+    
+    // Vytvoríme pekné meno pre NPC podľa jeho ID (napr. npc4 -> Zákazník 4)
+    let npcName = "Zákazník " + chosenID.replace('npc', '');
+    
+    if (typeof openMapNpcNegotiation === 'function') {
+        openMapNpcNegotiation('map_' + chosenID, npcName);
+    }
+};
+
+    npcEl.style.filter = 'drop-shadow(0px 3px 3px rgba(0,0,0,0.4))';
+    
+    document.getElementById('npcLayer').appendChild(npcEl);
+    
+    const npcObj = {
+        configID: chosenID,
+        el: npcEl,
+        x: spawnNode.x,
+        y: spawnNode.y,
+        visitsLeft: Math.floor(Math.random() * 2) + 3, 
+        timeout: null
     };
+    
+    activeNPCs.push(npcObj);
+    npcBrain(npcObj);
 }
 
-    if (typeof saveAuto === 'function') saveAuto();
+function npcBrain(npc) {
+    if (npc.visitsLeft <= 0) {
+        const exitNode = roadNodes.find(n => n.id === 37);
+        const path = calculateShortestPathGraph(npc.x, npc.y, exitNode.x, exitNode.y);
+        moveNPC(npc, path, () => {
+            despawnNPC(npc);
+        });
+        return;
+    }
+    
+    const keys = Object.keys(buildingsData);
+    const targetKey = keys[Math.floor(Math.random() * keys.length)];
+    const b = buildingsData[targetKey];
+    
+    let doorX = b.doorX !== undefined ? b.doorX : b.x;
+    let doorY = b.doorY !== undefined ? b.doorY : b.y;
+
+    const occupants = occupiedDoors[targetKey] || 0;
+    if (occupants > 0) {
+        doorX += (occupants * 2.0); 
+    }
+
+    npc.visitsLeft--;
+    const path = calculateShortestPathGraph(npc.x, npc.y, doorX, doorY);
+    
+    moveNPC(npc, path, () => {
+        occupiedDoors[targetKey] = (occupiedDoors[targetKey] || 0) + 1;
+
+        npc.timeout = setTimeout(() => {
+            occupiedDoors[targetKey] = Math.max(0, (occupiedDoors[targetKey] || 0) - 1);
+            npcBrain(npc);
+        }, NPC_STAY_DURATION);
+    });
 }
-</script>
-<div id="arci-city-game-container" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 999999; background: black;">
-    </div>
 
-<link rel="stylesheet" href="arci-map.css">
+// UPRAVENÝ POHYB NPC (WOBBLE ANIMÁCIA)
+function moveNPC(npc, path, onComplete) {
+    if (path.length === 0) {
+        let wasGoingLeft = npc.el.classList.contains('wobble-walk-left');
+        applyWobbleAnimation(npc.el, wasGoingLeft ? 1 : 0, 0, false); 
+        onComplete();
+        return;
+    }
+    
+    const next = path.shift();
+    
+    // ZAPNUTIE ANIMÁCIE HOJDANIA PRE NPC
+    applyWobbleAnimation(npc.el, npc.x, next.x, true);
 
-<script src="arci-map.js"></script>
+    const dist = Math.hypot(next.x - npc.x, next.y - npc.y);
+    
+    let duration = (dist / 10.0) * 1.8; 
+    if (duration < 0.1) duration = 0.1;
+    
+    npc.el.style.transition = `left ${duration}s linear, top ${duration}s linear`;
+    npc.el.style.left = next.x + '%';
+    npc.el.style.top = next.y + '%';
+    
+    npc.el.style.zIndex = Math.floor(next.y) + 1;
 
-</body>
-</html>
+    npc.x = next.x;
+    npc.y = next.y;
+    
+    npc.timeout = setTimeout(() => {
+        moveNPC(npc, path, onComplete);
+    }, duration * 1000);
+}
+
+function despawnNPC(npc) {
+    npc.el.remove();
+    activeNPCs = activeNPCs.filter(n => n !== npc);
+}
