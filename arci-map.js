@@ -3,46 +3,33 @@
 // ==========================================
 
 const buildingsData = {
-	    "jamka": { name: "Turnaj", x: 2.2, y: 60.4, doorX: 1.3, doorY: 61.2, size: 35, img: "buda_turnaj.png", detail: "mapa-turnaj.png", action: "openScannerModal" },
-
+    "jamka": { name: "Turnaj", x: 2.2, y: 60.4, doorX: 1.3, doorY: 61.2, size: 35, img: "buda_turnaj.png", detail: "mapa-turnaj.png", action: "openScannerModal" },
     "udrzba": { name: "Údržba", x: 8.5, y: 42.0, doorX: 8.5, doorY: 42.0, size: 75, img: "buda_udrzba.png", detail: "mapa-udrzba.png", action: "openSettings" },
     "bankomat": { name: "Bankomat", x: 29.5, y: 69.4, doorX: 30.4, doorY: 70.7, size: 30, img: "buda_bankomat.png", detail: "mapa-balance.png", action: "openMyPlayer" },
     "banka": { name: "Net Worth Banka", x: 24.9, y: 73, doorX: 27.5, doorY: 72.2, size: 105, img: "buda_banka.png", detail: "mapa-bank.png", action: "openNetWorth" },
-        "noviny": { name: "Novinový stánok", x: 74.3, y: 62.3, doorX: 74.3, doorY: 62.3, size: 85, img: "buda_noviny.png", detail: "mapa-news.png", action: "openArciNews" },
-        "shop": { name: "ArciShop", x: 47.5, y: 79.5, doorX: 47.5, doorY: 79.5, size: 135, img: "buda_arcishop.png", detail: "mapa-shop.png", action: "openArciShop" },
-
-        "cards": { name: "ArciCards", x: 59.2, y: 80.5, doorX: 59.2, doorY: 80.5, size: 95, img: "buda_arcicards.png", detail: "mapa-arcicards.png", action: "openArciCardsHub" },
+    "noviny": { name: "Novinový stánok", x: 74.3, y: 62.3, doorX: 74.3, doorY: 62.3, size: 85, img: "buda_noviny.png", detail: "mapa-news.png", action: "openArciNews" },
+    "shop": { name: "ArciShop", x: 47.5, y: 79.5, doorX: 47.5, doorY: 79.5, size: 135, img: "buda_arcishop.png", detail: "mapa-shop.png", action: "openArciShop" },
+    "cards": { name: "ArciCards", x: 59.2, y: 80.5, doorX: 59.2, doorY: 80.5, size: 95, img: "buda_arcicards.png", detail: "mapa-arcicards.png", action: "openArciCardsHub" },
     "vila": { name: "Životný Štýl", x: 53.0, y: 53.5, doorX: 53.0, doorY: 53.5, size: 120, img: "buda_vila.png", detail: "mapa-villa.png", action: "openLifestyleManager" },
-
     "illegal": { name: "Podsvetie", x: 94.7, y: 76.9, doorX: 94.7, doorY: 76.9, size: 85, img: "buda_illegal.png", detail: "mapa-illegal.png", action: "openArciUnderground" }, 
-
     "invest": { name: "ArciInvest", x: 39.8, y: 89.6, doorX: 39.8, doorY: 89.6, size: 135, img: "buda_arciinvest.png", detail: "mapa-invest.png", action: "openArciInvest" },
-        "casino": { name: "ArciBet Casino", x: 78.5, y: 82.5, doorX: 78.5, doorY: 82.5, size: 105, img: "buda_arcibet.png", detail: "mapa-arcibet.png", action: "openArciCasino" },
+    "casino": { name: "ArciBet Casino", x: 78.5, y: 82.5, doorX: 78.5, doorY: 82.5, size: 105, img: "buda_arcibet.png", detail: "mapa-arcibet.png", action: "openArciCasino" },
     "tip": { name: "ArciTip Stávková", x: 66.7, y: 83.5, doorX: 66.7, doorY: 83.5, size: 95, img: "buda_arcitip.png", detail: "mapa-tip.png", action: "openArciTip" },
-    
     "oblubene": { name: "Obľúbený Hrači", x: 58.1, y: 88.4, doorX: 58, doorY: 83.2, size: 38, img: "buda_oblubene.png", detail: "mapa-oblubene.png", action: "openFavoritesModal" },
-    
     "osobne": { name: "Osobné úspechy", x: 13.3, y: 86.8, doorX: 9.3, doorY: 77.8, size: 160, img: "buda_zahradka.png", detail: "mapa-personal.png", action: "openPersonalAchievements" },
     "plavaren": { name: "História Spokojnosti", x: 90.9, y: 62.3, doorX: 86.9, doorY: 63.4, size: 162, img: "buda_plavaren.png", detail: "mapa-happy.png", action: "openHappinessOverview" },
     "kostol": { name: "Kalendár", x: 19.5, y: 28.0, doorX: 19.5, doorY: 28.0, size: 95, img: "buda_kostol.png", detail: "mapa-kostol.png", action: "openGameCalendar" },
-
-
-
     "global": { name: "Globálne Achievmenty", x: 28.5, y: 97.0, doorX: 28.5, doorY: 95.0, size: 110, img: "buda_tabula.png", detail: "mapa-global.png", action: "openGlobalAchievementsList" },
     "kniznica": { name: "Sieň Slávy", x: 40.7, y: 50.5, doorX: 40.7, doorY: 50.5, size: 115, img: "buda_kniznica.png", detail: "mapa-hof.png", action: "openHallOfFame" },
     "gym": { name: "Trofeje", x: 71.0, y: 56.0, doorX: 70.0, doorY: 56.0, size: 95, img: "buda_gym.png", detail: "mapa-trophy.png", action: "openTrophyGallery" },
     "sponsor": { name: "Sponzori", x: 36.4, y: 31.3, doorX: 34.5, doorY: 30.6, size: 115, img: "buda_palac.png", detail: "mapa-sponsor.png", action: "openSponsorInfo" },
     "arcibot": { name: "ArciBot", x: 12.5, y: 65.5, doorX: 12.5, doorY: 65.5, size: 35, img: "buda_arcibot.png", detail: "mapa-arcibot.png", action: "openAiAssistant" },
-
     "super": { name: "Porovnanie Hráčov", x: 62.5, y: 54.0, doorX: 60.5, doorY: 54.0, size: 90, img: "buda_super.png", detail: "mapa-vs.png", action: "openComparator" },
-
-
     "world": { name: "World Tour Rank", x: 33.5, y: 24.5, doorX: 31.9, doorY: 23.2, size: 105, img: "buda_worldtour.png", detail: "mapa-worldtour.png", action: "showRankTable_Tour" },
     "official": { name: "Official Rank", x: 51.9, y: 35.0, doorX: 50.9, doorY: 35.0, size: 95, img: "buda_official.png", detail: "mapa-official.png", action: "showRankTable_Official" },
     "pga": { name: "PGA Rank", x: 60.0, y: 33.5, doorX: 59.0, doorY: 33.5, size: 100, img: "buda_pga.png", detail: "mapa-pga.png", action: "showRankTable_PGA" },
     "fedex": { name: "Fedex Rank", x: 63.0, y: 37.8, doorX: 62.0, doorY: 37.8, size: 75, img: "buda_fedex.png", detail: "mapa-fedex.png", action: "showRankTable_FEDEX" },
     "players": { name: "Players Rank", x: 72.5, y: 34.0, doorX: 71.5, doorY: 34.0, size: 100, img: "buda_players.png", detail: "mapa-players.png", action: "showRankTable_Association" },
-
     "ea": { name: "EA Rank", x: 84.5, y: 35.5, doorX: 83.5, doorY: 35.5, size: 100, img: "buda_ea.png", detail: "mapa-ea.png", action: "showRankTable_EA" },
     "amateur": { name: "Amateur Rank", x: 74.7, y: 40.2, doorX: 73.7, doorY: 40.2, size: 65, img: "buda_amateur.png", detail: "mapa-amateur.png", action: "showRankTable_Amateur" },
     "elo": { name: "ELO Rank", x: 95.8, y: 44.5, doorX: 94.8, doorY: 44.5, size: 95, img: "buda_elo.png", detail: "mapa-elo.png", action: "showRankTable_ELO" },
@@ -63,20 +50,20 @@ let currentBuildingIndex = -1; // Sleduje, pri ktorej budove hráč naposledy bo
 let directEntry = localStorage.getItem('arciEntry') === 'true'; 
 
 // --- KONFIGURÁCIA NPC POSTÁV ---
-// Tu môžeš pridávať nové ID (npc13, npc14...) a nastavovať im vlastnú veľkosť (width)
+// Tu môžeš pridávať nové ID (npc13, npc14...) a nastavovať im vlastnú veľkosť (width) a Meno (name)
 const npcConfigs = {
-    "npc1":  { width: 20 },
-    "npc2":  { width: 15 },
-    "npc3":  { width: 18 },
-    "npc4":  { width: 42 },
-    "npc5":  { width: 50 },
-    "npc6":  { width: 45 },
-    "npc7":  { width: 45 },
-    "npc8":  { width: 45 },
-    "npc9":  { width: 25 },
-    "npc10": { width: 25 },
-    "npc11": { width: 45 },
-    "npc12": { width: 22 }
+    "npc1":  { width: 20, name: "Piker Mario" },
+    "npc2":  { width: 15, name: "Depka" },
+    "npc3":  { width: 18, name: "Laco Trojočko" },
+    "npc4":  { width: 42, name: "Fetoň" },
+    "npc5":  { width: 50, name: "Santa Grass" },
+    "npc6":  { width: 45, name: "Jointimír Jóda" },
+    "npc7":  { width: 45, name: "Buzz Prafeťák },
+    "npc8":  { width: 45, name: "Hulifix" },
+    "npc9":  { width: 25, name: "Taťka Zhloula" },
+    "npc10": { width: 25, name: "Jožko Blackson" },
+    "npc11": { width: 25, name: "Líza Papierson" },
+    "npc12": { width: 22, name: "Rosomák čo prišiel po Herák" }
 };
 
 let activeNPCs = []; // Sledovanie aktívnych postáv na mape
@@ -877,20 +864,20 @@ function spawnNPC() {
     npcEl.style.width = config.width + 'px';
     npcEl.style.transform = 'translate(-50%, -100%)';
     npcEl.style.zIndex = Math.floor(spawnNode.y) + 1;
-npcEl.style.pointerEvents = 'auto'; // Aby sa na postavu dalo kliknúť
-npcEl.style.cursor = 'pointer';
+    npcEl.style.pointerEvents = 'auto'; // Aby sa na postavu dalo kliknúť
+    npcEl.style.cursor = 'pointer';
 
-// Zapojenie kliknutia pre Underground obchod
-npcEl.onclick = (e) => {
-    e.stopPropagation(); // Zabráni, aby hráč po kliknutí na NPC začal na to miesto kráčať
-    
-    // Vytvoríme pekné meno pre NPC podľa jeho ID (napr. npc4 -> Zákazník 4)
-    let npcName = "Zákazník " + chosenID.replace('npc', '');
-    
-    if (typeof openMapNpcNegotiation === 'function') {
-        openMapNpcNegotiation('map_' + chosenID, npcName);
-    }
-};
+    // Zapojenie kliknutia pre Underground obchod
+    npcEl.onclick = (e) => {
+        e.stopPropagation(); // Zabráni, aby hráč po kliknutí na NPC začal na to miesto kráčať
+        
+        // Zoberieme meno priamo z našej konfigurácie (ak náhodou chýba, dáme záložné)
+        let npcName = config.name || ("Zákazník " + chosenID.replace('npc', ''));
+        
+        if (typeof openMapNpcNegotiation === 'function') {
+            openMapNpcNegotiation('map_' + chosenID, npcName);
+        }
+    };
 
     npcEl.style.filter = 'drop-shadow(0px 3px 3px rgba(0,0,0,0.4))';
     
