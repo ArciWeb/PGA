@@ -115,8 +115,49 @@ function startArciCityGame() {
     container.style.overflow = 'auto'; 
     container.style.scrollbarWidth = 'none'; 
     
+    // --- VLOŽENÉ CSS PRE HOJDACIU ANIMÁCIU ---
     container.innerHTML = `
-        <style>#arci-city-game-container::-webkit-scrollbar { display: none; } #buildingNavMenu::-webkit-scrollbar { display: none; } #settingsNavMenu::-webkit-scrollbar { display: none; }</style>
+        <style>
+            #arci-city-game-container::-webkit-scrollbar { display: none; } 
+            #buildingNavMenu::-webkit-scrollbar { display: none; } 
+            #settingsNavMenu::-webkit-scrollbar { display: none; }
+            
+            /* Animácia hojdania pre všetky chodiace postavy */
+            @keyframes hojdanie {
+                0%   { transform: translate(-50%, -100%) rotate(0deg) translateY(0); }
+                25%  { transform: translate(-50%, -100%) rotate(-5deg) translateY(-5px); }
+                50%  { transform: translate(-50%, -100%) rotate(0deg) translateY(0); }
+                75%  { transform: translate(-50%, -100%) rotate(5deg) translateY(-5px); }
+                100% { transform: translate(-50%, -100%) rotate(0deg) translateY(0); }
+            }
+            
+            /* Animácia pre chôdzu doľava (pridané zrkadlenie cez scaleX) */
+            @keyframes hojdanie-vlavo {
+                0%   { transform: translate(-50%, -100%) scaleX(-1) rotate(0deg) translateY(0); }
+                25%  { transform: translate(-50%, -100%) scaleX(-1) rotate(-5deg) translateY(-5px); }
+                50%  { transform: translate(-50%, -100%) scaleX(-1) rotate(0deg) translateY(0); }
+                75%  { transform: translate(-50%, -100%) scaleX(-1) rotate(5deg) translateY(-5px); }
+                100% { transform: translate(-50%, -100%) scaleX(-1) rotate(0deg) translateY(0); }
+            }
+
+            .wobble-walk {
+                animation: hojdanie 0.5s infinite linear;
+            }
+            
+            .wobble-walk-left {
+                animation: hojdanie-vlavo 0.5s infinite linear;
+            }
+
+            /* Statické otočenie, ak by postava zastala s pohľadom doľava */
+            .face-left {
+                transform: translate(-50%, -100%) scaleX(-1) !important;
+            }
+            
+            /* Štandardná statická pozícia pre stojacu postavu */
+            .face-right {
+                transform: translate(-50%, -100%) scaleX(1) !important;
+            }
+        </style>
         
         <div id="scaleContainer" style="width: 2000px; height: 1125px; transition: width 0.1s ease-out, height 0.1s ease-out;">
             <div class="map-wrapper" id="mapWrapper" style="position: relative; width: 2000px; height: 1125px; overflow: hidden; transform-origin: 0 0; transition: transform 0.1s ease-out;">
@@ -124,7 +165,8 @@ function startArciCityGame() {
                 <div id="buildingsLayer"></div>
                 <div id="npcLayer" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: auto;"></div>
                 <div id="debugLayer" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 400;"></div>
-                <img src="panáčik_stoji.png" id="player-character" style="position: absolute; left: ${savedX}%; top: ${savedY}%; width: 45px; transform: translate(-50%, -100%); z-index: 500; transition: none; pointer-events: none; filter: drop-shadow(0px 5px 5px rgba(0,0,0,0.5));">
+                
+                <img src="panáčik_stoji.png" id="player-character" class="face-right" style="position: absolute; left: ${savedX}%; top: ${savedY}%; width: 45px; z-index: 500; transition: none; pointer-events: none; filter: drop-shadow(0px 5px 5px rgba(0,0,0,0.5));">
             </div>
         </div>
         
@@ -414,16 +456,12 @@ function renderBuildings() {
         hitbox.style.left = b.x + '%';
         hitbox.style.top = b.y + '%'; 
         
-        // Zväčšenie hitboxu:
-        // Nastavíme šírku na 85% celkovej veľkosti budovy (aby sa susedné budovy neprekryli)
         hitbox.style.width = (widthPx * 0.85) + 'px'; 
-        // Výšku nastavíme dynamicky podľa šírky budovy (napríklad 70% zo šírky), aby veľké budovy mali aj vysoký hitbox
         hitbox.style.height = (widthPx * 0.70) + 'px'; 
         
         hitbox.style.transform = 'translate(-50%, -100%)';
 
         hitbox.style.cursor = 'pointer';
-        // OPRAVA: Hitbox musí byť vždy nad obrázkom budovy aj postavami
         hitbox.style.zIndex = Math.floor(b.y) + 20; 
         
         hitbox.onclick = (e) => { 
@@ -442,7 +480,6 @@ function renderBuildings() {
         img.style.transform = 'translate(-50%, -100%)';
         img.style.width = widthPx + 'px';
         img.style.maxWidth = 'none'; 
-        // OPRAVA: Základný z-index budovy pre porovnanie s postavami
         img.style.zIndex = Math.floor(b.y); 
         img.style.pointerEvents = 'none'; 
 
@@ -499,7 +536,6 @@ function movePlayerStep(x, y, timeInSeconds) {
     player.style.transition = `left ${timeInSeconds}s linear, top ${timeInSeconds}s linear`;
     player.style.left = x + '%'; 
     player.style.top = y + '%';
-    // OPRAVA: Z-index nastavený na y + 1 pre správne prekrytie (vždy pred budovou na rovnakom Y)
     player.style.zIndex = Math.floor(y) + 1; 
     
     localStorage.setItem('arciPlayerX', x); 
@@ -663,6 +699,33 @@ let isMoving = false;
 let currentMovementTimeout = null;
 let activeCallback = null;
 
+// --- POMOCNÁ FUNKCIA PRE ANIMÁCIE WOBBLE ---
+function applyWobbleAnimation(element, startX, targetX, isMoving) {
+    if (!element) return;
+    
+    // Zistíme smer posunu po X osi
+    const isGoingLeft = targetX < startX;
+    
+    // Odstránime staré animačné triedy
+    element.classList.remove('wobble-walk', 'wobble-walk-left', 'face-left', 'face-right');
+    
+    if (isMoving) {
+        if (isGoingLeft) {
+            element.classList.add('wobble-walk-left');
+        } else {
+            element.classList.add('wobble-walk');
+        }
+    } else {
+        // Pri zastavení zachováme natočenie podľa posledného pohybu
+        if (isGoingLeft) {
+            element.classList.add('face-left');
+        } else {
+            element.classList.add('face-right');
+        }
+    }
+}
+// --------------------------------------------
+
 function navigatePlayerDirectly(targetX, targetY) {
     activeCallback = null;
     clearTimeout(currentMovementTimeout);
@@ -682,9 +745,17 @@ function navigatePlayerViaRoads(targetX, targetY, onComplete = null) {
     processNextMovementStep();
 }
 
+// UPRAVENÁ FUNKCIA PRE POHYB HRÁČA (WOBBLE ANIMÁCIA)
 function processNextMovementStep() {
+    const player = document.getElementById('player-character');
+
     if (pathQueue.length === 0) {
         isMoving = false;
+        
+        // Zastavenie animácie, zachovanie aktuálneho natočenia (ak má napr. face-left, premení triedy na statické)
+        let wasGoingLeft = player.classList.contains('wobble-walk-left');
+        applyWobbleAnimation(player, wasGoingLeft ? 1 : 0, 0, false); 
+        
         if (activeCallback) {
             activeCallback();
             activeCallback = null;
@@ -693,9 +764,13 @@ function processNextMovementStep() {
     }
     isMoving = true;
     const nextPoint = pathQueue.shift();
-    const player = document.getElementById('player-character');
+    
     let currentX = parseFloat(player.style.left || "0");
     let currentY = parseFloat(player.style.top || "0");
+    
+    // ZAPNUTIE ANIMÁCIE HOJDANIA
+    applyWobbleAnimation(player, currentX, nextPoint.x, true);
+
     let dist = Math.hypot(nextPoint.x - currentX, nextPoint.y - currentY);
     let timeInSeconds = (dist / 10.0) * speedMultiplier; 
     if (timeInSeconds < 0.1) timeInSeconds = 0.1;
@@ -780,6 +855,7 @@ function manageNPCs() {
     }
 }
 
+// UPRAVENÉ SPAWNOVANIE NPC PRE WOBBLE ANIMÁCIE (Používame znova <img> tag)
 function spawnNPC() {
     const currentActiveIDs = activeNPCs.map(npc => npc.configID);
     const availableIDs = Object.keys(npcConfigs).filter(id => !currentActiveIDs.includes(id));
@@ -792,12 +868,14 @@ function spawnNPC() {
     
     const npcEl = document.createElement('img');
     npcEl.src = chosenID + ".png"; 
+    // Pridáme základnú triedu face-right
+    npcEl.classList.add('face-right'); 
+    
     npcEl.style.position = 'absolute';
     npcEl.style.left = spawnNode.x + '%';
     npcEl.style.top = spawnNode.y + '%';
     npcEl.style.width = config.width + 'px';
     npcEl.style.transform = 'translate(-50%, -100%)';
-    // OPRAVA: Počiatočný z-index postavy
     npcEl.style.zIndex = Math.floor(spawnNode.y) + 1;
     npcEl.style.pointerEvents = 'none';
     npcEl.style.filter = 'drop-shadow(0px 3px 3px rgba(0,0,0,0.4))';
@@ -834,35 +912,38 @@ function npcBrain(npc) {
     let doorX = b.doorX !== undefined ? b.doorX : b.x;
     let doorY = b.doorY !== undefined ? b.doorY : b.y;
 
-    // --- LOGIKA ODSTUPOV (OPRAVA) ---
-    // Ak už pri budove niekto stojí, vypočítame posun X
     const occupants = occupiedDoors[targetKey] || 0;
     if (occupants > 0) {
-        doorX += (occupants * 2.0); // Každý ďalší stojí o 2 súradnice vedľa
+        doorX += (occupants * 2.0); 
     }
 
     npc.visitsLeft--;
     const path = calculateShortestPathGraph(npc.x, npc.y, doorX, doorY);
     
     moveNPC(npc, path, () => {
-        // Zvýšime počet osôb pri danej budove po príchode
         occupiedDoors[targetKey] = (occupiedDoors[targetKey] || 0) + 1;
 
         npc.timeout = setTimeout(() => {
-            // Pred odchodom uvoľníme miesto
             occupiedDoors[targetKey] = Math.max(0, (occupiedDoors[targetKey] || 0) - 1);
             npcBrain(npc);
         }, NPC_STAY_DURATION);
     });
 }
 
+// UPRAVENÝ POHYB NPC (WOBBLE ANIMÁCIA)
 function moveNPC(npc, path, onComplete) {
     if (path.length === 0) {
+        let wasGoingLeft = npc.el.classList.contains('wobble-walk-left');
+        applyWobbleAnimation(npc.el, wasGoingLeft ? 1 : 0, 0, false); 
         onComplete();
         return;
     }
     
     const next = path.shift();
+    
+    // ZAPNUTIE ANIMÁCIE HOJDANIA PRE NPC
+    applyWobbleAnimation(npc.el, npc.x, next.x, true);
+
     const dist = Math.hypot(next.x - npc.x, next.y - npc.y);
     
     let duration = (dist / 10.0) * 1.8; 
@@ -872,7 +953,6 @@ function moveNPC(npc, path, onComplete) {
     npc.el.style.left = next.x + '%';
     npc.el.style.top = next.y + '%';
     
-    // OPRAVA: Dynamická aktualizácia z-indexu počas pohybu
     npc.el.style.zIndex = Math.floor(next.y) + 1;
 
     npc.x = next.x;
@@ -887,3 +967,4 @@ function despawnNPC(npc) {
     npc.el.remove();
     activeNPCs = activeNPCs.filter(n => n !== npc);
 }
+
