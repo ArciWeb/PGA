@@ -41,7 +41,7 @@ const buildingsData = {
 // ==========================================
 
 let arciScale = 1;
-let isDebugMode = false; // Predvolene je vývojársky režim VYPNUTÝ
+let isDebugMode = false;
 
 // Nové premenné pre nastavenia (Načítavajú sa z uloženej pamäte, alebo dajú predvolené)
 let speedMultiplier = parseFloat(localStorage.getItem('arciSpeed')) || 0.6;
@@ -50,7 +50,6 @@ let currentBuildingIndex = -1; // Sleduje, pri ktorej budove hráč naposledy bo
 let directEntry = localStorage.getItem('arciEntry') === 'true'; 
 
 // --- KONFIGURÁCIA NPC POSTÁV ---
-// Tu môžeš pridávať nové ID (npc13, npc14...) a nastavovať im vlastnú veľkosť (width) a Meno (name)
 const npcConfigs = {
     "npc1":  { width: 20, name: "Piker Mario" },
     "npc2":  { width: 15, name: "Depka" },
@@ -226,7 +225,7 @@ function startArciCityGame() {
     
     setTimeout(() => { 
         centerCamera(); 
-        initNPCSystem(); // Spustenie NPC po načítaní mapy
+        initNPCSystem(); 
     }, 150);
 }
 
@@ -842,7 +841,7 @@ function manageNPCs() {
     }
 }
 
-// UPRAVENÉ SPAWNOVANIE NPC PRE WOBBLE ANIMÁCIE (Používame znova <img> tag)
+// UPRAVENÉ SPAWNOVANIE NPC PRE WOBBLE ANIMÁCIE A INTERAKCIU
 function spawnNPC() {
     const currentActiveIDs = activeNPCs.map(npc => npc.configID);
     const availableIDs = Object.keys(npcConfigs).filter(id => !currentActiveIDs.includes(id));
@@ -867,15 +866,53 @@ function spawnNPC() {
     npcEl.style.pointerEvents = 'auto'; // Aby sa na postavu dalo kliknúť
     npcEl.style.cursor = 'pointer';
 
-    // Zapojenie kliknutia pre Underground obchod
+    const npcObj = {
+        configID: chosenID,
+        el: npcEl,
+        x: spawnNode.x,
+        y: spawnNode.y,
+        visitsLeft: Math.floor(Math.random() * 2) + 3, 
+        timeout: null,
+        isWaitingForPlayer: false, // Značka, či NPC momentálne čaká na hráča
+        idForMap: 'map_' + chosenID // Identifikátor pre Underground
+    };
+
+    // Nová logika kliknutia - najprv zastavenie, chôdza k NPC a potom otvorenie okna
     npcEl.onclick = (e) => {
-        e.stopPropagation(); // Zabráni, aby hráč po kliknutí na NPC začal na to miesto kráčať
+        e.stopPropagation(); // Zabráni bežnému pohybu hráča
         
-        // Zoberieme meno priamo z našej konfigurácie (ak náhodou chýba, dáme záložné)
+        // Zastavenie NPC (zrušenie aktuálneho plánu pohybu)
+        clearTimeout(npcObj.timeout);
+        npcObj.isWaitingForPlayer = true;
+        
+        // Vypnutie animácie chôdze pre NPC (ostane stáť)
+        let wasGoingLeft = npcEl.classList.contains('wobble-walk-left');
+        applyWobbleAnimation(npcEl, wasGoingLeft ? 1 : 0, 0, false);
+        
         let npcName = config.name || ("Zákazník " + chosenID.replace('npc', ''));
         
-        if (typeof openMapNpcNegotiation === 'function') {
-            openMapNpcNegotiation('map_' + chosenID, npcName);
+        // Zistíme aktuálnu X, Y pozíciu NPC z jeho CSS (pre presnosť)
+        let targetX = parseFloat(npcEl.style.left) || npcObj.x;
+        let targetY = parseFloat(npcEl.style.top)  || npcObj.y;
+
+        // Povieme hráčovi, nech ide k NPC
+        if (walkOnRoadsOnly) {
+            navigatePlayerViaRoads(targetX, targetY, () => {
+                // Po príchode k NPC otvoríme vyjednávanie
+                if (typeof openMapNpcNegotiation === 'function') {
+                    openMapNpcNegotiation(npcObj.idForMap, npcName);
+                }
+                checkNpcStatusAfterDeal(npcObj);
+            });
+        } else {
+            navigatePlayerDirectly(targetX, targetY);
+            // Ak ideme priamo, prepíšeme activeCallback manuálne na otvorenie okna
+            activeCallback = () => {
+                if (typeof openMapNpcNegotiation === 'function') {
+                    openMapNpcNegotiation(npcObj.idForMap, npcName);
+                }
+                checkNpcStatusAfterDeal(npcObj);
+            };
         }
     };
 
@@ -883,20 +920,58 @@ function spawnNPC() {
     
     document.getElementById('npcLayer').appendChild(npcEl);
     
-    const npcObj = {
-        configID: chosenID,
-        el: npcEl,
-        x: spawnNode.x,
-        y: spawnNode.y,
-        visitsLeft: Math.floor(Math.random() * 2) + 3, 
-        timeout: null
-    };
-    
     activeNPCs.push(npcObj);
     npcBrain(npcObj);
 }
 
+// Funkcia, ktorá sa zavolá potom, čo sa hráč priblíži a okno sa (potenciálne) zatvorí
+// Mapuje sa na to, že o zmenu stavu sa stará Underground
+function checkNpcStatusAfterDeal(npcObj) {
+    npcObj.isWaitingForPlayer = false;
+
+    // Musíme počkať, kým hráč nevybaví obchod v UI a okno sa nezatvorí.
+    // Interval bude kontrolovať, či je ešte otvorené okno s Undergroundom.
+    let checkInterval = setInterval(() => {
+        const ugModal = document.getElementById('modalUnderground');
+        if (ugModal && ugModal.style.display === 'none') {
+            clearInterval(checkInterval);
+
+            // Okno je zatvorené, zistíme, ako to dopadlo
+            if (appState && appState.underground && appState.underground.mapCustomers) {
+                let customerData = appState.underground.mapCustomers[npcObj.idForMap];
+
+                if (customerData && customerData.status === 'done') {
+                    // Predal si mu, okradol si ho, odmietol si ho... ide preč (na x:80, y:80)
+                    const path = calculateShortestPathGraph(npcObj.x, npcObj.y, 80, 80);
+                    moveNPC(npcObj, path, () => {
+                        // Zdrží sa 10 sekúnd na x80 y80
+                        npcObj.timeout = setTimeout(() => {
+                            // A potom zmizne z mapy
+                            const exitNode = roadNodes.find(n => n.id === 37);
+                            const finalPath = calculateShortestPathGraph(npcObj.x, npcObj.y, exitNode.x, exitNode.y);
+                            moveNPC(npcObj, finalPath, () => {
+                                despawnNPC(npcObj);
+                            });
+                        }, 10000);
+                    });
+                } else {
+                    // Nekúpil, okno sa len vyplo bez "done" statusu
+                    const exitNode = roadNodes.find(n => n.id === 37);
+                    const path = calculateShortestPathGraph(npcObj.x, npcObj.y, exitNode.x, exitNode.y);
+                    moveNPC(npcObj, path, () => {
+                        despawnNPC(npcObj);
+                    });
+                }
+            } else {
+                 npcBrain(npcObj); // Ak by sa niečo pokazilo, pokračuje v rutine
+            }
+        }
+    }, 500);
+}
+
 function npcBrain(npc) {
+    if (npc.isWaitingForPlayer) return; // Ak na nás čaká, nezačne si robiť vlastné plány
+
     if (npc.visitsLeft <= 0) {
         const exitNode = roadNodes.find(n => n.id === 37);
         const path = calculateShortestPathGraph(npc.x, npc.y, exitNode.x, exitNode.y);
@@ -922,6 +997,8 @@ function npcBrain(npc) {
     const path = calculateShortestPathGraph(npc.x, npc.y, doorX, doorY);
     
     moveNPC(npc, path, () => {
+        if (npc.isWaitingForPlayer) return;
+
         occupiedDoors[targetKey] = (occupiedDoors[targetKey] || 0) + 1;
 
         npc.timeout = setTimeout(() => {
@@ -931,8 +1008,10 @@ function npcBrain(npc) {
     });
 }
 
-// UPRAVENÝ POHYB NPC (WOBBLE ANIMÁCIA)
+// UPRAVENÝ POHYB NPC (WOBBLE ANIMÁCIA + SPOMALENIE)
 function moveNPC(npc, path, onComplete) {
+    if (npc.isWaitingForPlayer) return; // Poistka, ak by chcel kráčať kým na nás čaká
+
     if (path.length === 0) {
         let wasGoingLeft = npc.el.classList.contains('wobble-walk-left');
         applyWobbleAnimation(npc.el, wasGoingLeft ? 1 : 0, 0, false); 
@@ -947,7 +1026,9 @@ function moveNPC(npc, path, onComplete) {
 
     const dist = Math.hypot(next.x - npc.x, next.y - npc.y);
     
-    let duration = (dist / 10.0) * 1.8; 
+    // ZMENA RÝCHLOSTI NPC (Vyššie číslo = pomalšie)
+    // Pôvodne to bolo 1.8, teraz je to 2.8, aby pôsobili pomalšie a prirodzenejšie
+    let duration = (dist / 10.0) * 2.8; 
     if (duration < 0.1) duration = 0.1;
     
     npc.el.style.transition = `left ${duration}s linear, top ${duration}s linear`;
