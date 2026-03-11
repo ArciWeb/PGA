@@ -12,6 +12,7 @@ const buildingsData = {
     "cards": { name: "ArciCards", x: 59.2, y: 80.5, doorX: 59.2, doorY: 80.5, size: 95, img: "buda_arcicards.png", detail: "mapa-arcicards.png", action: "openArciCardsHub" },
     "vila": { name: "Životný Štýl", x: 53.0, y: 53.5, doorX: 53.0, doorY: 53.5, size: 120, img: "buda_vila.png", detail: "mapa-villa.png", action: "openLifestyleManager" },
     "illegal": { name: "Podsvetie", x: 94.7, y: 76.9, doorX: 94.7, doorY: 76.9, size: 85, img: "buda_illegal.png", detail: "mapa-illegal.png", action: "openArciUnderground" }, 
+    "chillspot": { name: "Chill Spot", x: 3.0, y: 50.0, doorX: 3.0, doorY: 50.0, size: 50, img: "buda_joint.png", detail: "joint.png", action: "openJointSpot" },
     "invest": { name: "ArciInvest", x: 39.8, y: 89.6, doorX: 39.8, doorY: 89.6, size: 135, img: "buda_arciinvest.png", detail: "mapa-invest.png", action: "openArciInvest" },
     "casino": { name: "ArciBet Casino", x: 78.5, y: 82.5, doorX: 78.5, doorY: 82.5, size: 105, img: "buda_arcibet.png", detail: "mapa-arcibet.png", action: "openArciCasino" },
     "tip": { name: "ArciTip Stávková", x: 66.7, y: 83.5, doorX: 66.7, doorY: 83.5, size: 95, img: "buda_arcitip.png", detail: "mapa-tip.png", action: "openArciTip" },
@@ -101,7 +102,7 @@ function startArciCityGame() {
     container.style.overflow = 'auto'; 
     container.style.scrollbarWidth = 'none'; 
     
-    // --- VLOŽENÉ CSS PRE HOJDACIU ANIMÁCIU ---
+    // --- VLOŽENÉ CSS PRE HOJDACIU ANIMÁCIU A MAPU ---
     container.innerHTML = `
         <style>
             #arci-city-game-container::-webkit-scrollbar { display: none; } 
@@ -134,12 +135,10 @@ function startArciCityGame() {
                 animation: hojdanie-vlavo 0.5s infinite linear;
             }
 
-            /* Statické otočenie, ak by postava zastala s pohľadom doľava */
             .face-left {
                 transform: translate(-50%, -100%) scaleX(-1) !important;
             }
             
-            /* Štandardná statická pozícia pre stojacu postavu */
             .face-right {
                 transform: translate(-50%, -100%) scaleX(1) !important;
             }
@@ -160,6 +159,22 @@ function startArciCityGame() {
             <img id="detailImg" src="" onclick="executeBuildingAction(event)" style="width: 95vw; max-height: 80vh; object-fit: contain; border: 5px solid gold; border-radius: 20px; box-shadow: 0 0 50px gold; cursor: pointer; transition: transform 0.2s;">
             <div id="buildingActionText" style="color: gold; font-weight: bold; margin-top: 15px; font-size: 1.2rem; text-shadow: 2px 2px #000; background: rgba(0,0,0,0.7); padding: 10px; border-radius: 10px; text-align: center;">
                 👆 KLIKNI NA FOTKU PRE VSTUP
+            </div>
+        </div>
+
+        <div id="jointModalLayer" onclick="closeJointModal(event)" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.85); z-index: 970; flex-direction: column; align-items: center; justify-content: center;">
+            <div style="background: #111; border: 3px solid #2ecc71; border-radius: 15px; padding: 25px; text-align: center; max-width: 300px; width: 85%; box-shadow: 0 0 40px rgba(46, 204, 113, 0.4);" onclick="event.stopPropagation()">
+                <h2 style="color: #fff; margin-top: 0; border-bottom: 1px solid #333; padding-bottom: 10px; font-size: 1.5rem;">🌿 CHILL SPOT</h2>
+                <p style="color: #ccc; font-size: 0.9rem; margin-bottom: 20px;">Daj si špeka na uvoľnenie! Zvýši ti to šťastie o 10%.</p>
+                
+                <div id="jointImageContainer" style="margin: 0 auto; width: 150px; border: 2px solid #2ecc71; border-radius: 12px; overflow: hidden; transition: 0.2s; background: #000;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                    <img src="joint.png" style="width: 100%; display: block; object-fit: cover;">
+                </div>
+                
+                <h3 style="color: gold; margin: 15px 0 5px 0; font-size: 1.3rem;">Cena: 20 €</h3>
+                <div id="jointStatusText" style="margin-bottom: 15px;"></div>
+                
+                <button onclick="closeJointModal(event)" style="margin-top: 10px; background: #333; color: #fff; border: 1px solid #555; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; font-size: 1rem;">Zavrieť</button>
             </div>
         </div>
 
@@ -309,7 +324,7 @@ function closeMiniMap() {
 }
 
 // ==========================================
-// FUNKCIE PRE ROZBAĽOVACIE MENU BUDOV
+// FUNKCIE PRE ROZBAĽOVACIE MENU BUDOV A JOINT
 // ==========================================
 
 function toggleBuildingMenu(event) {
@@ -333,6 +348,62 @@ function navigateFromMenu(key, event) {
     
     moveToBuilding(key);
 }
+
+// OTVORENIE CUSTOM MODALU PRE JOINT (Vyhneme sa veľkej fotke detailu)
+window.openJointSpot = function() {
+    closeBuildingDetail(); // Pre istotu zavrie ten veľký modal, ak by sa tam hráč dostal inak
+
+    let hasJoint = false;
+    if (appState && appState.myPlayer && appState.myPlayer.lifestyle && appState.myPlayer.lifestyle.tempBonus > 0) {
+        hasJoint = true;
+    }
+
+    const layer = document.getElementById('jointModalLayer');
+    const imgCont = document.getElementById('jointImageContainer');
+    const statusTxt = document.getElementById('jointStatusText');
+
+    if (hasJoint) {
+        imgCont.style.opacity = '0.4';
+        imgCont.style.cursor = 'not-allowed';
+        imgCont.onclick = null;
+        statusTxt.innerHTML = '<span style="color: #e74c3c; font-weight: bold; font-size: 0.9rem;">Tento týždeň si už jedného mal, stačí!</span>';
+    } else {
+        imgCont.style.opacity = '1';
+        imgCont.style.cursor = 'pointer';
+        imgCont.onclick = window.buyJointFromMap;
+        statusTxt.innerHTML = '<span style="color: #2ecc71; font-weight: bold; font-size: 0.9rem; text-transform: uppercase;">👆 Klikni na fotku pre nákup</span>';
+    }
+
+    if (layer) layer.style.display = 'flex';
+};
+
+window.closeJointModal = function(e) {
+    if (e) e.stopPropagation();
+    const layer = document.getElementById('jointModalLayer');
+    if (layer) layer.style.display = 'none';
+};
+
+window.buyJointFromMap = function() {
+    if (typeof window.buyJoint === 'function') {
+        window.buyJoint(); // Volá tvoju pôvodnú funkciu z lifestyle (zoberie 20€, pridá bonus, uloží históriu)
+        window.closeJointModal();
+        
+        // Zobrazenie štýlovej notifikácie priamo nad mapou
+        const container = document.getElementById('arci-city-game-container');
+        const alertDiv = document.createElement('div');
+        alertDiv.innerText = "🌿 Ubalil si jointa! Nálada stúpla o 10%.";
+        alertDiv.style.cssText = "position:absolute; top:20%; left:50%; transform:translateX(-50%); background:rgba(46, 204, 113, 0.95); color:#000; padding:15px 30px; font-weight:bold; border-radius:10px; z-index:9999; font-size:1.1rem; box-shadow: 0 0 20px #2ecc71; text-align:center; transition: opacity 0.5s ease;";
+        container.appendChild(alertDiv);
+        
+        setTimeout(() => {
+            alertDiv.style.opacity = '0';
+            setTimeout(() => alertDiv.remove(), 500);
+        }, 3000);
+
+    } else {
+        alert("Funkcia na kúpenie jointa (buyJoint) nebola nájdená. Uisti sa, že je nahratá lifestyle časť.");
+    }
+};
 
 function initArciPinchZoom(el) {
     let initialDist = 0;
@@ -564,7 +635,8 @@ function moveToBuilding(key) {
     const targetY = b.doorY !== undefined ? b.doorY : b.y;
 
     navigatePlayerViaRoads(targetX, targetY, () => {
-        if (directEntry) {
+        // Obchádza funkciu veľkej detailnej fotky a otvára malé okno priamo
+        if (directEntry || b.action === "openJointSpot") {
             window.currentMapAction = b.action;
             executeBuildingAction(null); 
         } else {
