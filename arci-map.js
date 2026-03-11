@@ -58,7 +58,7 @@ const npcConfigs = {
     "npc4":  { width: 42, name: "Fetoň" },
     "npc5":  { width: 50, name: "Santa Grass" },
     "npc6":  { width: 45, name: "Jointimír Jóda" },
-    "npc7":  { width: 45, name: "Buzz Prafeťák },
+    "npc7":  { width: 45, name: "Buzz Prafeťák" },
     "npc8":  { width: 45, name: "Hulifix" },
     "npc9":  { width: 25, name: "Taťka Zhloula" },
     "npc10": { width: 25, name: "Jožko Blackson" },
