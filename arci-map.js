@@ -53,7 +53,7 @@ let directEntry = localStorage.getItem('arciEntry') === 'true';
 // --- KONFIGURÁCIA NPC POSTÁV ---
 const npcConfigs = {
     "npc1":  { width: 20, name: "Piker Mario" },
-    "npc2":  { width: 15, name: "Depka" },
+    "npc2":  { width: 15, name: "Depka von Klepka" },
     "npc3":  { width: 18, name: "Laco Trojočko" },
     "npc4":  { width: 42, name: "Fetoň" },
     "npc5":  { width: 50, name: "Santa Grass" },
@@ -61,9 +61,9 @@ const npcConfigs = {
     "npc7":  { width: 45, name: "Buzz Prafeťák" },
     "npc8":  { width: 45, name: "Hulifix" },
     "npc9":  { width: 25, name: "Taťka Zhloula" },
-    "npc10": { width: 25, name: "Jožko Blackson" },
+    "npc10": { width: 25, name: "Jožko Blacksonicson" },
     "npc11": { width: 25, name: "Líza Papierson" },
-    "npc12": { width: 22, name: "Rosomák čo prišiel po Herák" }
+    "npc12": { width: 22, name: "Rosomák van Herák" }
 };
 
 let activeNPCs = []; // Sledovanie aktívnych postáv na mape
