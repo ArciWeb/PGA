@@ -64,18 +64,18 @@ const npcConfigs = {
     "npc10": { width: 25, name: "Jožko Blacksonicson" },
     "npc11": { width: 25, name: "Líza Papierson" },
     "npc12": { width: 22, name: "Rosomák van Herák" }, 
-        "npc13": { width: 25, name: "Ubalix" },
+        "npc13": { width: 35, name: "Ubalix" },
             "npc14": { width: 25, name: "Snich" },
                 "npc15": { width: 25, name: "Hello Weedy" },
                   "npc16": { width: 25, name: "Sponge Drog" },
                    "npc17": { width: 25, name: "Hulmiona Ganžerova" },
                     "npc18": { width: 25, name: "Pyron Man" },
-                   "npc19": { width: 25, name: "Zhulk" },
+                   "npc19": { width: 30, name: "Zhulk" },
                   "npc20": { width: 25, name: "SuperSkank Man" },
                  "npc21": { width: 25, name: "Ganja Korytnačka" },
-                     "npc22": { width: 25, name: "Harry Squatter" },
-                   "npc23": { width: 25, name: "Green Power" },
-                  "npc24": { width: 25, name: "Malradfin" },
+                     "npc22": { width: 15, name: "Harry Squatter" },
+                   "npc23": { width: 20, name: "Green Power" },
+                  "npc24": { width: 35, name: "Malradfin" },
                  "npc25": { width: 25, name: "Dumbleoutdoore" }
 };
 
