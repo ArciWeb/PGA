@@ -60,19 +60,19 @@ const npcConfigs = {
     "npc6":  { width: 45, name: "Jointimír Jóda" },
     "npc7":  { width: 45, name: "Buzz Prafeťák" },
     "npc8":  { width: 45, name: "Asteroidix" },
-    "npc9":  { width: 25, name: "Taťka Zhloula" },
+    "npc9":  { width: 27, name: "Taťka Zhloula" },
     "npc10": { width: 25, name: "Jožko Blacksonicson" },
-    "npc11": { width: 25, name: "Líza Papierson" },
-    "npc12": { width: 22, name: "Rosomák van Herák" }, 
+    "npc11": { width: 28, name: "Líza Papierson" },
+    "npc12": { width: 28, name: "Rosomák van Herák" }, 
         "npc13": { width: 35, name: "Ubalix" },
             "npc14": { width: 25, name: "Snich" },
-                "npc15": { width: 25, name: "Hello Weedy" },
+                "npc15": { width: 18, name: "Hello Weedy" },
                   "npc16": { width: 25, name: "Sponge Drog" },
-                   "npc17": { width: 25, name: "Hulmiona Ganžerova" },
-                    "npc18": { width: 25, name: "Pyron Man" },
+                   "npc17": { width: 20, name: "Hulmiona Ganžerova" },
+                    "npc18": { width: 33, name: "Pyron Man" },
                    "npc19": { width: 30, name: "Zhulk" },
                   "npc20": { width: 25, name: "SuperSkank Man" },
-                 "npc21": { width: 25, name: "Ganja Korytnačka" },
+                 "npc21": { width: 33, name: "Ganja Korytnačka" },
                      "npc22": { width: 15, name: "Harry Squatter" },
                    "npc23": { width: 20, name: "Green Power" },
                   "npc24": { width: 35, name: "Malradfin" },
@@ -536,6 +536,11 @@ function renderBuildings() {
         
         // UPRAVENÉ: X-Ray klik! Ak je pod budovou postavička, klikne sa na ňu.
         hitbox.onclick = (e) => { 
+            if (isDebugMode) {
+                handleMapClick(e); // V debug móde úplne ignorujeme budovu a posúvame klik na mapu
+                return;
+            }
+
             e.stopPropagation(); 
             
             // 1. Schováme budovu, aby sme videli "cez" ňu
@@ -564,11 +569,7 @@ function renderBuildings() {
             }
 
             // Inak spravíme normálny klik na budovu
-            if (isDebugMode) {
-                console.log(`🏢 Budova: ${b.name} | Súradnice: x: ${b.x.toFixed(1)}, y: ${b.y.toFixed(1)}`);
-            } else {
-                moveToBuilding(key);
-            }
+            moveToBuilding(key);
         };
 
         const img = document.createElement('img');
@@ -623,6 +624,12 @@ function handleMapClick(e) {
 
     const x = ((cx - rect.left) / rect.width) * 100;
     const y = ((cy - rect.top) / rect.height) * 100;
+
+    if (isDebugMode) {
+        console.log(`📍 Presné miesto kliku: x: ${x.toFixed(2)}, y: ${y.toFixed(2)}`);
+        navigatePlayerDirectly(x, y); // V debug móde ide postava vždy priamo na miesto
+        return;
+    }
     
     if (walkOnRoadsOnly) {
         navigatePlayerViaRoads(x, y);
