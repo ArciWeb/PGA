@@ -521,8 +521,36 @@ function renderBuildings() {
         hitbox.style.cursor = 'pointer';
         hitbox.style.zIndex = Math.floor(b.y) + 20; 
         
+        // UPRAVENÉ: X-Ray klik! Ak je pod budovou postavička, klikne sa na ňu.
         hitbox.onclick = (e) => { 
             e.stopPropagation(); 
+            
+            // 1. Schováme budovu, aby sme videli "cez" ňu
+            hitbox.style.display = 'none';
+            
+            // 2. Získame presné súradnice prstu/myši
+            let cx = e.clientX;
+            let cy = e.clientY;
+            if (e.touches && e.touches.length > 0) {
+                cx = e.touches[0].clientX;
+                cy = e.touches[0].clientY;
+            }
+            
+            // 3. Pozrieme sa, čo všetko sa na tom mieste nachádza
+            const elementsUnder = document.elementsFromPoint(cx, cy) || [];
+            
+            // 4. Budovu vrátime ihneď naspäť, hráč si to ani nevšimne
+            hitbox.style.display = 'block';
+
+            // 5. Nájdeme, či je v zozname nájdených prvkov nejaká NPC postavička
+            const clickedNPC = Array.from(elementsUnder).find(el => el.classList && el.classList.contains('arci-npc'));
+            
+            if (clickedNPC) {
+                clickedNPC.click(); // Ak áno, budovu odignorujeme a aktivujeme postavičku!
+                return;
+            }
+
+            // Inak spravíme normálny klik na budovu
             if (isDebugMode) {
                 console.log(`🏢 Budova: ${b.name} | Súradnice: x: ${b.x.toFixed(1)}, y: ${b.y.toFixed(1)}`);
             } else {
@@ -573,8 +601,15 @@ function handleMapClick(e) {
     const wrapper = document.getElementById('mapWrapper');
     const rect = wrapper.getBoundingClientRect();
     
-    const x = ((e.clientX - rect.left) / rect.width) * 100;
-    const y = ((e.clientY - rect.top) / rect.height) * 100;
+    let cx = e.clientX;
+    let cy = e.clientY;
+    if (e.touches && e.touches.length > 0) {
+        cx = e.touches[0].clientX;
+        cy = e.touches[0].clientY;
+    }
+
+    const x = ((cx - rect.left) / rect.width) * 100;
+    const y = ((cy - rect.top) / rect.height) * 100;
     
     if (walkOnRoadsOnly) {
         navigatePlayerViaRoads(x, y);
@@ -761,10 +796,8 @@ let activeCallback = null;
 function applyWobbleAnimation(element, startX, targetX, isMoving) {
     if (!element) return;
     
-    // Zistíme smer posunu po X osi
     const isGoingLeft = targetX < startX;
     
-    // Odstránime staré animačné triedy
     element.classList.remove('wobble-walk', 'wobble-walk-left', 'face-left', 'face-right');
     
     if (isMoving) {
@@ -774,7 +807,6 @@ function applyWobbleAnimation(element, startX, targetX, isMoving) {
             element.classList.add('wobble-walk');
         }
     } else {
-        // Pri zastavení zachováme natočenie podľa posledného pohybu
         if (isGoingLeft) {
             element.classList.add('face-left');
         } else {
@@ -803,14 +835,12 @@ function navigatePlayerViaRoads(targetX, targetY, onComplete = null) {
     processNextMovementStep();
 }
 
-// UPRAVENÁ FUNKCIA PRE POHYB HRÁČA (WOBBLE ANIMÁCIA)
 function processNextMovementStep() {
     const player = document.getElementById('player-character');
 
     if (pathQueue.length === 0) {
         isMoving = false;
         
-        // Zastavenie animácie, zachovanie aktuálneho natočenia (ak má napr. face-left, premení triedy na statické)
         let wasGoingLeft = player.classList.contains('wobble-walk-left');
         applyWobbleAnimation(player, wasGoingLeft ? 1 : 0, 0, false); 
         
@@ -826,7 +856,6 @@ function processNextMovementStep() {
     let currentX = parseFloat(player.style.left || "0");
     let currentY = parseFloat(player.style.top || "0");
     
-    // ZAPNUTIE ANIMÁCIE HOJDANIA
     applyWobbleAnimation(player, currentX, nextPoint.x, true);
 
     let dist = Math.hypot(nextPoint.x - currentX, nextPoint.y - currentY);
@@ -913,7 +942,7 @@ function manageNPCs() {
     }
 }
 
-// UPRAVENÉ SPAWNOVANIE NPC PRE WOBBLE ANIMÁCIE A INTERAKCIU
+// UPRAVENÉ SPAWNOVANIE NPC PRE WOBBLE ANIMÁCIE, WRAPPER A PRIORITU!
 function spawnNPC() {
     const currentActiveIDs = activeNPCs.map(npc => npc.configID);
     const availableIDs = Object.keys(npcConfigs).filter(id => !currentActiveIDs.includes(id));
@@ -924,53 +953,61 @@ function spawnNPC() {
     const config = npcConfigs[chosenID];
     const spawnNode = roadNodes.find(n => n.id === 37);
     
-    const npcEl = document.createElement('img');
-    npcEl.src = chosenID + ".png"; 
-    // Pridáme základnú triedu face-right
-    npcEl.classList.add('face-right'); 
+    // --- Vytvoríme NEVIDITEĽNÝ WRAPPER, ktorý slúži ako gigantické tlačidlo ---
+    const npcWrapper = document.createElement('div');
+    npcWrapper.classList.add('face-right'); 
+    npcWrapper.classList.add('arci-npc'); // DÔLEŽITÉ PRE PRIORITU KLIKNUTIA
     
-    npcEl.style.position = 'absolute';
-    npcEl.style.left = spawnNode.x + '%';
-    npcEl.style.top = spawnNode.y + '%';
-    npcEl.style.width = config.width + 'px';
-    npcEl.style.transform = 'translate(-50%, -100%)';
-    npcEl.style.zIndex = Math.floor(spawnNode.y) + 1;
-    npcEl.style.pointerEvents = 'auto'; // Aby sa na postavu dalo kliknúť
-    npcEl.style.cursor = 'pointer';
+    npcWrapper.style.position = 'absolute';
+    npcWrapper.style.left = spawnNode.x + '%';
+    npcWrapper.style.top = spawnNode.y + '%';
+    npcWrapper.style.transform = 'translate(-50%, -100%)';
+    npcWrapper.style.zIndex = Math.floor(spawnNode.y) + 1;
+    npcWrapper.style.pointerEvents = 'auto'; // Aby sa na wrapper dalo kliknúť
+    npcWrapper.style.cursor = 'pointer';
+    
+    // Tu prebieha to zväčšenie - pridáme zo všetkých strán neviditeľných 20px
+    npcWrapper.style.padding = '20px';
+    // Keďže to padding posunie "hore", posunieme to naspäť "dole" maržou, vizuál sa nezmení!
+    npcWrapper.style.marginTop = '20px'; 
+
+    // --- Do wrappera vložíme samotný obrázok ---
+    const npcImg = document.createElement('img');
+    npcImg.src = chosenID + ".png"; 
+    npcImg.style.width = config.width + 'px'; // Ostanú maličké, ale klikáš na veľký wrapper!
+    npcImg.style.display = 'block';
+    npcImg.style.pointerEvents = 'none'; // Ignorujeme klik na samotný obrázok, klikneme na wrapper
+    npcImg.style.filter = 'drop-shadow(0px 3px 3px rgba(0,0,0,0.4))';
+
+    npcWrapper.appendChild(npcImg);
 
     const npcObj = {
         configID: chosenID,
-        el: npcEl,
+        el: npcWrapper, // Všade manipulujeme s wrapperom!
         x: spawnNode.x,
         y: spawnNode.y,
         visitsLeft: Math.floor(Math.random() * 2) + 3, 
         timeout: null,
-        isWaitingForPlayer: false, // Značka, či NPC momentálne čaká na hráča
-        idForMap: 'map_' + chosenID // Identifikátor pre Underground
+        isWaitingForPlayer: false, 
+        idForMap: 'map_' + chosenID 
     };
 
-    // Nová logika kliknutia - najprv zastavenie, chôdza k NPC a potom otvorenie okna
-    npcEl.onclick = (e) => {
-        e.stopPropagation(); // Zabráni bežnému pohybu hráča
+    npcWrapper.onclick = (e) => {
+        e.stopPropagation(); 
         
-        // Zastavenie NPC (zrušenie aktuálneho plánu pohybu)
         clearTimeout(npcObj.timeout);
         npcObj.isWaitingForPlayer = true;
         
-        // Vypnutie animácie chôdze pre NPC (ostane stáť)
-        let wasGoingLeft = npcEl.classList.contains('wobble-walk-left');
-        applyWobbleAnimation(npcEl, wasGoingLeft ? 1 : 0, 0, false);
+        let wasGoingLeft = npcWrapper.classList.contains('wobble-walk-left');
+        applyWobbleAnimation(npcWrapper, wasGoingLeft ? 1 : 0, 0, false);
         
         let npcName = config.name || ("Zákazník " + chosenID.replace('npc', ''));
         
-        // Zistíme aktuálnu X, Y pozíciu NPC z jeho CSS (pre presnosť)
-        let targetX = parseFloat(npcEl.style.left) || npcObj.x;
-        let targetY = parseFloat(npcEl.style.top)  || npcObj.y;
+        let targetX = parseFloat(npcWrapper.style.left) || npcObj.x;
+        let targetY = parseFloat(npcWrapper.style.top)  || npcObj.y;
 
-        // Povieme hráčovi, nech ide k NPC
         if (walkOnRoadsOnly) {
             navigatePlayerViaRoads(targetX, targetY, () => {
-                // Po príchode k NPC otvoríme vyjednávanie
                 if (typeof openMapNpcNegotiation === 'function') {
                     openMapNpcNegotiation(npcObj.idForMap, npcName);
                 }
@@ -978,7 +1015,6 @@ function spawnNPC() {
             });
         } else {
             navigatePlayerDirectly(targetX, targetY);
-            // Ak ideme priamo, prepíšeme activeCallback manuálne na otvorenie okna
             activeCallback = () => {
                 if (typeof openMapNpcNegotiation === 'function') {
                     openMapNpcNegotiation(npcObj.idForMap, npcName);
@@ -988,37 +1024,27 @@ function spawnNPC() {
         }
     };
 
-    npcEl.style.filter = 'drop-shadow(0px 3px 3px rgba(0,0,0,0.4))';
-    
-    document.getElementById('npcLayer').appendChild(npcEl);
+    document.getElementById('npcLayer').appendChild(npcWrapper);
     
     activeNPCs.push(npcObj);
     npcBrain(npcObj);
 }
 
-// Funkcia, ktorá sa zavolá potom, čo sa hráč priblíži a okno sa (potenciálne) zatvorí
-// Mapuje sa na to, že o zmenu stavu sa stará Underground
 function checkNpcStatusAfterDeal(npcObj) {
     npcObj.isWaitingForPlayer = false;
 
-    // Musíme počkať, kým hráč nevybaví obchod v UI a okno sa nezatvorí.
-    // Interval bude kontrolovať, či je ešte otvorené okno s Undergroundom.
     let checkInterval = setInterval(() => {
         const ugModal = document.getElementById('modalUnderground');
         if (ugModal && ugModal.style.display === 'none') {
             clearInterval(checkInterval);
 
-            // Okno je zatvorené, zistíme, ako to dopadlo
             if (appState && appState.underground && appState.underground.mapCustomers) {
                 let customerData = appState.underground.mapCustomers[npcObj.idForMap];
 
                 if (customerData && customerData.status === 'done') {
-                    // Predal si mu, okradol si ho, odmietol si ho... ide preč (na x:80, y:80)
                     const path = calculateShortestPathGraph(npcObj.x, npcObj.y, 1.8, 50);
                     moveNPC(npcObj, path, () => {
-                        // Zdrží sa 10 sekúnd na x80 y80
                         npcObj.timeout = setTimeout(() => {
-                            // A potom zmizne z mapy
                             const exitNode = roadNodes.find(n => n.id === 37);
                             const finalPath = calculateShortestPathGraph(npcObj.x, npcObj.y, exitNode.x, exitNode.y);
                             moveNPC(npcObj, finalPath, () => {
@@ -1027,7 +1053,6 @@ function checkNpcStatusAfterDeal(npcObj) {
                         }, 10000);
                     });
                 } else {
-                    // Nekúpil, okno sa len vyplo bez "done" statusu
                     const exitNode = roadNodes.find(n => n.id === 37);
                     const path = calculateShortestPathGraph(npcObj.x, npcObj.y, exitNode.x, exitNode.y);
                     moveNPC(npcObj, path, () => {
@@ -1035,14 +1060,14 @@ function checkNpcStatusAfterDeal(npcObj) {
                     });
                 }
             } else {
-                 npcBrain(npcObj); // Ak by sa niečo pokazilo, pokračuje v rutine
+                 npcBrain(npcObj); 
             }
         }
     }, 500);
 }
 
 function npcBrain(npc) {
-    if (npc.isWaitingForPlayer) return; // Ak na nás čaká, nezačne si robiť vlastné plány
+    if (npc.isWaitingForPlayer) return; 
 
     if (npc.visitsLeft <= 0) {
         const exitNode = roadNodes.find(n => n.id === 37);
@@ -1080,9 +1105,8 @@ function npcBrain(npc) {
     });
 }
 
-// UPRAVENÝ POHYB NPC (WOBBLE ANIMÁCIA + SPOMALENIE)
 function moveNPC(npc, path, onComplete) {
-    if (npc.isWaitingForPlayer) return; // Poistka, ak by chcel kráčať kým na nás čaká
+    if (npc.isWaitingForPlayer) return; 
 
     if (path.length === 0) {
         let wasGoingLeft = npc.el.classList.contains('wobble-walk-left');
@@ -1093,13 +1117,10 @@ function moveNPC(npc, path, onComplete) {
     
     const next = path.shift();
     
-    // ZAPNUTIE ANIMÁCIE HOJDANIA PRE NPC
     applyWobbleAnimation(npc.el, npc.x, next.x, true);
 
     const dist = Math.hypot(next.x - npc.x, next.y - npc.y);
     
-    // ZMENA RÝCHLOSTI NPC (Vyššie číslo = pomalšie)
-    // Pôvodne to bolo 1.8, teraz je to 2.8, aby pôsobili pomalšie a prirodzenejšie
     let duration = (dist / 10.0) * 2.8; 
     if (duration < 0.1) duration = 0.1;
     
