@@ -16,9 +16,10 @@ const buildingsData = {
     "invest": { name: "ArciInvest", x: 39.8, y: 89.6, doorX: 39.8, doorY: 89.6, size: 135, img: "buda_arciinvest.png", detail: "mapa-invest.png", action: "openArciInvest" },
     "casino": { name: "ArciBet Casino", x: 78.8, y: 82.5, doorX: 78.5, doorY: 82.5, size: 105, img: "buda_arcibet.png", detail: "mapa-arcibet.png", action: "openArciCasino" },
     "tip": { name: "ArciTip Stávková", x: 66.7, y: 83.5, doorX: 66.7, doorY: 83.5, size: 95, img: "buda_arcitip.png", detail: "mapa-tip.png", action: "openArciTip" },
-    "oblubene": { name: "Obľúbený Hrači", x: 58.1, y: 88.4, doorX: 58, doorY: 83.2, size: 38, img: "buda_oblubene.png", detail: "mapa-oblubene.png", action: "openFavoritesModal" },
     "osobne": { name: "Osobné úspechy", x: 13, y: 86.8, doorX: 9.3, doorY: 77.8, size: 160, img: "buda_zahradka.png", detail: "mapa-personal.png", action: "openPersonalAchievements" },
     "plavaren": { name: "História Spokojnosti", x: 90.9, y: 62.3, doorX: 86.9, doorY: 63.4, size: 162, img: "buda_plavaren.png", detail: "mapa-happy.png", action: "openHappinessOverview" },
+        "oblubene": { name: "Obľúbený Hrači", x: 58.1, y: 88.4, doorX: 58, doorY: 83.2, size: 38, img: "buda_oblubene.png", detail: "mapa-oblubene.png", action: "openFavoritesModal" },
+    "vyhladat": { name: "Vyhľadať Hráča", x: 76.17, y: 87.0, doorX: 76.17, doorY: 87.0, size: 90, img: "buda-vyhladat.png", detail: "mapa_vyhladat.png", action: "openMapSearchModal" }, 
     "kostol": { name: "Kalendár", x: 19.5, y: 28.0, doorX: 19.5, doorY: 28.0, size: 95, img: "buda_kostol.png", detail: "mapa-kostol.png", action: "openGameCalendar" },
     "global": { name: "Globálne Achievmenty", x: 28.5, y: 97.0, doorX: 28.5, doorY: 95.0, size: 110, img: "buda_tabula.png", detail: "mapa-global.png", action: "openGlobalAchievementsList" },
     "kniznica": { name: "Sieň Slávy", x: 40.7, y: 50.5, doorX: 40.7, doorY: 50.5, size: 115, img: "buda_kniznica.png", detail: "mapa-hof.png", action: "openHallOfFame" },
@@ -1162,3 +1163,106 @@ function despawnNPC(npc) {
     npc.el.remove();
     activeNPCs = activeNPCs.filter(n => n !== npc);
 }
+// ==========================================
+// VYHĽADÁVANIE HRÁČOV PRIAMO Z MAPY
+// ==========================================
+
+// 1. Funkcia, ktorá sa zavolá pri vstupe do budovy
+window.openMapSearchModal = function() {
+    closeBuildingDetail(); // Zatvorí veľkú detailnú fotku budovy, ak je otvorená
+
+    // Ak už okno existuje, zmažeme ho (prevencia duplikátov)
+    let existingModal = document.getElementById('mapSearchModalLayer');
+    if (existingModal) existingModal.remove();
+
+    // Vytvorenie pekného modálneho okna v Arči štýle
+    const modalHTML = `
+        <div id="mapSearchModalLayer" onclick="closeMapSearchModal(event)" style="display: flex; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.85); z-index: 9999; flex-direction: column; align-items: center; justify-content: center;">
+            <div style="background: #111; border: 3px solid gold; border-radius: 15px; padding: 25px; text-align: center; max-width: 400px; width: 85%; box-shadow: 0 0 40px rgba(255, 215, 0, 0.4);" onclick="event.stopPropagation()">
+                <h2 style="color: gold; margin-top: 0; border-bottom: 1px solid #333; padding-bottom: 10px; font-size: 1.5rem;">🔍 Vyhľadať Hráča</h2>
+                <p style="color: #ccc; font-size: 0.9rem; margin-bottom: 20px;">Zadaj meno hráča, ktorého profil chceš navštíviť.</p>
+
+                <input type="text" id="mapPlayerSearchInput" placeholder="Začni písať meno..." oninput="handleMapSearch(this.value)" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid gold; background: #222; color: white; font-size: 1.1rem; box-sizing: border-box; outline: none; text-align: center; margin-bottom: 10px;">
+
+                <div id="mapSearchResults" style="max-height: 200px; overflow-y: auto; text-align: left; background: #222; border-radius: 8px; display: none; border: 1px solid #555; scrollbar-width: thin;">
+                    </div>
+
+                <button onclick="closeMapSearchModal(event)" style="margin-top: 20px; background: #333; color: white; border: 1px solid #555; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; font-size: 1rem;">Zavrieť</button>
+            </div>
+        </div>
+    `;
+
+    // Vložíme okno do body
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+
+    // Automaticky zameriame kurzor do vyhľadávacieho poľa
+    setTimeout(() => {
+        const input = document.getElementById('mapPlayerSearchInput');
+        if(input) input.focus();
+    }, 100);
+};
+
+// 2. Funkcia na zatvorenie okna
+window.closeMapSearchModal = function(e) {
+    if (e) e.stopPropagation();
+    const modal = document.getElementById('mapSearchModalLayer');
+    if (modal) modal.remove();
+};
+
+// 3. Logika vyhľadávania (upravená verzia tvojho pôvodného kódu)
+window.handleMapSearch = function(val) {
+    const resultsDiv = document.getElementById('mapSearchResults');
+    if (!val) { 
+        resultsDiv.style.display = 'none'; 
+        resultsDiv.innerHTML = '';
+        return; 
+    }
+    
+    // Predpokladáme, že funkcia normalizeName a databáza db.files sú dostupné globálne
+    const normVal = normalizeName(val);
+    const players = new Set();
+    
+    if (typeof db !== 'undefined' && db.files) {
+        db.files.forEach(f => f.content.forEach(p => players.add(p.name)));
+    }
+
+    const matches = [...players].filter(name => normalizeName(name).includes(normVal));
+    resultsDiv.innerHTML = '';
+
+    if (matches.length > 0) {
+        resultsDiv.style.display = 'block';
+        matches.slice(0, 10).forEach(m => {
+            const div = document.createElement('div');
+            
+            // Štýlovanie výsledku (inline CSS pre istotu, že to bude ladiť s oknom)
+            div.style.padding = '12px 15px';
+            div.style.color = 'white';
+            div.style.borderBottom = '1px solid #444';
+            div.style.cursor = 'pointer';
+            div.style.fontWeight = 'bold';
+            div.innerText = m;
+
+            // Hover efekt
+            div.onmouseover = () => div.style.background = '#444';
+            div.onmouseout = () => div.style.background = 'transparent';
+
+            // Akcia po kliknutí na hráča
+            div.onclick = () => {
+                // Zavoláme tvoju originálnu funkciu z prvej časti kódu
+                if (typeof openPlayerProfile === 'function') {
+                    openPlayerProfile(m);
+                } else {
+                    console.error("Funkcia openPlayerProfile neexistuje!");
+                }
+                // Zavrieme mapové vyhľadávanie
+                closeMapSearchModal();
+            };
+            resultsDiv.appendChild(div);
+        });
+    } else {
+        // Ak sa nenašiel nikto
+        resultsDiv.style.display = 'block';
+        resultsDiv.innerHTML = '<div style="padding: 15px; color: #aaa; text-align: center; font-style: italic;">Hráč sa nenašiel...</div>';
+    }
+};
+
