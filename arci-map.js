@@ -19,7 +19,7 @@ const buildingsData = {
     "osobne": { name: "Osobné úspechy", x: 13, y: 86.8, doorX: 9.3, doorY: 77.8, size: 160, img: "buda_zahradka.png", detail: "mapa-personal.png", action: "openPersonalAchievements" },
     "plavaren": { name: "História Spokojnosti", x: 90.9, y: 62.3, doorX: 86.9, doorY: 63.4, size: 162, img: "buda_plavaren.png", detail: "mapa-happy.png", action: "openHappinessOverview" },
         "oblubene": { name: "Obľúbený Hrači", x: 58.1, y: 88.4, doorX: 58, doorY: 83.2, size: 38, img: "buda_oblubene.png", detail: "mapa-oblubene.png", action: "openFavoritesModal" },
-    "vyhladat": { name: "Vyhľadať Hráča", x: 76.17, y: 87.0, doorX: 76.17, doorY: 87.0, size: 90, img: "buda-vyhladat.png", detail: "mapa_vyhladat.png", action: "openMapSearchModal" }, 
+    "vyhladat": { name: "Vyhľadať Hráča", x: 76.17, y: 87.0, doorX: 76.17, doorY: 87.0, size: 50, img: "buda-vyhladat.png", detail: "mapa_vyhladat.png", action: "openMapSearchModal" }, 
     "kostol": { name: "Kalendár", x: 19.5, y: 28.0, doorX: 19.5, doorY: 28.0, size: 95, img: "buda_kostol.png", detail: "mapa-kostol.png", action: "openGameCalendar" },
     "global": { name: "Globálne Achievmenty", x: 28.5, y: 97.0, doorX: 28.5, doorY: 95.0, size: 110, img: "buda_tabula.png", detail: "mapa-global.png", action: "openGlobalAchievementsList" },
     "kniznica": { name: "Sieň Slávy", x: 40.7, y: 50.5, doorX: 40.7, doorY: 50.5, size: 115, img: "buda_kniznica.png", detail: "mapa-hof.png", action: "openHallOfFame" },
