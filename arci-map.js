@@ -1209,32 +1209,31 @@ window.closeMapSearchModal = function(e) {
     if (modal) modal.remove();
 };
 
-// 3. Logika vyhľadávania (upravená verzia tvojho pôvodného kódu)
+// 3. Logika vyhľadávania (presná kópia tvojho fungujúceho kódu)
 window.handleMapSearch = function(val) {
-    const resultsDiv = document.getElementById('mapSearchResults');
+    const results = document.getElementById('mapSearchResults');
     if (!val) { 
-        resultsDiv.style.display = 'none'; 
-        resultsDiv.innerHTML = '';
+        results.style.display = 'none'; 
+        results.innerHTML = '';
         return; 
     }
     
-    // Predpokladáme, že funkcia normalizeName a databáza db.files sú dostupné globálne
     const normVal = normalizeName(val);
     const players = new Set();
     
-    if (typeof db !== 'undefined' && db.files) {
-        db.files.forEach(f => f.content.forEach(p => players.add(p.name)));
-    }
-
+    // Tvoja priama logika na vytiahnutie mien z databázy
+    db.files.forEach(f => f.content.forEach(p => players.add(p.name)));
+    
     const matches = [...players].filter(name => normalizeName(name).includes(normVal));
-    resultsDiv.innerHTML = '';
+    results.innerHTML = '';
 
     if (matches.length > 0) {
-        resultsDiv.style.display = 'block';
+        results.style.display = 'block';
         matches.slice(0, 10).forEach(m => {
             const div = document.createElement('div');
+            div.className = 'search-item'; // Pridaná tvoja trieda
             
-            // Štýlovanie výsledku (inline CSS pre istotu, že to bude ladiť s oknom)
+            // Zachované inline CSS, aby to pekne ladilo s oknom
             div.style.padding = '12px 15px';
             div.style.color = 'white';
             div.style.borderBottom = '1px solid #444';
@@ -1246,23 +1245,17 @@ window.handleMapSearch = function(val) {
             div.onmouseover = () => div.style.background = '#444';
             div.onmouseout = () => div.style.background = 'transparent';
 
-            // Akcia po kliknutí na hráča
+            // Akcia po kliknutí
             div.onclick = () => {
-                // Zavoláme tvoju originálnu funkciu z prvej časti kódu
-                if (typeof openPlayerProfile === 'function') {
-                    openPlayerProfile(m);
-                } else {
-                    console.error("Funkcia openPlayerProfile neexistuje!");
-                }
-                // Zavrieme mapové vyhľadávanie
+                openPlayerProfile(m);
+                results.style.display = 'none';
+                document.getElementById('mapPlayerSearchInput').value = '';
                 closeMapSearchModal();
             };
-            resultsDiv.appendChild(div);
+            results.appendChild(div);
         });
     } else {
-        // Ak sa nenašiel nikto
-        resultsDiv.style.display = 'block';
-        resultsDiv.innerHTML = '<div style="padding: 15px; color: #aaa; text-align: center; font-style: italic;">Hráč sa nenašiel...</div>';
+        // Skrytie rovnako ako v tvojom origináli
+        results.style.display = 'none';
     }
 };
-
