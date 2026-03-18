@@ -1157,7 +1157,7 @@ function moveNPC(npc, path, onComplete) {
 function despawnNPC(npc) {
     npc.el.remove();
     activeNPCs = activeNPCs.filter(n => n !== npc);
-};
+}
 // ==========================================
 // 7. AI KONVERZÁCIA S NPC POSTAVIČKAMI
 // ==========================================
@@ -1295,7 +1295,7 @@ window.sendNpcAiMessage = async function(npcName) {
         const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
             method: 'POST',
             headers: {
-                'Authorization': \`Bearer \${apiKey}\`,
+                'Authorization': `Bearer ${apiKey}`,
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
