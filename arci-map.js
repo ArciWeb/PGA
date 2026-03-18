@@ -1157,7 +1157,7 @@ function moveNPC(npc, path, onComplete) {
 function despawnNPC(npc) {
     npc.el.remove();
     activeNPCs = activeNPCs.filter(n => n !== npc);
-}
+};
 // ==========================================
 // 7. AI KONVERZÁCIA S NPC POSTAVIČKAMI
 // ==========================================
