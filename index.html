@@ -79656,6 +79656,8 @@ function finishFight() {
     if (fightState.playerHP > 0 && fightState.npcHP <= 0) {
         // HRÁČ VYHRAL
         appState.betting.balance += 100;
+        ugLogTransaction(`Bitka s - ${activeInteractionNpcName}`, 100); // Zápis do histórie (Zisk)
+        
         if (typeof ugAlert === 'function') {
             ugAlert("Rozbil si mu ciferník! Prehľadal si mu vrecká a vzal si si svoju výhru.\n\nZarobené: 100 €", "Víťazstvo v ringu!", () => {
                 if (typeof despawnNPC === 'function') despawnNPC(activeInteractionNpc); // Zbitý súper odíde z mapy
@@ -79664,6 +79666,8 @@ function finishFight() {
     } else if (fightState.playerHP <= 0 && fightState.npcHP > 0) {
         // HRÁČ PREHRAL
         appState.betting.balance -= 100;
+        ugLogTransaction(`Bitka s - ${activeInteractionNpcName}`, -100); // Zápis do histórie (Strata)
+        
         if (typeof ugAlert === 'function') {
             ugAlert("Dostal si strašnú nakladačku. Súper ti zobral 100 € a nechal ťa ležať na zemi.", "K.O. - Prehra!", () => {
                 resumeNpcWalk(); // Súper sa zasmeje a ide ďalej
