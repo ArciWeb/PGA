@@ -1082,6 +1082,173 @@ function checkNpcStatusAfterDeal(npcObj) {
     }, 500);
 }
 
+// ==========================================
+// 7. AI KONVERZÁCIA S NPC POSTAVIČKAMI
+// ==========================================
+
+window.openNpcInteractionMenu = function(npcObj, npcName) {
+    // Zastavíme timeout, aby postavička neodišla, kým s ňou kecáme
+    if (npcObj && npcObj.timeout) clearTimeout(npcObj.timeout);
+    
+    // Načítanie unikátnej histórie pre konkrétnu postavičku
+    const historyKey = 'arci_npc_chat_' + npcName;
+    let npcHistory = JSON.parse(localStorage.getItem(historyKey) || '[]');
+    
+    let historyHtml = '';
+    if (npcHistory.length > 0) {
+        npcHistory.forEach(msg => {
+            if(msg.role !== 'system') {
+                const type = msg.role === 'user' ? 'user' : 'ai';
+                historyHtml += `<div class="message ${type}">${typeof formatAiMessage === 'function' ? formatAiMessage(msg.content) : msg.content}</div>`;
+            }
+        });
+    } else {
+        // Uvítacia správa, ak s ňou hovoríš prvýkrát
+        historyHtml = `
+            <div class="message ai">
+                Čau, ja som ${npcName}. Čo odo mňa chceš? Rýchlo, nemám celý deň!
+            </div>
+        `;
+    }
+    
+    const html = `
+        <div class="modal-header" style="background: linear-gradient(135deg, #1a0000, #3a0000); border-bottom: 2px solid #ef4444;">
+            <h2>🗣️ Ulica: ${npcName}</h2>
+            <div style="display:flex; gap:10px;">
+                <button class="btn btn-sm btn-red" onclick="clearNpcHistory('${npcName}')">🗑️ Zabudnúť</button>
+                <button class="close-btn" onclick="closeNpcInteraction(this, '${npcObj ? npcObj.idForMap : ''}')">&times;</button>
+            </div>
+        </div>
+        <div class="modal-body" style="padding:0; overflow:hidden; display:flex; flex-direction:column; height:75vh; background: #0a0a0a;">
+            
+            <div id="npcChatMessages" class="chat-messages" style="flex-grow: 1; padding: 15px; overflow-y: auto;">
+                ${historyHtml}
+            </div>
+
+            <div id="npcTypingIndicator" class="typing-indicator" style="display:none; padding: 10px; color: #ef4444; text-align:center; font-style:italic;">${npcName} niečo splieta...</div>
+
+            <div class="chat-input-area" style="background: #111; padding: 10px; border-top: 1px solid #333; display: flex; gap: 10px;">
+                <input type="text" id="npcChatInput" class="chat-input" placeholder="Povedz niečo..." onkeypress="if(event.key === 'Enter') sendNpcAiMessage('${npcName}')" style="flex-grow: 1; padding: 10px; border-radius: 5px; background: #222; color: #fff; border: 1px solid #444;">
+                <button class="chat-send-btn btn btn-green" onclick="sendNpcAiMessage('${npcName}')" style="padding: 10px 20px;">➤</button>
+            </div>
+        </div>
+    `;
+    createModal(html, 'npc-chat-modal');
+    
+    // Scroll dole, aby sme videli najnovšie správy
+    setTimeout(() => {
+        const container = document.getElementById('npcChatMessages');
+        if(container) container.scrollTop = container.scrollHeight;
+    }, 100);
+}
+
+window.closeNpcInteraction = function(btn, npcId) {
+    closeTopModal();
+    // NPC pokračuje vo svojom potulovaní po mape
+    let npcObj = activeNPCs.find(n => n.idForMap === npcId);
+    if (npcObj) {
+        npcObj.isWaitingForPlayer = false;
+        npcBrain(npcObj); 
+    }
+}
+
+window.clearNpcHistory = function(npcName) {
+    if(confirm("Naozaj chceš, aby " + npcName + " zabudol na všetko, o čom ste sa bavili?")) {
+        localStorage.removeItem('arci_npc_chat_' + npcName);
+        closeTopModal();
+        setTimeout(() => openNpcInteractionMenu(null, npcName), 100);
+    }
+}
+
+window.sendNpcAiMessage = async function(npcName) {
+    const inputEl = document.getElementById('npcChatInput');
+    const msg = inputEl.value.trim();
+    if(!msg) return;
+    
+    const apiKey = localStorage.getItem('arci_groq_key');
+    if(!apiKey) {
+        alert("Zastav sa! Najprv musíte zadať API kľúč u ArciBota, inak títo feťáci nevedia rozprávať.");
+        return;
+    }
+
+    const historyKey = 'arci_npc_chat_' + npcName;
+    let npcHistory = JSON.parse(localStorage.getItem(historyKey) || '[]');
+    
+    const container = document.getElementById('npcChatMessages');
+    const formatMsg = typeof formatAiMessage === 'function' ? formatAiMessage : (t) => t;
+    
+    // Pridať správu hráča
+    container.innerHTML += `<div class="message user">${formatMsg(msg)}</div>`;
+    container.scrollTop = container.scrollHeight;
+    inputEl.value = '';
+    
+    document.getElementById('npcTypingIndicator').style.display = 'block';
+
+    try {
+        const contextData = typeof generateGameContext === 'function' ? generateGameContext() : {};
+        
+        // --- MOZOG POSTAVIČKY ---
+        const systemPrompt = `
+        Si fiktívna postava v golfovej hre ArciWeb s menom "${npcName}". Nachádzaš sa na mape v tmavej uličke a si z prostredia podsvetia.
+        
+        TVOJA OSOBNOSŤ (Závisí od tvojho mena):
+        - Ak tvoje meno naznačuje marihuanu (napr. Jointimír, Weed, Grass, Ganja), buď extrémne uvoľnený, spomalený, filozofuj o vesmíre, používaj slová ako "brácho", "chill", "husté".
+        - Ak tvoje meno naznačuje pervitín/rýchle drogy (napr. Piker, Fetoň, Rýchlik, Snich), buď hyperaktívny, skáč do reči, rýchlo meň témy, používaj veľa výkričníkov, buď paranoidný a extrémne nabudený.
+        - Ak tvoje meno naznačuje iné (Heroín, Depka), buď spomalený, pesimistický a bez nálady.
+        Si paródiou na známu postavu, ale si namočený v drogách. Vydedukuj si svoj štýl podľa svojho mena.
+        
+        HRÁČ, S KTORÝM HOVORÍŠ:
+        Volá sa: "${contextData.PLAYER_PROFILE?.name || 'Neznámy'}".
+        Má na účte: ${contextData.PLAYER_PROFILE?.money || 0} €.
+        Jeho pozícia v rebríčku (Official Rank): ${contextData.PLAYER_PROFILE?.leaderboards_deep_dive?.Official?.my_standing?.rank || 'Amatér'}.
+        
+        PRAVIDLÁ:
+        1. Nikdy sa nepriznaj, že si AI. Si živá postava v meste ArciCity.
+        2. Reaguj na hráčove dáta. Ak je bohatý, skús ho namotať na drahší tovar alebo pýtaj drobné. Ak je chudobný, vysmievaj sa mu.
+        3. Spomeň golf. Rob si z neho srandu, ako mu to ide na turnajoch.
+        4. Odpovedaj stručne a uderne! Maximálne 2 až 4 vety. Žiadne dlhé slohy.
+        5. Komunikuj výhradne v slovenčine.
+        `;
+
+        const messagesPayload = [
+            { role: "system", content: systemPrompt },
+            ...npcHistory.slice(-10), // Pamätá si posledných 10 správ
+            { role: "user", content: msg }
+        ];
+
+        const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+                'Authorization': \`Bearer \${apiKey}\`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                messages: messagesPayload,
+                model: 'meta-llama/llama-4-scout-17b-16e-instruct',
+                temperature: 0.85, // Mierne vyššia kreativita, aby zneli šialenejšie
+                max_tokens: 400
+            })
+        });
+
+        const data = await response.json();
+        if(data.error) throw new Error(data.error.message);
+
+        const aiText = data.choices[0].message.content;
+        
+        npcHistory.push({ role: "user", content: msg });
+        npcHistory.push({ role: "assistant", content: aiText });
+        localStorage.setItem(historyKey, JSON.stringify(npcHistory));
+
+        container.innerHTML += `<div class="message ai">${formatMsg(aiText)}</div>`;
+        container.scrollTop = container.scrollHeight;
+
+    } catch (err) {
+        container.innerHTML += `<div class="message system">Kámo, niečo mi seklo signál: ${err.message}</div>`;
+    } finally {
+        document.getElementById('npcTypingIndicator').style.display = 'none';
+    }
+}
+
 function npcBrain(npc) {
     if (npc.isWaitingForPlayer) return; 
 
