@@ -1082,6 +1082,82 @@ function checkNpcStatusAfterDeal(npcObj) {
     }, 500);
 }
 
+function npcBrain(npc) {
+    if (npc.isWaitingForPlayer) return; 
+
+    if (npc.visitsLeft <= 0) {
+        const exitNode = roadNodes.find(n => n.id === 37);
+        const path = calculateShortestPathGraph(npc.x, npc.y, exitNode.x, exitNode.y);
+        moveNPC(npc, path, () => {
+            despawnNPC(npc);
+        });
+        return;
+    }
+    
+    const keys = Object.keys(buildingsData);
+    const targetKey = keys[Math.floor(Math.random() * keys.length)];
+    const b = buildingsData[targetKey];
+    
+    let doorX = b.doorX !== undefined ? b.doorX : b.x;
+    let doorY = b.doorY !== undefined ? b.doorY : b.y;
+
+    const occupants = occupiedDoors[targetKey] || 0;
+    if (occupants > 0) {
+        doorX += (occupants * 2.0); 
+    }
+
+    npc.visitsLeft--;
+    const path = calculateShortestPathGraph(npc.x, npc.y, doorX, doorY);
+    
+    moveNPC(npc, path, () => {
+        if (npc.isWaitingForPlayer) return;
+
+        occupiedDoors[targetKey] = (occupiedDoors[targetKey] || 0) + 1;
+
+        npc.timeout = setTimeout(() => {
+            occupiedDoors[targetKey] = Math.max(0, (occupiedDoors[targetKey] || 0) - 1);
+            npcBrain(npc);
+        }, NPC_STAY_DURATION);
+    });
+}
+
+function moveNPC(npc, path, onComplete) {
+    if (npc.isWaitingForPlayer) return; 
+
+    if (path.length === 0) {
+        let wasGoingLeft = npc.el.classList.contains('wobble-walk-left');
+        applyWobbleAnimation(npc.el, wasGoingLeft ? 1 : 0, 0, false); 
+        onComplete();
+        return;
+    }
+    
+    const next = path.shift();
+    
+    applyWobbleAnimation(npc.el, npc.x, next.x, true);
+
+    const dist = Math.hypot(next.x - npc.x, next.y - npc.y);
+    
+    let duration = (dist / 10.0) * 2.8; 
+    if (duration < 0.1) duration = 0.1;
+    
+    npc.el.style.transition = `left ${duration}s linear, top ${duration}s linear`;
+    npc.el.style.left = next.x + '%';
+    npc.el.style.top = next.y + '%';
+    
+    npc.el.style.zIndex = Math.floor(next.y) + 1;
+
+    npc.x = next.x;
+    npc.y = next.y;
+    
+    npc.timeout = setTimeout(() => {
+        moveNPC(npc, path, onComplete);
+    }, duration * 1000);
+}
+
+function despawnNPC(npc) {
+    npc.el.remove();
+    activeNPCs = activeNPCs.filter(n => n !== npc);
+}
 // ==========================================
 // 7. AI KONVERZÁCIA S NPC POSTAVIČKAMI
 // ==========================================
@@ -1249,82 +1325,7 @@ window.sendNpcAiMessage = async function(npcName) {
     }
 }
 
-function npcBrain(npc) {
-    if (npc.isWaitingForPlayer) return; 
 
-    if (npc.visitsLeft <= 0) {
-        const exitNode = roadNodes.find(n => n.id === 37);
-        const path = calculateShortestPathGraph(npc.x, npc.y, exitNode.x, exitNode.y);
-        moveNPC(npc, path, () => {
-            despawnNPC(npc);
-        });
-        return;
-    }
-    
-    const keys = Object.keys(buildingsData);
-    const targetKey = keys[Math.floor(Math.random() * keys.length)];
-    const b = buildingsData[targetKey];
-    
-    let doorX = b.doorX !== undefined ? b.doorX : b.x;
-    let doorY = b.doorY !== undefined ? b.doorY : b.y;
-
-    const occupants = occupiedDoors[targetKey] || 0;
-    if (occupants > 0) {
-        doorX += (occupants * 2.0); 
-    }
-
-    npc.visitsLeft--;
-    const path = calculateShortestPathGraph(npc.x, npc.y, doorX, doorY);
-    
-    moveNPC(npc, path, () => {
-        if (npc.isWaitingForPlayer) return;
-
-        occupiedDoors[targetKey] = (occupiedDoors[targetKey] || 0) + 1;
-
-        npc.timeout = setTimeout(() => {
-            occupiedDoors[targetKey] = Math.max(0, (occupiedDoors[targetKey] || 0) - 1);
-            npcBrain(npc);
-        }, NPC_STAY_DURATION);
-    });
-}
-
-function moveNPC(npc, path, onComplete) {
-    if (npc.isWaitingForPlayer) return; 
-
-    if (path.length === 0) {
-        let wasGoingLeft = npc.el.classList.contains('wobble-walk-left');
-        applyWobbleAnimation(npc.el, wasGoingLeft ? 1 : 0, 0, false); 
-        onComplete();
-        return;
-    }
-    
-    const next = path.shift();
-    
-    applyWobbleAnimation(npc.el, npc.x, next.x, true);
-
-    const dist = Math.hypot(next.x - npc.x, next.y - npc.y);
-    
-    let duration = (dist / 10.0) * 2.8; 
-    if (duration < 0.1) duration = 0.1;
-    
-    npc.el.style.transition = `left ${duration}s linear, top ${duration}s linear`;
-    npc.el.style.left = next.x + '%';
-    npc.el.style.top = next.y + '%';
-    
-    npc.el.style.zIndex = Math.floor(next.y) + 1;
-
-    npc.x = next.x;
-    npc.y = next.y;
-    
-    npc.timeout = setTimeout(() => {
-        moveNPC(npc, path, onComplete);
-    }, duration * 1000);
-}
-
-function despawnNPC(npc) {
-    npc.el.remove();
-    activeNPCs = activeNPCs.filter(n => n !== npc);
-}
 // ==========================================
 // VYHĽADÁVANIE HRÁČOV PRIAMO Z MAPY
 // ==========================================
