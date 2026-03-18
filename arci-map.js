@@ -1162,7 +1162,7 @@ function despawnNPC(npc) {
 // 7. AI KONVERZÁCIA S NPC POSTAVIČKAMI
 // ==========================================
 
-window.openNpcInteractionMenu = function(npcObj, npcName) {
+window.openNpcAiChat = function(npcObj, npcName) {
     // Zastavíme timeout, aby postavička neodišla, kým s ňou kecáme
     if (npcObj && npcObj.timeout) clearTimeout(npcObj.timeout);
     

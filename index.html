@@ -79458,13 +79458,13 @@ function handleInteraction(action) {
     document.getElementById('interactionMenuOverlay').style.display = 'none';
 
     if (action === 'chat') {
-        // Konverzácia (Pripravujeme)
-        if (typeof ugAlert === 'function') {
-            ugAlert("Táto funkcia je zatiaľ vo výstavbe. Arcibot si ešte len čistí zuby.", "Konverzácia");
+        // AI Konverzácia
+        if (typeof window.openNpcAiChat === 'function') {
+            window.openNpcAiChat(activeInteractionNpc, activeInteractionNpcName);
         } else {
-            alert("Vo výstavbe!");
+            alert("AI modul sa ešte nenačítal!");
+            resumeNpcWalk();
         }
-        resumeNpcWalk();
     } 
     else if (action === 'sell') {
         // Predaj drog - Spustí pôvodnú funkciu a až potom povie postavičke, čo má robiť
@@ -79492,6 +79492,7 @@ function handleInteraction(action) {
         resumeNpcWalk();
     }
 }
+
 
 function resumeNpcWalk() {
     if (activeInteractionNpc) {
