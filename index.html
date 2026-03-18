@@ -79436,7 +79436,441 @@ if (!appState.lifestyle) {
 
     if (typeof saveAuto === 'function') saveAuto();
 }
+
+// ==========================================
+// RÁZCESTIE A SÚBOJOVÝ SYSTÉM (STREET FIGHT)
+// ==========================================
+
+let activeInteractionNpc = null;
+let activeInteractionNpcName = "";
+
+// 1. OTVORENIE RÁZCESTIA
+function openNpcInteractionMenu(npcObj, npcName) {
+    activeInteractionNpc = npcObj;
+    activeInteractionNpcName = npcName;
+    
+    document.getElementById('interact-title').innerText = npcName;
+    document.getElementById('interactionMenuOverlay').style.display = 'flex';
+}
+
+// 2. SPRACOVANIE VÝBERU Z RÁZCESTIA
+function handleInteraction(action) {
+    document.getElementById('interactionMenuOverlay').style.display = 'none';
+
+    if (action === 'chat') {
+        // Konverzácia (Pripravujeme)
+        if (typeof ugAlert === 'function') {
+            ugAlert("Táto funkcia je zatiaľ vo výstavbe. Arcibot si ešte len čistí zuby.", "Konverzácia");
+        } else {
+            alert("Vo výstavbe!");
+        }
+        resumeNpcWalk();
+    } 
+    else if (action === 'sell') {
+        // Predaj drog - Spustí pôvodnú funkciu a až potom povie postavičke, čo má robiť
+        if (typeof openMapNpcNegotiation === 'function') {
+            openMapNpcNegotiation(activeInteractionNpc.idForMap, activeInteractionNpcName);
+        }
+        checkNpcStatusAfterDeal(activeInteractionNpc); 
+    } 
+    else if (action === 'fight') {
+        // Súboj - Kontrola peňazí (100€)
+        if (appState.betting.balance < 100) {
+            if (typeof ugAlert === 'function') {
+                ugAlert("Nemáš pri sebe ani kilečko (100 €)! Z čoho chceš vyplatiť prehru? Choď si zarobiť a potom vyskakuj.", "Prázdne vrecká");
+            } else {
+                alert("Nemáš 100€ na súboj!");
+            }
+            resumeNpcWalk();
+            return;
+        }
+        // Spustenie arény
+        startArciStreetFight(activeInteractionNpc, activeInteractionNpcName);
+    } 
+    else if (action === 'cancel') {
+        // Nechať tak
+        resumeNpcWalk();
+    }
+}
+
+function resumeNpcWalk() {
+    if (activeInteractionNpc) {
+        activeInteractionNpc.isWaitingForPlayer = false;
+        if (typeof npcBrain === 'function') npcBrain(activeInteractionNpc);
+    }
+}
+
+// ==========================================
+// BOJOVÁ LOGIKA
+// ==========================================
+
+let fightState = {
+    playerHP: 100,
+    npcHP: 100,
+    playerWeapon: null,
+    playerPerk: null,
+    npcWeapon: null,
+    npcPerk: null,
+    isOver: false
+};
+
+const FIGHT_WEAPONS = [
+    { name: "Holé päste", dmg: 0, icon: "👊" },
+    { name: "Boxer", dmg: 5, icon: "🤜" },
+    { name: "Prak", dmg: 8, icon: "☄️" },
+    { name: "Nôž rybička", dmg: 12, icon: "🔪" },
+    { name: "Bejzbolka", dmg: 15, icon: "🏏" }
+];
+
+const FIGHT_PERKS = [
+    { id: "speed", name: "Superpiko rýchlosť", desc: "20% šanca vyhnúť sa", icon: "⚡" },
+    { id: "chill", name: "Ganja Chill", desc: "-3 DMG z každej rany", icon: "🌿" },
+    { id: "scary", name: "Heroínové oči", desc: "Súper dáva -20% DMG", icon: "👁️" },
+    { id: "rage", name: "Kokaínový ošiaľ", desc: "Dávaš +50% DMG, ale strácaš 5 HP kolo", icon: "❄️" }
+];
+
+function getRandomItem(array) {
+    return array[Math.floor(Math.random() * array.length)];
+}
+
+function startArciStreetFight(npcObj, npcName) {
+    fightState.isOver = false;
+    fightState.playerHP = 100;
+    fightState.npcHP = 100;
+
+    // Generovanie výbavy
+    fightState.playerWeapon = getRandomItem(FIGHT_WEAPONS);
+    fightState.playerPerk = getRandomItem(FIGHT_PERKS);
+    fightState.npcWeapon = getRandomItem(FIGHT_WEAPONS);
+    fightState.npcPerk = getRandomItem(FIGHT_PERKS);
+
+    // Setup UI
+    document.getElementById('npc-fight-img').src = npcObj.configID + ".png";
+    document.getElementById('npc-fight-name').innerText = npcName;
+    
+    document.getElementById('player-stats').innerHTML = `<span class="stat-badge">${fightState.playerWeapon.icon} ${fightState.playerWeapon.name}</span> <span class="stat-badge">${fightState.playerPerk.icon} ${fightState.playerPerk.name}</span>`;
+    document.getElementById('npc-stats').innerHTML = `<span class="stat-badge">${fightState.npcWeapon.icon} ${fightState.npcWeapon.name}</span> <span class="stat-badge">${fightState.npcPerk.icon} ${fightState.npcPerk.name}</span>`;
+
+    document.getElementById('combat-log').innerHTML = `<div class="log-entry" style="color:gold;">Máš stavených 100€. Zápas začína!</div>`;
+    document.getElementById('arena-action-buttons').style.display = 'grid';
+
+    updateHPBars();
+    document.getElementById('fightArenaOverlay').style.display = 'flex';
+}
+
+function updateHPBars() {
+    document.getElementById('player-hp-bar').style.width = Math.max(0, fightState.playerHP) + '%';
+    document.getElementById('player-hp-text').innerText = Math.max(0, fightState.playerHP) + ' / 100';
+    
+    document.getElementById('npc-hp-bar').style.width = Math.max(0, fightState.npcHP) + '%';
+    document.getElementById('npc-hp-text').innerText = Math.max(0, fightState.npcHP) + ' / 100';
+}
+
+function logCombat(message) {
+    const logContainer = document.getElementById('combat-log');
+    const entry = document.createElement('div');
+    entry.className = 'log-entry';
+    entry.innerHTML = message;
+    logContainer.appendChild(entry);
+    logContainer.scrollTop = logContainer.scrollHeight; // Auto-scroll dole
+}
+
+// JADRO SÚBOJA (Kameň-Papier-Nožnice)
+function executeFightRound(playerMove) {
+    if (fightState.isOver) return;
+
+    const moves = ['fast', 'heavy', 'block'];
+    const npcMove = moves[Math.floor(Math.random() * moves.length)];
+    
+    let pBaseDmg = 0;
+    let nBaseDmg = 0;
+    let logMsg = "";
+
+    // VYHODNOTENIE ŤAHU
+    if (playerMove === 'fast' && npcMove === 'heavy') {
+        pBaseDmg = 15; logMsg = `Tvoj Rýchly úder prerušil súperovu Tvrdú ranu!`;
+    } else if (playerMove === 'heavy' && npcMove === 'block') {
+        pBaseDmg = 25; logMsg = `Tvoja Tvrdá rana prerazila súperovo Krytie!`;
+    } else if (playerMove === 'block' && npcMove === 'fast') {
+        pBaseDmg = 10; logMsg = `Vykryl si Rýchly úder a vrátil Protiútok!`;
+    } else if (npcMove === 'fast' && playerMove === 'heavy') {
+        nBaseDmg = 15; logMsg = `Súperov Rýchly úder ťa predbehol!`;
+    } else if (npcMove === 'heavy' && playerMove === 'block') {
+        nBaseDmg = 25; logMsg = `Súperova Tvrdá rana ti prerazila Krytie!`;
+    } else if (npcMove === 'block' && playerMove === 'fast') {
+        nBaseDmg = 10; logMsg = `Súper ťa Vykryl a potrestal!`;
+    } else {
+        logMsg = `Obaja ste zvolili rovnakú taktiku. Zrazili ste sa!`;
+        pBaseDmg = 5; nBaseDmg = 5;
+    }
+
+    // APLIKÁCIA ZBRANÍ
+    if (pBaseDmg > 0) pBaseDmg += fightState.playerWeapon.dmg;
+    if (nBaseDmg > 0) nBaseDmg += fightState.npcWeapon.dmg;
+
+    // APLIKÁCIA SCHOPNOSTÍ (Perks)
+    // Súperov Dodge
+    if (pBaseDmg > 0 && fightState.npcPerk.id === 'speed' && Math.random() < 0.20) {
+        pBaseDmg = 0; logMsg += ` <span style="color:#3498db;">Súper použil Superpiko rýchlosť a vyhol sa!</span>`;
+    }
+    // Hráčov Dodge
+    if (nBaseDmg > 0 && fightState.playerPerk.id === 'speed' && Math.random() < 0.20) {
+        nBaseDmg = 0; logMsg += ` <span style="color:#3498db;">Použil si Superpiko rýchlosť a vyhol si sa!</span>`;
+    }
+
+    // Scary (Dmg reduction na útočníka)
+    if (fightState.playerPerk.id === 'scary' && nBaseDmg > 0) nBaseDmg = Math.floor(nBaseDmg * 0.8);
+    if (fightState.npcPerk.id === 'scary' && pBaseDmg > 0) pBaseDmg = Math.floor(pBaseDmg * 0.8);
+
+    // Rage (Bonus Dmg ale self-dmg)
+    if (fightState.playerPerk.id === 'rage' && pBaseDmg > 0) { pBaseDmg = Math.floor(pBaseDmg * 1.5); fightState.playerHP -= 5; }
+    if (fightState.npcPerk.id === 'rage' && nBaseDmg > 0) { nBaseDmg = Math.floor(nBaseDmg * 1.5); fightState.npcHP -= 5; }
+
+    // Chill (Flat DMG zníženie)
+    if (fightState.playerPerk.id === 'chill' && nBaseDmg > 0) nBaseDmg = Math.max(1, nBaseDmg - 3);
+    if (fightState.npcPerk.id === 'chill' && pBaseDmg > 0) pBaseDmg = Math.max(1, pBaseDmg - 3);
+
+    // FINÁLNE ODČÍTANIE HP
+    fightState.npcHP -= pBaseDmg;
+    fightState.playerHP -= nBaseDmg;
+
+    // Logovanie výsledku kola
+    if (pBaseDmg > 0) logMsg += ` Dal si <span class="log-dmg">${pBaseDmg} DMG</span>.`;
+    if (nBaseDmg > 0) logMsg += ` Dostal si <span class="log-dmg">${nBaseDmg} DMG</span>.`;
+    
+    logCombat(logMsg);
+    updateHPBars();
+
+    // KONTROLA KONCA SÚBOJA
+    if (fightState.playerHP <= 0 || fightState.npcHP <= 0) {
+        fightState.isOver = true;
+        document.getElementById('arena-action-buttons').style.display = 'none';
+        
+        setTimeout(() => { finishFight(); }, 1500);
+    }
+}
+
+function finishFight() {
+    document.getElementById('fightArenaOverlay').style.display = 'none';
+
+    if (fightState.playerHP > 0 && fightState.npcHP <= 0) {
+        // HRÁČ VYHRAL
+        appState.betting.balance += 100;
+        if (typeof ugAlert === 'function') {
+            ugAlert("Rozbil si mu ciferník! Prehľadal si mu vrecká a vzal si si svoju výhru.\n\nZarobené: 100 €", "Víťazstvo v ringu!", () => {
+                if (typeof despawnNPC === 'function') despawnNPC(activeInteractionNpc); // Zbitý súper odíde z mapy
+            });
+        }
+    } else if (fightState.playerHP <= 0 && fightState.npcHP > 0) {
+        // HRÁČ PREHRAL
+        appState.betting.balance -= 100;
+        if (typeof ugAlert === 'function') {
+            ugAlert("Dostal si strašnú nakladačku. Súper ti zobral 100 € a nechal ťa ležať na zemi.", "K.O. - Prehra!", () => {
+                resumeNpcWalk(); // Súper sa zasmeje a ide ďalej
+            });
+        }
+    } else {
+        // REMÍZA
+        if (typeof ugAlert === 'function') {
+            ugAlert("Obaja ste padli na zem vyčerpaní. Súboj končí remízou, nikto neplatí nič.", "Remíza!", () => {
+                if (typeof despawnNPC === 'function') despawnNPC(activeInteractionNpc);
+            });
+        }
+    }
+    
+    if (typeof ugRefreshStats === 'function') ugRefreshStats();
+    if (typeof saveAuto === 'function') saveAuto();
+}
+}
 </script>
+
+<style>
+    /* Animácie */
+    @keyframes popInModern {
+        0% { transform: scale(0.85) translateY(20px); opacity: 0; }
+        100% { transform: scale(1) translateY(0); opacity: 1; }
+    }
+    @keyframes pulseGlow {
+        0% { box-shadow: 0 0 15px rgba(255, 215, 0, 0.3); }
+        50% { box-shadow: 0 0 30px rgba(255, 215, 0, 0.7); }
+        100% { box-shadow: 0 0 15px rgba(255, 215, 0, 0.3); }
+    }
+
+    /* Spoločný overlay s moderným rozmazaním (blur) */
+    .modern-overlay {
+        display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+        background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(8px);
+        z-index: 100000; justify-content: center; align-items: center; flex-direction: column;
+    }
+
+    /* Rázcestie Box */
+    .interaction-box {
+        background: linear-gradient(145deg, #1a1a1a, #0d0d0d);
+        border: 2px solid gold; border-radius: 20px; padding: 25px; width: 90%; max-width: 350px;
+        text-align: center; box-shadow: 0 15px 35px rgba(0,0,0,0.8);
+        animation: popInModern 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    }
+    .interaction-header { font-size: 1.5rem; font-weight: 900; color: gold; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 1px; }
+    .interaction-sub { color: #888; font-size: 0.85rem; margin-bottom: 25px; }
+
+    /* Moderné tlačidlá v Rázcestí */
+    .btn-interact {
+        display: flex; align-items: center; justify-content: flex-start; gap: 15px;
+        width: 100%; padding: 15px 20px; margin-bottom: 12px;
+        background: #111; border: 1px solid #333; border-radius: 12px;
+        color: white; font-size: 1.1rem; font-weight: bold; cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    .btn-interact:hover { transform: translateY(-2px); }
+    .btn-interact .icon { font-size: 1.5rem; }
+    
+    .btn-chat { border-left: 4px solid #3498db; }
+    .btn-chat:hover { background: #1a252f; border-color: #3498db; }
+    .btn-sell { border-left: 4px solid #2ecc71; }
+    .btn-sell:hover { background: #182c1f; border-color: #2ecc71; }
+    .btn-fight { border-left: 4px solid #e74c3c; animation: pulseGlow 2s infinite; }
+    .btn-fight:hover { background: #301716; border-color: #e74c3c; }
+    .btn-cancel { border-left: 4px solid #7f8c8d; justify-content: center; background: transparent; }
+    .btn-cancel:hover { background: #222; }
+
+    /* SÚBOJOVÁ ARÉNA BOX */
+    .fight-arena-box {
+        background: #050505; border: 3px solid #e74c3c; border-radius: 20px;
+        width: 95%; max-width: 600px; overflow: hidden;
+        box-shadow: 0 0 50px rgba(231, 76, 60, 0.4);
+        animation: popInModern 0.3s ease-out forwards;
+        display: flex; flex-direction: column; color: white;
+    }
+    
+    /* Hlavička arény s bleskom */
+    .arena-header {
+        background: linear-gradient(to right, #2c3e50, #e74c3c, #2c3e50);
+        padding: 15px; text-align: center; font-weight: 900; font-size: 1.5rem; letter-spacing: 2px;
+        text-shadow: 2px 2px 0 #000;
+    }
+
+    /* Profil bojovníkov (Split screen) */
+    .fighters-split { display: flex; width: 100%; border-bottom: 2px solid #333; }
+    .fighter-side { flex: 1; padding: 20px 10px; text-align: center; position: relative; }
+    .fighter-side.player { background: linear-gradient(180deg, rgba(46, 204, 113, 0.1), transparent); border-right: 1px solid #333; }
+    .fighter-side.npc { background: linear-gradient(180deg, rgba(231, 76, 60, 0.1), transparent); border-left: 1px solid #333; }
+    
+    .fighter-img-wrap { width: 80px; height: 80px; margin: 0 auto 10px auto; border-radius: 50%; border: 3px solid #555; overflow: hidden; background: #000; display: flex; justify-content: center; align-items: flex-end; }
+    .fighter-img-wrap img { width: 120%; }
+    
+    .fighter-name { font-weight: 900; font-size: 1.1rem; margin-bottom: 5px; text-transform: uppercase; }
+    .fighter-stats { font-size: 0.75rem; color: #aaa; margin-bottom: 15px; min-height: 35px;}
+    .stat-badge { display: inline-block; background: #222; padding: 3px 6px; border-radius: 4px; margin: 2px; border: 1px solid #444; }
+
+    /* HP BARY */
+    .hp-bar-container { width: 90%; height: 20px; background: #222; border-radius: 10px; margin: 0 auto; border: 2px solid #000; overflow: hidden; position: relative; }
+    .hp-fill { height: 100%; width: 100%; transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+    .hp-fill.player { background: linear-gradient(90deg, #27ae60, #2ecc71); }
+    .hp-fill.npc { background: linear-gradient(90deg, #c0392b, #e74c3c); }
+    .hp-text { position: absolute; top: 0; left: 0; width: 100%; height: 100%; text-align: center; font-size: 0.8rem; font-weight: bold; line-height: 20px; text-shadow: 1px 1px 0 #000; }
+
+    /* Bojový Log (Komentátor) */
+    .combat-log {
+        height: 80px; background: #0a0a0a; border-bottom: 2px solid #333; padding: 10px 20px;
+        overflow-y: auto; font-family: monospace; font-size: 0.85rem; color: #ccc;
+        display: flex; flex-direction: column; gap: 5px;
+    }
+    .log-entry { animation: popInModern 0.2s ease-out; }
+    .log-dmg { color: #e74c3c; font-weight: bold; }
+    .log-heal { color: #2ecc71; font-weight: bold; }
+
+    /* Akčné Tlačidlá (Kameň, Papier, Nožnice štýl) */
+    .arena-actions { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; padding: 15px; background: #111; }
+    .btn-attack {
+        background: #222; border: 2px solid #444; border-radius: 12px; padding: 15px 5px;
+        color: white; font-weight: bold; font-size: 0.9rem; cursor: pointer; transition: 0.2s;
+        display: flex; flex-direction: column; align-items: center; gap: 8px;
+    }
+    .btn-attack:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
+    .btn-attack.rock:hover { border-color: #f39c12; background: #3a2504; }
+    .btn-attack.paper:hover { border-color: #c0392b; background: #38120e; }
+    .btn-attack.scissors:hover { border-color: #2980b9; background: #0c2333; }
+    .btn-attack .act-icon { font-size: 1.8rem; }
+</style>
+
+<div id="interactionMenuOverlay" class="modern-overlay">
+    <div class="interaction-box">
+        <div class="interaction-header" id="interact-title">Zákazník</div>
+        <div class="interaction-sub">Čo chceš urobiť?</div>
+
+        <button class="btn-interact btn-chat" onclick="handleInteraction('chat')">
+            <span class="icon">💬</span> <span>Konverzácia (Arcibot)</span>
+        </button>
+        
+        <button class="btn-interact btn-sell" onclick="handleInteraction('sell')">
+            <span class="icon">💊</span> <span>Predať drogy</span>
+        </button>
+        
+        <button class="btn-interact btn-fight" onclick="handleInteraction('fight')">
+            <span class="icon">🥊</span> <span>Vyzvať na súboj (Stávka 100€)</span>
+        </button>
+        
+        <button class="btn-interact btn-cancel" onclick="handleInteraction('cancel')">
+            <span>🏃 Nechať tak (Odísť)</span>
+        </button>
+    </div>
+</div>
+
+<div id="fightArenaOverlay" class="modern-overlay">
+    <div class="fight-arena-box">
+        <div class="arena-header">STREET FIGHT</div>
+        
+        <div class="fighters-split">
+            <div class="fighter-side player">
+                <div class="fighter-img-wrap" style="border-color: #2ecc71;">
+                    <img src="panáčik_stoji.png" alt="Ty">
+                </div>
+                <div class="fighter-name">Ty (ArciBoss)</div>
+                <div class="fighter-stats" id="player-stats">
+                    <span class="stat-badge">🗡️ Zbraň</span> <span class="stat-badge">🔥 Schopnosť</span>
+                </div>
+                <div class="hp-bar-container">
+                    <div class="hp-fill player" id="player-hp-bar"></div>
+                    <div class="hp-text" id="player-hp-text">100 / 100</div>
+                </div>
+            </div>
+
+            <div class="fighter-side npc">
+                <div class="fighter-img-wrap" style="border-color: #e74c3c;">
+                    <img id="npc-fight-img" src="" alt="Súper">
+                </div>
+                <div class="fighter-name" id="npc-fight-name">Súper</div>
+                <div class="fighter-stats" id="npc-stats">
+                    <span class="stat-badge">🗡️ Zbraň</span> <span class="stat-badge">🔥 Schopnosť</span>
+                </div>
+                <div class="hp-bar-container">
+                    <div class="hp-fill npc" id="npc-hp-bar"></div>
+                    <div class="hp-text" id="npc-hp-text">100 / 100</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="combat-log" id="combat-log">
+            <div class="log-entry">Súboj sa začína! Vyber svoj prvý ťah.</div>
+        </div>
+
+        <div class="arena-actions" id="arena-action-buttons">
+            <button class="btn-attack rock" onclick="executeFightRound('fast')">
+                <span class="act-icon">⚡</span>
+                <span>Rýchly úder</span>
+            </button>
+            <button class="btn-attack paper" onclick="executeFightRound('heavy')">
+                <span class="act-icon">✊</span>
+                <span>Tvrdá rana</span>
+            </button>
+            <button class="btn-attack scissors" onclick="executeFightRound('block')">
+                <span class="act-icon">🛡️</span>
+                <span>Krytie/Protiútok</span>
+            </button>
+        </div>
+    </div>
+</div>
+
 <div id="arci-city-game-container" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 999999; background: black;">
     </div>
 

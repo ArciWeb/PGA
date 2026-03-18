@@ -1027,20 +1027,15 @@ function spawnNPC() {
         let targetX = parseFloat(npcWrapper.style.left) || npcObj.x;
         let targetY = parseFloat(npcWrapper.style.top)  || npcObj.y;
 
+        // NOVÁ LOGIKA: Hráč podíde k NPC a otvorí sa Rázcestie (Interaction Menu)
         if (walkOnRoadsOnly) {
             navigatePlayerViaRoads(targetX, targetY, () => {
-                if (typeof openMapNpcNegotiation === 'function') {
-                    openMapNpcNegotiation(npcObj.idForMap, npcName);
-                }
-                checkNpcStatusAfterDeal(npcObj);
+                openNpcInteractionMenu(npcObj, npcName);
             });
         } else {
             navigatePlayerDirectly(targetX, targetY);
             activeCallback = () => {
-                if (typeof openMapNpcNegotiation === 'function') {
-                    openMapNpcNegotiation(npcObj.idForMap, npcName);
-                }
-                checkNpcStatusAfterDeal(npcObj);
+                openNpcInteractionMenu(npcObj, npcName);
             };
         }
     };
