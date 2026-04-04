@@ -71173,13 +71173,17 @@ window.openHappinessOverview = function() {
             // Oprava: Aj v histórii môžeme zobrazovať HP, ak sme si ho uložili (ak nie, ukáže len %)
             const hpText = entry.hp ? `${entry.hp} HP` : `${pct}%`;
 
-            return `
-                <div class="graph-bar-wrapper" onclick="alert('Turnaj: ${entry.tournamentName}\\nPercentá: ${pct}%\\nDátum: ${entry.date}')">
-                    <div class="graph-smiley" style="bottom: ${heightPx}px;">${smiley}</div>
-                    <div class="graph-bar" style="height: ${heightPx}px; background: ${pct >= 100 ? 'var(--highlight-gold)' : 'var(--accent-green)'};"></div>
-                    <div class="graph-label">${index + 1}.</div>
-                </div>
-            `;
+return `
+    <div class="graph-bar-wrapper" onclick="alert('Turnaj: ${entry.tournamentName}\\nPercentá: ${pct}%\\nDátum: ${entry.date}')">
+        <div class="graph-smiley" style="bottom: ${heightPx}px; display: flex; flex-direction: column; align-items: center; line-height: 1.1;">
+            <span style="font-size: 0.75rem; color: #fff; text-shadow: 1px 1px 3px rgba(0,0,0,0.8); margin-bottom: 2px;">${pct}%</span>
+            <span>${smiley}</span>
+        </div>
+        <div class="graph-bar" style="height: ${heightPx}px; background: ${pct >= 100 ? 'var(--highlight-gold)' : 'var(--accent-green)'};"></div>
+        <div class="graph-label">${index + 1}.</div>
+    </div>
+`;
+
         }).join('');
 
         graphHtml = `<div class="happiness-graph-container">${bars}</div>`;
