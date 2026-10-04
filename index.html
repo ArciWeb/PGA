@@ -3321,10 +3321,10 @@ setTimeout(updateMenuStats, 500);
 // --- AI ASSISTANT MODULE ---
 
 const aiState = {
-    apiKey: localStorage.getItem('arci_groq_key') || '',
+    apiKey: localStorage.getItem('arci_gemini_key') || '',
     // NOVINKA: Načítanie histórie z pamäte prehliadača
     history: JSON.parse(localStorage.getItem('arci_ai_history') || '[]'), 
-    model: 'meta-llama/llama-4-scout-17b-16e-instruct' 
+    model: 'gemini-3.8-flash' 
 };
 
 
@@ -3362,12 +3362,12 @@ window.openAiAssistant = function() {
         <div class="modal-body" style="padding:0; overflow:hidden; display:flex; flex-direction:column; height:80vh;">
             
             <div id="apiKeyPanel" class="api-key-panel ${aiState.apiKey ? '' : 'show'}">
-                <p style="color:#ccc; font-size:0.9rem; margin-bottom:5px;">Vložte váš Groq API Kľúč (bude bezpečne uložený v prehliadači):</p>
+                <p style="color:#ccc; font-size:0.9rem; margin-bottom:5px;">Vložte váš Gemini API Kľúč (bude uložený v prehliadači):</p>
                 <div style="display:flex; gap:5px;">
-                    <input type="password" id="groqKeyInput" class="chat-input" placeholder="gsk_..." value="${aiState.apiKey}">
-                    <button class="btn btn-green" onclick="saveGroqKey()">Uložiť</button>
+                    <input type="password" id="geminiKeyInput" class="chat-input" placeholder="AIza..." value="${aiState.apiKey}">
+                    <button class="btn btn-green" onclick="saveGeminiKey()">Uložiť</button>
                 </div>
-                <p style="font-size:0.8rem; color:#666; margin-top:5px;">Kľúč získate na console.groq.com</p>
+                <p style="font-size:0.8rem; color:#666; margin-top:5px;">Kľúč získate v Google AI Studio</p>
             </div>
 
             <div id="chatMessages" class="chat-messages">
@@ -3392,15 +3392,15 @@ window.toggleApiKeyPanel = function() {
     p.classList.toggle('show');
 }
 
-window.saveGroqKey = function() {
-    const input = document.getElementById('groqKeyInput').value.trim();
+window.saveGeminiKey = function() {
+    const input = document.getElementById('geminiKeyInput').value.trim();
     if(input.length > 10) {
-        localStorage.setItem('arci_groq_key', input);
+        localStorage.setItem('arci_gemini_key', input);
         aiState.apiKey = input;
-        alert("Kľúč uložený! Teraz môžete chatovať.");
+        alert("Gemini kľúč uložený! Teraz môžete chatovať.");
         toggleApiKeyPanel();
     } else {
-        alert("Neplatný kľúč.");
+        alert("Neplatný Gemini kľúč.");
     }
 }
 
@@ -3484,27 +3484,43 @@ window.sendAiMessage = async function() {
             { role: "user", content: msg }
         ];
 
-        const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${aiState.apiKey}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                messages: messagesPayload,
-                model: aiState.model,
-                temperature: 0.7, // Trochu vyššia kreativita pre "stoned" mód
-                max_tokens: 1500
-            })
-        });
+        const geminiContents = messagesPayload
+            .filter(m => m.role !== 'system')
+            .map(m => ({
+                role: m.role === 'assistant' ? 'model' : 'user',
+                parts: [{ text: m.content }]
+            }));
+
+        const response = await fetch(
+            `https://generativelanguage.googleapis.com/v1beta/models/${aiState.model}:generateContent?key=${encodeURIComponent(aiState.apiKey)}`,
+            {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    systemInstruction: {
+                        parts: [{ text: systemPrompt }]
+                    },
+                    contents: geminiContents,
+                    generationConfig: {
+                        temperature: 0.7,
+                        maxOutputTokens: 1500
+                    }
+                })
+            }
+        );
 
         const data = await response.json();
-        
-        if(data.error) {
-            throw new Error(data.error.message);
+
+        if(!response.ok || data.error) {
+            throw new Error(data.error?.message || `HTTP ${response.status}`);
         }
 
-        const aiText = data.choices[0].message.content;
+        const aiText = data.candidates?.[0]?.content?.parts
+            ?.map(part => part.text || '')
+            .join('')
+            .trim();
+
+        if(!aiText) throw new Error('Gemini nevrátil žiadnu odpoveď.');
         
         // Uložiť do histórie (pamäte)
         aiState.history.push({ role: "user", content: msg });
@@ -78298,26 +78314,40 @@ window.scanProcessSingleFile = async function(file, index, total, isRetry = fals
 };
 
 window.scanCallGroqAPI = async function(base64) {
-    const apiKey = document.getElementById('scanApiKey').value;
-    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-        method: "POST",
-        headers: { "Authorization": `Bearer ${apiKey}`, "Content-Type": "application/json" },
-        body: JSON.stringify({
-            model: "meta-llama/llama-4-scout-17b-16e-instruct", 
-            messages: [{
-                role: "user",
-                content: [
-                    { type: "text", text: "Extract golf leaderboard JSON. Key 'players' with: name, par, r1, r2, r3, r4, points." },
-                    { type: "image_url", image_url: { url: `data:image/jpeg;base64,${base64}` } }
-                ]
-            }],
-            temperature: 0,
-            response_format: { type: "json_object" }
-        })
-    });
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const apiKey = document.getElementById('scanApiKey').value.trim();
+    const response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${encodeURIComponent(apiKey)}`,
+        {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                contents: [{
+                    role: "user",
+                    parts: [
+                        { text: "Extract golf leaderboard JSON. Return ONLY valid JSON. Key 'players' with: name, par, r1, r2, r3, r4, points." },
+                        { inline_data: { mime_type: "image/jpeg", data: base64 } }
+                    ]
+                }],
+                generationConfig: {
+                    temperature: 0,
+                    responseMimeType: "application/json"
+                }
+            })
+        }
+    );
+
     const json = await response.json();
-    return JSON.parse(json.choices[0].message.content).players || [];
+    if (!response.ok || json.error) {
+        throw new Error(json.error?.message || `HTTP ${response.status}`);
+    }
+
+    const text = json.candidates?.[0]?.content?.parts
+        ?.map(part => part.text || '')
+        .join('')
+        .trim();
+
+    if (!text) throw new Error("Gemini nevrátil JSON.");
+    return JSON.parse(text).players || [];
 };
 
 window.scanHandleFailures = async function() {
