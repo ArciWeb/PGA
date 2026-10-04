@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="sk">
 <head>
     <meta charset="UTF-8">
@@ -79663,8 +79663,8 @@ function finishFight() {
     </div>
 
 
+
 <script>
-/* ARCI-MAP EMBEDDED — corrected functional map version */
 // ==========================================
 // 1. DÁTA BUDOV A SÚRADNICE
 // ==========================================
@@ -79714,6 +79714,7 @@ let isDebugMode = false;
 
 // Nové premenné pre nastavenia (Načítavajú sa z uloženej pamäte, alebo dajú predvolené)
 let speedMultiplier = parseFloat(localStorage.getItem('arciSpeed')) || 0.6;
+let npcSpeedMultiplier = parseFloat(localStorage.getItem('arciNpcSpeed')) || 0.55;
 let walkOnRoadsOnly = localStorage.getItem('arciRoads') === 'true'; 
 let currentBuildingIndex = -1; // Sleduje, pri ktorej budove hráč naposledy bol
 let directEntry = localStorage.getItem('arciEntry') === 'true'; 
@@ -79887,6 +79888,13 @@ function startArciCityGame() {
                 <option value="0.08" ${speedMultiplier === 0.08 ? 'selected' : ''}>Piker (Super rýchlo)</option>
             </select>
 
+            <label style="font-size: 0.85rem; font-weight: bold; margin-bottom: 5px;">Rýchlosť chôdze NPC:</label>
+            <select onchange="changeNpcMovementSpeed(this.value)" style="width: 100%; margin-bottom: 15px; padding: 5px; background: #222; color: white; border: 1px solid gold; border-radius: 5px;">
+                <option value="0.55" ${npcSpeedMultiplier === 0.55 ? 'selected' : ''}>Rýchlo (aktuálna)</option>
+                <option value="0.9" ${npcSpeedMultiplier === 0.9 ? 'selected' : ''}>Stredne</option>
+                <option value="1.35" ${npcSpeedMultiplier === 1.35 ? 'selected' : ''}>Pomaly</option>
+            </select>
+
             <label style="font-size: 0.85rem; font-weight: bold; margin-bottom: 5px;">Kliknutie na mapu:</label>
             <select onchange="changeMovementMode(this.value)" style="width: 100%; margin-bottom: 15px; padding: 5px; background: #222; color: white; border: 1px solid gold; border-radius: 5px;">
                 <option value="free" ${!walkOnRoadsOnly ? 'selected' : ''}>Voľný pohyb</option>
@@ -79981,6 +79989,11 @@ function toggleSettingsMenu(event) {
 function changeMovementSpeed(val) {
     speedMultiplier = parseFloat(val);
     localStorage.setItem('arciSpeed', speedMultiplier); 
+}
+
+function changeNpcMovementSpeed(val) {
+    npcSpeedMultiplier = parseFloat(val);
+    localStorage.setItem('arciNpcSpeed', npcSpeedMultiplier);
 }
 
 function changeMovementMode(val) {
@@ -80335,7 +80348,6 @@ function trackCameraLoop() {
         isTrackingCamera = false;
         return;
     }
-    centerCamera();
     requestAnimationFrame(trackCameraLoop);
 }
 
@@ -80548,9 +80560,9 @@ function processNextMovementStep() {
     let currentX = parseFloat(player.style.left || "0");
     let currentY = parseFloat(player.style.top || "0");
     
-    applyWobbleAnimation(player, currentX, nextPoint.x, true);
-
     let dist = Math.hypot(nextPoint.x - currentX, nextPoint.y - currentY);
+    if (dist < 0.05) { processNextMovementStep(); return; }
+    applyWobbleAnimation(player, currentX, nextPoint.x, true);
     let timeInSeconds = (dist / 10.0) * speedMultiplier; 
     if (timeInSeconds < 0.1) timeInSeconds = 0.1;
     movePlayerStep(nextPoint.x, nextPoint.y, timeInSeconds);
@@ -80625,9 +80637,9 @@ function initNPCSystem() {
     if (!window.__arciNpcManagerStarted) {
         window.__arciNpcManagerStarted = true;
         setInterval(manageNPCs, 5000);
-        setInterval(maybeStartArciLiveEvent, 3500);
+        setInterval(maybeStartArciLiveEvent, 5000);
     }
-    manageNPCs();
+    for (let i = 0; i < MIN_NPCS; i++) setTimeout(() => manageNPCs(), i * 450);
 }
 
 function manageNPCs() {
@@ -80648,6 +80660,10 @@ function spawnNPC() {
     const chosenID = availableIDs[Math.floor(Math.random() * availableIDs.length)];
     const config = npcConfigs[chosenID];
     const spawnNode = roadNodes.find(n => n.id === 37);
+    const spawnExit = roadNodes.find(n => n.id === 11) || spawnNode;
+    const spawnT = 0.08 + Math.random() * 0.72;
+    const spawnX = spawnNode.x + (spawnExit.x - spawnNode.x) * spawnT;
+    const spawnY = spawnNode.y + (spawnExit.y - spawnNode.y) * spawnT;
     
     // --- Vytvoríme NEVIDITEĽNÝ WRAPPER, ktorý slúži ako gigantické tlačidlo ---
     const npcWrapper = document.createElement('div');
@@ -80655,8 +80671,8 @@ function spawnNPC() {
     npcWrapper.classList.add('arci-npc'); // DÔLEŽITÉ PRE PRIORITU KLIKNUTIA
     
     npcWrapper.style.position = 'absolute';
-    npcWrapper.style.left = spawnNode.x + '%';
-    npcWrapper.style.top = spawnNode.y + '%';
+    npcWrapper.style.left = spawnX + '%';
+    npcWrapper.style.top = spawnY + '%';
     npcWrapper.style.transform = 'translate(-50%, -100%)';
     npcWrapper.style.zIndex = Math.floor(spawnNode.y) + 1;
     npcWrapper.style.pointerEvents = 'auto'; // Aby sa na wrapper dalo kliknúť
@@ -80680,8 +80696,11 @@ function spawnNPC() {
     const npcObj = {
         configID: chosenID,
         el: npcWrapper, // Všade manipulujeme s wrapperom!
-        x: spawnNode.x,
-        y: spawnNode.y,
+        x: spawnX,
+        y: spawnY,
+        lastX: spawnX, lastY: spawnY,
+        pathHistory: [{x:spawnX,y:spawnY}],
+        isLiveEventBusy: false,
         visitsLeft: Math.floor(Math.random() * 2) + 3, 
         timeout: null,
         isWaitingForPlayer: false, 
@@ -80798,34 +80817,32 @@ function npcBrain(npc) {
 }
 
 function moveNPC(npc, path, onComplete) {
-    if (npc.isWaitingForPlayer) return; 
-
+    if (!npc || !npc.el?.isConnected || npc.isWaitingForPlayer || npc.isLiveEventBusy) return;
+    if (!Array.isArray(path)) path = [];
+    while (path.length && Math.hypot(path[0].x - npc.x, path[0].y - npc.y) < 0.05) path.shift();
     if (path.length === 0) {
-        let wasGoingLeft = npc.el.classList.contains('wobble-walk-left');
-        applyWobbleAnimation(npc.el, wasGoingLeft ? 1 : 0, 0, false); 
-        onComplete();
+        applyWobbleAnimation(npc.el, npc.x - 0.1, npc.x, false);
+        if (typeof onComplete === 'function') onComplete();
         return;
     }
-    
     const next = path.shift();
-    
-    applyWobbleAnimation(npc.el, npc.x, next.x, true);
-
-    const dist = Math.hypot(next.x - npc.x, next.y - npc.y);
-    
-    let duration = (dist / 10.0) * 2.8; 
-    if (duration < 0.1) duration = 0.1;
-    
+    const startX = npc.x, startY = npc.y;
+    const dist = Math.hypot(next.x - startX, next.y - startY);
+    if (dist < 0.05) { moveNPC(npc, path, onComplete); return; }
+    applyWobbleAnimation(npc.el, startX, next.x, true);
+    const duration = Math.max(0.22, (dist / 10.0) * 2.8 * npcSpeedMultiplier);
+    npc.lastX = startX; npc.lastY = startY;
+    npc.pathHistory = npc.pathHistory || [];
+    npc.pathHistory.push({x:startX,y:startY});
+    if (npc.pathHistory.length > 18) npc.pathHistory.shift();
     npc.el.style.transition = `left ${duration}s linear, top ${duration}s linear`;
     npc.el.style.left = next.x + '%';
     npc.el.style.top = next.y + '%';
-    
     npc.el.style.zIndex = Math.floor(next.y) + 1;
-
-    npc.x = next.x;
-    npc.y = next.y;
-    
+    npc.x = next.x; npc.y = next.y;
     npc.timeout = setTimeout(() => {
+        if (npc.isWaitingForPlayer || npc.isLiveEventBusy || !npc.el?.isConnected) return;
+        maybeNpcCollectNearbyMoney(npc);
         moveNPC(npc, path, onComplete);
     }, duration * 1000);
 }
@@ -81110,6 +81127,7 @@ window.handleMapSearch = function(val) {
     style.id = 'arci-city-visual-polish';
     style.textContent = `
       :root { --arci-gold:#ffd66b; --arci-cyan:#61e7ff; --arci-panel:rgba(9,15,27,.88); }
+      #arci-city-game-container { position:fixed!important; inset:0!important; width:100vw!important; height:100vh!important; overflow:auto!important; background:#000!important; overscroll-behavior:none!important; }
       #arci-city-game-container { background: radial-gradient(ellipse at 50% 0%, #26374a 0%, #05070c 72%) !important; font-family: Inter,system-ui,-apple-system,Segoe UI,sans-serif; }
       #arci-city-game-container button { -webkit-tap-highlight-color:transparent; transition: transform .16s ease, filter .16s ease, box-shadow .16s ease; }
       #arci-city-game-container button:hover { filter:brightness(1.15); transform:translateY(-1px); }
@@ -81140,6 +81158,11 @@ window.handleMapSearch = function(val) {
       .arci-live-event.is-active { animation:arciEventPulse .45s ease-in-out infinite alternate, arciEventJolt .16s linear infinite; }
       .arci-fight-fx { position:absolute; transform:translate(-50%,-50%); pointer-events:none; z-index:950; display:flex; gap:8px; font-size:24px; animation:arciFxFloat .55s ease-in-out infinite alternate; }
       .arci-fight-fx span:nth-child(2){animation:arciPunchIcon .25s ease-in-out infinite alternate}
+      .arci-dropped-money { position:absolute; transform:translate(-50%,-50%); z-index:920; pointer-events:auto; cursor:pointer; background:rgba(4,20,9,.94); color:#baffc9; border:1px solid #8dffab; border-radius:14px; padding:7px 9px; font:900 18px/1 system-ui,sans-serif; box-shadow:0 8px 22px #0009,0 0 18px #59ff7a66; animation:arciCoinPulse 1s ease-in-out infinite alternate; }
+      .arci-dropped-money span { display:block; font-size:9px; margin-top:2px; }
+      .arci-dropped-money.is-target { animation:arciCoinTarget .45s ease-in-out infinite alternate; transform:translate(-50%,-50%) scale(1.2); }
+      @keyframes arciCoinPulse { from{filter:brightness(.95);transform:translate(-50%,-50%) translateY(2px)} to{filter:brightness(1.35);transform:translate(-50%,-50%) translateY(-3px)} }
+      @keyframes arciCoinTarget { from{box-shadow:0 8px 22px #0009,0 0 15px #fff066} to{box-shadow:0 8px 22px #0009,0 0 34px #fff6a0} }
       .arci-money-drop { position:absolute; transform:translate(-50%,-50%); z-index:910; pointer-events:none; color:#9affb2; font:900 13px/1 system-ui,sans-serif; text-shadow:0 2px 5px #000; animation:arciMoneyFloat 1s ease-out infinite; }
       .arci-event-toast-clickable { cursor:pointer; pointer-events:auto!important; border-color:#ffd66b!important; }
       .arci-toast-hint { margin-top:5px; font-size:10px; color:#ffd66b; opacity:.9; }
@@ -81208,175 +81231,35 @@ function showArciStreetEvent(message, eventData = null) {
         toast.onclick = (e) => { e.stopPropagation(); goToArciEvent(eventData); };
     }
     document.body.appendChild(toast);
-    setTimeout(() => { if (!toast.isConnected) return; toast.style.transition = 'opacity .35s, transform .35s'; toast.style.opacity = '0'; toast.style.transform = 'translateX(-50%) translateY(-8px)'; setTimeout(() => toast.remove(), 400); }, eventData ? 7000 : 3200);
+    setTimeout(() => { if (!toast.isConnected) return; toast.style.transition = 'opacity .35s, transform .35s'; toast.style.opacity = '0'; toast.style.transform = 'translateX(-50%) translateY(-8px)'; setTimeout(() => toast.remove(), 400); }, eventData ? 12000 : 3200);
 }
 
 // =========================================================
-// ARCI CITY LIVE EVENTS — skutočné udalosti priamo na mape
+// ARCI CITY LIVE EVENTS — zriedkavé, dlhšie a viditeľné udalosti
 // =========================================================
 let arciLiveEvents = [];
 let arciEventSeq = 0;
-let arciNextLiveEventAt = 0;
-
-function getNpcName(npc) {
-    return (npcConfigs[npc?.configID] || {}).name || 'Miestny';
-}
-
-function getEventLayer() {
-    return document.getElementById('arciEventLayer');
-}
-
-function removeArciLiveEvent(ev) {
-    if (!ev) return;
-    if (ev.marker && ev.marker.isConnected) ev.marker.remove();
-    if (ev.extraNodes) ev.extraNodes.forEach(n => n && n.isConnected && n.remove());
-    arciLiveEvents = arciLiveEvents.filter(x => x !== ev);
-}
-
-function createArciEventMarker(ev) {
-    const layer = getEventLayer();
-    if (!layer) return null;
-    const marker = document.createElement('button');
-    marker.type = 'button';
-    marker.className = `arci-live-event arci-live-${ev.type}`;
-    marker.style.left = ev.x + '%';
-    marker.style.top = ev.y + '%';
-    marker.innerHTML = `<span class="arci-event-icon">${ev.icon}</span><span class="arci-event-caption">${ev.title}</span>`;
-    marker.onclick = (e) => { e.stopPropagation(); goToArciEvent(ev); };
-    layer.appendChild(marker);
-    ev.marker = marker;
-    return marker;
-}
-
-function registerArciLiveEvent(type, x, y, title, icon, duration = 7000, data = {}) {
-    const ev = { id: 'arci_event_' + (++arciEventSeq), type, x, y, title, icon, data, marker:null, extraNodes:[], expiresAt:Date.now()+duration };
-    arciLiveEvents.push(ev);
-    createArciEventMarker(ev);
-    ev.cleanup = setTimeout(() => removeArciLiveEvent(ev), duration);
-    return ev;
-}
-
-function goToArciEvent(ev) {
-    if (!ev || !document.getElementById('arci-city-game-container')) return;
-    const toast = document.querySelector('.arci-event-toast');
-    if (toast) toast.remove();
-    const targetX = ev.x, targetY = ev.y;
-    const finish = () => {
-        centerCamera();
-        if (ev.type === 'fight' && ev.data?.npcA && ev.data?.npcB) {
-            focusArciNpcFight(ev);
-        } else if (ev.type === 'conversation') {
-            showArciStreetEvent(`💬 ${ev.data.aName} a ${ev.data.bName} sa rozprávajú na ulici.`);
-        } else if (ev.type === 'money') {
-            showArciStreetEvent(`💸 ${ev.data.name} tu stratil ${ev.data.amount} €!`);
-        }
-    };
-    if (walkOnRoadsOnly) navigatePlayerViaRoads(targetX, targetY, finish);
-    else { navigatePlayerDirectly(targetX, targetY); activeCallback = finish; }
-}
-
-function createArciFightFX(ev, a, b) {
-    const layer = document.getElementById('arciEventLayer');
-    if (!layer) return;
-    const fx = document.createElement('div');
-    fx.className = 'arci-fight-fx';
-    fx.style.left = ev.x + '%'; fx.style.top = (ev.y - 4) + '%';
-    fx.innerHTML = '<span>💥</span><span>👊</span><span>💢</span>';
-    layer.appendChild(fx); ev.extraNodes.push(fx);
-}
-
-function focusArciNpcFight(ev) {
-    const a = ev.data.npcA, b = ev.data.npcB;
-    if (!a?.el?.isConnected || !b?.el?.isConnected) return;
-    [a,b].forEach(n => { n.isWaitingForPlayer = true; if (n.timeout) clearTimeout(n.timeout); });
-    const leftA = a.x < b.x;
-    applyWobbleAnimation(a.el, leftA ? 1 : 0, leftA ? 0 : 1, false);
-    applyWobbleAnimation(b.el, leftA ? 0 : 1, leftA ? 1 : 0, false);
-    createArciFightFX(ev, a, b);
-    if (ev.marker) ev.marker.classList.add('is-focused');
-    // Po príchode hráča ostane bitka viditeľná ešte chvíľu, potom sa skončí a NPC pokračujú.
-    setTimeout(() => {
-        [a,b].forEach(n => { n.isStreetClashing = false; n.isWaitingForPlayer = false; n.el?.classList.remove('arci-street-clash'); });
-        removeArciLiveEvent(ev);
-        a && npcBrain(a); b && npcBrain(b);
-    }, 5200);
-}
-
-function pickNpcPair(maxDistance = 26) {
-    const candidates = activeNPCs.filter(n => n?.el?.isConnected && !n.isWaitingForPlayer && !n.isLiveEventBusy);
-    if (candidates.length < 2) return null;
-    let best = null, bestDist = Infinity;
-    for (let i=0;i<candidates.length;i++) for (let j=i+1;j<candidates.length;j++) {
-        const a=candidates[i], b=candidates[j];
-        const d=Math.hypot((b.x||0)-(a.x||0),(b.y||0)-(a.y||0));
-        if (d < bestDist) { bestDist=d; best=[a,b]; }
-    }
-    // Najprv berieme blízku dvojicu; ak sú NPC roztrúsené, vezmeme aspoň najbližšiu dvojicu.
-    return best;
-}
-
-function startArciNpcFightEvent() {
-    const pair = pickNpcPair(30);
-    if (!pair) return false;
-    const [a,b] = pair;
-    [a,b].forEach(n => { n.isLiveEventBusy=true; n.isStreetClashing=true; if(n.timeout) clearTimeout(n.timeout); n.el.classList.add('arci-street-clash'); });
-    const x=(a.x+b.x)/2, y=(a.y+b.y)/2;
-    const ev=registerArciLiveEvent('fight',x,y,'POULIČNÁ BITKA','🥊',9000,{npcA:a,npcB:b,aName:getNpcName(a),bName:getNpcName(b)});
-    createArciFightFX(ev,a,b);
-    showArciStreetEvent(`🥊 <b>${getNpcName(a)}</b> vs. <b>${getNpcName(b)}</b> — pouličná bitka!`, ev);
-    setTimeout(()=>{
-        if (!ev.marker) return;
-        ev.marker.classList.add('is-active');
-        [a,b].forEach(n=>n.el.classList.add('arci-punching'));
-    },200);
-    setTimeout(()=>{
-        [a,b].forEach(n=>{ if(n.el)n.el.classList.remove('arci-punching'); n.isLiveEventBusy=false; n.isStreetClashing=false; if(n.el)n.el.classList.remove('arci-street-clash'); });
-        removeArciLiveEvent(ev);
-    },8500);
-    return true;
-}
-
-function startArciConversationEvent() {
-    const pair=pickNpcPair(34); if(!pair) return false;
-    const [a,b]=pair;
-    [a,b].forEach(n=>{ n.isLiveEventBusy=true; if(n.timeout)clearTimeout(n.timeout); n.isWaitingForPlayer=true; });
-    const x=(a.x+b.x)/2,y=(a.y+b.y)/2;
-    const ev=registerArciLiveEvent('conversation',x,y,'ROZHOVOR','💬',6500,{a,b,aName:getNpcName(a),bName:getNpcName(b)});
-    a.el.classList.add('arci-talking'); b.el.classList.add('arci-talking');
-    applyWobbleAnimation(a.el,a.x,b.x,false); applyWobbleAnimation(b.el,b.x,a.x,false);
-    showArciStreetEvent(`💬 ${getNpcName(a)} sa stretol s ${getNpcName(b)} — chvíľu kecajú.`,ev);
-    setTimeout(()=>{
-        [a,b].forEach(n=>{n.isLiveEventBusy=false;n.isWaitingForPlayer=false;n.el?.classList.remove('arci-talking');});
-        removeArciLiveEvent(ev); npcBrain(a); npcBrain(b);
-    },6200);
-    return true;
-}
-
-function startArciMoneyEvent() {
-    const candidates=activeNPCs.filter(n=>n?.el?.isConnected&&!n.isWaitingForPlayer&&!n.isLiveEventBusy);
-    if(!candidates.length) return false;
-    const npc=candidates[Math.floor(Math.random()*candidates.length)];
-    const amount=[10,20,25,50][Math.floor(Math.random()*4)];
-    npc.isLiveEventBusy=true; if(npc.timeout)clearTimeout(npc.timeout); npc.isWaitingForPlayer=true;
-    const ev=registerArciLiveEvent('money',npc.x,npc.y,'STRATENÉ PENIAZE','💸',6500,{npc,name:getNpcName(npc),amount});
-    const coins=document.createElement('div'); coins.className='arci-money-drop'; coins.innerHTML=`💶 <b>-${amount} €</b>`; coins.style.left=npc.x+'%'; coins.style.top=(npc.y-5)+'%';
-    getEventLayer()?.appendChild(coins); ev.extraNodes.push(coins);
-    showArciStreetEvent(`💸 ${getNpcName(npc)} stratil ${amount} €!`,ev);
-    setTimeout(()=>{npc.isLiveEventBusy=false;npc.isWaitingForPlayer=false;removeArciLiveEvent(ev);npcBrain(npc);},6200);
-    return true;
-}
-
-function maybeStartArciLiveEvent() {
-    if (!document.getElementById('arci-city-game-container') || Date.now()<arciNextLiveEventAt) return;
-    if (activeNPCs.length<2) return;
-    // Častejšie udalosti, ale iba jedna naraz.
-    if (arciLiveEvents.some(e=>e.expiresAt>Date.now())) return;
-    arciNextLiveEventAt=Date.now()+18000;
-    const roll=Math.random();
-    if (roll<0.34) startArciNpcFightEvent();
-    else if (roll<0.68) startArciConversationEvent();
-    else startArciMoneyEvent();
-}
+let arciNextLiveEventAt = Date.now() + 45000;
+let arciEventRunning = false;
+function getNpcName(npc){return (npcConfigs[npc?.configID]||{}).name||'Miestny';}
+function getEventLayer(){return document.getElementById('arciEventLayer');}
+function removeArciLiveEvent(ev){if(!ev)return;if(ev.marker?.isConnected)ev.marker.remove();if(ev.extraNodes)ev.extraNodes.forEach(n=>n?.isConnected&&n.remove());if(ev.cleanupTimer)clearTimeout(ev.cleanupTimer);if(ev.endTimer)clearTimeout(ev.endTimer);if(ev.motionTimer)clearInterval(ev.motionTimer);arciLiveEvents=arciLiveEvents.filter(x=>x!==ev);if(!arciLiveEvents.length)arciEventRunning=false;}
+function createArciEventMarker(ev){const layer=getEventLayer();if(!layer)return null;const marker=document.createElement('button');marker.type='button';marker.className=`arci-live-event arci-live-${ev.type}`;marker.style.left=ev.x+'%';marker.style.top=ev.y+'%';marker.innerHTML=`<span class="arci-event-icon">${ev.icon}</span><span class="arci-event-caption">${ev.title}</span>`;marker.onclick=e=>{e.stopPropagation();goToArciEvent(ev);};layer.appendChild(marker);ev.marker=marker;return marker;}
+function registerArciLiveEvent(type,x,y,title,icon,duration,data={}){const ev={id:'arci_event_'+(++arciEventSeq),type,x,y,title,icon,data,marker:null,extraNodes:[],expiresAt:Date.now()+duration};arciLiveEvents.push(ev);createArciEventMarker(ev);ev.cleanupTimer=setTimeout(()=>removeArciLiveEvent(ev),duration);return ev;}
+function setNpcEventPose(npc,x,y){if(!npc?.el?.isConnected)return;npc.x=x;npc.y=y;npc.el.style.transition='left .22s ease-out, top .22s ease-out';npc.el.style.left=x+'%';npc.el.style.top=y+'%';npc.el.style.zIndex=Math.floor(y)+1;}
+function positionEventPair(a,b,gap=1.55){const cx=(a.x+b.x)/2,cy=(a.y+b.y)/2,dx=b.x-a.x,dy=b.y-a.y,len=Math.max(.01,Math.hypot(dx,dy)),px=-dy/len,py=dx/len;setNpcEventPose(a,cx+px*gap,cy+py*gap);setNpcEventPose(b,cx-px*gap,cy-py*gap);return{cx,cy};}
+function goToArciEvent(ev){if(!ev||!document.getElementById('arci-city-game-container'))return;document.querySelector('.arci-event-toast')?.remove();const target=ev.type==='money'&&ev.data?.npc?{x:ev.data.npc.x,y:ev.data.npc.y}:{x:ev.x,y:ev.y};const finish=()=>{centerCamera();if(ev.type==='fight')focusArciNpcFight(ev);else if(ev.type==='conversation')showArciStreetEvent(`💬 ${ev.data.aName} a ${ev.data.bName} sa rozprávajú.`);else if(ev.type==='money'&&ev.data.coin?.isConnected){ev.data.coin.classList.add('is-target');showArciStreetEvent(`💶 Peniaze sú na ceste za ${getNpcName(ev.data.npc)}. Klikni na ne a zober ich.`);}};if(walkOnRoadsOnly)navigatePlayerViaRoads(target.x,target.y,finish);else{navigatePlayerDirectly(target.x,target.y);activeCallback=finish;}}
+function createArciFightFX(ev){const layer=getEventLayer();if(!layer)return;const fx=document.createElement('div');fx.className='arci-fight-fx';fx.style.left=ev.x+'%';fx.style.top=(ev.y-5)+'%';fx.innerHTML='<span>💥</span><span>👊</span><span>💢</span>';layer.appendChild(fx);ev.extraNodes.push(fx);}
+function runArciFightMotion(ev,a,b){let t=0;ev.motionTimer=setInterval(()=>{if(!a?.el?.isConnected||!b?.el?.isConnected)return;t+=.35;const cx=(a.x+b.x)/2,cy=(a.y+b.y)/2,gap=1.5,bump=Math.sin(t*2.8)*.62;setNpcEventPose(a,cx-gap+bump,cy+Math.sin(t*2)*.25);setNpcEventPose(b,cx+gap-bump,cy-Math.sin(t*2)*.25);applyWobbleAnimation(a,a.x,b.x,false);applyWobbleAnimation(b,b.x,a.x,false);},180);}
+function focusArciNpcFight(ev){const a=ev.data.npcA,b=ev.data.npcB;if(!a?.el?.isConnected||!b?.el?.isConnected)return;[a,b].forEach(n=>{n.isWaitingForPlayer=true;n.isLiveEventBusy=true;if(n.timeout)clearTimeout(n.timeout);});positionEventPair(a,b,1.5);createArciFightFX(ev);runArciFightMotion(ev,a,b);ev.marker?.classList.add('is-focused');}
+function pickNpcPair(){const c=activeNPCs.filter(n=>n?.el?.isConnected&&!n.isWaitingForPlayer&&!n.isLiveEventBusy);if(c.length<2)return null;let best=null,d=Infinity;for(let i=0;i<c.length;i++)for(let j=i+1;j<c.length;j++){const x=Math.hypot(c[i].x-c[j].x,c[i].y-c[j].y);if(x<d){d=x;best=[c[i],c[j]];}}return best;}
+function finishArciNpcEvent(ev){if(ev.motionTimer)clearInterval(ev.motionTimer);const list=[ev.data?.npcA,ev.data?.npcB,ev.data?.npc].filter(Boolean);list.forEach(n=>{n.isLiveEventBusy=false;n.isWaitingForPlayer=false;n.el?.classList.remove('arci-street-clash','arci-punching','arci-talking');});list.forEach(n=>n?.el?.isConnected&&setTimeout(()=>npcBrain(n),200));removeArciLiveEvent(ev);}
+function startArciNpcFightEvent(){const pair=pickNpcPair();if(!pair)return false;const[a,b]=pair;[a,b].forEach(n=>{n.isLiveEventBusy=true;n.isWaitingForPlayer=true;if(n.timeout)clearTimeout(n.timeout);n.el.classList.add('arci-street-clash');});const pos=positionEventPair(a,b,1.5);const ev=registerArciLiveEvent('fight',pos.cx,pos.cy,'POULIČNÁ BITKA','🥊',18000,{npcA:a,npcB:b,aName:getNpcName(a),bName:getNpcName(b)});createArciFightFX(ev);runArciFightMotion(ev,a,b);showArciStreetEvent(`🥊 <b>${getNpcName(a)}</b> vs. <b>${getNpcName(b)}</b> — POULIČNÁ BITKA!`,ev);ev.marker?.classList.add('is-active');ev.endTimer=setTimeout(()=>finishArciNpcEvent(ev),17000);return true;}
+function startArciConversationEvent(){const pair=pickNpcPair();if(!pair)return false;const[a,b]=pair;[a,b].forEach(n=>{n.isLiveEventBusy=true;n.isWaitingForPlayer=true;if(n.timeout)clearTimeout(n.timeout);n.el.classList.add('arci-talking');});const pos=positionEventPair(a,b,1.45);const ev=registerArciLiveEvent('conversation',pos.cx,pos.cy,'TAJNÝ ROZHOVOR','💬',14000,{npcA:a,npcB:b,aName:getNpcName(a),bName:getNpcName(b)});applyWobbleAnimation(a,a.x,b.x,false);applyWobbleAnimation(b,b.x,a.x,false);showArciStreetEvent(`💬 ${getNpcName(a)} a ${getNpcName(b)} sa stretli — chvíľu kecajú.`,ev);ev.endTimer=setTimeout(()=>finishArciNpcEvent(ev),13000);return true;}
+function collectArciDroppedMoney(coin,collector='player'){if(!coin?.arciMoney||coin.arciMoney.collected)return;coin.arciMoney.collected=true;const amount=coin.arciMoney.amount;if(collector==='player'&&typeof appState!=='undefined'&&appState.betting){appState.betting.balance=(appState.betting.balance||0)+amount;const md=document.querySelector('.money-display span');if(md)md.innerText=`💶 ${appState.betting.balance.toFixed(2)} €`;if(typeof updateBalanceDisplay==='function')updateBalanceDisplay();}coin.remove();showArciStreetEvent(`💶 Zobral si ${amount} €!`);}
+function maybeNpcCollectNearbyMoney(npc){const coins=getEventLayer()?.querySelectorAll('.arci-dropped-money');if(!coins)return;coins.forEach(coin=>{const c=coin.arciMoney;if(c&&!c.collected&&Math.hypot(npc.x-c.x,npc.y-c.y)<2.2)collectArciDroppedMoney(coin,'npc');});}
+function startArciMoneyEvent(){const c=activeNPCs.filter(n=>n?.el?.isConnected&&!n.isWaitingForPlayer&&!n.isLiveEventBusy&&n.pathHistory?.length>3);if(!c.length)return false;const npc=c[Math.floor(Math.random()*c.length)],amount=[10,20,25,50][Math.floor(Math.random()*4)];const hist=npc.pathHistory||[],drop=hist[Math.max(0,hist.length-3)]||{x:npc.lastX||npc.x,y:npc.lastY||npc.y};const ev=registerArciLiveEvent('money',npc.x,npc.y,'STRATENÉ PENIAZE','💸',45000,{npc,name:getNpcName(npc),amount,coin:null});const coin=document.createElement('button');coin.type='button';coin.className='arci-dropped-money';coin.style.left=drop.x+'%';coin.style.top=drop.y+'%';coin.innerHTML=`💶<span>${amount} €</span>`;coin.arciMoney={amount,x:drop.x,y:drop.y,collected:false};coin.onclick=e=>{e.stopPropagation();collectArciDroppedMoney(coin,'player');};getEventLayer()?.appendChild(coin);ev.data.coin=coin;ev.data.drop=drop;showArciStreetEvent(`💸 <b>${getNpcName(npc)}</b> stratil ${amount} €! Klikni na udalosť a sleduj jeho stopu.`,ev);npc.isLiveEventBusy=false;npc.isWaitingForPlayer=false;setTimeout(()=>npcBrain(npc),250);ev.endTimer=setTimeout(()=>removeArciLiveEvent(ev),44000);return true;}
+function maybeStartArciLiveEvent(){if(!document.getElementById('arci-city-game-container')||Date.now()<arciNextLiveEventAt||arciEventRunning)return;if(activeNPCs.length<2)return;arciNextLiveEventAt=Date.now()+70000+Math.random()*50000;arciEventRunning=true;const r=Math.random(),started=r<.34?startArciNpcFightEvent():r<.68?startArciConversationEvent():startArciMoneyEvent();if(!started){arciEventRunning=false;arciNextLiveEventAt=Date.now()+20000;}}
 
 // =========================================================
 // DEŇ / NOC — viditeľný cyklus bez zásahu do hernej logiky
