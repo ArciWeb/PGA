@@ -1238,152 +1238,80 @@ window.clearNpcHistory = function(npcName) {
 
 window.sendNpcAiMessage = async function(npcName) {
     const inputEl = document.getElementById('npcChatInput');
-    const msg = inputEl.value.trim();
-    if(!msg) return;
-    
+    const msg = inputEl?.value.trim();
+    if (!msg) return;
+
     const apiKey = localStorage.getItem('arci_gemini_key');
-    if(!apiKey) {
-        alert("Zastav sa! Najprv musíte zadať API kľúč u ArciBota, inak títo feťáci nevedia rozprávať.");
+    if (!apiKey) {
+        alert("Zastav sa! Najprv musíš zadať Gemini API kľúč u AI Analytika.");
         return;
     }
 
     const historyKey = 'arci_npc_chat_' + npcName;
     let npcHistory = JSON.parse(localStorage.getItem(historyKey) || '[]');
-    
     const container = document.getElementById('npcChatMessages');
     const formatMsg = typeof formatAiMessage === 'function' ? formatAiMessage : (t) => t;
-    
-    // Pridať správu hráča
+
     container.innerHTML += `<div class="message user">${formatMsg(msg)}</div>`;
     container.scrollTop = container.scrollHeight;
     inputEl.value = '';
-    
     document.getElementById('npcTypingIndicator').style.display = 'block';
 
     try {
-        const contextData = typeof generateGameContext === 'function' ? generateGameContext() : {};
-        
-        // --- MOZOG POSTAVIČKY ---
-        const systemPrompt = `
-        Si fiktívna postava v golfovej hre ArciWeb s menom "${npcName}". Nachádzaš sa na mape v tmavej uličke a si z prostredia podsvetia.
-        
-        TVOJA OSOBNOSŤ (Závisí od tvojho mena):
-        - Ak tvoje meno naznačuje marihuanu (napr. Jointimír, Weed, Grass, Ganja), buď extrémne uvoľnený, spomalený, filozofuj o vesmíre, používaj slová ako "brácho", "chill", "husté".
-        - Ak tvoje meno naznačuje pervitín/rýchle drogy (napr. Piker, Fetoň, Rýchlik, Snich), buď hyperaktívny, skáč do reči, rýchlo meň témy, používaj veľa výkričníkov, buď paranoidný a extrémne nabudený.
-        - Ak tvoje meno naznačuje iné (Heroín, Depka), buď spomalený, pesimistický a bez nálady.
-        Si paródiou na známu postavu, ale si namočený v drogách. Vydedukuj si svoj štýl podľa svojho mena.
-        
-        HRÁČ, S KTORÝM HOVORÍŠ:
-        Volá sa: "${contextData.PLAYER_PROFILE?.name || 'Neznámy'}".
-        Má na účte: ${contextData.PLAYER_PROFILE?.money || 0} €.
-        Jeho pozícia v rebríčku (Official Rank): ${contextData.PLAYER_PROFILE?.leaderboards_deep_dive?.Official?.my_standing?.rank || 'Amatér'}.
-        
-        PRAVIDLÁ:
-        1. Nikdy sa nepriznaj, že si AI. Si živá postava v meste ArciCity.
-        2. Reaguj na hráčove dáta. Ak je bohatý, skús ho namotať na drahší tovar alebo pýtaj drobné. Ak je chudobný, vysmievaj sa mu.
-        3. Spomeň golf. Rob si z neho srandu, ako mu to ide na turnajoch.
-        4. Odpovedaj stručne a uderne! Maximálne 2 až 4 vety. Žiadne dlhé slohy.
-        5. Komunikuj výhradne v slovenčine.
-        `;
+        const contextData = typeof generateGameContext === 'function'
+            ? generateGameContext(['identity','profile','career','players'], {})
+            : {};
 
-        const messagesPayload = [
-            { role: "system", content: systemPrompt },
-            ...npcHistory.slice(-10), // Pamätá si posledných 10 správ
-            { role: "user", content: msg }
+        const systemPrompt = `Si fiktívna postava v hre PGA Stats Keeper menom "${npcName}". Si postava z ArciCity.
+TVOJA OSOBNOSŤ:
+- Ak tvoje meno naznačuje marihuanu, buď uvoľnený, spomalený a filozofický.
+- Ak naznačuje rýchle drogy, buď hyperaktívny, chaotický a nabudený.
+- Pri iných menách si vytvor výrazný, mierne šialený štýl.
+HRÁČ:
+${JSON.stringify(contextData)}
+PRAVIDLÁ:
+1. Nikdy sa nepriznaj, že si AI.
+2. Reaguj na skutočné dáta hráča, ak sú v kontexte.
+3. Môžeš spomenúť golf, turnaje, štatistiky a rivalov.
+4. Odpovedaj 2 až 4 vetami.
+5. Komunikuj výhradne po slovensky.
+6. Nevymýšľaj čísla, ktoré nie sú v kontexte.`;
+
+        const contents = [
+            ...npcHistory.slice(-8).map(m => ({
+                role: m.role === 'assistant' ? 'model' : m.role,
+                parts: [{ text: m.content }]
+            })),
+            { role:'user', parts:[{text:msg}] }
         ];
 
-        const geminiContents = messagesPayload
-            .filter(m => m.role !== 'system')
-            .map(m => ({
-                role: m.role === 'assistant' ? 'model' : 'user',
-                parts: [{ text: m.content }]
-            }));
-
-        const response = await fetch(
-            `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent`,
-            {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'x-goog-api-key': apiKey
-                },
-                body: JSON.stringify({
-                    systemInstruction: {
-                        parts: [{ text: systemPrompt }]
-                    },
-                    contents: geminiContents,
-                    generationConfig: {
-                        temperature: 0.85,
-                        maxOutputTokens: 400
-                    }
-                })
-            }
-        );
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=${encodeURIComponent(apiKey)}`, {
+            method:'POST',
+            headers:{'Content-Type':'application/json'},
+            body:JSON.stringify({
+                systemInstruction:{parts:[{text:systemPrompt}]},
+                contents,
+                generationConfig:{maxOutputTokens:400}
+            })
+        });
 
         const data = await response.json();
-        if(!response.ok || data.error) {
-            throw new Error(data.error?.message || `HTTP ${response.status}`);
-        }
+        if (!response.ok) throw new Error(data?.error?.message || `HTTP ${response.status}`);
+        const aiText = (data?.candidates?.[0]?.content?.parts || []).map(p=>p.text||'').join('').trim();
+        if (!aiText) throw new Error('Gemini nevrátil odpoveď');
 
-        const aiText = data.candidates?.[0]?.content?.parts
-            ?.map(part => part.text || '')
-            .join('')
-            .trim();
-
-        if(!aiText) throw new Error('Gemini nevrátil žiadnu odpoveď.');
-        
-        npcHistory.push({ role: "user", content: msg });
-        npcHistory.push({ role: "assistant", content: aiText });
+        npcHistory.push({role:'user',content:msg});
+        npcHistory.push({role:'assistant',content:aiText});
+        if (npcHistory.length > 30) npcHistory = npcHistory.slice(-30);
         localStorage.setItem(historyKey, JSON.stringify(npcHistory));
 
         container.innerHTML += `<div class="message ai">${formatMsg(aiText)}</div>`;
         container.scrollTop = container.scrollHeight;
-
     } catch (err) {
-        container.innerHTML += `<div class="message system">Kámo, niečo mi seklo signál: ${err.message}</div>`;
+        container.innerHTML += `<div class="message system">Kámo, niečo mi seklo signál: ${formatMsg(err.message)}</div>`;
     } finally {
         document.getElementById('npcTypingIndicator').style.display = 'none';
     }
-}
-
-
-// ==========================================
-// VYHĽADÁVANIE HRÁČOV PRIAMO Z MAPY
-// ==========================================
-
-// 1. Funkcia, ktorá sa zavolá pri vstupe do budovy
-window.openMapSearchModal = function() {
-    closeBuildingDetail(); // Zatvorí veľkú detailnú fotku budovy, ak je otvorená
-
-    // Ak už okno existuje, zmažeme ho (prevencia duplikátov)
-    let existingModal = document.getElementById('mapSearchModalLayer');
-    if (existingModal) existingModal.remove();
-
-    // Vytvorenie pekného modálneho okna v Arči štýle
-    const modalHTML = `
-        <div id="mapSearchModalLayer" onclick="closeMapSearchModal(event)" style="display: flex; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.85); z-index: 9999; flex-direction: column; align-items: center; justify-content: center;">
-            <div style="background: #111; border: 3px solid gold; border-radius: 15px; padding: 25px; text-align: center; max-width: 400px; width: 85%; box-shadow: 0 0 40px rgba(255, 215, 0, 0.4);" onclick="event.stopPropagation()">
-                <h2 style="color: gold; margin-top: 0; border-bottom: 1px solid #333; padding-bottom: 10px; font-size: 1.5rem;">🔍 Vyhľadať Hráča</h2>
-                <p style="color: #ccc; font-size: 0.9rem; margin-bottom: 20px;">Zadaj meno hráča, ktorého profil chceš navštíviť.</p>
-
-                <input type="text" id="mapPlayerSearchInput" placeholder="Začni písať meno..." oninput="handleMapSearch(this.value)" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid gold; background: #222; color: white; font-size: 1.1rem; box-sizing: border-box; outline: none; text-align: center; margin-bottom: 10px;">
-
-                <div id="mapSearchResults" style="max-height: 200px; overflow-y: auto; text-align: left; background: #222; border-radius: 8px; display: none; border: 1px solid #555; scrollbar-width: thin;">
-                    </div>
-
-                <button onclick="closeMapSearchModal(event)" style="margin-top: 20px; background: #333; color: white; border: 1px solid #555; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; font-size: 1rem;">Zavrieť</button>
-            </div>
-        </div>
-    `;
-
-    // Vložíme okno do body
-    document.body.insertAdjacentHTML('beforeend', modalHTML);
-
-    // Automaticky zameriame kurzor do vyhľadávacieho poľa
-    setTimeout(() => {
-        const input = document.getElementById('mapPlayerSearchInput');
-        if(input) input.focus();
-    }, 100);
 };
 
 // 2. Funkcia na zatvorenie okna

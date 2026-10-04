@@ -3319,82 +3319,69 @@ setTimeout(updateMenuStats, 500);
 
 
 // --- AI ASSISTANT MODULE ---
+// PGA STATS KEEPER AI - Gemini 3.5 Flash-Lite + on-demand game knowledge
+// Dôležité: AI nedostáva celú databázu pri každej otázke. Najprv lokálne
+// rozpoznáme tému otázky a až potom vytiahneme iba potrebné herné dáta.
 
 const aiState = {
     apiKey: localStorage.getItem('arci_gemini_key') || '',
-    // NOVINKA: Načítanie histórie z pamäte prehliadača
-    history: JSON.parse(localStorage.getItem('arci_ai_history') || '[]'), 
-    model: 'gemini-3.8-flash' 
+    history: JSON.parse(localStorage.getItem('arci_ai_history') || '[]'),
+    model: 'gemini-3.5-flash-lite'
 };
 
-
-// 1. Otvorenie okna asistenta
 window.openAiAssistant = function() {
-    // Vykreslenie histórie správ pri otvorení
     let historyHtml = '';
     if (aiState.history.length > 0) {
         aiState.history.forEach(msg => {
-            if(msg.role !== 'system') { // System správy neukazujeme
+            if (msg.role !== 'system') {
                 const type = msg.role === 'user' ? 'user' : 'ai';
                 historyHtml += `<div class="message ${type}">${formatAiMessage(msg.content)}</div>`;
             }
         });
     } else {
-        // Default uvítacia správa ak je história prázdna
         historyHtml = `
             <div class="message ai">
-                Ahoj! Som tvoj ArciWeb asistent. Vidím kompletne do tvojej hry. 
-                Môžeme rozobrať tvoju finančnú situáciu, analyzovať súperov, skontrolovať kurzy v stávkovej, 
-                prepočítať náklady na životný štýl alebo ti poradiť, čo kúpiť v shope. Čo ťa zaujíma?
-            </div>
-        `;
+                Ahoj! Som tvoj AI analytik PGA Stats Keeper. Môžem vyhľadávať tvoje štatistiky, kariéru, úspechy, turnaje, rebríčky, profily hráčov, vybavenie, financie a ďalšie časti tvojej hry. Čo ťa zaujíma?
+            </div>`;
     }
 
     const html = `
         <div class="modal-header">
-            <h2>🤖 Osobný AI Analytik ArciBox</h2>
+            <h2>🤖 AI Analytik PGA Stats Keeper</h2>
             <div style="display:flex; gap:10px;">
-                <button class="btn btn-sm btn-grey" onclick="toggleApiKeyPanel()">🔑 API Kľúč</button>
+                <button class="btn btn-sm btn-grey" onclick="toggleApiKeyPanel()">🔑 Gemini API Kľúč</button>
                 <button class="btn btn-sm btn-red" onclick="clearAiHistory()">🗑️ Vymazať pamäť</button>
                 <button class="close-btn" onclick="closeTopModal()">&times;</button>
             </div>
         </div>
         <div class="modal-body" style="padding:0; overflow:hidden; display:flex; flex-direction:column; height:80vh;">
-            
             <div id="apiKeyPanel" class="api-key-panel ${aiState.apiKey ? '' : 'show'}">
-                <p style="color:#ccc; font-size:0.9rem; margin-bottom:5px;">Vložte váš Gemini API Kľúč (bude uložený v prehliadači):</p>
+                <p style="color:#ccc; font-size:0.9rem; margin-bottom:5px;">Vložte Gemini API kľúč (uloží sa iba v tomto prehliadači):</p>
                 <div style="display:flex; gap:5px;">
                     <input type="password" id="geminiKeyInput" class="chat-input" placeholder="AIza..." value="${aiState.apiKey}">
                     <button class="btn btn-green" onclick="saveGeminiKey()">Uložiť</button>
                 </div>
-                <p style="font-size:0.8rem; color:#666; margin-top:5px;">Kľúč získate v Google AI Studio</p>
+                <p style="font-size:0.8rem; color:#666; margin-top:5px;">Model: Gemini 3.5 Flash-Lite</p>
             </div>
-
-            <div id="chatMessages" class="chat-messages">
-                ${historyHtml}
-            </div>
-
-            <div id="typingIndicator" class="typing-indicator">AI analyzuje databázu a píše...</div>
-
+            <div id="chatMessages" class="chat-messages">${historyHtml}</div>
+            <div id="typingIndicator" class="typing-indicator">AI vyhľadáva potrebnú časť hry...</div>
             <div class="chat-input-area">
-                <input type="text" id="userChatInput" class="chat-input" placeholder="Napíš správu... (napr. 'Kto vedie FedEx Cup a koľko strácam?')" onkeypress="handleChatEnter(event)">
+                <input type="text" id="userChatInput" class="chat-input" placeholder="Napr. Aký bol môj najlepší turnaj? Kto má najvyšší OVR?" onkeypress="handleChatEnter(event)">
                 <button class="chat-send-btn" onclick="sendAiMessage()">➤</button>
             </div>
-        </div>
-    `;
+        </div>`;
     createModal(html, 'ai-modal');
     scrollToBottom();
-}
+};
 
-// 2. Správa API Kľúča a Pamäte
 window.toggleApiKeyPanel = function() {
     const p = document.getElementById('apiKeyPanel');
-    p.classList.toggle('show');
-}
+    if (p) p.classList.toggle('show');
+};
 
 window.saveGeminiKey = function() {
-    const input = document.getElementById('geminiKeyInput').value.trim();
-    if(input.length > 10) {
+    const input = document.getElementById('geminiKeyInput')?.value.trim();
+    if (input && input.length > 10) {
         localStorage.setItem('arci_gemini_key', input);
         aiState.apiKey = input;
         alert("Gemini kľúč uložený! Teraz môžete chatovať.");
@@ -3402,148 +3389,26 @@ window.saveGeminiKey = function() {
     } else {
         alert("Neplatný Gemini kľúč.");
     }
-}
+};
 
-// NOVINKA: Vymazanie histórie
+// Spätná kompatibilita pre staré onclick odkazy, ak sa niekde v hre ešte nachádzajú.
+window.saveGroqKey = window.saveGeminiKey;
+
 window.clearAiHistory = function() {
-    if(confirm("Naozaj chceš vymazať celú históriu konverzácie s AI?")) {
+    if (confirm("Naozaj chceš vymazať celú históriu konverzácie s AI?")) {
         aiState.history = [];
         localStorage.removeItem('arci_ai_history');
-        // Prekreslenie okna (jednoduchý reload modalu)
         closeTopModal();
         setTimeout(() => openAiAssistant(), 100);
     }
-}
+};
 
-// 3. Odoslanie správy
 window.handleChatEnter = function(e) {
-    if(e.key === 'Enter') sendAiMessage();
-}
+    if (e.key === 'Enter') sendAiMessage();
+};
 
-window.sendAiMessage = async function() {
-    const inputEl = document.getElementById('userChatInput');
-    const msg = inputEl.value.trim();
-    if(!msg) return;
-
-    if(!aiState.apiKey) {
-        alert("Najprv musíte zadať API kľúč (tlačidlo hore)!");
-        toggleApiKeyPanel();
-        return;
-    }
-
-    // Pridať správu usera do UI
-    addMessageToUI(msg, 'user');
-    inputEl.value = '';
-    
-    // Zobraziť loading
-    document.getElementById('typingIndicator').style.display = 'block';
-
-    try {
-        // --- TOTO JE TO KĽÚČOVÉ: GENEROVANIE KONTEXTU ---
-        const contextData = generateGameContext();
-        
-        const systemPrompt = `
-        Si ultra-inteligentný asistent pre golfovú manažérsku hru ArciWeb.
-        Tvojou úlohou je pomáhať hráčovi (Meno: "${appState.myPlayer?.name || 'Neznámy'}") s analýzou dát.
-        
-        Máš prístup k týmto kompletným dátam o hre (JSON formát):
-        ${JSON.stringify(contextData)}
-        
-        ŠPECIÁLNE INŠTRUKCIE PRE INTERAKCIU (MOOD & LIFESTYLE):
-        - Skontroluj 'LIFESTYLE_ADVANCED.is_stoned'. 
-          -> AK JE TRUE: Hráč má "joint". Buď maximálne "chill", uvoľnený, používaj slang, buď k nemu veľmi milý a chápavý. Si jeho "brácho".
-          -> AK JE FALSE: Správaj sa normálne (profesionálne/sarkasticky). Ak sa pýta na relax alebo lifestyle, pripomeň mu, že si má dať joint (ak na to má peniaze), aby bol šťastnejší.
-        - Skontroluj 'LIFESTYLE_ADVANCED.is_on_vacation'. Ak je na dovolenke, nezatažuj ho ťažkými dátami, nechaj ho oddychovať.
-
-        INŠTRUKCIE PRE ANALÝZU DÁT:
-        1. REBRÍČKY (TOP 5): V 'LEADERBOARDS_DEEP_DIVE' vidíš všetkých 8 rebríčkov (Official, PGA, FedEx, ELO...). 
-           Pri každom vidíš TOP 5 hráčov a ich body. Vidíš aj presnú stratu hráča na #1.
-           Ak sa pýta "koľko strácam na prvého", povedz mu presné číslo z konkrétneho rebríčka.
-        
-        2. HISTÓRIA SPOKOJNOSTI A SEZÓNY: V 'SEASON_TIMELINE' vidíš históriu po sezónach.
-           Vieš presne, na ktorom turnaji mal akú spokojnosť (happiness). Ak sa pýta na minulosť, použi to.
-        
-        3. SPONZORI A VÝPLATY: Hráč zarába (BODY * MULTIPLIKÁTOR). 
-           Skontroluj 'SPONSOR_PROGRESS' a povedz mu, čo mu chýba na ďalší level.
-        
-        4. FINANČNÉ PREŽITIE: Skontroluj 'FINANCIAL_HEALTH'. Ak 'weeks_to_bankrupt' < 10, varuj ho!
-           
-        VŠEOBECNÉ INŠTRUKCIE:
-        - NEHALUCINUJ: Používaj len čísla z JSONu.
-        - Odpovedaj v Slovenskom jazyku.
-        - Poriadne si over fakty, bud maximálne presná.
-        - Dvojitá kontrola. 
-        - Používaj Emoji.
-        - Pamätaj si históriu konverzácie.
-        `;
-
-        // Pripravíme správy pre API (System + History + New User Msg)
-        const messagesPayload = [
-            { role: "system", content: systemPrompt },
-            ...aiState.history.slice(-20), 
-            { role: "user", content: msg }
-        ];
-
-        const geminiContents = messagesPayload
-            .filter(m => m.role !== 'system')
-            .map(m => ({
-                role: m.role === 'assistant' ? 'model' : 'user',
-                parts: [{ text: m.content }]
-            }));
-
-        const response = await fetch(
-            `https://generativelanguage.googleapis.com/v1beta/models/${aiState.model}:generateContent`,
-            {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'x-goog-api-key': aiState.apiKey
-                },
-                body: JSON.stringify({
-                    systemInstruction: {
-                        parts: [{ text: systemPrompt }]
-                    },
-                    contents: geminiContents,
-                    generationConfig: {
-                        temperature: 0.7,
-                        maxOutputTokens: 1500
-                    }
-                })
-            }
-        );
-
-        const data = await response.json();
-
-        if(!response.ok || data.error) {
-            throw new Error(data.error?.message || `HTTP ${response.status}`);
-        }
-
-        const aiText = data.candidates?.[0]?.content?.parts
-            ?.map(part => part.text || '')
-            .join('')
-            .trim();
-
-        if(!aiText) throw new Error('Gemini nevrátil žiadnu odpoveď.');
-        
-        // Uložiť do histórie (pamäte)
-        aiState.history.push({ role: "user", content: msg });
-        aiState.history.push({ role: "assistant", content: aiText });
-        
-        // Uložiť do LocalStorage (Trvalá pamäť)
-        localStorage.setItem('arci_ai_history', JSON.stringify(aiState.history));
-
-        addMessageToUI(aiText, 'ai');
-
-    } catch (err) {
-        addMessageToUI(`Chyba: ${err.message}. Skontrolujte API kľúč.`, 'system');
-    } finally {
-        document.getElementById('typingIndicator').style.display = 'none';
-    }
-}
-
-// Pomocná funkcia na formátovanie textu (zdieľaná)
 function formatAiMessage(text) {
-    let formatted = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    let formatted = String(text || '').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
     formatted = formatted.replace(/\*(.*?)\*/g, '<em>$1</em>');
     formatted = formatted.replace(/\n/g, '<br>');
     return formatted;
@@ -3551,8 +3416,7 @@ function formatAiMessage(text) {
 
 function addMessageToUI(text, type) {
     const container = document.getElementById('chatMessages');
-    if(!container) return;
-    
+    if (!container) return;
     const div = document.createElement('div');
     div.className = `message ${type}`;
     div.innerHTML = formatAiMessage(text);
@@ -3562,471 +3426,361 @@ function addMessageToUI(text, type) {
 
 function scrollToBottom() {
     const container = document.getElementById('chatMessages');
-    if(container) container.scrollTop = container.scrollHeight;
+    if (container) container.scrollTop = container.scrollHeight;
 }
 
-// =========================================================================
-// 4. TOTAL INFO GENERATOR (MEGA DUMP PRE AI)
-// =========================================================================
-window.generateGameContext = function() {
-    console.log("Generujem kompletný obraz hry pre AI (v120%)...");
+// -------------------------------------------------------------------------
+// INTELIGENTNÝ ROUTER HRY
+// -------------------------------------------------------------------------
+// Toto je zámerne bez ďalšieho API volania. Otázka sa najprv analyzuje
+// lokálne a až následne sa zostaví malý dátový balík pre Gemini.
+function routeGameQuestion(question) {
+    const q = String(question || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    const categories = new Set(['identity']);
 
-    // 1. ZÁKLADNÉ IDENTITY
-    const myName = (appState.myPlayer && appState.myPlayer.name) ? appState.myPlayer.name : "Neznámy Hráč";
-    const balance = appState.betting.balance || 0;
-    const debt = appState.betting.debt || 0;
+    const add = (...names) => names.forEach(n => categories.add(n));
+    const has = (...words) => words.some(w => q.includes(w));
 
-    // Inicializácia premenných
-    let allPlayersList = [];
-    let myStatsObj = { OVR: 0, PWR: 0, ACC: 0, MNT: 0, CON: 0, FRM: 0, XP: 0, Status: "Amateur" };
+    if (has('moj profil','moje stat','moje cisla','ovr','power','sila','accuracy','presnost','mental','psychik','consistency','konzist','forma','xp','rating')) add('profile');
+    if (has('achievement','uspech','odznak','karier','trofej','rekord','najlepsi vykon','osobny rekord')) add('career');
+    if (has('hrac','hraci','super','súper','profil hraca','profil hráča','kto je','porovnaj','porovnanie','atribut')) add('players');
+    if (has('ranking','rank','rebricek','rebrícek','rebríček','fedex','official','elo','money list','pga rank')) add('rankings');
+    if (has('turnaj','turnaje','vysledok','výsledok','skore','skóre','kolo','r1','r2','r3','r4','cut','vyhra','výhra','top 5','top5','top 10','top10')) add('tournaments');
+    if (has('shop','obchod','vybav','palic','lopta','equipment','inventar','inventár','kupit','kúpiť','predat','predať')) add('shop');
+    if (has('peniaze','finance','financ','ucet','účet','dlh','bankrupt','bankrot','vydav','výdav','zarob','zárob','prijem','príjem')) add('finance');
+    if (has('stavk','stávk','kurz','ticket','tiket','bet','tip','elo odds','pravdepodobnost','pravdepodobnosť')) add('betting');
+    if (has('akci','burz','invest','nehnutel','nehnuteľ','real estate')) add('investments');
+    if (has('novin','clanok','článok','sprav','správa','media','arci news')) add('news');
+    if (has('zivot','život','lifestyle','dovolen','spokoj','mood','joint','vacation','tyzden','týždeň')) add('lifestyle');
+    if (has('kalendar','kalendár','datum','dátum','den','deň','historia dna','história dňa')) add('calendar');
+    if (has('karta','karty','album','pack','balicek','balíček','zberatel','zbierka')) add('cards');
+    if (has('kasino','blackjack','roulette','rulete','slot','automaty','baccarat','casino')) add('casino');
+    if (has('podsvet','drogy','sklad','dealer','ilegal','čierny trh','cierny trh')) add('underground');
 
-    // 2. KOMPLETNÁ ANALÝZA ATRIBÚTOV (FIFA KARTY)
-    if (typeof calculateAllPlayersAttributes === 'function') {
-        try {
-            allPlayersList = calculateAllPlayersAttributes();
-            const me = allPlayersList.find(p => p.name === myName);
-            if (me) {
-                myStatsObj = {
-                    OVR: me.ovr,
-                    PWR: me.pwr, // Power - Sila
-                    ACC: me.acc, // Accuracy - Presnosť
-                    MNT: me.mnt, // Mental - Psychika
-                    CON: me.con, // Consistency - Konzistencia
-                    FRM: me.frm, // Form - Forma
-                    XP: me.xp,   // Skúsenosti
-                    Status: me.isAmateur ? "Amateur (Hral KFT)" : "Professional"
-                };
-            }
-        } catch (e) { console.error("Chyba pri atribútoch:", e); }
-    }
+    // Ak otázka obsahuje meno hráča, vyhľadáme ho a pridáme cielený profil.
+    let targetPlayer = null;
+    try {
+        const attrs = typeof calculateAllPlayersAttributes === 'function' ? calculateAllPlayersAttributes() : [];
+        const names = attrs.map(p => p.name).filter(Boolean);
+        targetPlayer = names.find(name => q.includes(String(name).toLowerCase())) || null;
+        if (targetPlayer) add('players','tournaments','rankings');
+    } catch (e) {}
 
-    // --- NOVINKA: HLBOKÁ ANALÝZA VŠETKÝCH REBRÍČKOV (TOP 5 + Body) ---
-    // 3. REBRÍČKY (ROZŠÍRENÉ)
-    let leaderboardsDeepDive = {};
-    
-    // Pomocná funkcia na vytiahnutie Top 5 a mojej pozície
-    const analyzeRankList = (listFn, listName) => {
-        if (typeof listFn !== 'function') return { status: "Not available" };
-        const list = listFn();
-        if (!list || list.length === 0) return { status: "Empty" };
-
-        // Top 5
-        const top5 = list.slice(0, 5).map(p => ({
-            rank: p.rank,
-            name: p.name,
-            points: Number(p.points ?? 0).toFixed(0)
-        }));
-
-        // Ja
-        const me = list.find(p => p.name === myName);
-        const myData = me ? { rank: me.rank, points: Number(me.points ?? 0).toFixed(0) } : { rank: "N/A", points: 0 };
-        
-        // Strata na prvého
-        const leader = list[0];
-        const deficit = (leader && me) ? (leader.points - me.points).toFixed(0) : 0;
-
-        return {
-            name: listName,
-            top_5_leaders: top5,
-            my_standing: myData,
-            points_behind_leader: deficit
-        };
-    };
-
-    leaderboardsDeepDive.Official = analyzeRankList(window.getOfficialRankList, "Official World Ranking");
-    leaderboardsDeepDive.PGA = analyzeRankList(window.getPGARankList, "PGA Money List");
-    leaderboardsDeepDive.FedEx = analyzeRankList(window.getFedExRankList, "FedEx Cup");
-    leaderboardsDeepDive.Tour = analyzeRankList(window.getTourRankList, "Web.com / Tour Championship");
-    leaderboardsDeepDive.EA = analyzeRankList(window.getEARankList, "EA Sports Ranking");
-    leaderboardsDeepDive.Association = analyzeRankList(window.getAssociationRankList, "Golf Association");
-    leaderboardsDeepDive.Amateur = analyzeRankList(window.getAmateurRankList, "Amateur Ranking");
-    leaderboardsDeepDive.ELO = analyzeRankList(window.getELORankList, "ELO Performance Rating");
-
-
-    // 4. OBCHOD - KOMPLETNÝ ZOZNAM
-    let shopAnalysis = {
-        inventory_value: 0,
-        owned_items: [],
-        missing_items: []
-    };
-    
-    if (typeof shopItemsDef !== 'undefined' && appState.shop) {
-        if (typeof calculateTotalShopSpent === 'function') {
-            shopAnalysis.inventory_value = calculateTotalShopSpent();
+    // Ak otázka priamo spomína názov turnaja, načítame iba tento turnaj
+    // namiesto celej historickej databázy.
+    let eventNames = [];
+    try {
+        if (Array.isArray(db?.files)) {
+            eventNames = db.files.map(f => f.eventName).filter(Boolean)
+                .filter((name, i, arr) => arr.indexOf(name) === i)
+                .filter(name => q.includes(String(name).toLowerCase()));
         }
-        shopItemsDef.forEach(item => {
-            const isOwned = appState.shop.inventory.includes(item.id);
-            const itemInfo = {
-                name: item.name, price: item.price, type: item.type || 'item', desc: item.desc || '', level: item.level || 1
-            };
-            if (isOwned) {
-                shopAnalysis.owned_items.push(itemInfo);
-            } else {
-                itemInfo.can_afford = balance >= item.price;
-                itemInfo.money_needed = Math.max(0, item.price - balance);
-                shopAnalysis.missing_items.push(itemInfo);
-            }
+    } catch (e) {}
+
+    return { categories: [...categories], targetPlayer, eventNames };
+}
+
+function aiSafeNumber(v, fallback = 0) {
+    const n = Number(v);
+    return Number.isFinite(n) ? n : fallback;
+}
+
+function aiNormalizeName(v) {
+    return typeof normalizeName === 'function' ? normalizeName(String(v || '')) : String(v || '').toLowerCase().trim();
+}
+
+function aiFindPlayerRecord(name) {
+    if (!name || !db || !Array.isArray(db.files)) return null;
+    const target = aiNormalizeName(name);
+    for (const f of db.files) {
+        const p = (f.content || []).find(x => aiNormalizeName(x.name) === target);
+        if (p) return p;
+    }
+    return null;
+}
+
+function aiBuildAllPlayerProfiles() {
+    const map = new Map();
+    let attrs = [];
+    try { attrs = typeof calculateAllPlayersAttributes === 'function' ? calculateAllPlayersAttributes() : []; } catch(e) {}
+
+    attrs.forEach(p => {
+        if (!p || !p.name) return;
+        map.set(aiNormalizeName(p.name), {
+            name: p.name, ovr: p.ovr, pwr: p.pwr, acc: p.acc, mnt: p.mnt,
+            con: p.con, frm: p.frm, xp: p.xp,
+            status: p.isAmateur ? 'Amateur' : 'Professional',
+            wins: 0, top5: 0, top10: 0, top20: 0, tournaments: 0,
+            bestRound: null, badges: []
         });
-        shopAnalysis.missing_items.sort((a,b) => a.price - b.price);
-    }
+    });
 
-    // --- NOVINKA: LIFESTYLE ADVANCED (JOINTY, DOVOLENKY, SPOKOJNOSŤ) ---
-    // 5. DOVOLENKY A LIFESTYLE
-    let lifestyleFull = {
-        happiness_percent: 0, raw_hp: 0, max_hp: 0, weekly_expenses: 0, breakdown: [], active_vacation: "Žiadna"
-    };
-
-    if (typeof calculateLifestyleStats === 'function') {
-        const stats = calculateLifestyleStats();
-        lifestyleFull.happiness_percent = stats.totalHappy;
-        lifestyleFull.raw_hp = stats.rawHP;
-        lifestyleFull.max_hp = stats.maxHP;
-    }
-    if (typeof calculateTotalWeeklyExpenses === 'function') {
-        lifestyleFull.weekly_expenses = calculateTotalWeeklyExpenses();
-    }
-    // Rozpis výdavkov
-    if (typeof LIFESTYLE_CONFIG !== 'undefined' && appState.myPlayer.lifestyle) {
-        Object.keys(LIFESTYLE_CONFIG).forEach(catKey => {
-            const cat = LIFESTYLE_CONFIG[catKey];
-            const myVal = appState.myPlayer.lifestyle[catKey];
-            const opt = cat.options.find(o => o.val === myVal);
-            if (opt) lifestyleFull.breakdown.push({ category: cat.label, current: opt.label, cost: opt.cost, happy_bonus: opt.happy });
-        });
-    }
-
-    // Pokročilá detekcia stavu (Stoned / Vacation)
-    let lifestyleAdvanced = {
-        is_stoned: false, // Default
-        is_on_vacation: false,
-        vacation_details: "Doma",
-        mood_context: "Normálny"
-    };
-
-    // Detekcia dovolenky
-    if (appState.myPlayer.lifestyle.activeVacation) {
-        const vacId = appState.myPlayer.lifestyle.activeVacation.id;
-        const vacItem = shopItemsDef.find(i => i.id === vacId);
-        lifestyleAdvanced.is_on_vacation = true;
-        lifestyleAdvanced.vacation_details = vacItem ? vacItem.name : "Neznáma dovolenka";
-        lifestyleFull.active_vacation = lifestyleAdvanced.vacation_details;
-    }
-
-    // Detekcia Jointu/High stavu
-    // Skontrolujeme buffy (ak existujú) alebo shop inventory, či bol použitý item "Joint" 
-    // alebo či je v activeBuffs (predpokladaný názov poľa)
-    if (appState.myPlayer.activeBuffs && (appState.myPlayer.activeBuffs.includes('Joint') || appState.myPlayer.activeBuffs.includes('High'))) {
-        lifestyleAdvanced.is_stoned = true;
-        lifestyleAdvanced.mood_context = "High / Chill";
-    }
-    // Fallback: Ak by bola spokojnosť > 100 alebo by tam bol špecifický modifikátor (tu improvizujem podľa bežnej logiky)
-    if (lifestyleFull.happiness_percent >= 100 && !lifestyleAdvanced.is_on_vacation) {
-        // Možná indikácia, ale necháme to na explicitný buff ak je to v kóde
-    }
-
-    // --- NOVINKA: SEZÓNY A HISTÓRIA SPOKOJNOSTI ---
-    // 6. HISTÓRIA TURNAJOV A VÝPLATY (EARNINGS LOGIC) + TIMELINE
-    let tournamentHistory = [];
-    let seasonTimeline = {}; // Groupovanie podľa sezón
-    let recentScores = []; 
-    let careerSum = 0;
-    let careerRounds = 0;
-
-    let currentSponsorMult = { reg: 20, sig: 40, imp: 80 }; 
-    if(typeof getCurrentSponsor === 'function') {
-        const s = getCurrentSponsor();
-        if(s && s.mult) currentSponsorMult = s.mult;
-    }
-
-    if (db.files) {
-        const sortedFiles = [...db.files].sort((a,b) => a.timestamp - b.timestamp);
-        
-        sortedFiles.forEach(f => {
-            const myRes = f.content.find(p => p.name === myName);
-            
-            // Inicializácia sezóny v timeline
-            const seasonKey = `Season ${f.season}`;
-            if (!seasonTimeline[seasonKey]) seasonTimeline[seasonKey] = [];
-
-            // Získanie historickej spokojnosti (ak je uložená v metadátach turnaja)
-            // Ak v DB nie je 'happiness', skúsime ho odhadnúť alebo dať N/A
-            const historicalHappy = f.happiness ? `${f.happiness}%` : "N/A";
-
-            if (myRes) {
-                // Odhad zárobku
-                let estMult = currentSponsorMult.reg;
-                if(myRes.points > 300) estMult = currentSponsorMult.sig;
-                if(myRes.points > 600) estMult = currentSponsorMult.imp;
-                const estimatedEarnings = (myRes.points * estMult).toFixed(0);
-
-                const tourData = {
-                    season: f.season,
-                    event: f.eventName,
-                    rank: myRes.rank,
-                    points: myRes.points,
-                    estimated_earnings: estimatedEarnings, 
-                    score: `R1:${myRes.r1} R2:${myRes.r2} R3:${myRes.r3} R4:${myRes.r4}`,
-                    par: myRes.par,
-                    happiness_at_time: historicalHappy // Pridané
-                };
-
-                tournamentHistory.push(tourData);
-                seasonTimeline[seasonKey].push(tourData);
-
-                // Zber dát pre formu
-                [myRes.r1, myRes.r2, myRes.r3, myRes.r4].forEach(r => {
-                    const val = parseInt(r);
-                    if(!isNaN(val)) {
-                        careerSum += val;
-                        careerRounds++;
-                        recentScores.push(val);
-                    }
-                });
-            }
-        });
-    }
-
-    // 7. NOVINOVÉ ČLÁNKY
-    let myArticles = [];
-    if (typeof getArticlesMentioningPlayer === 'function') {
-        const arts = getArticlesMentioningPlayer(myName);
-        myArticles = arts.map(a => ({ headline: a.headline, paper: a.paperId, category: a.category, season: a.season, tournament: a.tournament }));
-    }
-
-    // 8. KURZY
-    let bettingAnalysis = { my_elo: (leaderboardsDeepDive.ELO && leaderboardsDeepDive.ELO.my_standing) ? Number(leaderboardsDeepDive.ELO.my_standing.points ?? 1200) : 1200, estimated_odds: {} };
-    // Použijeme ELO z deep dive objektu
-    const myEloVal = parseFloat(bettingAnalysis.my_elo) || 1200;
-    
-    if (myEloVal > 0) {
-        const avgFieldElo = 1350;
-        const playerWeight = Math.pow(10, myEloVal / 600);
-        const fieldWeight = 50 * Math.pow(10, avgFieldElo / 600);
-        const winProb = playerWeight / (playerWeight + fieldWeight);
-        let winOdd = 1 / winProb;
-        if(winOdd < 3.0) winOdd = 3.0; if(winOdd > 500) winOdd = 500.0;
-        bettingAnalysis.estimated_odds = { Win: winOdd.toFixed(2), Top5: (winOdd / 8).toFixed(2), Top10: (winOdd / 15).toFixed(2), Cut: (winOdd / 50).toFixed(2) };
-    }
-
-    // 9. REKORDY A ODZNAKY
-    let myRecords = [];
-    let myBadges = [];
-    if (appState.unlockedBadges && appState.unlockedBadges[myName]) myBadges = appState.unlockedBadges[myName];
-    if (typeof calculateRecordLeaders === 'function') {
-        const leaders = calculateRecordLeaders();
-        Object.keys(leaders).forEach(recId => { if (leaders[recId].holder === myName) myRecords.push({ id: recId, value: leaders[recId].val }); });
-    }
-    
-    // 10. SPONZOR INFO
-    let sponsorInfo = { name: "Neznámy", level: 0, multipliers: { reg:20, sig:40, imp:80 }, shop_limit: 0 };
-    if (typeof getCurrentSponsor === 'function') {
-        const s = getCurrentSponsor();
-        sponsorInfo = {
-            name: s.name,
-            level: s.level,
-            multipliers: s.mult,
-            shop_limit: s.shopLimit
-        };
-    }
-
-    // 11. ROZŠÍRENÉ ŠTATISTIKY Z PROFILU
-    let profileDeepDive = {
-        cuts_made: 0, missed_cuts: 0, wins: 0, top5: 0, top10: 0, top20: 0,
-        best_round: 999, worst_round: -999, total_strokes: 0, total_holes: 0,
-        scoring_average: 0, total_par_score: 0, rounds_played: 0,
-        round_averages: { r1: 0, r2: 0, r3: 0, r4: 0 },
-        hole_stats: { aces: 0, eagles: 0, birdies: 0, pars: 0, bogeys: 0, doubles: 0 },
-        all_rounds_list: []
-    };
-
-    if (db.files) {
-        let r1Sum=0, r1Cnt=0, r2Sum=0, r2Cnt=0, r3Sum=0, r3Cnt=0, r4Sum=0, r4Cnt=0;
-        db.files.forEach(f => {
-            const p = f.content.find(pl => {
-                if (pl.name === myName) return true;
-                if (typeof normalizeName === 'function') return normalizeName(pl.name) === normalizeName(myName);
-                return false;
+    if (db && Array.isArray(db.files)) {
+        db.files.forEach(f => (f.content || []).forEach(p => {
+            if (!p || !p.name) return;
+            const key = aiNormalizeName(p.name);
+            if (!map.has(key)) map.set(key, {
+                name: p.name, wins: 0, top5: 0, top10: 0, top20: 0, tournaments: 0,
+                bestRound: null, badges: []
             });
-            if (p) {
-                if (p.rank === 1) profileDeepDive.wins++;
-                if (p.rank <= 5) profileDeepDive.top5++;
-                if (p.rank <= 10) profileDeepDive.top10++;
-                if (p.rank <= 20) profileDeepDive.top20++;
-                if (p.points > 0) profileDeepDive.cuts_made++; else profileDeepDive.missed_cuts++;
-                profileDeepDive.total_par_score += p.par;
-                [p.r1, p.r2, p.r3, p.r4].forEach((r, idx) => {
-                    if (r && r !== 'NA') {
-                        const val = parseInt(r);
-                        if (!isNaN(val)) {
-                            profileDeepDive.all_rounds_list.push(val);
-                            profileDeepDive.total_strokes += val;
-                            profileDeepDive.total_holes += 18;
-                            profileDeepDive.rounds_played++;
-                            if (val < profileDeepDive.best_round) profileDeepDive.best_round = val;
-                            if (val > profileDeepDive.worst_round) profileDeepDive.worst_round = val;
-                            if (idx === 0) { r1Sum += val; r1Cnt++; }
-                            if (idx === 1) { r2Sum += val; r2Cnt++; }
-                            if (idx === 2) { r3Sum += val; r3Cnt++; }
-                            if (idx === 3) { r4Sum += val; r4Cnt++; }
-                        }
-                    }
-                });
-            }
-        });
-        if(profileDeepDive.rounds_played > 0) profileDeepDive.scoring_average = (profileDeepDive.total_strokes / profileDeepDive.rounds_played).toFixed(2);
-        if(r1Cnt > 0) profileDeepDive.round_averages.r1 = (r1Sum / r1Cnt).toFixed(2);
-        if(r2Cnt > 0) profileDeepDive.round_averages.r2 = (r2Sum / r2Cnt).toFixed(2);
-        if(r3Cnt > 0) profileDeepDive.round_averages.r3 = (r3Sum / r3Cnt).toFixed(2);
-        if(r4Cnt > 0) profileDeepDive.round_averages.r4 = (r4Sum / r4Cnt).toFixed(2);
-        if(profileDeepDive.best_round === 999) profileDeepDive.best_round = "-";
-        if(profileDeepDive.worst_round === -999) profileDeepDive.worst_round = "-";
+            const x = map.get(key);
+            x.tournaments++;
+            if (p.rank === 1) x.wins++;
+            if (p.rank <= 5 && p.rank > 0) x.top5++;
+            if (p.rank <= 10 && p.rank > 0) x.top10++;
+            if (p.rank <= 20 && p.rank > 0) x.top20++;
+            [p.r1,p.r2,p.r3,p.r4].forEach(r => {
+                const n = parseInt(r);
+                if (Number.isFinite(n) && (x.bestRound === null || n < x.bestRound)) x.bestRound = n;
+            });
+        }));
     }
 
-    if (db.seasonStats) {
-        db.seasonStats.forEach(sFile => {
-             const sPlayer = sFile.content.find(p => {
-                 if (p.name === myName) return true;
-                 if (typeof normalizeName === 'function') return normalizeName(p.name) === normalizeName(myName);
-                 return false;
-             });
-             if (sPlayer && sPlayer.stats) {
-                 profileDeepDive.hole_stats.aces += (sPlayer.stats.aces || 0);
-                 profileDeepDive.hole_stats.eagles += (sPlayer.stats.eagles || 0);
-                 profileDeepDive.hole_stats.birdies += (sPlayer.stats.birdies || 0);
-                 profileDeepDive.hole_stats.pars += (sPlayer.stats.pars || 0);
-                 profileDeepDive.hole_stats.bogeys += (sPlayer.stats.bogeys || 0);
-                 profileDeepDive.hole_stats.doubles += (sPlayer.stats.doubleBogeys || 0);
-             }
+    // Globálne odznaky/rekordy hráčov, ak sú v hre vypočítané.
+    if (window.globalBadgeHolders && typeof window.globalBadgeHolders === 'object') {
+        Object.keys(window.globalBadgeHolders).forEach(badgeId => {
+            const holders = Array.isArray(window.globalBadgeHolders[badgeId]) ? window.globalBadgeHolders[badgeId] : [];
+            holders.forEach(name => {
+                const x = map.get(aiNormalizeName(name));
+                if (x && x.badges.length < 30) x.badges.push(badgeId);
+            });
         });
     }
+    return [...map.values()];
+}
 
-    // 12. SPONSOR PROGRESS
-    let sponsorProgress = { current_level: 0, next_level_requirements: "MAX LEVEL", message: "Máš najlepšieho sponzora!" };
-    if (typeof SPONSOR_CONFIG !== 'undefined' && appState.myPlayer.sponsor) {
-        const currentLvl = appState.myPlayer.sponsor.level || 0;
-        sponsorProgress.current_level = currentLvl;
-        const nextSponsor = SPONSOR_CONFIG.find(s => s.level === currentLvl + 1);
-        
-        if (nextSponsor) {
-            const winsNeeded = Math.max(0, nextSponsor.minWins - profileDeepDive.wins);
-            const shopValNeeded = Math.max(0, nextSponsor.shopLimit - shopAnalysis.inventory_value);
-            
-            sponsorProgress.next_level_requirements = {
-                name: nextSponsor.name,
-                wins_missing: winsNeeded,
-                inventory_value_missing: shopValNeeded,
-                desc_requirements: nextSponsor.desc
-            };
-            sponsorProgress.message = `Na level ${nextSponsor.level} (${nextSponsor.name}) ti chýba: ${winsNeeded} výhier a investovať ${shopValNeeded}€ do výbavy.`;
-        }
+function aiBuildPlayerProfile(playerName) {
+    const target = aiNormalizeName(playerName);
+    const all = aiBuildAllPlayerProfiles();
+    const base = all.find(p => aiNormalizeName(p.name) === target) || { name: playerName };
+
+    const history = [];
+    if (db && Array.isArray(db.files)) {
+        db.files.forEach(f => {
+            const p = (f.content || []).find(x => aiNormalizeName(x.name) === target);
+            if (p) history.push({
+                season: f.season, event: f.eventName, type: f.type,
+                important: !!f.isImportant, significant: !!f.isSignificant,
+                rank: p.rank, points: p.points, par: p.par,
+                r1: p.r1, r2: p.r2, r3: p.r3, r4: p.r4
+            });
+        });
     }
+    return { profile: base, career: history };
+}
 
-    // 13. WORLD NO.1 COMPARISON
-    let worldNo1Comparison = { name: "N/A", ovr_diff: 0, stats_diff: {} };
-    if (allPlayersList.length > 0) {
-        const worldBest = allPlayersList.reduce((prev, current) => (prev.ovr > current.ovr) ? prev : current);
-        if (worldBest && myStatsObj.OVR > 0) {
-            worldNo1Comparison = {
-                name: worldBest.name,
-                their_ovr: worldBest.ovr,
-                my_ovr: myStatsObj.OVR,
-                ovr_gap: worldBest.ovr - myStatsObj.OVR,
-                details: {
-                    power_gap: worldBest.pwr - myStatsObj.PWR,
-                    accuracy_gap: worldBest.acc - myStatsObj.ACC,
-                    mental_gap: worldBest.mnt - myStatsObj.MNT,
-                    putting_gap: worldBest.con - myStatsObj.CON
-                }
-            };
-        }
-    }
+// -------------------------------------------------------------------------
+// DÁTOVÉ ZDROJE - každá sekcia sa načíta iba vtedy, keď ju otázka potrebuje.
+// -------------------------------------------------------------------------
+window.generateGameContext = function(requestedCategories = ['identity'], options = {}) {
+    const categories = new Set(Array.isArray(requestedCategories) ? requestedCategories : ['identity']);
+    const myName = appState?.myPlayer?.name || 'Neznámy hráč';
+    const balance = aiSafeNumber(appState?.betting?.balance);
+    const debt = aiSafeNumber(appState?.betting?.debt);
+    const out = {
+        _source: 'PGA Stats Keeper live game state',
+        _loaded_sections: [...categories],
+        PLAYER_IDENTITY: { name: myName }
+    };
 
-    // 14. FINANCIAL HEALTH
-    let financialHealth = { weekly_burn: lifestyleFull.weekly_expenses, balance: balance, weeks_to_bankrupt: "∞" };
-    if (lifestyleFull.weekly_expenses > 0) {
-        const weeks = balance / lifestyleFull.weekly_expenses;
-        financialHealth.weeks_to_bankrupt = weeks.toFixed(1);
-    }
-
-    // 15. FORM TRENDS
-    let formTrends = { career_avg: profileDeepDive.scoring_average, last_5_avg: "N/A", trend: "Neznámy" };
-    if (recentScores.length >= 5) {
-        const last5 = recentScores.slice(-20);
-        const sum5 = last5.reduce((a, b) => a + b, 0);
-        const avg5 = (sum5 / last5.length).toFixed(2);
-        formTrends.last_5_avg = avg5;
-        
-        if (parseFloat(avg5) < parseFloat(profileDeepDive.scoring_average)) {
-            formTrends.trend = "📈 Zlepšuješ sa (Nižšie skóre je lepšie)";
-        } else {
-            formTrends.trend = "📉 Hráš horšie ako je tvoj priemer";
-        }
-    }
-
-    // 16. RIVAL ANALYSIS (Vylepšená s odkazom na leaderboardsDeepDive)
-    // Použijeme Official Ranking pre rivalov
-    let rivalAnalysis = { target: "Nikto", chaser: "Nikto" };
-    if (leaderboardsDeepDive.Official && leaderboardsDeepDive.Official.top_5_leaders) {
-        // Tu by sme teoreticky potrebovali celý list, ale ak nemáme, spoliehame sa na to čo máme
-        // Pre jednoduchosť vrátime aspoň info o ranku
-        rivalAnalysis.my_current_rank = leaderboardsDeepDive.Official.my_standing.rank;
-    }
-
-    // 17. TRAINING ADVICE
-    let trainingAdvice = "Udržuj formu.";
-    if (myStatsObj.OVR > 0) {
-        const stats = [
-            { name: "Power (Sila)", val: myStatsObj.PWR },
-            { name: "Accuracy (Presnosť)", val: myStatsObj.ACC },
-            { name: "Mental (Psychika)", val: myStatsObj.MNT },
-            { name: "Consistency (Puttovanie)", val: myStatsObj.CON }
-        ];
-        stats.sort((a,b) => a.val - b.val);
-        trainingAdvice = `Tvoja slabina je ${stats[0].name} (${stats[0].val}). Zameraj sa na tréning alebo kúp vybavenie, ktoré to vylepší.`;
-    }
-
-
-    // FINÁLNY JSON (120% OBSAH)
-    return {
-        PLAYER_PROFILE: {
+    if (categories.has('identity') || categories.has('profile') || categories.has('career')) {
+        let me = null;
+        try {
+            const attrs = typeof calculateAllPlayersAttributes === 'function' ? calculateAllPlayersAttributes() : [];
+            me = attrs.find(p => aiNormalizeName(p.name) === aiNormalizeName(myName));
+        } catch(e) {}
+        out.PLAYER_PROFILE = {
             name: myName,
             money: balance.toFixed(2),
-            debt: debt,
-            stats: myStatsObj,
-            // rankings: rankings, // Staré rankings (ponechané pre kompatibilitu ak treba, ale máme nové)
-            leaderboards_deep_dive: leaderboardsDeepDive, // NOVÉ
-            sponsor: sponsorInfo,
-            badges: myBadges,
-            records_held: myRecords,
-            detailed_stats: profileDeepDive
-        },
-        LIFESTYLE_ADVANCED: lifestyleAdvanced,  // NOVÉ (Jointy, Vacation)
-        SEASON_TIMELINE: seasonTimeline,        // NOVÉ (História sezón a spokojnosti)
-        SPONSOR_PROGRESS: sponsorProgress,      
-        WORLD_NO1_COMPARISON: worldNo1Comparison, 
-        FINANCIAL_HEALTH: financialHealth,      
-        FORM_TRENDS: formTrends,                
-        RIVAL_ANALYSIS: rivalAnalysis,
-        TRAINING_ADVICE: trainingAdvice,
-        LIFESTYLE_AND_EXPENSES: lifestyleFull,
-        SHOPPING_DATA: {
-            inventory_total_value: shopAnalysis.inventory_value,
-            owned_count: shopAnalysis.owned_items.length,
-            not_owned_items: shopAnalysis.missing_items 
-        },
-        TOURNAMENT_CAREER: {
-            total_played: tournamentHistory.length,
-            full_history: tournamentHistory
-        },
-        MEDIA_ARCHIVE: {
-            total_articles: myArticles.length,
-            articles: myArticles
-        },
-        BETTING_INTELLIGENCE: bettingAnalysis
-    };
+            debt,
+            stats: me ? { OVR:me.ovr,PWR:me.pwr,ACC:me.acc,MNT:me.mnt,CON:me.con,FRM:me.frm,XP:me.xp,status:me.isAmateur?'Amateur':'Professional' } : null,
+            history: Array.isArray(appState?.myPlayer?.history) ? appState.myPlayer.history.slice(-100) : []
+        };
+    }
+
+    if (categories.has('profile')) {
+        out.PLAYER_PROFILE.detailed = {};
+        try {
+            const attrs = calculateAllPlayersAttributes();
+            const me = attrs.find(p => aiNormalizeName(p.name) === aiNormalizeName(myName));
+            if (me) out.PLAYER_PROFILE.detailed = me;
+        } catch(e) {}
+    }
+
+    if (categories.has('career')) {
+        out.CAREER = {
+            personalAchievements: appState?.personalAchievements || [],
+            achievementDates: appState?.achievementDates || {},
+            personalStats: appState?.personalStats || {},
+            unlockedBadges: appState?.unlockedBadges?.[myName] || [],
+            recordsHeld: [],
+            fullTournamentHistory: []
+        };
+        try {
+            if (typeof calculateRecordLeaders === 'function') {
+                const leaders = calculateRecordLeaders();
+                Object.keys(leaders || {}).forEach(id => {
+                    if (leaders[id]?.holder && aiNormalizeName(leaders[id].holder) === aiNormalizeName(myName)) {
+                        out.CAREER.recordsHeld.push({ id, value: leaders[id].val });
+                    }
+                });
+            }
+        } catch(e) {}
+        if (Array.isArray(db?.files)) {
+            db.files.forEach(f => {
+                const p = (f.content || []).find(x => aiNormalizeName(x.name) === aiNormalizeName(myName));
+                if (p) out.CAREER.fullTournamentHistory.push({
+                    season:f.season,event:f.eventName,type:f.type,important:!!f.isImportant,significant:!!f.isSignificant,
+                    rank:p.rank,points:p.points,par:p.par,r1:p.r1,r2:p.r2,r3:p.r3,r4:p.r4
+                });
+            });
+        }
+    }
+
+    if (categories.has('players')) {
+        if (options.targetPlayer) {
+            out.REQUESTED_PLAYER = aiBuildPlayerProfile(options.targetPlayer);
+        } else {
+            out.ALL_PLAYER_PROFILES = aiBuildAllPlayerProfiles();
+        }
+    }
+
+    if (categories.has('rankings')) {
+        const lists = [
+            ['Official',window.getOfficialRankList],['PGA',window.getPGARankList],['FedEx',window.getFedExRankList],
+            ['Tour',window.getTourRankList],['EA',window.getEARankList],['Association',window.getAssociationRankList],
+            ['Amateur',window.getAmateurRankList],['ELO',window.getELORankList]
+        ];
+        out.RANKINGS = {};
+        lists.forEach(([name,fn]) => {
+            if (typeof fn !== 'function') return;
+            try {
+                const list = fn() || [];
+                out.RANKINGS[name] = list.map((p,i) => ({rank:p.rank ?? i+1,name:p.name,points:aiSafeNumber(p.points)}));
+            } catch(e) { out.RANKINGS[name] = { error:String(e.message||e) }; }
+        });
+    }
+
+    if (categories.has('tournaments')) {
+        const target = options.targetPlayer ? aiNormalizeName(options.targetPlayer) : null;
+        const requestedEvents = Array.isArray(options.eventNames) ? options.eventNames : [];
+        out.TOURNAMENTS = Array.isArray(db?.files) ? db.files
+            .filter(f => requestedEvents.length === 0 || requestedEvents.includes(f.eventName))
+            .map(f => {
+                let players = Array.isArray(f.content) ? f.content : [];
+                // Pri otázke na konkrétneho hráča nepotrebujeme posielať celé štartové pole.
+                if (target) players = players.filter(p => aiNormalizeName(p.name) === target);
+                return { season:f.season,event:f.eventName,type:f.type,important:!!f.isImportant,significant:!!f.isSignificant,players };
+            }) : [];
+    }
+
+    if (categories.has('shop')) {
+        const owned = Array.isArray(appState?.shop?.inventory) ? appState.shop.inventory : [];
+        out.SHOP = { inventory: owned, cart:appState?.shop?.cart || [], definition: typeof shopItemsDef !== 'undefined' ? shopItemsDef : [] };
+    }
+
+    if (categories.has('finance')) {
+        out.FINANCE = {
+            betting: appState?.betting || {},
+            playerHistory: appState?.myPlayer?.history || [],
+            investments: appState?.investments || {},
+            netWorthRelevant: { balance, debt }
+        };
+    }
+
+    if (categories.has('betting')) out.BETTING = appState?.betting || {};
+    if (categories.has('investments')) out.INVESTMENTS = appState?.investments || {};
+    if (categories.has('lifestyle')) {
+        let stats = null;
+        try { if (typeof calculateLifestyleStats === 'function') stats = calculateLifestyleStats(); } catch(e) {}
+        out.LIFESTYLE = { player:appState?.myPlayer?.lifestyle || {}, stats, history:appState?.myPlayer?.happinessHistory || [], config:typeof LIFESTYLE_CONFIG !== 'undefined' ? LIFESTYLE_CONFIG : null };
+    }
+    if (categories.has('news')) {
+        let arts = [];
+        try { if (typeof getArticlesMentioningPlayer === 'function') arts = getArticlesMentioningPlayer(myName) || []; } catch(e) {}
+        out.NEWS = { myArticles: arts };
+    }
+    if (categories.has('calendar')) out.CALENDAR = appState?.calendarHistory || appState?.calendar || {};
+    if (categories.has('cards')) out.CARDS = appState?.cards || {};
+    if (categories.has('casino')) out.CASINO = { betting:appState?.betting || {}, personalStats:appState?.personalStats || {}, casinoSessions:window.currentCasinoSession || {} };
+    if (categories.has('underground')) out.UNDERGROUND = appState?.underground || {};
+
+    // Vždy pridáme krátky aktuálny finančný stav, aby odpovede ostali konzistentné,
+    // ale neposielame celý finance blok, pokiaľ sa naň otázka nepýta.
+    out.CURRENT = { player:myName, balance, debt };
+    return out;
 };
 
+window.collectAiContext = function(question) {
+    const route = routeGameQuestion(question);
+    // Pre všeobecnú otázku o hre sa načíta profil + kariéra; nie celá databáza.
+    const context = generateGameContext(route.categories, { targetPlayer: route.targetPlayer, eventNames: route.eventNames });
+    return { route, context };
+};
 
+window.sendAiMessage = async function() {
+    const inputEl = document.getElementById('userChatInput');
+    const msg = inputEl?.value.trim();
+    if (!msg) return;
+
+    if (!aiState.apiKey) {
+        alert("Najprv musíte zadať Gemini API kľúč.");
+        toggleApiKeyPanel();
+        return;
+    }
+
+    addMessageToUI(msg, 'user');
+    inputEl.value = '';
+    const indicator = document.getElementById('typingIndicator');
+    if (indicator) indicator.style.display = 'block';
+
+    try {
+        const selected = collectAiContext(msg);
+        const systemPrompt = `Si AI analytik hry PGA Stats Keeper. Odpovedaj po slovensky.
+Používaj iba údaje, ktoré dostaneš v LIVE GAME DATA. Ak tam údaj nie je, povedz, že ho momentálne nemáš načítaný — nevymýšľaj si ho.
+Najprv si v hlave urč, ktorá sekcia LIVE GAME DATA je relevantná. Môžeš kombinovať viac sekcií, ak otázka porovnáva viac oblastí.
+Vieš pracovať s mojím hráčským profilom, štatistikami, kariérou, úspechmi, rekordmi, turnajmi, všetkými rebríčkami, profilmi ostatných hráčov, ich výsledkami a úspechmi, obchodom, vybavením, financiami, stávkami, investíciami, lifestyle, novinami, kalendárom, kartami, kasínom a podsvetím — ale tieto dáta sa načítavajú iba podľa potreby.
+Pri číslach buď presná. Pri otázke na hráča použi REQUESTED_PLAYER, ak existuje.
+Neopisuj interný router ani JSON. Odpovedz prirodzene a stručne, ale dostatočne podrobne podľa otázky.
+
+LIVE GAME DATA:
+${JSON.stringify(selected.context)}`;
+
+        const history = aiState.history.slice(-8).map(m => ({
+            role: m.role === 'assistant' ? 'model' : m.role,
+            parts: [{ text: m.content }]
+        }));
+        const contents = [...history, { role:'user', parts:[{ text:msg }] }];
+
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${aiState.model}:generateContent?key=${encodeURIComponent(aiState.apiKey)}`, {
+            method:'POST',
+            headers:{'Content-Type':'application/json'},
+            body:JSON.stringify({
+                systemInstruction:{parts:[{text:systemPrompt}]},
+                contents,
+                generationConfig:{maxOutputTokens:1200, responseMimeType:'text/plain'}
+            })
+        });
+        const data = await response.json();
+        if (!response.ok) {
+            const detail = data?.error?.message || `HTTP ${response.status}`;
+            throw new Error(detail);
+        }
+        const aiText = (data?.candidates?.[0]?.content?.parts || []).map(p => p.text || '').join('').trim();
+        if (!aiText) throw new Error('Gemini nevrátil textovú odpoveď.');
+
+        aiState.history.push({role:'user',content:msg});
+        aiState.history.push({role:'assistant',content:aiText});
+        // Držíme pamäť malú, aby sa staré správy nikdy nerozrástli do veľkého promptu.
+        if (aiState.history.length > 40) aiState.history = aiState.history.slice(-40);
+        localStorage.setItem('arci_ai_history', JSON.stringify(aiState.history));
+        addMessageToUI(aiText, 'ai');
+    } catch (err) {
+        addMessageToUI(`Chyba: ${err.message}`, 'system');
+    } finally {
+        if (indicator) indicator.style.display = 'none';
+    }
+};
 
 // --- KONFIGURÁCIA SPONZOROV (Upravené podmienky) ---
 const SPONSOR_CONFIG = [
@@ -78100,7 +77854,7 @@ window.openScannerModal = function() {
                     <div class="p-4 border-b border-slate-700 flex justify-between items-center bg-slate-900">
                         <div>
                             <h1 class="text-xl font-bold text-emerald-400 tracking-tight">PGA Saver</h1>
-                            <p class="text-xs text-slate-400 mt-1">Gemini 3.8 Flash | R1-R4, Points</p>
+                            <p class="text-xs text-slate-400 mt-1">Llama 4 Scout | R1-R4, Points</p>
                         </div>
                         <div class="text-right">
                             <div class="text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-1">Unikátni hráči</div>
@@ -78111,7 +77865,7 @@ window.openScannerModal = function() {
                     <div class="p-4 grid grid-cols-1 gap-4 bg-slate-800/50">
                         <div class="space-y-2">
                             <label class="text-xs font-bold text-slate-400 uppercase">Gemini API Kľúč</label>
-                            <input type="password" id="scanApiKey" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 text-sm text-emerald-400 focus:outline-none focus:border-emerald-500 transition" placeholder="AQ... alebo tvoj Gemini API kľúč">
+                            <input type="password" id="scanApiKey" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 text-sm text-emerald-400 focus:outline-none focus:border-emerald-500 transition" placeholder="AIza...">
                         </div>
                         
                         <div class="grid grid-cols-2 gap-4">
@@ -78231,7 +77985,7 @@ window.scanUpdateFilename = function() {
 };
 
 window.scanInitData = function() {
-    const savedKey = localStorage.getItem('arci_gemini_key');
+    const savedKey = localStorage.getItem('arci_gemini_scan_key') || localStorage.getItem('arci_gemini_key');
     if (savedKey) document.getElementById('scanApiKey').value = savedKey;
     const savedData = localStorage.getItem('arciweb_scanner_pga');
     if (savedData) {
@@ -78244,7 +77998,7 @@ window.scanInitData = function() {
 };
 
 window.scanSaveToStorage = function() {
-    localStorage.setItem('arci_gemini_key', document.getElementById('scanApiKey').value.trim());
+    localStorage.setItem('arci_gemini_scan_key', document.getElementById('scanApiKey').value);
     localStorage.setItem('arciweb_scanner_pga', JSON.stringify(Array.from(scanState.players.values())));
 };
 
@@ -78317,43 +78071,32 @@ window.scanProcessSingleFile = async function(file, index, total, isRetry = fals
 };
 
 window.scanCallGroqAPI = async function(base64) {
-    const apiKey = document.getElementById('scanApiKey').value.trim();
-    const response = await fetch(
-        "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent",
-        {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "x-goog-api-key": apiKey
-            },
-            body: JSON.stringify({
-                contents: [{
-                    role: "user",
-                    parts: [
-                        { text: "Extract golf leaderboard JSON. Return ONLY valid JSON. Key 'players' with: name, par, r1, r2, r3, r4, points." },
-                        { inline_data: { mime_type: "image/jpeg", data: base64 } }
-                    ]
-                }],
-                generationConfig: {
-                    temperature: 0,
-                    responseMimeType: "application/json"
-                }
-            })
-        }
-    );
+    const apiKey = document.getElementById('scanApiKey')?.value.trim();
+    if (!apiKey) throw new Error('Chýba Gemini API kľúč');
+
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=${encodeURIComponent(apiKey)}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            contents: [{
+                parts: [
+                    { text: 'Extract golf leaderboard data from this image. Return ONLY valid JSON with key players. Each player must contain name, par, r1, r2, r3, r4, points. Do not add markdown.' },
+                    { inline_data: { mime_type: 'image/jpeg', data: base64 } }
+                ]
+            }],
+            generationConfig: {
+                temperature: 0,
+                responseMimeType: 'application/json'
+            }
+        })
+    });
 
     const json = await response.json();
-    if (!response.ok || json.error) {
-        throw new Error(json.error?.message || `HTTP ${response.status}`);
-    }
-
-    const text = json.candidates?.[0]?.content?.parts
-        ?.map(part => part.text || '')
-        .join('')
-        .trim();
-
-    if (!text) throw new Error("Gemini nevrátil JSON.");
-    return JSON.parse(text).players || [];
+    if (!response.ok) throw new Error(json?.error?.message || `HTTP ${response.status}`);
+    const text = (json?.candidates?.[0]?.content?.parts || []).map(p => p.text || '').join('').trim();
+    if (!text) throw new Error('Gemini scanner nevrátil dáta');
+    const parsed = JSON.parse(text);
+    return Array.isArray(parsed) ? parsed : (Array.isArray(parsed.players) ? parsed.players : []);
 };
 
 window.scanHandleFailures = async function() {
