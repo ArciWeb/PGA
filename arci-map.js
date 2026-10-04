@@ -1,3 +1,13 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arci-map – Arci City 2.0</title>
+</head>
+<body>
+<!-- Arci-map.js vylepšený vizuálny modul. V projekte ho môžeš ponechať ako Arci-map.js; táto verzia je zabalená do HTML iba kvôli jednoduchému stiahnutiu. -->
+<script>
 // ==========================================
 // 1. DÁTA BUDOV A SÚRADNICE
 // ==========================================
@@ -168,6 +178,19 @@ function startArciCityGame() {
                 <img src="panáčik_stoji.png" id="player-character" class="face-right" style="position: absolute; left: ${savedX}%; top: ${savedY}%; width: 45px; z-index: 500; transition: none; pointer-events: none; filter: drop-shadow(0px 5px 5px rgba(0,0,0,0.5));">
             </div>
         </div>
+
+        <div id="arci-map-hud" class="arci-map-hud">
+            <div class="arci-brand"><span class="arci-brand-mark">A</span><div><b>ARCI CITY</b><small>LIVE MAP</small></div></div>
+            <div class="arci-hud-status"><span class="hud-dot"></span><span id="arciHudStatus">Mesto žije</span></div>
+            <div class="arci-hud-actions">
+                <button class="arci-round-btn" onclick="showArciMapLegend(event)" title="Legenda">?</button>
+                <button class="arci-round-btn" onclick="openMiniMap(event)" title="Radar">⌖</button>
+            </div>
+        </div>
+        <div id="arci-event-toast" class="arci-event-toast"></div>
+        <div id="arci-map-legend" class="arci-map-legend" onclick="showArciMapLegend(event)">
+            <b>Legenda mesta</b><span>🟢 NPC • 🟡 budova • 🔴 konflikt • 🔵 ty</span>
+        </div>
         
         <div id="buildingDetailLayer" onclick="closeBuildingDetail()" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.85); z-index: 950; flex-direction: column; align-items: center; justify-content: center;">
             <img id="detailImg" src="" onclick="executeBuildingAction(event)" style="width: 95vw; max-height: 80vh; object-fit: contain; border: 5px solid gold; border-radius: 20px; box-shadow: 0 0 50px gold; cursor: pointer; transition: transform 0.2s;">
@@ -199,9 +222,9 @@ function startArciCityGame() {
             </div>
         </div>
 
-        <button onclick="toggleSettingsMenu(event)" style="position:fixed; top:15px; right:145px; z-index:940; padding:5px 15px; background: #333; color: gold; border: 3px solid white; border-radius: 30px; font-weight: 900; font-size: 1rem; cursor: pointer; box-shadow: 0 0 15px rgba(0,0,0,0.5);">⚙️</button>
-        <button onclick="toggleBuildingMenu(event)" style="position:fixed; top:15px; right:85px; z-index:940; padding:5px 15px; background: #333; color: gold; border: 3px solid white; border-radius: 30px; font-weight: 900; font-size: 1rem; cursor: pointer; box-shadow: 0 0 15px rgba(0,0,0,0.5);">⋮</button>
-        <button onclick="exitMap()" style="position:fixed; top:15px; right:15px; z-index:940; padding:5px 15px; background: red; color: white; border: 3px solid white; border-radius: 30px; font-weight: 900; font-size: 0.5rem; cursor: pointer; box-shadow: 0 0 15px rgba(0,0,0,0.5);">MENU</button>
+        <button class="arci-top-control" onclick="toggleSettingsMenu(event)" style="position:fixed; top:15px; right:145px; z-index:940; padding:5px 15px; background: #333; color: gold; border: 3px solid white; border-radius: 30px; font-weight: 900; font-size: 1rem; cursor: pointer; box-shadow: 0 0 15px rgba(0,0,0,0.5);">⚙️</button>
+        <button class="arci-top-control" onclick="toggleBuildingMenu(event)" style="position:fixed; top:15px; right:85px; z-index:940; padding:5px 15px; background: #333; color: gold; border: 3px solid white; border-radius: 30px; font-weight: 900; font-size: 1rem; cursor: pointer; box-shadow: 0 0 15px rgba(0,0,0,0.5);">⋮</button>
+        <button class="arci-top-control arci-exit" onclick="exitMap()" style="position:fixed; top:15px; right:15px; z-index:940; padding:5px 15px; background: red; color: white; border: 3px solid white; border-radius: 30px; font-weight: 900; font-size: 0.5rem; cursor: pointer; box-shadow: 0 0 15px rgba(0,0,0,0.5);">MENU</button>
         
         <button onclick="goToNextBuilding(event)" style="position:fixed; bottom:20px; right:20px; z-index:940; width:60px; height:60px; background: #333; color: gold; border: 3px solid gold; border-radius: 50%; font-weight: 900; font-size: 1.8rem; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 0 20px rgba(0,0,0,0.8);">➡️</button>
 
@@ -523,6 +546,9 @@ function renderBuildings() {
         const widthPx = 180 * (sizePercent / 100);
 
         const hitbox = document.createElement('div');
+        hitbox.className = 'arci-building-hitbox';
+        hitbox.dataset.buildingKey = key;
+        hitbox.title = b.name;
         hitbox.style.position = 'absolute';
         hitbox.style.left = b.x + '%';
         hitbox.style.top = b.y + '%'; 
@@ -602,8 +628,17 @@ function renderBuildings() {
             hitbox.style.background = 'transparent';
         }
         
+        img.classList.add('arci-building-art');
+        const label = document.createElement('div');
+        label.className = 'arci-building-label';
+        label.innerHTML = `<span class="building-label-icon">⌂</span><span>${b.name}</span>`;
+        label.style.left = b.x + '%';
+        label.style.top = (b.y - Math.max(1.5, Math.min(6, widthPx / 80))) + '%';
+        label.style.zIndex = Math.floor(b.y) + 25;
+        label.onclick = (e) => { e.stopPropagation(); moveToBuilding(key); };
         layer.appendChild(img);
         layer.appendChild(hitbox);
+        layer.appendChild(label);
     }
 }
 
@@ -951,8 +986,11 @@ function getClosestNode(x, y) {
 // ==========================================
 
 function initNPCSystem() {
+    if (window.__arciNpcSystemStarted) return;
+    window.__arciNpcSystemStarted = true;
     setInterval(manageNPCs, 5000);
-    manageNPCs(); 
+    setInterval(checkNpcStreetEncounters, 3500);
+    manageNPCs();
 }
 
 function manageNPCs() {
@@ -1001,6 +1039,10 @@ function spawnNPC() {
     npcImg.style.filter = 'drop-shadow(0px 3px 3px rgba(0,0,0,0.4))';
 
     npcWrapper.appendChild(npcImg);
+    const npcBadge = document.createElement('div');
+    npcBadge.className = 'arci-npc-badge';
+    npcBadge.innerHTML = `<span class="npc-status-dot"></span><span>${config.name || 'NPC'}</span>`;
+    npcWrapper.appendChild(npcBadge);
 
     const npcObj = {
         configID: chosenID,
@@ -1238,131 +1280,80 @@ window.clearNpcHistory = function(npcName) {
 
 window.sendNpcAiMessage = async function(npcName) {
     const inputEl = document.getElementById('npcChatInput');
-    const msg = inputEl.value.trim();
-    if(!msg) return;
-    
-    const apiKey = localStorage.getItem('arci_groq_key');
-    if(!apiKey) {
-        alert("Zastav sa! Najprv musíte zadať API kľúč u ArciBota, inak títo feťáci nevedia rozprávať.");
+    const msg = inputEl?.value.trim();
+    if (!msg) return;
+
+    const apiKey = localStorage.getItem('arci_gemini_key');
+    if (!apiKey) {
+        alert("Zastav sa! Najprv musíš zadať Gemini API kľúč u AI Analytika.");
         return;
     }
 
     const historyKey = 'arci_npc_chat_' + npcName;
     let npcHistory = JSON.parse(localStorage.getItem(historyKey) || '[]');
-    
     const container = document.getElementById('npcChatMessages');
     const formatMsg = typeof formatAiMessage === 'function' ? formatAiMessage : (t) => t;
-    
-    // Pridať správu hráča
+
     container.innerHTML += `<div class="message user">${formatMsg(msg)}</div>`;
     container.scrollTop = container.scrollHeight;
     inputEl.value = '';
-    
     document.getElementById('npcTypingIndicator').style.display = 'block';
 
     try {
-        const contextData = typeof generateGameContext === 'function' ? generateGameContext() : {};
-        
-        // --- MOZOG POSTAVIČKY ---
-        const systemPrompt = `
-        Si fiktívna postava v golfovej hre ArciWeb s menom "${npcName}". Nachádzaš sa na mape v tmavej uličke a si z prostredia podsvetia.
-        
-        TVOJA OSOBNOSŤ (Závisí od tvojho mena):
-        - Ak tvoje meno naznačuje marihuanu (napr. Jointimír, Weed, Grass, Ganja), buď extrémne uvoľnený, spomalený, filozofuj o vesmíre, používaj slová ako "brácho", "chill", "husté".
-        - Ak tvoje meno naznačuje pervitín/rýchle drogy (napr. Piker, Fetoň, Rýchlik, Snich), buď hyperaktívny, skáč do reči, rýchlo meň témy, používaj veľa výkričníkov, buď paranoidný a extrémne nabudený.
-        - Ak tvoje meno naznačuje iné (Heroín, Depka), buď spomalený, pesimistický a bez nálady.
-        Si paródiou na známu postavu, ale si namočený v drogách. Vydedukuj si svoj štýl podľa svojho mena.
-        
-        HRÁČ, S KTORÝM HOVORÍŠ:
-        Volá sa: "${contextData.PLAYER_PROFILE?.name || 'Neznámy'}".
-        Má na účte: ${contextData.PLAYER_PROFILE?.money || 0} €.
-        Jeho pozícia v rebríčku (Official Rank): ${contextData.PLAYER_PROFILE?.leaderboards_deep_dive?.Official?.my_standing?.rank || 'Amatér'}.
-        
-        PRAVIDLÁ:
-        1. Nikdy sa nepriznaj, že si AI. Si živá postava v meste ArciCity.
-        2. Reaguj na hráčove dáta. Ak je bohatý, skús ho namotať na drahší tovar alebo pýtaj drobné. Ak je chudobný, vysmievaj sa mu.
-        3. Spomeň golf. Rob si z neho srandu, ako mu to ide na turnajoch.
-        4. Odpovedaj stručne a uderne! Maximálne 2 až 4 vety. Žiadne dlhé slohy.
-        5. Komunikuj výhradne v slovenčine.
-        `;
+        const contextData = typeof generateGameContext === 'function'
+            ? generateGameContext(['identity','profile','career','players'], {})
+            : {};
 
-        const messagesPayload = [
-            { role: "system", content: systemPrompt },
-            ...npcHistory.slice(-10), // Pamätá si posledných 10 správ
-            { role: "user", content: msg }
+        const systemPrompt = `Si fiktívna postava v hre PGA Stats Keeper menom "${npcName}". Si postava z ArciCity.
+TVOJA OSOBNOSŤ:
+- Ak tvoje meno naznačuje marihuanu, buď uvoľnený, spomalený a filozofický.
+- Ak naznačuje rýchle drogy, buď hyperaktívny, chaotický a nabudený.
+- Pri iných menách si vytvor výrazný, mierne šialený štýl.
+HRÁČ:
+${JSON.stringify(contextData)}
+PRAVIDLÁ:
+1. Nikdy sa nepriznaj, že si AI.
+2. Reaguj na skutočné dáta hráča, ak sú v kontexte.
+3. Môžeš spomenúť golf, turnaje, štatistiky a rivalov.
+4. Odpovedaj 2 až 4 vetami.
+5. Komunikuj výhradne po slovensky.
+6. Nevymýšľaj čísla, ktoré nie sú v kontexte.`;
+
+        const contents = [
+            ...npcHistory.slice(-8).map(m => ({
+                role: m.role === 'assistant' ? 'model' : m.role,
+                parts: [{ text: m.content }]
+            })),
+            { role:'user', parts:[{text:msg}] }
         ];
 
-        const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${apiKey}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                messages: messagesPayload,
-                model: 'meta-llama/llama-4-scout-17b-16e-instruct',
-                temperature: 0.85, // Mierne vyššia kreativita, aby zneli šialenejšie
-                max_tokens: 400
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=${encodeURIComponent(apiKey)}`, {
+            method:'POST',
+            headers:{'Content-Type':'application/json'},
+            body:JSON.stringify({
+                systemInstruction:{parts:[{text:systemPrompt}]},
+                contents,
+                generationConfig:{maxOutputTokens:400}
             })
         });
 
         const data = await response.json();
-        if(data.error) throw new Error(data.error.message);
+        if (!response.ok) throw new Error(data?.error?.message || `HTTP ${response.status}`);
+        const aiText = (data?.candidates?.[0]?.content?.parts || []).map(p=>p.text||'').join('').trim();
+        if (!aiText) throw new Error('Gemini nevrátil odpoveď');
 
-        const aiText = data.choices[0].message.content;
-        
-        npcHistory.push({ role: "user", content: msg });
-        npcHistory.push({ role: "assistant", content: aiText });
+        npcHistory.push({role:'user',content:msg});
+        npcHistory.push({role:'assistant',content:aiText});
+        if (npcHistory.length > 30) npcHistory = npcHistory.slice(-30);
         localStorage.setItem(historyKey, JSON.stringify(npcHistory));
 
         container.innerHTML += `<div class="message ai">${formatMsg(aiText)}</div>`;
         container.scrollTop = container.scrollHeight;
-
     } catch (err) {
-        container.innerHTML += `<div class="message system">Kámo, niečo mi seklo signál: ${err.message}</div>`;
+        container.innerHTML += `<div class="message system">Kámo, niečo mi seklo signál: ${formatMsg(err.message)}</div>`;
     } finally {
         document.getElementById('npcTypingIndicator').style.display = 'none';
     }
-}
-
-
-// ==========================================
-// VYHĽADÁVANIE HRÁČOV PRIAMO Z MAPY
-// ==========================================
-
-// 1. Funkcia, ktorá sa zavolá pri vstupe do budovy
-window.openMapSearchModal = function() {
-    closeBuildingDetail(); // Zatvorí veľkú detailnú fotku budovy, ak je otvorená
-
-    // Ak už okno existuje, zmažeme ho (prevencia duplikátov)
-    let existingModal = document.getElementById('mapSearchModalLayer');
-    if (existingModal) existingModal.remove();
-
-    // Vytvorenie pekného modálneho okna v Arči štýle
-    const modalHTML = `
-        <div id="mapSearchModalLayer" onclick="closeMapSearchModal(event)" style="display: flex; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.85); z-index: 9999; flex-direction: column; align-items: center; justify-content: center;">
-            <div style="background: #111; border: 3px solid gold; border-radius: 15px; padding: 25px; text-align: center; max-width: 400px; width: 85%; box-shadow: 0 0 40px rgba(255, 215, 0, 0.4);" onclick="event.stopPropagation()">
-                <h2 style="color: gold; margin-top: 0; border-bottom: 1px solid #333; padding-bottom: 10px; font-size: 1.5rem;">🔍 Vyhľadať Hráča</h2>
-                <p style="color: #ccc; font-size: 0.9rem; margin-bottom: 20px;">Zadaj meno hráča, ktorého profil chceš navštíviť.</p>
-
-                <input type="text" id="mapPlayerSearchInput" placeholder="Začni písať meno..." oninput="handleMapSearch(this.value)" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid gold; background: #222; color: white; font-size: 1.1rem; box-sizing: border-box; outline: none; text-align: center; margin-bottom: 10px;">
-
-                <div id="mapSearchResults" style="max-height: 200px; overflow-y: auto; text-align: left; background: #222; border-radius: 8px; display: none; border: 1px solid #555; scrollbar-width: thin;">
-                    </div>
-
-                <button onclick="closeMapSearchModal(event)" style="margin-top: 20px; background: #333; color: white; border: 1px solid #555; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; font-size: 1rem;">Zavrieť</button>
-            </div>
-        </div>
-    `;
-
-    // Vložíme okno do body
-    document.body.insertAdjacentHTML('beforeend', modalHTML);
-
-    // Automaticky zameriame kurzor do vyhľadávacieho poľa
-    setTimeout(() => {
-        const input = document.getElementById('mapPlayerSearchInput');
-        if(input) input.focus();
-    }, 100);
 };
 
 // 2. Funkcia na zatvorenie okna
@@ -1422,3 +1413,104 @@ window.handleMapSearch = function(val) {
         results.style.display = 'none';
     }
 };
+
+
+// ==========================================
+// ARCI CITY 2.0 – VIZUÁLNA VRSTVA + STREET ENCOUNTERS
+// ==========================================
+(function installArciCityEnhancements(){
+    if (document.getElementById('arci-city-enhancements')) return;
+    const style = document.createElement('style');
+    style.id = 'arci-city-enhancements';
+    style.textContent = `
+        #arci-city-game-container { font-family: Inter,system-ui,-apple-system,Segoe UI,sans-serif !important; background:#050708 !important; }
+        #arci-city-game-container::before { content:""; position:fixed; inset:0; pointer-events:none; z-index:905; background:radial-gradient(circle at 50% 40%,rgba(46,204,113,.08),transparent 42%),linear-gradient(180deg,rgba(0,0,0,.18),rgba(0,0,0,.42)); }
+        .arci-map-hud { position:fixed; left:14px; right:14px; top:12px; z-index:930; display:flex; align-items:center; gap:12px; pointer-events:none; }
+        .arci-brand,.arci-hud-status,.arci-hud-actions { pointer-events:auto; }
+        .arci-brand { display:flex; align-items:center; gap:9px; padding:8px 12px; border:1px solid rgba(255,255,255,.14); border-radius:16px; background:rgba(8,12,13,.78); backdrop-filter:blur(14px); box-shadow:0 8px 30px rgba(0,0,0,.3); color:#fff; }
+        .arci-brand b { display:block; font-size:12px; letter-spacing:2px; }.arci-brand small { display:block; color:#6ee7a0; font-size:8px; letter-spacing:2px; margin-top:1px; }
+        .arci-brand-mark { width:30px;height:30px;border-radius:10px;display:grid;place-items:center;background:linear-gradient(135deg,#34d399,#059669);font-weight:1000;color:#03140d;box-shadow:0 0 18px rgba(52,211,153,.35); }
+        .arci-hud-status { margin:auto; padding:7px 12px; border-radius:999px; background:rgba(8,12,13,.72); border:1px solid rgba(255,255,255,.1); color:#cbd5d8; font-size:11px; backdrop-filter:blur(12px); }
+        .hud-dot { display:inline-block;width:7px;height:7px;border-radius:50%;background:#34d399;box-shadow:0 0 10px #34d399;margin-right:7px;animation:arciPulse 1.8s infinite; }
+        .arci-hud-actions { display:flex;gap:7px; }.arci-round-btn { width:38px;height:38px;border:1px solid rgba(255,255,255,.16);border-radius:13px;background:rgba(8,12,13,.82);color:#fff;font-weight:900;font-size:16px;cursor:pointer;box-shadow:0 8px 22px rgba(0,0,0,.25);backdrop-filter:blur(12px); }.arci-round-btn:hover{transform:translateY(-2px);border-color:#34d399;color:#6ee7a0}
+        .arci-building-hitbox { border-radius:22px; transition:background .18s,box-shadow .18s,transform .18s; }.arci-building-hitbox:hover { background:rgba(255,215,0,.055)!important; box-shadow:0 0 0 1px rgba(255,215,0,.25),0 0 30px rgba(255,215,0,.08); }
+        .arci-building-art { filter:drop-shadow(0 10px 7px rgba(0,0,0,.42)); transition:filter .2s,transform .2s; }.arci-building-hitbox:hover + .arci-building-label,.arci-building-label:hover { opacity:1; transform:translate(-50%,-4px) scale(1.02); }
+        .arci-building-label { position:absolute; transform:translate(-50%,0); display:flex;align-items:center;gap:5px; padding:5px 9px; border-radius:999px; background:rgba(7,10,11,.72); border:1px solid rgba(255,255,255,.14); color:#f4f7f6; font-size:10px;font-weight:800;white-space:nowrap; opacity:.72; transition:.18s; pointer-events:auto; cursor:pointer; backdrop-filter:blur(8px); box-shadow:0 5px 15px rgba(0,0,0,.25); }.building-label-icon{color:#f1c40f}
+        .arci-npc-badge { position:absolute; left:50%; top:-9px; transform:translate(-50%,-100%); opacity:0; pointer-events:none; white-space:nowrap; padding:4px 7px; border-radius:999px; background:rgba(7,10,11,.86); border:1px solid rgba(52,211,153,.28); color:#e9fff2; font-size:8px;font-weight:800; letter-spacing:.2px; box-shadow:0 5px 15px rgba(0,0,0,.25); transition:.18s; }.arci-npc:hover .arci-npc-badge,.arci-npc:focus .arci-npc-badge{opacity:1}.npc-status-dot{display:inline-block;width:5px;height:5px;border-radius:50%;background:#34d399;margin-right:4px}
+        .arci-npc { transition:filter .15s; }.arci-npc:hover{filter:drop-shadow(0 0 8px rgba(52,211,153,.55));}.arci-npc-fight { animation:arciFightShake .16s infinite alternate !important; filter:drop-shadow(0 0 13px rgba(231,76,60,.9)) !important; }.arci-npc-fight::after { content:'⚡'; position:absolute; left:50%; top:-18px; transform:translateX(-50%); font-size:16px; animation:arciHitPop .35s infinite; }
+        .arci-street-ring { position:absolute;width:46px;height:22px;border-radius:50%;border:2px solid #ef4444;box-shadow:0 0 16px rgba(239,68,68,.7);transform:translate(-50%,-40%);pointer-events:none;animation:arciRing 1s infinite;z-index:420; }
+        .arci-event-toast { position:fixed;left:50%;top:76px;transform:translate(-50%,-10px);opacity:0;z-index:935;pointer-events:none;padding:9px 14px;border-radius:12px;background:rgba(8,10,11,.9);border:1px solid rgba(255,255,255,.14);color:#fff;font-size:12px;font-weight:800;box-shadow:0 12px 35px rgba(0,0,0,.4);backdrop-filter:blur(12px);transition:.25s; }.arci-event-toast.show{opacity:1;transform:translate(-50%,0)}
+        .arci-map-legend{display:none;position:fixed;left:50%;top:70px;transform:translateX(-50%);z-index:936;max-width:calc(100vw - 30px);padding:9px 13px;border-radius:12px;background:rgba(7,10,11,.92);border:1px solid rgba(255,215,0,.28);color:#fff;font-size:11px;box-shadow:0 12px 35px rgba(0,0,0,.45);backdrop-filter:blur(14px)}.arci-map-legend b{display:block;color:#f1c40f;margin-bottom:3px}.arci-map-legend span{color:#aeb9ba}
+        .arci-top-control { border:1px solid rgba(255,255,255,.2)!important;background:rgba(8,12,13,.82)!important;color:#fff!important;backdrop-filter:blur(12px);height:42px!important;min-width:42px;padding:0 12px!important;box-shadow:0 8px 22px rgba(0,0,0,.32)!important;transition:.18s!important}.arci-top-control:hover{transform:translateY(-2px) scale(1.03);border-color:#34d399!important}.arci-exit{color:#fecaca!important;border-color:rgba(248,113,113,.45)!important}
+        @keyframes arciPulse{50%{opacity:.45;transform:scale(.72)}} @keyframes arciRing{50%{transform:translate(-50%,-40%) scale(1.15);opacity:.45}} @keyframes arciFightShake{from{transform:translate(-50%,-100%) rotate(-4deg)}to{transform:translate(-50%,-100%) rotate(4deg)}} @keyframes arciHitPop{50%{transform:translateX(-50%) scale(1.35);opacity:.35}}
+        @media(max-width:600px){.arci-brand{padding:7px 9px}.arci-brand-mark{width:27px;height:27px}.arci-hud-status{font-size:9px;padding:6px 9px}.arci-round-btn{width:35px;height:35px}.arci-building-label{font-size:8px;padding:4px 6px}.arci-npc-badge{display:none}}
+    `;
+    document.head.appendChild(style);
+})();
+
+function showArciMapLegend(e){
+    if(e) e.stopPropagation();
+    const l=document.getElementById('arci-map-legend'); if(!l) return;
+    l.style.display=l.style.display==='block'?'none':'block';
+    setTimeout(()=>{if(l)l.style.display='none'},5000);
+}
+
+function arciMapToast(message, type='normal'){
+    const el=document.getElementById('arci-event-toast'); if(!el)return;
+    el.textContent=message; el.style.borderColor=type==='danger'?'rgba(239,68,68,.6)':'rgba(52,211,153,.35)'; el.classList.add('show');
+    clearTimeout(window.__arciToastTimer); window.__arciToastTimer=setTimeout(()=>el.classList.remove('show'),2800);
+}
+
+function triggerArciStreetFightVisual(npcObj,npcName){
+    if(!npcObj || !npcObj.el) return;
+    const player=document.getElementById('player-character');
+    npcObj.isWaitingForPlayer=true; npcObj.state='fight';
+    const ring=document.createElement('div'); ring.className='arci-street-ring'; ring.style.left=npcObj.x+'%'; ring.style.top=npcObj.y+'%'; ring.id='arciFightRing';
+    const layer=document.getElementById('npcLayer'); if(layer)layer.appendChild(ring);
+    npcObj.el.classList.add('arci-npc-fight');
+    if(player){player.classList.add('arci-player-fight'); player.style.filter='drop-shadow(0 0 12px rgba(52,211,153,.75))';}
+    arciMapToast('⚡ '+(npcName||'Súper')+' prijal výzvu. Ring sa otvára!', 'danger');
+    setTimeout(()=>{ if(ring)ring.remove(); if(npcObj.el)npcObj.el.classList.remove('arci-npc-fight'); if(player){player.classList.remove('arci-player-fight');player.style.filter='drop-shadow(0px 5px 5px rgba(0,0,0,.5))';} },1300);
+}
+window.triggerArciStreetFightVisual=triggerArciStreetFightVisual;
+
+function checkNpcStreetEncounters(){
+    if(!activeNPCs || activeNPCs.length<2) return;
+    const now=Date.now();
+    for(let i=0;i<activeNPCs.length;i++){
+        const a=activeNPCs[i]; if(!a||a.isWaitingForPlayer||a.fightCooldownUntil>now)continue;
+        for(let j=i+1;j<activeNPCs.length;j++){
+            const b=activeNPCs[j]; if(!b||b.isWaitingForPlayer||b.fightCooldownUntil>now)continue;
+            const d=Math.hypot(a.x-b.x,a.y-b.y);
+            if(d<6 && Math.random()<0.12 && (a.aggression+b.aggression)>0.9){
+                startNpcStreetScuffle(a,b); return;
+            }
+        }
+    }
+}
+
+function startNpcStreetScuffle(a,b){
+    a.isWaitingForPlayer=b.isWaitingForPlayer=true; a.state=b.state='fight';
+    const layer=document.getElementById('npcLayer'); if(!layer)return;
+    const ring=document.createElement('div'); ring.className='arci-street-ring'; ring.style.left=((a.x+b.x)/2)+'%'; ring.style.top=((a.y+b.y)/2)+'%'; layer.appendChild(ring);
+    a.el.classList.add('arci-npc-fight'); b.el.classList.add('arci-npc-fight');
+    const an=npcConfigs[a.configID]?.name||'NPC'; const bn=npcConfigs[b.configID]?.name||'NPC';
+    arciMapToast('🥊 '+an+' vs. '+bn+' — pouličný konflikt!', 'danger');
+    let rounds=0;
+    const timer=setInterval(()=>{
+        rounds++;
+        const winner=Math.random()<0.5?a:b;
+        if(rounds<3){ arciMapToast((winner===a?'👊 '+an:'👊 '+bn)+' trafil!'); }
+        else{
+            clearInterval(timer); ring.remove(); a.el.classList.remove('arci-npc-fight'); b.el.classList.remove('arci-npc-fight');
+            a.isWaitingForPlayer=b.isWaitingForPlayer=false; a.state=b.state='walking'; a.fightCooldownUntil=Date.now()+18000; b.fightCooldownUntil=Date.now()+18000;
+            if(Math.random()<0.28){ arciMapToast('🏃 Konflikt skončil útekom.'); const loser=winner===a?b:a; loser.visitsLeft=Math.max(0,loser.visitsLeft-1); }
+            else arciMapToast('🤝 Bitka skončila. Mesto pokračuje ďalej.');
+            npcBrain(a); npcBrain(b);
+        }
+    },850);
+}
+
+</script>
+</body>
+</html>
