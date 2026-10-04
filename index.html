@@ -79328,11 +79328,6 @@ function startArciStreetFight(npcObj, npcName) {
     fightState.npcWeapon = getRandomItem(FIGHT_WEAPONS);
     fightState.npcPerk = getRandomItem(FIGHT_PERKS);
 
-    // Krátky filmový nábeh súboja priamo na mape
-    if (typeof window.triggerArciStreetFightVisual === 'function') {
-        window.triggerArciStreetFightVisual(npcObj, npcName);
-    }
-
     // Setup UI
     document.getElementById('npc-fight-img').src = npcObj.configID + ".png";
     document.getElementById('npc-fight-name').innerText = npcName;
@@ -79340,19 +79335,11 @@ function startArciStreetFight(npcObj, npcName) {
     document.getElementById('player-stats').innerHTML = `<span class="stat-badge">${fightState.playerWeapon.icon} ${fightState.playerWeapon.name}</span> <span class="stat-badge">${fightState.playerPerk.icon} ${fightState.playerPerk.name}</span>`;
     document.getElementById('npc-stats').innerHTML = `<span class="stat-badge">${fightState.npcWeapon.icon} ${fightState.npcWeapon.name}</span> <span class="stat-badge">${fightState.npcPerk.icon} ${fightState.npcPerk.name}</span>`;
 
-    document.getElementById('combat-log').innerHTML = `<div class="log-entry" style="color:gold;">🥊 Vstupuješ do ringu. Stávka 100 €.</div>`;
+    document.getElementById('combat-log').innerHTML = `<div class="log-entry" style="color:gold;">Máš stavených 100€. Zápas začína!</div>`;
     document.getElementById('arena-action-buttons').style.display = 'grid';
 
-    const fightOverlay = document.getElementById('fightArenaOverlay');
-    if (fightOverlay) {
-        fightOverlay.classList.remove('arci-fight-intro','arci-fight-hit-player','arci-fight-hit-npc');
-        void fightOverlay.offsetWidth;
-        fightOverlay.classList.add('arci-fight-intro');
-        fightOverlay.dataset.round = '1';
-    }
     updateHPBars();
     document.getElementById('fightArenaOverlay').style.display = 'flex';
-    setTimeout(() => { if (fightOverlay) fightOverlay.classList.remove('arci-fight-intro'); }, 700);
 }
 
 function updateHPBars() {
@@ -79436,15 +79423,6 @@ function executeFightRound(playerMove) {
     if (nBaseDmg > 0) logMsg += ` Dostal si <span class="log-dmg">${nBaseDmg} DMG</span>.`;
     
     logCombat(logMsg);
-    const fightOverlay = document.getElementById('fightArenaOverlay');
-    if (fightOverlay) {
-        fightOverlay.classList.remove('arci-fight-hit-player','arci-fight-hit-npc');
-        if (pBaseDmg > 0) fightOverlay.classList.add('arci-fight-hit-npc');
-        if (nBaseDmg > 0) {
-            setTimeout(() => { if (fightOverlay) { fightOverlay.classList.remove('arci-fight-hit-npc'); fightOverlay.classList.add('arci-fight-hit-player'); } }, 110);
-        }
-        setTimeout(() => { if (fightOverlay) fightOverlay.classList.remove('arci-fight-hit-player','arci-fight-hit-npc'); }, 360);
-    }
     updateHPBars();
 
     // KONTROLA KONCA SÚBOJA
@@ -79687,28 +79665,6 @@ function finishFight() {
 <link rel="stylesheet" href="arci-map.css">
 
 <script src="arci-map.js"></script>
-
-
-<style id="arci-premium-ui-v2">
-    :root{--arci-green:#34d399;--arci-green2:#059669;--arci-gold:#f1c40f;--arci-red:#ef4444;--arci-ink:#070b0c;}
-    body{background:radial-gradient(circle at 50% -10%,rgba(52,211,153,.08),transparent 38%),var(--bg-color)!important;}
-    .pro-header{position:relative!important;border:1px solid rgba(255,255,255,.08)!important;border-radius:22px!important;padding:14px 16px!important;background:linear-gradient(145deg,rgba(30,40,40,.94),rgba(11,14,15,.96))!important;box-shadow:0 14px 40px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.05)!important;overflow:hidden;}
-    .pro-header:after{content:"";position:absolute;inset:auto -10% -80% -10%;height:150px;background:radial-gradient(ellipse,rgba(52,211,153,.12),transparent 68%);pointer-events:none;}
-    .brand-logo{letter-spacing:-1px!important;text-shadow:0 0 24px rgba(52,211,153,.3)!important;}.brand-subtitle{color:var(--arci-green)!important;letter-spacing:3px!important;font-weight:900!important;}
-    .rank-pill{border-radius:999px!important;border:1px solid rgba(255,255,255,.11)!important;background:rgba(255,255,255,.035)!important;backdrop-filter:blur(8px);transition:.18s!important;}.rank-pill:hover{transform:translateY(-2px)!important;box-shadow:0 8px 18px rgba(0,0,0,.2)!important;}
-    .pro-icons{gap:8px!important;}.pro-icon-btn{width:42px!important;height:42px!important;border-radius:13px!important;border:1px solid rgba(255,255,255,.1)!important;background:linear-gradient(145deg,#202829,#0e1314)!important;box-shadow:0 8px 18px rgba(0,0,0,.25)!important;transition:.18s!important;position:relative!important;}.pro-icon-btn:hover{transform:translateY(-3px) scale(1.04)!important;border-color:var(--arci-green)!important;color:#fff!important;box-shadow:0 10px 24px rgba(52,211,153,.14)!important;}
-    .main-menu-container{background:linear-gradient(180deg,rgba(255,255,255,.025),transparent);border:1px solid rgba(255,255,255,.05);border-radius:24px;padding:14px;box-sizing:border-box;box-shadow:0 18px 50px rgba(0,0,0,.16);}
-    .main-menu-btn{border-radius:16px!important;min-height:52px!important;position:relative!important;overflow:hidden!important;backdrop-filter:blur(8px);font-weight:900!important;letter-spacing:.15px;box-shadow:0 9px 22px rgba(0,0,0,.22)!important;transition:transform .18s,box-shadow .18s,filter .18s!important;}
-    .main-menu-btn:before{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 25%,rgba(255,255,255,.12) 50%,transparent 75%);transform:translateX(-120%);transition:transform .5s;pointer-events:none;}.main-menu-btn:hover:before{transform:translateX(120%);}.main-menu-btn:hover{transform:translateY(-2px)!important;box-shadow:0 14px 30px rgba(0,0,0,.3)!important;}
-    #btnOpenMap{height:62px!important;min-height:62px!important;border:1px solid rgba(255,255,255,.55)!important;border-radius:18px!important;background:linear-gradient(135deg,#059669,#34d399 52%,#10b981)!important;box-shadow:0 0 0 1px rgba(52,211,153,.12),0 12px 35px rgba(16,185,129,.25)!important;font-size:1.05rem!important;}
-    #btnHappyStatus{height:36px!important;min-height:36px!important;max-height:36px!important;border-radius:12px!important;width:72%!important;font-size:.82rem!important;box-shadow:0 8px 24px rgba(241,196,15,.16)!important;}
-    .main-menu-container > div > .main-menu-btn{height:42px!important;min-height:42px!important;border-radius:12px!important;}
-    .arci-fight-intro .fighters-split{animation:arciFightZoom .65s cubic-bezier(.2,.8,.2,1)}
-    .arci-fight-hit-npc .fighter-side.npc{animation:arciHitNpc .32s ease-out}.arci-fight-hit-player .fighter-side.player{animation:arciHitPlayer .32s ease-out}
-    .fighter-img-wrap{box-shadow:0 0 0 1px rgba(255,255,255,.06),0 12px 25px rgba(0,0,0,.4)!important;transition:.2s}.fighter-side{transition:.2s}.btn-attack{border-color:rgba(255,255,255,.1)!important;background:linear-gradient(145deg,#202426,#0e1112)!important;box-shadow:0 8px 18px rgba(0,0,0,.22)!important}.btn-attack:active{transform:scale(.96)!important}
-    @keyframes arciFightZoom{from{transform:scale(1.06);opacity:.4}to{transform:scale(1);opacity:1}}@keyframes arciHitNpc{0%{transform:translateX(0)}35%{transform:translateX(12px) rotate(2deg)}100%{transform:translateX(0)}}@keyframes arciHitPlayer{0%{transform:translateX(0)}35%{transform:translateX(-12px) rotate(-2deg)}100%{transform:translateX(0)}}
-    @media(max-width:700px){.pro-header{border-radius:16px!important;padding:10px!important}.rank-row{gap:5px!important}.rank-pill{font-size:9px!important;padding:5px 7px!important}.pro-icon-btn{width:36px!important;height:36px!important}.main-menu-container{padding:9px;border-radius:18px}}
-</style>
 
 </body>
 </html>
