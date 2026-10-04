@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="sk">
 <head>
     <meta charset="UTF-8">
@@ -79662,10 +79662,9 @@ function finishFight() {
 <div id="arci-city-game-container" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 999999; background: black;">
     </div>
 
-<link rel="stylesheet" href="arci-map.css">
 
 <script>
-/* Arci-map.js embedded for the standalone HTML build */
+/* ARCI-MAP EMBEDDED — corrected functional map version */
 // ==========================================
 // 1. DÁTA BUDOV A SÚRADNICE
 // ==========================================
@@ -79832,6 +79831,8 @@ function startArciCityGame() {
                 <div id="buildingsLayer"></div>
                 <div id="npcLayer" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: auto;"></div>
                 <div id="debugLayer" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 400;"></div>
+                <div id="arciEventLayer" style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:460;"></div>
+                <div id="arciDayNightBadge" class="arci-daynight-badge">☀️ DEŇ</div>
                 
                 <img src="panáčik_stoji.png" id="player-character" class="face-right" style="position: absolute; left: ${savedX}%; top: ${savedY}%; width: 45px; z-index: 500; transition: none; pointer-events: none; filter: drop-shadow(0px 5px 5px rgba(0,0,0,0.5));">
             </div>
@@ -80488,6 +80489,8 @@ function applyWobbleAnimation(element, startX, targetX, isMoving) {
     const isGoingLeft = targetX < startX;
     
     element.classList.remove('wobble-walk', 'wobble-walk-left', 'face-left', 'face-right');
+    // Menovka je samostatná a vždy sa číta zľava doprava aj keď je postava zrkadlovo otočená.
+    element.style.setProperty('--arci-label-scale', isGoingLeft ? '-1' : '1');
     
     if (isMoving) {
         if (isGoingLeft) {
@@ -80622,7 +80625,7 @@ function initNPCSystem() {
     if (!window.__arciNpcManagerStarted) {
         window.__arciNpcManagerStarted = true;
         setInterval(manageNPCs, 5000);
-        setInterval(maybeStartArciNpcClash, 8500);
+        setInterval(maybeStartArciLiveEvent, 3500);
     }
     manageNPCs();
 }
@@ -81125,7 +81128,36 @@ window.handleMapSearch = function(val) {
       .arci-npc { filter:drop-shadow(0 4px 4px #0008); }
       .arci-npc img { transition:filter .2s ease, transform .2s ease; }
       .arci-npc:hover img { filter:drop-shadow(0 0 7px #65e7ff)!important; }
-      .arci-npc-name { position:absolute; left:50%; bottom:calc(100% - 5px); transform:translateX(-50%); white-space:nowrap; padding:3px 7px; border-radius:7px; color:#fff; background:rgba(7,12,20,.82); border:1px solid rgba(97,231,255,.4); font:800 10px/1.2 system-ui,sans-serif; letter-spacing:.2px; text-shadow:0 1px 2px #000; box-shadow:0 3px 10px #0005; pointer-events:none; }
+      .arci-npc-name { position:absolute; left:50%; bottom:calc(100% - 5px); transform:translateX(-50%) scaleX(var(--arci-label-scale,1));
+      #arciEventLayer { pointer-events:none; }
+      .arci-live-event { position:absolute; transform:translate(-50%,-50%); pointer-events:auto; cursor:pointer; border:1px solid rgba(255,255,255,.55); color:#fff; background:linear-gradient(145deg,rgba(13,20,32,.97),rgba(5,8,14,.97)); border-radius:14px; padding:5px 8px; min-width:44px; box-shadow:0 8px 25px #000b,0 0 18px #ffcf4b35; display:flex; flex-direction:column; align-items:center; gap:1px; animation:arciEventPulse 1.1s ease-in-out infinite; z-index:900; }
+      .arci-live-event:hover { transform:translate(-50%,-50%) scale(1.08); }
+      .arci-event-icon { font-size:22px; line-height:1; }
+      .arci-event-caption { font:900 8px/1 system-ui,sans-serif; white-space:nowrap; letter-spacing:.3px; }
+      .arci-live-fight { border-color:#ff6262; box-shadow:0 8px 25px #000b,0 0 22px #ff3b3b66; }
+      .arci-live-conversation { border-color:#61e7ff; box-shadow:0 8px 25px #000b,0 0 22px #61e7ff44; }
+      .arci-live-money { border-color:#6dff9a; box-shadow:0 8px 25px #000b,0 0 22px #6dff9a44; }
+      .arci-live-event.is-active { animation:arciEventPulse .45s ease-in-out infinite alternate, arciEventJolt .16s linear infinite; }
+      .arci-fight-fx { position:absolute; transform:translate(-50%,-50%); pointer-events:none; z-index:950; display:flex; gap:8px; font-size:24px; animation:arciFxFloat .55s ease-in-out infinite alternate; }
+      .arci-fight-fx span:nth-child(2){animation:arciPunchIcon .25s ease-in-out infinite alternate}
+      .arci-money-drop { position:absolute; transform:translate(-50%,-50%); z-index:910; pointer-events:none; color:#9affb2; font:900 13px/1 system-ui,sans-serif; text-shadow:0 2px 5px #000; animation:arciMoneyFloat 1s ease-out infinite; }
+      .arci-event-toast-clickable { cursor:pointer; pointer-events:auto!important; border-color:#ffd66b!important; }
+      .arci-toast-hint { margin-top:5px; font-size:10px; color:#ffd66b; opacity:.9; }
+      .arci-daynight-badge { position:fixed; left:50%; top:14px; transform:translateX(-50%); z-index:941; padding:7px 13px; border-radius:999px; background:rgba(7,12,20,.82); border:1px solid rgba(255,255,255,.22); color:#fff; font:900 10px/1 system-ui,sans-serif; box-shadow:0 6px 20px #0007; backdrop-filter:blur(10px); pointer-events:none; }
+      #mapWrapper.arci-night .map-bg { filter:brightness(.72) saturate(.85) hue-rotate(8deg); }
+      #mapWrapper.arci-night #buildingsLayer img { filter:brightness(.78) saturate(.9) drop-shadow(0 6px 5px #000a)!important; }
+      #mapWrapper.arci-dusk .map-bg { filter:brightness(.88) saturate(1.05) sepia(.14); }
+      .arci-street-clash { filter:drop-shadow(0 0 11px #ff4e52)!important; }
+      .arci-punching { animation:arciNpcPunch .32s ease-in-out infinite alternate!important; }
+      .arci-talking { animation:arciTalking .75s ease-in-out infinite alternate!important; filter:drop-shadow(0 0 8px #61e7ff)!important; }
+      @keyframes arciEventPulse {0%,100%{box-shadow:0 8px 25px #000b,0 0 12px #ffd66b22;opacity:.88}50%{box-shadow:0 8px 25px #000b,0 0 25px #ffd66b77;opacity:1}}
+      @keyframes arciEventJolt {0%{margin-left:-2px}100%{margin-left:2px}}
+      @keyframes arciFxFloat {from{transform:translate(-50%,-50%) translateY(3px) scale(.9)}to{transform:translate(-50%,-50%) translateY(-8px) scale(1.08)}}
+      @keyframes arciPunchIcon {from{transform:rotate(-12deg) scale(.9)}to{transform:rotate(12deg) scale(1.2)}}
+      @keyframes arciMoneyFloat {0%{opacity:0;transform:translate(-50%,-30%)}20%{opacity:1}100%{opacity:.15;transform:translate(-50%,-130%)}}
+      @keyframes arciNpcPunch {from{transform:translate(-50%,-100%) rotate(-7deg)}to{transform:translate(-50%,-100%) rotate(7deg)}}
+      @keyframes arciTalking {from{transform:translate(-50%,-100%) translateY(0)}to{transform:translate(-50%,-100%) translateY(-4px)}}
+ white-space:nowrap; padding:3px 7px; border-radius:7px; color:#fff; background:rgba(7,12,20,.82); border:1px solid rgba(97,231,255,.4); font:800 10px/1.2 system-ui,sans-serif; letter-spacing:.2px; text-shadow:0 1px 2px #000; box-shadow:0 3px 10px #0005; pointer-events:none; }
       .arci-street-clash { animation:arciClash .32s ease-in-out infinite alternate; filter:drop-shadow(0 0 9px #ff4e52)!important; }
       .arci-street-clash::after { content:'🥊'; position:absolute; top:-22px; left:50%; transform:translateX(-50%); font-size:19px; animation:arciFightIcon .55s ease-in-out infinite alternate; }
       @keyframes arciClash { from { transform:translate(-50%,-100%) rotate(-5deg); } to { transform:translate(-50%,-100%) rotate(5deg); } }
@@ -81149,46 +81181,218 @@ window.handleMapSearch = function(val) {
       @keyframes arciLogIn { from { opacity:0; transform:translateY(4px); } to { opacity:1; transform:translateY(0); } }
       .arci-hit { animation:arciHit .25s ease-in-out 2; }
       @keyframes arciHit { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-5px)} 75%{transform:translateX(5px)} }
+      /* Hlavné menu — výraznejší redesign bez zmeny onclick funkcií */
+      .pro-icons { gap:8px!important; padding:8px!important; border-radius:18px!important; background:linear-gradient(145deg,rgba(17,27,39,.9),rgba(4,8,14,.92)); border:1px solid rgba(255,255,255,.1); box-shadow:0 10px 30px #0005; }
+      .pro-icons .pro-icon-btn { width:44px!important; height:44px!important; min-width:44px!important; font-size:20px!important; display:inline-flex!important; align-items:center!important; justify-content:center!important; }
+      .rank-nav { padding:10px!important; border-radius:18px!important; background:linear-gradient(145deg,rgba(16,26,39,.9),rgba(4,8,14,.92)); border:1px solid rgba(255,255,255,.09); box-shadow:0 10px 28px #0005; }
+      .rank-row { gap:7px!important; margin-bottom:7px!important; }
+      .rank-pill { min-height:34px!important; display:inline-flex!important; align-items:center!important; justify-content:center!important; padding:0 10px!important; border:1px solid rgba(255,255,255,.14)!important; background:linear-gradient(145deg,#1c2b3d,#0b111b)!important; color:#fff!important; }
+      #btnOpenMap { height:58px!important; min-height:58px!important; font-size:1.05rem!important; border-radius:18px!important; letter-spacing:.6px!important; box-shadow:0 12px 32px #20c99744, inset 0 1px #ffffff88!important; }
+      #btnOpenMap::before { content:'✦'; opacity:.8; font-size:14px; }
+      #btnOpenMap::after { content:'›'; opacity:.9; font-size:25px; line-height:1; margin-left:3px; }
+      .main-menu-container { gap:10px!important; }
+      .main-menu-container > .main-menu-btn { border-radius:13px!important; box-shadow:0 6px 18px #0004!important; }
       @media (max-width:600px) { .arci-npc-name { font-size:9px; padding:2px 5px; } #arci-city-game-container button[onclick="toggleSettingsMenu(event)"],#arci-city-game-container button[onclick="toggleBuildingMenu(event)"],#arci-city-game-container button[onclick="exitMap()"] { min-width:42px; min-height:40px; padding:5px 10px!important; } }
     `;
     (document.head || document.documentElement).appendChild(style);
 })();
 
-function showArciStreetEvent(message) {
+function showArciStreetEvent(message, eventData = null) {
     const old = document.querySelector('.arci-event-toast');
     if (old) old.remove();
     const toast = document.createElement('div');
-    toast.className = 'arci-event-toast';
-    toast.textContent = message;
+    toast.className = 'arci-event-toast' + (eventData ? ' arci-event-toast-clickable' : '');
+    toast.innerHTML = `<div>${message}</div>${eventData ? '<div class="arci-toast-hint">📍 KLIKNI — presuniem ťa na miesto udalosti</div>' : ''}`;
+    if (eventData) {
+        toast.style.pointerEvents = 'auto';
+        toast.onclick = (e) => { e.stopPropagation(); goToArciEvent(eventData); };
+    }
     document.body.appendChild(toast);
-    setTimeout(() => { toast.style.transition = 'opacity .35s'; toast.style.opacity = '0'; setTimeout(() => toast.remove(), 400); }, 3200);
+    setTimeout(() => { if (!toast.isConnected) return; toast.style.transition = 'opacity .35s, transform .35s'; toast.style.opacity = '0'; toast.style.transform = 'translateX(-50%) translateY(-8px)'; setTimeout(() => toast.remove(), 400); }, eventData ? 7000 : 3200);
 }
 
-// Krátke vizuálne potýčky medzi NPC; nepremenúvajú ani nemažú postavy a nemenia ich herné dáta.
-let arciNextNpcClashAt = 0;
-function maybeStartArciNpcClash() {
-    if (!document.getElementById('arci-city-game-container') || Date.now() < arciNextNpcClashAt) return;
-    if (activeNPCs.length < 2 || Math.random() > 0.22) return;
-    const candidates = activeNPCs.filter(n => n && n.el && n.el.isConnected && !n.isWaitingForPlayer && !n.isStreetClashing);
-    if (candidates.length < 2) return;
-    const a = candidates[Math.floor(Math.random() * candidates.length)];
-    const b = candidates.find(n => n !== a && Math.hypot((n.x || 0) - (a.x || 0), (n.y || 0) - (a.y || 0)) < 22) || candidates.find(n => n !== a);
-    if (!b) return;
-    arciNextNpcClashAt = Date.now() + 45000;
-    [a,b].forEach(n => { n.isStreetClashing = true; if (n.el) n.el.classList.add('arci-street-clash'); });
-    showArciStreetEvent('🥊 Pouličná potýčka! ' + ((npcConfigs[a.configID] || {}).name || 'Miestny') + ' vs. ' + ((npcConfigs[b.configID] || {}).name || 'Súper') + ' — klikni na postavu a zapoj sa.');
-    setTimeout(() => [a,b].forEach(n => { n.isStreetClashing = false; if (n.el) n.el.classList.remove('arci-street-clash'); }), 4200);
+// =========================================================
+// ARCI CITY LIVE EVENTS — skutočné udalosti priamo na mape
+// =========================================================
+let arciLiveEvents = [];
+let arciEventSeq = 0;
+let arciNextLiveEventAt = 0;
+
+function getNpcName(npc) {
+    return (npcConfigs[npc?.configID] || {}).name || 'Miestny';
 }
 
-// Pridá menovku bez zásahu do existujúceho wrappera a klikacej logiky.
-function decorateArciNpc(npcObj) {
-    if (!npcObj || !npcObj.el || npcObj.el.querySelector('.arci-npc-name')) return;
-    const cfg = npcConfigs[npcObj.configID] || {};
-    const label = document.createElement('div');
-    label.className = 'arci-npc-name';
-    label.textContent = cfg.name || 'Miestny';
-    npcObj.el.appendChild(label);
+function getEventLayer() {
+    return document.getElementById('arciEventLayer');
 }
+
+function removeArciLiveEvent(ev) {
+    if (!ev) return;
+    if (ev.marker && ev.marker.isConnected) ev.marker.remove();
+    if (ev.extraNodes) ev.extraNodes.forEach(n => n && n.isConnected && n.remove());
+    arciLiveEvents = arciLiveEvents.filter(x => x !== ev);
+}
+
+function createArciEventMarker(ev) {
+    const layer = getEventLayer();
+    if (!layer) return null;
+    const marker = document.createElement('button');
+    marker.type = 'button';
+    marker.className = `arci-live-event arci-live-${ev.type}`;
+    marker.style.left = ev.x + '%';
+    marker.style.top = ev.y + '%';
+    marker.innerHTML = `<span class="arci-event-icon">${ev.icon}</span><span class="arci-event-caption">${ev.title}</span>`;
+    marker.onclick = (e) => { e.stopPropagation(); goToArciEvent(ev); };
+    layer.appendChild(marker);
+    ev.marker = marker;
+    return marker;
+}
+
+function registerArciLiveEvent(type, x, y, title, icon, duration = 7000, data = {}) {
+    const ev = { id: 'arci_event_' + (++arciEventSeq), type, x, y, title, icon, data, marker:null, extraNodes:[], expiresAt:Date.now()+duration };
+    arciLiveEvents.push(ev);
+    createArciEventMarker(ev);
+    ev.cleanup = setTimeout(() => removeArciLiveEvent(ev), duration);
+    return ev;
+}
+
+function goToArciEvent(ev) {
+    if (!ev || !document.getElementById('arci-city-game-container')) return;
+    const toast = document.querySelector('.arci-event-toast');
+    if (toast) toast.remove();
+    const targetX = ev.x, targetY = ev.y;
+    const finish = () => {
+        centerCamera();
+        if (ev.type === 'fight' && ev.data?.npcA && ev.data?.npcB) {
+            focusArciNpcFight(ev);
+        } else if (ev.type === 'conversation') {
+            showArciStreetEvent(`💬 ${ev.data.aName} a ${ev.data.bName} sa rozprávajú na ulici.`);
+        } else if (ev.type === 'money') {
+            showArciStreetEvent(`💸 ${ev.data.name} tu stratil ${ev.data.amount} €!`);
+        }
+    };
+    if (walkOnRoadsOnly) navigatePlayerViaRoads(targetX, targetY, finish);
+    else { navigatePlayerDirectly(targetX, targetY); activeCallback = finish; }
+}
+
+function createArciFightFX(ev, a, b) {
+    const layer = document.getElementById('arciEventLayer');
+    if (!layer) return;
+    const fx = document.createElement('div');
+    fx.className = 'arci-fight-fx';
+    fx.style.left = ev.x + '%'; fx.style.top = (ev.y - 4) + '%';
+    fx.innerHTML = '<span>💥</span><span>👊</span><span>💢</span>';
+    layer.appendChild(fx); ev.extraNodes.push(fx);
+}
+
+function focusArciNpcFight(ev) {
+    const a = ev.data.npcA, b = ev.data.npcB;
+    if (!a?.el?.isConnected || !b?.el?.isConnected) return;
+    [a,b].forEach(n => { n.isWaitingForPlayer = true; if (n.timeout) clearTimeout(n.timeout); });
+    const leftA = a.x < b.x;
+    applyWobbleAnimation(a.el, leftA ? 1 : 0, leftA ? 0 : 1, false);
+    applyWobbleAnimation(b.el, leftA ? 0 : 1, leftA ? 1 : 0, false);
+    createArciFightFX(ev, a, b);
+    if (ev.marker) ev.marker.classList.add('is-focused');
+    // Po príchode hráča ostane bitka viditeľná ešte chvíľu, potom sa skončí a NPC pokračujú.
+    setTimeout(() => {
+        [a,b].forEach(n => { n.isStreetClashing = false; n.isWaitingForPlayer = false; n.el?.classList.remove('arci-street-clash'); });
+        removeArciLiveEvent(ev);
+        a && npcBrain(a); b && npcBrain(b);
+    }, 5200);
+}
+
+function pickNpcPair(maxDistance = 26) {
+    const candidates = activeNPCs.filter(n => n?.el?.isConnected && !n.isWaitingForPlayer && !n.isLiveEventBusy);
+    if (candidates.length < 2) return null;
+    let best = null, bestDist = Infinity;
+    for (let i=0;i<candidates.length;i++) for (let j=i+1;j<candidates.length;j++) {
+        const a=candidates[i], b=candidates[j];
+        const d=Math.hypot((b.x||0)-(a.x||0),(b.y||0)-(a.y||0));
+        if (d < bestDist) { bestDist=d; best=[a,b]; }
+    }
+    // Najprv berieme blízku dvojicu; ak sú NPC roztrúsené, vezmeme aspoň najbližšiu dvojicu.
+    return best;
+}
+
+function startArciNpcFightEvent() {
+    const pair = pickNpcPair(30);
+    if (!pair) return false;
+    const [a,b] = pair;
+    [a,b].forEach(n => { n.isLiveEventBusy=true; n.isStreetClashing=true; if(n.timeout) clearTimeout(n.timeout); n.el.classList.add('arci-street-clash'); });
+    const x=(a.x+b.x)/2, y=(a.y+b.y)/2;
+    const ev=registerArciLiveEvent('fight',x,y,'POULIČNÁ BITKA','🥊',9000,{npcA:a,npcB:b,aName:getNpcName(a),bName:getNpcName(b)});
+    createArciFightFX(ev,a,b);
+    showArciStreetEvent(`🥊 <b>${getNpcName(a)}</b> vs. <b>${getNpcName(b)}</b> — pouličná bitka!`, ev);
+    setTimeout(()=>{
+        if (!ev.marker) return;
+        ev.marker.classList.add('is-active');
+        [a,b].forEach(n=>n.el.classList.add('arci-punching'));
+    },200);
+    setTimeout(()=>{
+        [a,b].forEach(n=>{ if(n.el)n.el.classList.remove('arci-punching'); n.isLiveEventBusy=false; n.isStreetClashing=false; if(n.el)n.el.classList.remove('arci-street-clash'); });
+        removeArciLiveEvent(ev);
+    },8500);
+    return true;
+}
+
+function startArciConversationEvent() {
+    const pair=pickNpcPair(34); if(!pair) return false;
+    const [a,b]=pair;
+    [a,b].forEach(n=>{ n.isLiveEventBusy=true; if(n.timeout)clearTimeout(n.timeout); n.isWaitingForPlayer=true; });
+    const x=(a.x+b.x)/2,y=(a.y+b.y)/2;
+    const ev=registerArciLiveEvent('conversation',x,y,'ROZHOVOR','💬',6500,{a,b,aName:getNpcName(a),bName:getNpcName(b)});
+    a.el.classList.add('arci-talking'); b.el.classList.add('arci-talking');
+    applyWobbleAnimation(a.el,a.x,b.x,false); applyWobbleAnimation(b.el,b.x,a.x,false);
+    showArciStreetEvent(`💬 ${getNpcName(a)} sa stretol s ${getNpcName(b)} — chvíľu kecajú.`,ev);
+    setTimeout(()=>{
+        [a,b].forEach(n=>{n.isLiveEventBusy=false;n.isWaitingForPlayer=false;n.el?.classList.remove('arci-talking');});
+        removeArciLiveEvent(ev); npcBrain(a); npcBrain(b);
+    },6200);
+    return true;
+}
+
+function startArciMoneyEvent() {
+    const candidates=activeNPCs.filter(n=>n?.el?.isConnected&&!n.isWaitingForPlayer&&!n.isLiveEventBusy);
+    if(!candidates.length) return false;
+    const npc=candidates[Math.floor(Math.random()*candidates.length)];
+    const amount=[10,20,25,50][Math.floor(Math.random()*4)];
+    npc.isLiveEventBusy=true; if(npc.timeout)clearTimeout(npc.timeout); npc.isWaitingForPlayer=true;
+    const ev=registerArciLiveEvent('money',npc.x,npc.y,'STRATENÉ PENIAZE','💸',6500,{npc,name:getNpcName(npc),amount});
+    const coins=document.createElement('div'); coins.className='arci-money-drop'; coins.innerHTML=`💶 <b>-${amount} €</b>`; coins.style.left=npc.x+'%'; coins.style.top=(npc.y-5)+'%';
+    getEventLayer()?.appendChild(coins); ev.extraNodes.push(coins);
+    showArciStreetEvent(`💸 ${getNpcName(npc)} stratil ${amount} €!`,ev);
+    setTimeout(()=>{npc.isLiveEventBusy=false;npc.isWaitingForPlayer=false;removeArciLiveEvent(ev);npcBrain(npc);},6200);
+    return true;
+}
+
+function maybeStartArciLiveEvent() {
+    if (!document.getElementById('arci-city-game-container') || Date.now()<arciNextLiveEventAt) return;
+    if (activeNPCs.length<2) return;
+    // Častejšie udalosti, ale iba jedna naraz.
+    if (arciLiveEvents.some(e=>e.expiresAt>Date.now())) return;
+    arciNextLiveEventAt=Date.now()+18000;
+    const roll=Math.random();
+    if (roll<0.34) startArciNpcFightEvent();
+    else if (roll<0.68) startArciConversationEvent();
+    else startArciMoneyEvent();
+}
+
+// =========================================================
+// DEŇ / NOC — viditeľný cyklus bez zásahu do hernej logiky
+// =========================================================
+function updateArciDayNight() {
+    const wrap=document.getElementById('mapWrapper');
+    const badge=document.getElementById('arciDayNightBadge');
+    if(!wrap || !badge) return;
+    const hour=new Date().getHours()+new Date().getMinutes()/60;
+    wrap.classList.remove('arci-night','arci-dusk');
+    if(hour>=20 || hour<6){ wrap.classList.add('arci-night'); badge.textContent='🌙 NOC'; }
+    else if(hour>=17.5 || hour<8){ wrap.classList.add('arci-dusk'); badge.textContent='🌆 SÚMRAK'; }
+    else { badge.textContent='☀️ DEŇ'; }
+}
+setInterval(updateArciDayNight,30000);
+setTimeout(updateArciDayNight,500);
 
 // Jemné vizuálne efekty pri súboji; pôvodné funkcie a výsledky ostávajú nezmenené.
 (function enhanceStreetFightPresentation() {
