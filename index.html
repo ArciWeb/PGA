@@ -2578,6 +2578,8 @@ body.design-alternative #modernHomeShell{display:none!important}
 @media(min-width:1000px){.modern-shell{grid-template-columns:1.2fr .8fr}.modern-status-grid{grid-template-columns:1fr 1fr}}
 </style>
 <style id="arci-theme-system-css">
+.theme-category{margin-bottom:7px}.theme-category-btn{width:100%;display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border:1px solid var(--theme-border);border-radius:8px;background:var(--theme-button);color:var(--text-main);font-weight:800;cursor:pointer}.theme-category-btn.open{border-color:var(--theme-accent-2);box-shadow:0 0 0 1px var(--theme-accent-2) inset}.theme-category-grid{margin-top:6px;padding:5px;background:var(--modal-bg);border:1px solid var(--theme-border);border-radius:8px}.theme-star-badge{position:absolute;left:5px;top:3px;font-size:.72rem;color:#f1c40f;text-shadow:0 1px 2px #000}.theme-editor-star{position:absolute;left:8px;top:8px;width:36px;height:36px;border:1px solid var(--theme-border);border-radius:50%;background:var(--theme-button);color:#f1c40f;font-size:1.35rem;cursor:pointer;z-index:4}.theme-editor-star.fav{box-shadow:0 0 12px rgba(241,196,15,.35)}.theme-editor-modal .modal-header{position:relative;padding-left:52px}.theme-palette-label{margin-top:10px;font-size:.7rem;color:var(--theme-muted);font-weight:700}.theme-color-palette{display:grid;grid-template-columns:repeat(8,1fr);gap:5px;margin-top:6px;padding:7px;background:var(--card-bg);border:1px solid var(--theme-border);border-radius:8px}.theme-color-swatch{height:26px;border-radius:5px;border:1px solid rgba(255,255,255,.45);cursor:pointer}.theme-color-swatch:hover{transform:scale(1.08)}
+
 :root{--theme-muted:#9aa4b2;--theme-border:rgba(255,255,255,.16);--theme-button:#1f2937;--theme-input:#10151b;--theme-accent-2:#60a5fa;--theme-shadow:rgba(0,0,0,.28);--app-font-family:system-ui;--app-font-size:16px}
 body{font-family:var(--app-font-family);font-size:var(--app-font-size);background:var(--bg-color);color:var(--text-main)}
 .modal-content,.modal-body,.modal-header,.slot-card,.theme-editor-modal{border-color:var(--theme-border)!important}
@@ -62055,7 +62057,7 @@ function renderNewsList(fileKey) {
         filters: { tours: ['ALL'], events: [], seasons: [], importance: 'ALL', activeWeek: null },
         ui: { showWeeks: false, eventDropdownOpen: false, seasonDropdownOpen: false, importanceDropdownOpen: false },
         sort: { column: 'points', dir: 'desc' },
-        settings: { zoom: 0, theme: 'Default', themesOpen: false, design: 'classic', customThemes: [] }, 
+        settings: { zoom: 0, theme: 'Default', themesOpen: false, themeCategory: null, design: 'classic', customThemes: [], favoriteThemes: [], recentThemes: [] }, 
         history: [],
         unlockedBadges: {} // <--- TOTO PRIDAJ (Pamäť pre odznaky)
     };
@@ -62168,9 +62170,12 @@ function renderNewsList(fileKey) {
             appState.settings.zoom = appState.settings.zoom ? 1 : 0;
         }
         if (!appState.filters.importance) appState.filters.importance = 'ALL';
-        if (!appState.settings) appState.settings = { zoom:0, theme:'Default', themesOpen:false, design:'classic', customThemes:[] };
+        if (!appState.settings) appState.settings = { zoom:0, theme:'Default', themesOpen:false, themeCategory:null, design:'classic', customThemes:[], favoriteThemes:[], recentThemes:[] };
         if (!appState.settings.design) appState.settings.design = 'classic';
         if (!Array.isArray(appState.settings.customThemes)) appState.settings.customThemes = [];
+        if (!Array.isArray(appState.settings.favoriteThemes)) appState.settings.favoriteThemes = [];
+        if (!Array.isArray(appState.settings.recentThemes)) appState.settings.recentThemes = [];
+        if (!('themeCategory' in appState.settings)) appState.settings.themeCategory = null;
         ensureCustomThemesLoaded();
         if (!db.seasonStats) db.seasonStats = [];
 
@@ -67954,189 +67959,157 @@ function createModal(contentHtml, id = null) {
         else if (mode === 2) { btnColor = 'var(--accent-blue)'; targetContent = modalStack.length > 0 ? 'width=1200, initial-scale=0.1' : 'width=device-width, initial-scale=1.0'; }
         meta.setAttribute('content', targetContent); if(btn) btn.style.color = btnColor;
     }
+    const THEME_EXTRA_COLORS = ['#ff6b6b','#ff9f43','#feca57','#48dbfb','#1dd1a1','#5f27cd','#ff00a8','#00f5d4','#ff7f50','#7bed9f','#70a1ff','#a29bfe','#fd79a8','#e17055','#00cec9','#ffeaa7'];
+    const THEME_EXTRA_FONTS = ['Brush Script MT','Comic Sans MS','Impact','Rockwell','Copperplate','Lucida Handwriting','Segoe Print','Papyrus'];
+    let themeColorTarget = 'bg';
+
+    function themeSafeName(name) { return String(name).replace(/\\/g,'\\\\').replace(/'/g,"\\'"); }
+    function isThemeFavorite(name) { return (appState.settings.favoriteThemes || []).includes(name); }
+    function toggleThemeFavorite(name) {
+        if (!Array.isArray(appState.settings.favoriteThemes)) appState.settings.favoriteThemes=[];
+        const i=appState.settings.favoriteThemes.indexOf(name);
+        if(i>=0) appState.settings.favoriteThemes.splice(i,1); else appState.settings.favoriteThemes.push(name);
+        saveAuto();
+        if(document.getElementById('themeBrowser')) renderThemeBrowser();
+        if(document.getElementById('themeEditorFavorite')) document.getElementById('themeEditorFavorite').innerText=isThemeFavorite(name)?'★':'☆';
+    }
+    function registerRecentTheme(name) {
+        if(!Array.isArray(appState.settings.recentThemes)) appState.settings.recentThemes=[];
+        appState.settings.recentThemes=[name,...appState.settings.recentThemes.filter(n=>n!==name)].slice(0,10);
+    }
+    function getThemeCategoryNames(category) {
+        const map=getThemeMap(), all=Object.keys(map);
+        if(category==='favorites') return (appState.settings.favoriteThemes||[]).filter(n=>map[n]);
+        if(category==='mine') return (appState.settings.customThemes||[]).map(t=>t.name).filter(n=>map[n]);
+        if(category==='recent') return (appState.settings.recentThemes||[]).filter(n=>map[n]).slice(0,10);
+        return all;
+    }
+    function renderThemeButtons(names) {
+        const map=getThemeMap();
+        return names.map(k=>{
+            const sch=map[k]||{}; const active=appState.settings.theme===k; const fav=isThemeFavorite(k);
+            const safe=themeSafeName(k);
+            return `<div class="theme-btn ${active?'active':''}" style="background:${sch.bg||'#222'};border-color:${active?'#fff':'transparent'};color:${sch.text||'#fff'};position:relative" onclick="changeTheme('${safe}')" onpointerdown="startThemeHold(event,'${safe}')" onpointerup="cancelThemeHold(event)" onpointercancel="cancelThemeHold(event)" oncontextmenu="event.preventDefault();openThemeEditor('${safe}');return false;" title="Klik = použiť · podržanie = upraviť">${fav?'<span class="theme-star-badge">★</span>':''}${k}</div>`;
+        }).join('') || '<div style="padding:10px;color:var(--theme-muted);font-size:.8rem;grid-column:1/-1">Zatiaľ nič.</div>';
+    }
+    function renderThemeBrowser() {
+        const root=document.getElementById('themeBrowser'); if(!root) return;
+        const cats=[['favorites','★ Obľúbené témy'],['mine','✎ Moje témy'],['recent','◷ Naposledy použité'],['all','▦ Všetky témy']];
+        root.innerHTML=cats.map(([id,label])=>{
+            const open=appState.settings.themeCategory===id;
+            const count=getThemeCategoryNames(id).length;
+            return `<div class="theme-category"><button class="theme-category-btn ${open?'open':''}" onclick="toggleThemeCategory('${id}')"><span>${label}</span><span>${count} ${open?'▴':'▾'}</span></button>${open?`<div class="theme-grid theme-category-grid">${renderThemeButtons(getThemeCategoryNames(id))}</div>`:''}</div>`;
+        }).join('');
+    }
+    function toggleThemeCategory(category) {
+        appState.settings.themeCategory=appState.settings.themeCategory===category?null:category;
+        saveAuto(); renderThemeBrowser();
+    }
     function openSettings() {
         ensureCustomThemesLoaded();
-        let themeBtns = '';
-        Object.keys(getThemeMap()).forEach(k => {
-            const sch = getThemeMap()[k] || {};
-            const borderColor = (appState.settings.theme === k) ? '#fff' : 'transparent';
-            const safe = String(k).replace(/\\/g,'\\\\').replace(/'/g,"\\'");
-            themeBtns += `<div class="theme-btn ${appState.settings.theme === k ? 'active' : ''}" style="background:${sch.bg || '#222'}; border-color:${borderColor}; color:${sch.text || '#fff'}" onclick="changeTheme('${safe}')" onpointerdown="startThemeHold(event,'${safe}')" onpointerup="cancelThemeHold(event)" onpointercancel="cancelThemeHold(event)" oncontextmenu="event.preventDefault();openThemeEditor('${safe}');return false;" title="Klik = použiť · podržanie = upraviť">${k}</div>`;
-        });
-        const zoomLabels = ['Mobilný', 'Desktop', 'Hybridný'];
-        const currentZoomLabel = zoomLabels[appState.settings.zoom] || 'Mobilný';
-        const themesDisplay = appState.settings.themesOpen ? 'grid' : 'none';
-        const toggleBtnText = appState.settings.themesOpen ? 'Skryť Témy' : 'Zobraziť Témy';
-        const designBtns = `
-            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px;">
-                <button class="btn ${(!appState.settings.design || appState.settings.design === 'classic') ? 'btn-green' : 'btn-grey'}" onclick="changeDesign('classic')">▦ Classic</button>
-                <button class="btn ${appState.settings.design === 'modern' ? 'btn-blue' : 'btn-grey'}" onclick="changeDesign('modern')">◈ Modern</button>
-                <button class="btn ${appState.settings.design === 'alternative' ? 'btn-blue' : 'btn-grey'}" onclick="changeDesign('alternative')">✦ Alternative</button>
-            </div>`;
-
-        const html = `
+        const zoomLabels=['Mobilný','Desktop','Hybridný'];
+        const currentZoomLabel=zoomLabels[appState.settings.zoom]||'Mobilný';
+        const html=`
             <div class="modal-header"><h2>Nastavenia</h2><button class="close-btn" onclick="closeTopModal()">&times;</button></div>
             <div class="modal-body">
                 <h3>Štatistiky & Zoznamy</h3>
-                <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:15px;">
-                    <button class="btn btn-full-width" style="background:linear-gradient(135deg, #f1c40f 0%, #b8860b 100%); color:black; font-weight:bold; border:1px solid #fff;" onclick="openGlobalAchievementsList()">🏆 Zoznam Achievementov</button>
-                </div>
+                <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:15px;"><button class="btn btn-full-width" style="background:linear-gradient(135deg,#f1c40f 0%,#b8860b 100%);color:black;font-weight:bold;border:1px solid #fff;" onclick="openGlobalAchievementsList()">🏆 Zoznam Achievementov</button></div>
                 <h3>Nástroje</h3>
-                <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:15px;">
-                    <button class="btn btn-green" onclick="document.getElementById('fileInput').click()">Vložiť .txt</button>
-                    <button class="btn btn-blue" onclick="document.getElementById('seasonFileInput').click()">Vložiť Sezónu</button>
-                    <button class="btn btn-grey" onclick="openFileManager()">Správca súborov</button>
-                    <button class="btn btn-red" onclick="clearDB()">Vymazať DB</button>
-                    <button class="btn btn-red" style="background:#d35400;" onclick="openClearOnlyMenu()">Vymazať Iba...</button>
-                    <button class="btn btn-grey" onclick="toggleZoomInSettings()">Režim: ${currentZoomLabel}</button>
-                </div>
+                <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:15px;"><button class="btn btn-green" onclick="document.getElementById('fileInput').click()">Vložiť .txt</button><button class="btn btn-blue" onclick="document.getElementById('seasonFileInput').click()">Vložiť Sezónu</button><button class="btn btn-grey" onclick="openFileManager()">Správca súborov</button><button class="btn btn-red" onclick="clearDB()">Vymazať DB</button><button class="btn btn-red" style="background:#d35400;" onclick="openClearOnlyMenu()">Vymazať Iba...</button><button class="btn btn-grey" onclick="toggleZoomInSettings()">Režim: ${currentZoomLabel}</button></div>
                 <h3>Vzhľad</h3>
                 <div style="background:var(--card-bg);border:1px solid var(--theme-border);border-radius:10px;padding:10px;margin-bottom:10px;">
                     <div style="font-size:.8rem;color:var(--text-muted);text-transform:uppercase;font-weight:bold;">Dizajn aplikácie</div>
-                    ${designBtns}
-                    <div style="font-size:.7rem;color:var(--text-muted);margin-top:8px;">Classic = pôvodný · Modern = dashboard · Alternative = úplne iné rozloženie</div>
+                    <div id="designButtons" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px;">
+                        <button id="designBtnClassic" class="btn ${(!appState.settings.design||appState.settings.design==='classic')?'btn-green':'btn-grey'}" onclick="changeDesign('classic')">▦ Classic</button>
+                        <button id="designBtnModern" class="btn ${appState.settings.design==='modern'?'btn-blue':'btn-grey'}" onclick="changeDesign('modern')">◈ Modern</button>
+                        <button id="designBtnAlternative" class="btn ${appState.settings.design==='alternative'?'btn-blue':'btn-grey'}" onclick="changeDesign('alternative')">✦ Alternative</button>
+                    </div>
+                    <div style="font-size:.7rem;color:var(--text-muted);margin-top:8px;">Dizajn sa prepína okamžite a aktívne tlačidlo sa zmení hneď.</div>
                 </div>
-                <button class="btn btn-full-width btn-grey" onclick="toggleThemes(this)" style="margin-bottom:10px;">${toggleBtnText}</button>
-                <div class="theme-grid" id="themeContainer" style="display:${themesDisplay};">${themeBtns}</div>
-                <div style="margin-top:8px;font-size:.7rem;color:var(--text-muted);">Podrž ľubovoľnú tému → otvorí sa editor. Pravým tlačidlom funguje tiež.</div>
-                <h3>Sloty (Uložiť / Načítať)</h3>
-                <div class="slot-grid" id="slotContainer"></div>
+                <button class="btn btn-full-width btn-grey" onclick="toggleThemes(this)" style="margin-bottom:10px;">${appState.settings.themesOpen?'Skryť Témy':'Zobraziť Témy'}</button>
+                <div id="themeBrowser" style="display:${appState.settings.themesOpen?'block':'none'}"></div>
+                <div style="margin-top:8px;font-size:.7rem;color:var(--text-muted);">Podrž tému → editor. V editore ju môžeš označiť ★, uložiť na pôvodné miesto alebo uložiť ako novú.</div>
+                <h3>Sloty (Uložiť / Načítať)</h3><div class="slot-grid" id="slotContainer"></div>
             </div>`;
-        createModal(html);
-        renderSlots();
+        createModal(html); renderThemeBrowser(); renderSlots();
     }
 
-    let themeHoldTimer = null;
-    let themeHoldTriggered = false;
-    function startThemeHold(ev, name) {
-        themeHoldTriggered = false;
-        clearTimeout(themeHoldTimer);
-        themeHoldTimer = setTimeout(() => {
-            themeHoldTriggered = true;
-            openThemeEditor(name);
-        }, 650);
+    let themeHoldTimer=null, themeHoldTriggered=false;
+    function startThemeHold(ev,name){ themeHoldTriggered=false; clearTimeout(themeHoldTimer); themeHoldTimer=setTimeout(()=>{themeHoldTriggered=true;openThemeEditor(name);},650); }
+    function cancelThemeHold(ev){ clearTimeout(themeHoldTimer); if(ev&&themeHoldTriggered){ev.preventDefault();ev.stopPropagation();} }
+    function toggleThemes(btn){
+        appState.settings.themesOpen=!appState.settings.themesOpen;
+        if(!appState.settings.themesOpen) appState.settings.themeCategory=null;
+        btn.innerText=appState.settings.themesOpen?'Skryť Témy':'Zobraziť Témy';
+        const root=document.getElementById('themeBrowser'); if(root){root.style.display=appState.settings.themesOpen?'block':'none';if(appState.settings.themesOpen)renderThemeBrowser();}
+        saveAuto();
     }
-    function cancelThemeHold(ev) {
-        clearTimeout(themeHoldTimer);
-        if (ev && themeHoldTriggered) {
-            ev.preventDefault();
-            ev.stopPropagation();
+    function toggleZoomInSettings(){toggleZoom();closeTopModal();openSettings();}
+    function changeTheme(name){
+        if(themeHoldTriggered){themeHoldTriggered=false;return;}
+        ensureCustomThemesLoaded(); if(!getThemeMap()[name]) return;
+        appState.settings.theme=name; registerRecentTheme(name); applyTheme(name); saveAuto();
+        const root=document.getElementById('themeBrowser'); if(root) renderThemeBrowser();
+    }
+    function refreshDesignButtons(){
+        const d=appState.settings.design||'classic';
+        const ids={classic:'designBtnClassic',modern:'designBtnModern',alternative:'designBtnAlternative'};
+        Object.entries(ids).forEach(([k,id])=>{const b=document.getElementById(id);if(b)b.className='btn '+(d===k?(k==='classic'?'btn-green':'btn-blue'):'btn-grey');});
+    }
+    function changeDesign(name){
+        const allowed=['classic','modern','alternative']; appState.settings.design=allowed.includes(name)?name:'classic';
+        applyDesign(appState.settings.design); refreshDesignButtons(); saveAuto();
+    }
+    function applyDesign(name){
+        const design=['classic','modern','alternative'].includes(name)?name:'classic';
+        document.body.classList.toggle('design-modern',design==='modern'); document.body.classList.toggle('design-alternative',design==='alternative'); document.body.classList.toggle('design-classic',design==='classic');
+    }
+    function applyTheme(name){
+        ensureCustomThemesLoaded(); const map=getThemeMap(); const t=map[name]||map['Default']||Object.values(map)[0]; if(!t)return;
+        const root=document.documentElement;
+        root.style.setProperty('--bg-color',t.bg||'#0b0f14'); root.style.setProperty('--card-bg',t.card||t.bg||'#151a21'); root.style.setProperty('--text-main',t.text||'#fff'); root.style.setProperty('--accent-green',t.accent||'#2ecc71'); root.style.setProperty('--modal-bg',t.modalBg||t.card||t.bg||'#121212'); root.style.setProperty('--theme-muted',t.muted||'#9aa4b2'); root.style.setProperty('--theme-border',t.border||'rgba(255,255,255,.16)'); root.style.setProperty('--theme-button',t.button||t.card||'#1f2937'); root.style.setProperty('--theme-input',t.input||t.modalBg||t.card||'#10151b'); root.style.setProperty('--theme-accent-2',t.accent2||t.accent||'#60a5fa'); root.style.setProperty('--theme-shadow',t.shadow||'rgba(0,0,0,.28)'); root.style.setProperty('--app-font-family',t.fontFamily||'system-ui'); root.style.setProperty('--app-font-size',`${Number(t.fontSize)||16}px`);
+        document.body.style.fontFamily=t.fontFamily||''; document.body.style.fontSize=`${Number(t.fontSize)||16}px`; document.documentElement.dataset.themeName=name; applyDesign(appState.settings.design);
+    }
+    function openThemeEditor(name){
+        ensureCustomThemesLoaded(); const map=getThemeMap(); const base=map[name]||map['Default']; if(!base)return;
+        const fonts=['system-ui','Arial','Verdana','Tahoma','Trebuchet MS','Georgia','Times New Roman','Courier New','monospace',...THEME_EXTRA_FONTS];
+        const colorField=(key,label)=>`<label class="theme-edit-field"><span>${label}</span><input id="te_${key}" type="color" value="${base[key]||'#000000'}" onclick="themeColorTarget='${key}'"></label>`;
+        const fontOptions=fonts.map(f=>`<option value="${f}" ${(base.fontFamily||'system-ui')===f?'selected':''}>${f}</option>`).join('');
+        const swatches=THEME_EXTRA_COLORS.map(c=>`<button type="button" class="theme-color-swatch" style="background:${c}" title="${c}" onclick="if(document.getElementById('te_'+themeColorTarget))document.getElementById('te_'+themeColorTarget).value='${c}'"></button>`).join('');
+        const fav=isThemeFavorite(name);
+        const html=`<div class="modal-header"><button id="themeEditorFavorite" class="theme-editor-star ${fav?'fav':''}" onclick="toggleThemeFavorite('${themeSafeName(name)}')">${fav?'★':'☆'}</button><h2>🎨 Upraviť tému: ${name}</h2><button class="close-btn" onclick="closeTopModal()">&times;</button></div><div class="modal-body theme-editor-modal">
+          <p class="theme-editor-help">Môžeš prepísať pôvodnú tému alebo vytvoriť novú. ★ = obľúbená téma.</p>
+          <div class="theme-edit-grid">${colorField('bg','Pozadie aplikácie')}${colorField('card','Panely / karty')}${colorField('modalBg','Pozadie okien')}${colorField('text','Hlavné písmo')}${colorField('accent','Hlavná zvýrazňovacia farba')}${colorField('accent2','Druhá zvýrazňovacia farba')}${colorField('muted','Tlmené písmo')}${colorField('border','Rámčeky')}${colorField('button','Tlačidlá')}${colorField('input','Vstupné polia')}${colorField('shadow','Tiene')}</div>
+          <div class="theme-palette-label">Rýchla paleta — klikni na farebný bod a vloží sa do práve zvoleného poľa</div><div class="theme-color-palette">${swatches}</div>
+          <label class="theme-edit-wide"><span>Typ písma</span><select id="te_fontFamily">${fontOptions}</select></label>
+          <label class="theme-edit-wide"><span>Veľkosť písma: <b id="te_fontSizeVal">${Number(base.fontSize)||16}px</b></span><input id="te_fontSize" type="range" min="11" max="28" step="1" value="${Number(base.fontSize)||16}" oninput="document.getElementById('te_fontSizeVal').innerText=this.value+'px'"></label>
+          <label class="theme-edit-wide"><span>Názov novej témy (pri „Uložiť ako novú“)</span><input id="te_name" type="text" maxlength="40" placeholder="Prázdne = ${nextCustomThemeName(name)}"></label>
+          <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:15px;flex-wrap:wrap;"><button class="btn btn-grey" onclick="closeTopModal()">Zrušiť</button><button class="btn btn-red" onclick="deleteCustomTheme('${themeSafeName(name)}')">🗑 Vymazať tému</button><button class="btn btn-blue" onclick="saveEditedTheme('${themeSafeName(name)}',true)">💾 Uložiť tému</button><button class="btn btn-green" onclick="saveEditedTheme('${themeSafeName(name)}',false)">💾 Uložiť ako novú</button></div>
+        </div>`;
+        createModal(html,'theme-editor-modal');
+    }
+    function readThemeEditorScheme(sourceName){
+        const map=getThemeMap(), base=map[sourceName]||map['Default']; const scheme=Object.assign({},base); ['bg','card','modalBg','text','accent','accent2','muted','border','button','input','shadow'].forEach(k=>{const el=document.getElementById('te_'+k);if(el)scheme[k]=el.value;});
+        scheme.fontFamily=document.getElementById('te_fontFamily').value; scheme.fontSize=Number(document.getElementById('te_fontSize').value)||16; return scheme;
+    }
+    function saveEditedTheme(sourceName,overwrite){
+        const scheme=readThemeEditorScheme(sourceName); let requested=(document.getElementById('te_name').value||'').trim();
+        if(overwrite){
+            const arr=appState.settings.customThemes||[]; const idx=arr.findIndex(t=>t.name===sourceName);
+            const obj={name:sourceName,source:(idx>=0&&arr[idx].source)||sourceName,scheme}; if(idx>=0)arr[idx]=obj;else arr.push(obj);
+            colorSchemes[sourceName]=scheme; appState.settings.theme=sourceName; registerRecentTheme(sourceName);
+        } else {
+            const finalName=requested||nextCustomThemeName(sourceName); const used=Object.keys(getThemeMap()).map(n=>n.toLowerCase()); let uniqueName=finalName,i=2; while(used.includes(uniqueName.toLowerCase()))uniqueName=`${finalName} ${i++}`;
+            appState.settings.customThemes.push({name:uniqueName,source:sourceName,scheme}); colorSchemes[uniqueName]=scheme; appState.settings.theme=uniqueName; registerRecentTheme(uniqueName);
+            if(isThemeFavorite(sourceName)){appState.settings.favoriteThemes=appState.settings.favoriteThemes.filter(n=>n!==sourceName);appState.settings.favoriteThemes.push(uniqueName);}
         }
+        applyTheme(appState.settings.theme); saveAuto(); closeTopModal(); openSettings();
     }
-
-    function toggleThemes(btn) {
-        appState.settings.themesOpen = !appState.settings.themesOpen;
-        const container = document.getElementById('themeContainer');
-        if (appState.settings.themesOpen) { container.style.display = 'grid'; btn.innerText = 'Skryť Témy'; }
-        else { container.style.display = 'none'; btn.innerText = 'Zobraziť Témy'; }
-        saveAuto();
-    }
-
-    function toggleZoomInSettings() { toggleZoom(); closeTopModal(); openSettings(); }
-    function changeTheme(name) {
-        if (themeHoldTriggered) { themeHoldTriggered = false; return; }
-        ensureCustomThemesLoaded();
-        appState.settings.theme = name;
-        applyTheme(name);
-        saveAuto();
-        closeTopModal();
-        openSettings();
-    }
-    function changeDesign(name) {
-        const allowed = ['classic','modern','alternative'];
-        appState.settings.design = allowed.includes(name) ? name : 'classic';
-        applyDesign(appState.settings.design);
-        saveAuto();
-        closeTopModal();
-        openSettings();
-    }
-    function applyDesign(name) {
-        const design = ['classic','modern','alternative'].includes(name) ? name : 'classic';
-        document.body.classList.toggle('design-modern', design === 'modern');
-        document.body.classList.toggle('design-alternative', design === 'alternative');
-        document.body.classList.toggle('design-classic', design === 'classic');
-    }
-    function applyTheme(name) {
-        ensureCustomThemesLoaded();
-        const map = getThemeMap();
-        const t = map[name] || map['Default'] || Object.values(map)[0];
-        if (!t) return;
-        const root = document.documentElement;
-        root.style.setProperty('--bg-color', t.bg || '#0b0f14');
-        root.style.setProperty('--card-bg', t.card || t.bg || '#151a21');
-        root.style.setProperty('--text-main', t.text || '#fff');
-        root.style.setProperty('--accent-green', t.accent || '#2ecc71');
-        root.style.setProperty('--modal-bg', t.modalBg || t.card || t.bg || '#121212');
-        root.style.setProperty('--theme-muted', t.muted || '#9aa4b2');
-        root.style.setProperty('--theme-border', t.border || 'rgba(255,255,255,.16)');
-        root.style.setProperty('--theme-button', t.button || t.card || '#1f2937');
-        root.style.setProperty('--theme-input', t.input || t.modalBg || t.card || '#10151b');
-        root.style.setProperty('--theme-accent-2', t.accent2 || t.accent || '#60a5fa');
-        root.style.setProperty('--theme-shadow', t.shadow || 'rgba(0,0,0,.28)');
-        root.style.setProperty('--app-font-family', t.fontFamily || 'system-ui');
-        root.style.setProperty('--app-font-size', `${Number(t.fontSize) || 16}px`);
-        document.body.style.fontFamily = t.fontFamily || '';
-        document.body.style.fontSize = `${Number(t.fontSize) || 16}px`;
-        document.documentElement.dataset.themeName = name;
-        applyDesign(appState.settings.design);
-    }
-
-    function openThemeEditor(name) {
-        ensureCustomThemesLoaded();
-        const map = getThemeMap();
-        const base = map[name] || map['Default'];
-        if (!base) return;
-        const fonts = ['system-ui','Arial','Verdana','Tahoma','Trebuchet MS','Georgia','Times New Roman','Courier New','monospace'];
-        const colorField = (key,label) => `<label class="theme-edit-field"><span>${label}</span><input id="te_${key}" type="color" value="${base[key] || '#000000'}"></label>`;
-        const fontOptions = fonts.map(f => `<option value="${f}" ${(base.fontFamily||'system-ui')===f?'selected':''}>${f}</option>`).join('');
-        const html = `
-          <div class="modal-header"><h2>🎨 Upraviť tému: ${name}</h2><button class="close-btn" onclick="closeTopModal()">&times;</button></div>
-          <div class="modal-body theme-editor-modal">
-            <p class="theme-editor-help">Úprava sa uloží ako <b>nová téma</b>. Pôvodná téma zostane nedotknutá.</p>
-            <div class="theme-edit-grid">
-              ${colorField('bg','Pozadie aplikácie')}
-              ${colorField('card','Panely / karty')}
-              ${colorField('modalBg','Pozadie okien')}
-              ${colorField('text','Hlavné písmo')}
-              ${colorField('accent','Hlavná zvýrazňovacia farba')}
-              ${colorField('accent2','Druhá zvýrazňovacia farba')}
-              ${colorField('muted','Tlmené písmo')}
-              ${colorField('border','Rámčeky')}
-              ${colorField('button','Tlačidlá')}
-              ${colorField('input','Vstupné polia')}
-              ${colorField('shadow','Tiene')}
-            </div>
-            <label class="theme-edit-wide"><span>Typ písma</span><select id="te_fontFamily">${fontOptions}</select></label>
-            <label class="theme-edit-wide"><span>Veľkosť písma: <b id="te_fontSizeVal">${Number(base.fontSize)||16}px</b></span><input id="te_fontSize" type="range" min="11" max="24" step="1" value="${Number(base.fontSize)||16}" oninput="document.getElementById('te_fontSizeVal').innerText=this.value+'px'"></label>
-            <label class="theme-edit-wide"><span>Názov novej témy (voliteľné)</span><input id="te_name" type="text" maxlength="40" placeholder="Prázdne = ${nextCustomThemeName(name)}"></label>
-            <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:15px;flex-wrap:wrap;">
-              <button class="btn btn-grey" onclick="closeTopModal()">Zrušiť</button>
-              <button class="btn btn-green" onclick="saveEditedTheme('${String(name).replace(/\\/g,'\\\\').replace(/'/g,"\\'")}')">💾 Uložiť ako novú tému</button>
-            </div>
-          </div>`;
-        createModal(html, 'theme-editor-modal');
-    }
-
-    function saveEditedTheme(sourceName) {
-        const map = getThemeMap();
-        const base = map[sourceName] || map['Default'];
-        const keys = ['bg','card','modalBg','text','accent','accent2','muted','border','button','input','shadow'];
-        const scheme = Object.assign({}, base);
-        keys.forEach(k => { const el=document.getElementById('te_'+k); if(el) scheme[k]=el.value; });
-        scheme.fontFamily = document.getElementById('te_fontFamily').value;
-        scheme.fontSize = Number(document.getElementById('te_fontSize').value) || 16;
-        let requested = (document.getElementById('te_name').value || '').trim();
-        const finalName = requested || nextCustomThemeName(sourceName);
-        const used = Object.keys(getThemeMap()).map(n=>n.toLowerCase());
-        let uniqueName = finalName, i = 2;
-        while (used.includes(uniqueName.toLowerCase())) { uniqueName = `${finalName} ${i++}`; }
-        appState.settings.customThemes.push({name:uniqueName, source:sourceName, scheme});
-        colorSchemes[uniqueName] = scheme;
-        appState.settings.theme = uniqueName;
-        applyTheme(uniqueName);
-        saveAuto();
-        closeTopModal();
-        openSettings();
+    function deleteCustomTheme(name){
+        const arr=appState.settings.customThemes||[]; const idx=arr.findIndex(t=>t.name===name); if(idx<0){alert('Túto vstavanú tému nie je možné vymazať. Vlastné úpravy môžeš uložiť alebo upraviť.');return;}
+        if(!confirm(`Vymazať vlastnú tému „${name}“?`))return;
+        arr.splice(idx,1); delete colorSchemes[name]; appState.settings.favoriteThemes=(appState.settings.favoriteThemes||[]).filter(n=>n!==name); appState.settings.recentThemes=(appState.settings.recentThemes||[]).filter(n=>n!==name);
+        if(appState.settings.theme===name)appState.settings.theme=arr[0]?.name||'Default'; applyTheme(appState.settings.theme); saveAuto(); closeTopModal(); openSettings();
     }
 
 
@@ -68396,6 +68369,8 @@ function createModal(contentHtml, id = null) {
             case 'THEMES':
                 const customNames = (appState.settings.customThemes || []).map(t => t.name);
                 appState.settings.customThemes = [];
+                appState.settings.favoriteThemes = (appState.settings.favoriteThemes || []).filter(n => !customNames.includes(n));
+                appState.settings.recentThemes = (appState.settings.recentThemes || []).filter(n => !customNames.includes(n));
                 customNames.forEach(n => delete colorSchemes[n]);
                 if (customNames.includes(appState.settings.theme)) { appState.settings.theme = 'Default'; applyTheme('Default'); }
                 break;
@@ -78245,10 +78220,14 @@ window.openTournamentResultModal = function(fileId) {
             .tour-result-badge{padding:5px 9px;border-radius:999px;background:#1f2937;color:#cbd5e1;font-size:.72rem;font-weight:800;border:1px solid #334155;}
             .tour-result-scroll{overflow:auto;max-height:calc(92vh - 125px);}
             .tour-result-table{border-collapse:separate;border-spacing:0;min-width:1120px;width:100%;font-size:.74rem;}
-            .tour-result-table th{position:sticky;top:0;background:#162033;color:#9ca3af;z-index:2;padding:8px 6px;border-bottom:1px solid #334155;white-space:nowrap;text-align:center;}
+            .tour-result-table th{position:sticky;top:0;background:#162033;color:#9ca3af;z-index:3;padding:8px 6px;border-bottom:1px solid #334155;white-space:nowrap;text-align:center;}
             .tour-result-table td{padding:7px 6px;border-bottom:1px solid #1f2937;text-align:center;white-space:nowrap;}
-            .tour-result-table .tour-name{text-align:left;min-width:88px;width:88px;max-width:120px;font-weight:700;position:sticky;left:0;background:#0d1117;z-index:1;}
-            .tour-result-table .tour-pos{position:sticky;left:0;z-index:2;background:#111827;min-width:22px;width:22px;max-width:28px;padding-left:4px!important;padding-right:4px!important;}
+            .tour-result-table .tour-pos{position:sticky;left:0;z-index:5;background:#111827;min-width:22px;width:22px;max-width:28px;padding-left:4px!important;padding-right:4px!important;}
+            .tour-result-table th.tour-pos{left:0;}
+            .tour-result-table .tour-name{text-align:left;min-width:88px;width:88px;max-width:120px;font-weight:700;position:sticky;left:30px;background:#0d1117;z-index:4;}
+            .tour-result-table th.tour-name{left:30px;}
+            .tour-result-table .tour-pos:after{content:'';position:absolute;right:-1px;top:0;bottom:0;width:1px;background:#334155;}
+            .tour-result-table .tour-name:after{content:'';position:absolute;right:-1px;top:0;bottom:0;width:1px;background:#334155;}
             .tour-result-row:nth-child(even) td{background:#0c1016;}.tour-result-row:nth-child(even) .tour-name{background:#0c1016;}
             .tour-result-row:hover td{background:#172033;}.tour-result-row:hover .tour-name,.tour-result-row:hover .tour-pos{background:#172033;}
             .tour-cut-row td{color:#94a3b8;}.tour-cut-row .tour-pos{color:#f59e0b;}.tour-points{color:#f1c40f;font-weight:900;}
@@ -78268,7 +78247,7 @@ window.openTournamentResultModal = function(fileId) {
             <div class="tour-result-scroll">
                 <table class="tour-result-table">
                     <thead><tr>
-                        <th>Miesto</th><th>Hráč</th><th>Par</th><th>R1</th><th>R2</th><th>R3</th><th>R4</th><th>Body</th>
+                        <th class="tour-pos">Miesto</th><th class="tour-name">Hráč</th><th>Par</th><th>R1</th><th>R2</th><th>R3</th><th>R4</th><th>Body</th>
                         <th>Official</th><th>PGA</th><th>World Tour</th><th>FedEx</th><th>Players</th><th>EA</th><th>Amateur</th><th>ELO Δ</th>
                     </tr></thead>
                     <tbody>${rows}</tbody>
