@@ -62236,10 +62236,9 @@ function renderNewsList(fileKey) {
         if (!Array.isArray(appState.settings.recentThemes)) appState.settings.recentThemes = [];
         if (!('themeCategory' in appState.settings)) appState.settings.themeCategory = null;
         if (!('appearanceSaved' in appState.settings)) appState.settings.appearanceSaved=false;
-        // Potvrdený vzhľad má vlastný malý persistentný záznam. Ten má prednosť pred starým/nesprávnym autosave.
-        if (!(await loadConfirmedAppearance())) {
-            if (!appState.settings.appearanceSaved) loadThemePreferences();
-        }
+        // Autosave zostáva hlavným zdrojom stavu hry. Preferencie vzhľadu sa načítajú
+        // zo samostatného kľúča iba pre tému/dizajn, ktoré používateľ výslovne uložil.
+        loadThemePreferences();
         ensureCustomThemesLoaded();
         if (!db.seasonStats) db.seasonStats = [];
 
@@ -68140,34 +68139,28 @@ function createModal(contentHtml, id = null) {
         appState.settings.design=design;
         appState.settings.appearanceSaved=true;
 
-        // Vzhľad ukladáme oddelene od autosave, aby jeho potvrdenie nemohla
-        // pokaziť chyba v inej časti hry.
-        const confirmedOk=saveConfirmedAppearance();
+        // Trvalý vzhľad sa ukladá rovnakým spôsobom ako pôvodná funkčná verzia:
+        // stav hry do Autosave + samostatné preferencie vzhľadu do LocalStorage.
         saveThemePreferences();
         applyTheme(theme);
         applyDesign(design);
         refreshThemeUI();
         refreshDesignButtons();
 
-        // Použijeme rovnaký vlastný systém potvrdení ako zvyšok aplikácie.
-        // Nečakáme na autosave – používateľ musí dostať potvrdenie okamžite.
+        // Potvrdenie zobrazíme ešte pred Autosave, aby ho prípadná chyba úložiska nezablokovala.
         if (typeof showArciAlerts === 'function') {
             showArciAlerts([{
-                type: confirmedOk ? 'success' : 'danger',
-                title: confirmedOk ? 'VZHĽAD ULOŽENÝ' : 'ULOŽENIE ZLYHALO',
-                text: confirmedOk
-                    ? `Téma „${theme}“ a dizajn „${design}“ sú uložené. Po obnovení stránky zostanú zachované.`
-                    : 'Tému a dizajn sa nepodarilo uložiť. Skontroluj úložisko prehliadača.'
+                type:'success',
+                title:'VZHĽAD ULOŽENÝ',
+                text:`Téma „${theme}“ a dizajn „${design}“ sú uložené. Po obnovení stránky zostanú zachované.`
             }]);
         } else {
-            window.alert(confirmedOk
-                ? `Vzhľad bol uložený. Téma „${theme}“ a dizajn „${design}“ zostanú zachované aj po obnovení stránky.`
-                : 'Vzhľad sa nepodarilo uložiť.');
+            window.alert(`Vzhľad bol uložený. Téma „${theme}“ a dizajn „${design}“ zostanú zachované aj po obnovení stránky.`);
         }
 
-        // Autosave je iba doplnkový krok. Jeho prípadná chyba nesmie ovplyvniť potvrdenie.
         try { await saveAuto(); } catch(e) { console.warn('Autosave po uložení vzhľadu zlyhal:',e); }
     }
+
     function applyDesign(name){
         const design=['classic','modern','alternative'].includes(name)?name:'classic';
         document.body.classList.toggle('design-modern',design==='modern'); document.body.classList.toggle('design-alternative',design==='alternative'); document.body.classList.toggle('design-classic',design==='classic');
@@ -68616,20 +68609,13 @@ function createModal(contentHtml, id = null) {
         }
     }
 
-    // PÔVODNÝ FUNKČNÝ AUTOSAVE – zachovaný rovnaký formát ako v pracovnej verzii.
-    // Ochrana proti rekurzii: checkPersonalAchievements() môže pri odomknutí
-    // achievementu zavolať saveAuto() znova. Vnorené volanie už nesmie spustiť
-    // druhý save ani zablokovať zvyšok akcie (napr. potvrdenie hráča).
-    let saveAutoInProgress = false;
-
+    // PÔVODNÝ FUNKČNÝ AUTOSAVE – rovnaký formát ako v pôvodnej funkčnej verzii.
     async function saveAuto() {
-        if (saveAutoInProgress) return;
-        saveAutoInProgress = true;
-        try {
-            if(window.checkPersonalAchievements) window.checkPersonalAchievements();
-            await idb.set('autosave_v380', { db, appState });
-        } catch(e) { console.error("AutoSave zlyhal:", e); }
-        finally { saveAutoInProgress = false; }
+       if(window.checkPersonalAchievements) window.checkPersonalAchievements();
+
+       try {
+           await idb.set('autosave_v380', { db, appState });
+       } catch(e) { console.error("AutoSave zlyhal:", e); }
     }
 
     async function loadAutoSave() {
@@ -68647,10 +68633,6 @@ function createModal(contentHtml, id = null) {
             if (data) {
                 db = data.db; if(!db.seasonStats) db.seasonStats = [];
                 appState = data.appState;
-                // Spätne kompatibilné: novšie zálohy môžu mať aj tieto pomocné údaje.
-                if (data.localStorageData && typeof restoreSaveLocalStorageExtras === 'function') {
-                    restoreSaveLocalStorageExtras(data.localStorageData);
-                }
             }
         } catch(e) { console.error("Load zlyhal:", e); }
     }
