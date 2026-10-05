@@ -2577,6 +2577,60 @@ body.design-alternative #modernHomeShell{display:none!important}
 @media(max-width:700px){.modern-shell{grid-template-columns:1fr}.modern-actions{grid-template-columns:repeat(3,1fr)}.modern-ranks{grid-template-columns:repeat(2,1fr)}.modern-more{grid-template-columns:repeat(3,1fr)}.modern-title{font-size:1.5rem}}
 @media(min-width:1000px){.modern-shell{grid-template-columns:1.2fr .8fr}.modern-status-grid{grid-template-columns:1fr 1fr}}
 </style>
+
+<style id="arci-extra-designs-css">
+/* Dva nové dizajny: vizuálne menia rozloženie, nie hernú logiku. */
+body.design-oldschool{background:#d8c7a0;color:#20180f;font-family:"Courier New",monospace;}
+body.design-oldschool .pro-header{background:#efe2bd;border:3px double #4b321d;border-radius:2px;box-shadow:5px 5px 0 rgba(75,50,29,.28);}
+body.design-oldschool .brand-logo{color:#3a2413;text-shadow:2px 2px 0 #c8b184;letter-spacing:1px;font-family:Georgia,serif;}
+body.design-oldschool .brand-subtitle,body.design-oldschool .rank-pill{color:#3a2413!important;}
+body.design-oldschool #modernHomeShell,body.design-oldschool #alternativeHomeShell{display:block;}
+body.design-oldschool #alternativeHomeShell{display:none;}
+body.design-oldschool .modern-shell{grid-template-columns:1.25fr .75fr;gap:8px;}
+body.design-oldschool .modern-hero,body.design-oldschool .modern-section{border:3px double #76522d;border-radius:2px;background:#efe2bd;box-shadow:4px 4px 0 rgba(75,50,29,.22);}
+body.design-oldschool .modern-title{font-family:Georgia,serif;text-transform:uppercase;letter-spacing:.5px;color:#3a2413;}
+body.design-oldschool .modern-kicker,body.design-oldschool .modern-section-title,.design-oldschool .design-tip-label{color:#76522d;}
+body.design-oldschool .modern-sub{color:#5b4630;}
+body.design-oldschool .modern-action,body.design-oldschool .modern-status,body.design-oldschool .modern-rank{background:#e1d0a8;border:2px solid #76522d;border-radius:2px;color:#3a2413;box-shadow:2px 2px 0 rgba(75,50,29,.2);}
+body.design-oldschool .modern-map-btn{background:#3f6b3a;border:2px solid #244521;border-radius:2px;box-shadow:3px 3px 0 rgba(36,69,33,.3);}
+body.design-oldschool .design-tip-panel{background:#f8edca;border:2px dashed #76522d;color:#3a2413;border-radius:2px;}
+
+body.design-compressed #modernHomeShell{display:block;}
+body.design-compressed #alternativeHomeShell{display:none;}
+body.design-compressed .pro-header{padding:6px 8px;margin-bottom:6px;border-radius:8px;}
+body.design-compressed .brand-wrapper{gap:4px;}
+body.design-compressed .rank-nav{margin-top:4px;}
+body.design-compressed .rank-row{gap:3px;}
+body.design-compressed .rank-pill{padding:3px 5px;font-size:.58rem;}
+body.design-compressed .modern-shell{display:grid;grid-template-columns:1fr;gap:6px;margin-bottom:6px;}
+body.design-compressed .modern-hero{padding:8px;border-radius:8px;display:grid;grid-template-columns:1fr auto;align-items:center;gap:8px;}
+body.design-compressed .modern-kicker,body.design-compressed .modern-title{font-size:.9rem;margin:0;}
+body.design-compressed .modern-sub{display:none;}
+body.design-compressed .modern-status-grid{grid-template-columns:repeat(4,1fr);gap:4px;}
+body.design-compressed .modern-status{min-height:45px;padding:5px;border-radius:6px;}
+body.design-compressed .modern-status .mi{font-size:.9rem;}
+body.design-compressed .modern-status b{font-size:.58rem;margin-top:1px;}
+body.design-compressed .modern-status small{display:none;}
+body.design-compressed .modern-map-btn{margin:0;padding:8px 10px;font-size:.7rem;border-radius:7px;}
+body.design-compressed .modern-section{padding:6px;margin-bottom:6px;border-radius:7px;}
+body.design-compressed .modern-section-title{font-size:.58rem;margin-bottom:5px;}
+body.design-compressed .modern-actions{grid-template-columns:repeat(6,1fr);gap:3px;}
+body.design-compressed .modern-more{grid-template-columns:repeat(8,1fr);gap:3px;}
+body.design-compressed .modern-action{min-height:43px;padding:5px 2px;border-radius:5px;}
+body.design-compressed .modern-action .icon{font-size:1rem;margin-bottom:1px;}
+body.design-compressed .modern-action span:last-child{font-size:.5rem;}
+body.design-compressed .modern-ranks{grid-template-columns:repeat(8,1fr);gap:3px;}
+body.design-compressed .modern-rank{padding:6px 2px;font-size:.5rem;border-radius:4px;}
+body.design-compressed .design-tip-panel{font-size:.62rem;padding:5px;border-radius:5px;}
+body.design-compressed .design-tip-label{font-size:.52rem;display:block;margin-bottom:2px;}
+
+/* Tip panel je zámerne vypnutý v Classic. */
+.design-tip-panel{margin-top:10px;padding:10px 12px;border:1px solid var(--theme-border);border-radius:10px;background:var(--card-bg);color:var(--text-main);line-height:1.35;font-size:.76rem;}
+.design-tip-label{display:block;font-size:.62rem;text-transform:uppercase;letter-spacing:1.2px;font-weight:900;color:var(--theme-accent-2);margin-bottom:4px;}
+body.design-classic .design-tip-panel{display:none!important;}
+@media(max-width:700px){body.design-compressed .modern-status-grid{grid-template-columns:repeat(2,1fr)}body.design-compressed .modern-actions{grid-template-columns:repeat(4,1fr)}body.design-compressed .modern-more{grid-template-columns:repeat(4,1fr)}body.design-compressed .modern-ranks{grid-template-columns:repeat(4,1fr)}}
+@media(max-width:560px){body.design-oldschool .modern-shell{grid-template-columns:1fr}.design-tip-panel{font-size:.72rem}}
+</style>
 <style id="arci-theme-system-css">
 .theme-category{margin-bottom:7px}.theme-category-btn{width:100%;display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border:1px solid var(--theme-border);border-radius:8px;background:var(--theme-button);color:var(--text-main);font-weight:800;cursor:pointer}.theme-category-btn.open{border-color:var(--theme-accent-2);box-shadow:0 0 0 1px var(--theme-accent-2) inset}.theme-category-grid{margin-top:6px;padding:5px;background:var(--modal-bg);border:1px solid var(--theme-border);border-radius:8px}.theme-star-badge{position:absolute;left:5px;top:3px;font-size:.72rem;color:#f1c40f;text-shadow:0 1px 2px #000}.theme-editor-star{position:absolute;left:8px;top:8px;width:36px;height:36px;border:1px solid var(--theme-border);border-radius:50%;background:var(--theme-button);color:#f1c40f;font-size:1.35rem;cursor:pointer;z-index:4}.theme-editor-star.fav{box-shadow:0 0 12px rgba(241,196,15,.35)}.theme-editor-modal .modal-header{position:relative;padding-left:52px}.theme-palette-label{margin-top:10px;font-size:.7rem;color:var(--theme-muted);font-weight:700}.theme-color-palette{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:5px;margin-top:6px;padding:7px;background:var(--card-bg);border:1px solid var(--theme-border);border-radius:8px}.theme-field-palette{grid-column:1/-1}.theme-color-swatch{height:26px;border-radius:5px;border:1px solid rgba(255,255,255,.45);cursor:pointer}.theme-color-swatch:hover{transform:scale(1.08)}
 
@@ -2611,7 +2665,7 @@ body.design-alternative #alternativeHomeShell{display:block}
     <header class="pro-header">
         <div class="brand-section">
             <div class="brand-wrapper">
-                <span class="brand-logo">ArciWeb</span>
+                <span id="arciWebLogo" class="brand-logo" title="Podrž 5 sekúnd pre núdzový reset vzhľadu" onpointerdown="startArciResetHold(event)" onpointerup="cancelArciResetHold(event)" onpointercancel="cancelArciResetHold(event)" onpointerleave="cancelArciResetHold(event)">ArciWeb</span>
                 <span class="brand-subtitle">PGA</span>
                 <span id="headerGameDate" onclick="openGameCalendar()" style="
                     margin-left: 10px;
@@ -2668,7 +2722,7 @@ body.design-alternative #alternativeHomeShell{display:block}
     <section class="modern-hero">
       <div class="modern-kicker">ArciWeb · PGA</div>
       <div class="modern-title">Tvoja golfová centrála</div>
-      <div class="modern-sub">Všetko podstatné na jednej obrazovke. Menej tlačidiel, viac priestoru a žiadny UI cirkus z roku 2009.</div>
+      <div id="designTipPanelModern" class="design-tip-panel"><span class="design-tip-label">💡 TIP PRE HRU</span><span id="designTipTextModern">Načítavam tip…</span></div>
       <button class="modern-map-btn" onclick="startArciCityGame()">🧭 Otvoriť ArciCity</button>
     </section>
     <section class="modern-status-grid">
@@ -2734,7 +2788,7 @@ body.design-alternative #alternativeHomeShell{display:block}
 <div id="alternativeHomeShell">
   <div class="alternative-grid">
     <section class="alt-panel alt-hero">
-      <div><div class="alt-kicker">ARCIWEB / ALTERNATIVE</div><div class="alt-title">Golf. Dáta.<br>Rozhodnutia.</div><div class="alt-sub">Asymetrická domovská obrazovka pre hráča, ktorý nechce mať všetko v pekných rovnakých štvorčekoch.</div></div>
+      <div><div class="alt-kicker">ARCIWEB / ALTERNATIVE</div><div class="alt-title">Golf. Dáta.<br>Rozhodnutia.</div><div id="designTipPanelAlternative" class="design-tip-panel"><span class="design-tip-label">💡 TIP PRE HRU</span><span id="designTipTextAlternative">Načítavam tip…</span></div></div>
       <button class="alt-map" onclick="startArciCityGame()">🗺 VSTÚPIŤ DO ARCICITY</button>
     </section>
     <section class="alt-panel alt-status"><span class="big">€</span><div><b id="altAccountStatus">Stav účtu -- €</b><small>hráčsky profil</small></div></section>
@@ -3333,7 +3387,7 @@ function saveConfirmedAppearance() {
         if (!appState || !appState.settings) return false;
         const appearance = {
             theme: appState.settings.theme || 'Default',
-            design: ['classic','modern','alternative'].includes(appState.settings.design) ? appState.settings.design : 'classic',
+            design: ['classic','modern','alternative','oldschool','compressed'].includes(appState.settings.design) ? appState.settings.design : 'classic',
             savedAt: new Date().toISOString()
         };
         localStorage.setItem('arci_confirmed_appearance_v1', JSON.stringify(appearance));
@@ -62230,6 +62284,31 @@ function renderNewsList(fileKey) {
         return arr;
     }
 
+    // Núdzová poistka vzhľadu: 5 sekúnd podržať logo ArciWeb = Default + Classic.
+    let arciResetHoldTimer=null;
+    let arciResetTriggered=false;
+    function startArciResetHold(ev){
+        arciResetTriggered=false;
+        clearTimeout(arciResetHoldTimer);
+        arciResetHoldTimer=setTimeout(async ()=>{
+            arciResetTriggered=true;
+            try{
+                appState.settings.theme='Default';
+                appState.settings.design='classic';
+                appState.settings.appearanceSaved=true;
+                applyTheme('Default');
+                applyDesign('classic');
+                saveThemePreferences();
+                try{ await saveAuto(); }catch(e){ console.warn('Autosave po resete vzhľadu:',e); }
+                if(typeof showArciAlerts==='function') showArciAlerts([{type:'success',title:'VZHĽAD OBNOVENÝ',text:'Základná téma a Classic dizajn boli obnovené. Herné dáta zostali zachované.'}]);
+            }catch(e){ console.warn('Núdzový reset vzhľadu:',e); }
+        },5000);
+    }
+    function cancelArciResetHold(ev){
+        clearTimeout(arciResetHoldTimer);
+        if(arciResetTriggered && ev){ ev.preventDefault(); ev.stopPropagation(); }
+    }
+
     document.addEventListener('DOMContentLoaded', async () => {
         const hadAutoSave = await loadAutoSave();
         if (typeof appState.settings.zoom === 'boolean') {
@@ -62237,7 +62316,7 @@ function renderNewsList(fileKey) {
         }
         if (!appState.filters.importance) appState.filters.importance = 'ALL';
         if (!appState.settings) appState.settings = { zoom:0, theme:'Default', themesOpen:false, themeCategory:null, design:'classic', customThemes:[], favoriteThemes:[], recentThemes:[], appearanceSaved:false };
-        if (!appState.settings.design) appState.settings.design = 'classic';
+        if (!appState.settings.design || !['classic','modern','alternative','oldschool','compressed'].includes(appState.settings.design)) appState.settings.design = 'classic';
         if (!Array.isArray(appState.settings.customThemes)) appState.settings.customThemes = [];
         if (!Array.isArray(appState.settings.favoriteThemes)) appState.settings.favoriteThemes = [];
         if (!Array.isArray(appState.settings.recentThemes)) appState.settings.recentThemes = [];
@@ -62254,6 +62333,7 @@ function renderNewsList(fileKey) {
 
         applyTheme(appState.settings.theme);
         applyDesign(appState.settings.design);
+        startArciTipRotation();
         updateViewport();
         renderApp();
 
@@ -68100,10 +68180,12 @@ function createModal(contentHtml, id = null) {
                 <h3>Vzhľad</h3>
                 <div style="background:var(--card-bg);border:1px solid var(--theme-border);border-radius:10px;padding:10px;margin-bottom:10px;">
                     <div style="font-size:.8rem;color:var(--text-muted);text-transform:uppercase;font-weight:bold;">Dizajn aplikácie</div>
-                    <div id="designButtons" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px;">
+                    <div id="designButtons" style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:10px;">
                         <button id="designBtnClassic" class="btn ${(!appState.settings.design||appState.settings.design==='classic')?'btn-green':'btn-grey'}" onclick="changeDesign('classic')">▦ Classic</button>
                         <button id="designBtnModern" class="btn ${appState.settings.design==='modern'?'btn-blue':'btn-grey'}" onclick="changeDesign('modern')">◈ Modern</button>
                         <button id="designBtnAlternative" class="btn ${appState.settings.design==='alternative'?'btn-blue':'btn-grey'}" onclick="changeDesign('alternative')">✦ Alternative</button>
+                        <button id="designBtnOldschool" class="btn ${appState.settings.design==='oldschool'?'btn-blue':'btn-grey'}" onclick="changeDesign('oldschool')">▤ Old School</button>
+                        <button id="designBtnCompressed" class="btn ${appState.settings.design==='compressed'?'btn-blue':'btn-grey'}" onclick="changeDesign('compressed')">▥ Compressed</button>
                     </div>
                 </div>
                 <div id="themeBrowser" style="display:block"></div>
@@ -68130,18 +68212,139 @@ function createModal(contentHtml, id = null) {
     }
     function refreshDesignButtons(){
         const d=appState.settings.design||'classic';
-        const ids={classic:'designBtnClassic',modern:'designBtnModern',alternative:'designBtnAlternative'};
+        const ids={classic:'designBtnClassic',modern:'designBtnModern',alternative:'designBtnAlternative',oldschool:'designBtnOldschool',compressed:'designBtnCompressed'};
         Object.entries(ids).forEach(([k,id])=>{const b=document.getElementById(id);if(b)b.className='btn '+(d===k?(k==='classic'?'btn-green':'btn-blue'):'btn-grey');});
     }
     function changeDesign(name){
-        const allowed=['classic','modern','alternative']; appState.settings.design=allowed.includes(name)?name:'classic';
+        const allowed=['classic','modern','alternative','oldschool','compressed']; appState.settings.design=allowed.includes(name)?name:'classic';
         // Výber je iba náhľad. Trvalé potvrdenie vykoná „Uložiť vzhľad“.
         applyDesign(appState.settings.design); refreshDesignButtons();
     }
+    // 100 krátkych tipov, návodov a postrehov pre rotujúci panel dizajnov.
+    const ARCI_GAME_TIPS = [
+        'Pri výbere hráča potvrď voľbu a počkaj na hlášku o uložení.',,
+        'Ak meníš tému, náhľad sa zmení hneď; trvalo ju potvrď cez Uložiť vzhľad.',,
+        'V Nastaveniach si môžeš témy rozbaliť po kategóriách: obľúbené, moje, naposledy použité a všetky.',,
+        'Drahší životný štýl zvyšuje komfort, ale pravidelné náklady treba sledovať.',,
+        'Spokojnosť je užitočná kontrolka: sleduj ju spolu s peniazmi a životným štýlom.',,
+        'ArciCity môžeš otvoriť priamo z modernej domovskej obrazovky.',,
+        'Ak nevieš, čo ďalej, pozri si Kalendár — často napovie, čo ťa čaká.',,
+        'ArciNews slúži ako rýchly prehľad udalostí a diania v hre.',,
+        'Porovnávač je praktický, keď chceš rýchlo zhodnotiť dvoch hráčov.',,
+        'Sieň slávy ukazuje, kto už zanechal v ArciWebe stopu.',,
+        'PGA Cards sú rýchly spôsob, ako si pozrieť hráčov cez ich karty.',,
+        'Achievementy sleduj priebežne — niektoré sa odomknú prirodzene počas hrania.',,
+        'Osobné úspechy a ciele sú dobré miesto, ak chceš vedieť, čo ešte splniť.',,
+        'ArciShop môže byť užitočný, keď chceš riešiť vybavenie a nákupy.',,
+        'Pred väčším rozhodnutím si skontroluj svoj aktuálny stav účtu.',,
+        'Net Worth nie je len hotovosť — sleduj celkový majetok.',,
+        'Ak chceš šetriť, najprv skontroluj pravidelné životné náklady.',,
+        'Zmena dizajnu je len vizuálna; herné dáta zostávajú oddelené.',,
+        'Classic je najjednoduchší vzhľad, ostatné dizajny dávajú viac informácií na plochu.',,
+        'Modern je vhodný, ak chceš mať rýchle akcie na jednej obrazovke.',,
+        'Old School je určený pre hráčov, ktorí majú radi klasický počítačový vzhľad.',,
+        'Compressed stlačí rozhranie a dá veľa ikon a funkcií na malý priestor.',,
+        'Pri hraní na mobile je Compressed praktický na rýchle prepínanie medzi funkciami.',,
+        'Ak sa stratíš v nastaveniach, tlačidlo Uložiť vzhľad je miesto pre potvrdenie dizajnu.',,
+        'Nemeníš tým herné dáta — upravuješ iba vzhľad a preferencie.',,
+        'Ak chceš bezpečne začať od vzhľadu, použi núdzový reset podržaním ArciWebu.',,
+        'Núdzový reset vzhľadu nemení tvoju golfovú databázu.',,
+        'Pri dôležitých zmenách počkaj na potvrdenie, že sa akcia uložila.',,
+        'Ak sa otvorí okno, jeho tlačidlo Zavrieť je bezpečnejšie než obnovovať stránku.',,
+        'Autosave pracuje na pozadí, takže netreba ručne ukladať po každom kliknutí.',,
+        'Po potvrdení hráča si skontroluj, či sa zobrazila informačná tabuľka.',,
+        'Rebríčky môžeš otvoriť priamo z domovskej obrazovky bez prechodu cez nastavenia.',,
+        'Official rank je dobrý základný prehľad, ak chceš sledovať oficiálne poradie.',,
+        'PGA rank a FedEx poradie môžu ukazovať iný pohľad na výkonnosť.',,
+        'ELO je užitočné najmä na porovnávanie relatívnej sily hráčov.',,
+        'Amatérsky rebríček drží oddelený pohľad na amatérsku scénu.',,
+        'World Tour rank je vhodný na sledovanie širšieho poradia na Tour.',,
+        'EA Sports rank pridáva herný pohľad na hodnotenie hráčov.',,
+        'Players/Association poradie ti dá ďalší spôsob, ako porovnať hráčov.',,
+        'Ak chceš rýchlo nájsť hráča, použi vyhľadávanie namiesto prechádzania zoznamov.',,
+        'Obľúbené témy si označ hviezdičkou a nájdeš ich rýchlejšie.',,
+        'Naposledy použité témy sú praktické pri častom prepínaní vzhľadu.',,
+        'Moje témy sú určené pre vlastné farebné kombinácie.',,
+        'Editor témy umožňuje meniť farby, písmo aj veľkosť textu.',,
+        'Pri vlastnej téme môžeš použiť jednu z pripravených farebných paliet.',,
+        'Ak vytvoríš novú tému, daj jej krátky názov, aby sa dobre zobrazovala v zozname.',,
+        'Téma a dizajn sa dajú kombinovať — nemusíš používať iba predvolené dvojice.',,
+        'Ak máš rád minimum rušivých prvkov, začni Classic dizajnom.',,
+        'Ak chceš veľa informácií naraz, vyskúšaj Compressed.',,
+        'Ak chceš výraznú vizuálnu zmenu, vyskúšaj Old School.',,
+        'Ak chceš asymetrickú obrazovku, Alternative je určený práve na to.',,
+        'Ak chceš čisté karty a rýchle skratky, Modern je dobrá voľba.',,
+        'Pri výbere vzhľadu si môžeš najprv všetko vyskúšať a až potom uložiť.',,
+        'Ak sa ti nový vzhľad nepáči, zmena dizajnu sa dá okamžite vrátiť na Classic.',,
+        'Núdzový reset je poistka pre prípad, že si nastavíš príliš neprehľadnú kombináciu.',,
+        'Podrž ArciWeb hore päť sekúnd a vzhľad sa vráti na základnú tému a Classic.',,
+        'Pred núdzovým resetom nemusíš zatvárať žiadne nastavenia.',,
+        'Ak používaš mobil, Compressed môže zmenšiť potrebu scrollovania.',,
+        'Na väčšom displeji viac vynikne Modern a Alternative.',,
+        'Old School je zámerne hranatý a pripomína staršie desktopové aplikácie.',,
+        'Tipy v tomto paneli sa menia automaticky každých 20 sekúnd.',,
+        'Každé otvorenie hry môže začať iným tipom, takže panel nemusí byť stále rovnaký.',,
+        'Ak tip poznáš, počkaj na ďalší — systém ich náhodne obmieňa.',,
+        'Tip panel je informačný a nemení herný stav.',,
+        'Tip panel je v Classic vypnutý, aby zostal pôvodný čistý vzhľad.',,
+        'Modern, Alternative, Old School a Compressed používajú rovnaký zásobník tipov.',,
+        'Pri dôležitých turnajoch sleduj kalendár a plánuj dopredu.',,
+        'Ak chceš rýchlo skontrolovať ekonomiku, otvor Net Worth.',,
+        'Ak chceš riešiť každodenné výdavky, otvor Životný štýl.',,
+        'Ak chceš zistiť, čo ti zlepšuje náladu, otvor prehľad Spokojnosti.',,
+        'Ak sa rozhoduješ medzi pohodlím a šetrením, porovnaj životné náklady s účtom.',,
+        'Sponzori môžu byť dôležitou súčasťou ekonomickej hry.',,
+        'ArciInvest je miesto pre rozhodnutia spojené s investovaním.',,
+        'ArciTip je určený na tipérsku časť hry.',,
+        'ArciBet a ďalšie zábavné moduly používaj s rozvahou a sleduj svoj rozpočet.',,
+        'Podsvetie patrí medzi zábavné herné systémy — objavuj ho postupne.',,
+        'Chill Spot je rýchla oddychová funkcia v ArciCity.',,
+        'Pri otváraní ArciCity sa oplatí sledovať polohu hráča na mape.',,
+        'V ArciCity môžeš vstupovať do budov a objavovať ich funkcie.',,
+        'Ak sa v ArciCity stratíš, použi mapové alebo navigačné prvky.',,
+        'Pri pohybe po mape sleduj vchody a dostupné budovy.',,
+        'ArciCity je samostatná vrstva hry, takže hlavné menu zostáva dostupné.',,
+        'Ak sa chceš vrátiť na hlavnú obrazovku, použi príslušné zatváracie prvky mapy.',,
+        'Scanner je rýchly nástroj, keď potrebuješ pracovať so skenovaním dát.',,
+        'Správca súborov pomáha udržiavať herné dáta organizované.',,
+        'Sezónu môžeš vložiť cez nástroj pre sezónne súbory.',,
+        'Pri importe súborov počkaj, kým sa dokončí spracovanie.',,
+        'Po importe sa štatistiky prepočítajú a aplikácia sa obnoví.',,
+        'Ak upravuješ veľa dát naraz, nechaj aplikáciu chvíľu dokončiť výpočty.',,
+        'Ak chceš prehľad o hráčoch, otvor PGA Cards.',,
+        'Galéria trofejí je rýchly prehľad získaných úspechov.',,
+        'Achievementy môžu byť dobrý cieľ, ak chceš hrať dlhodobejšie.',,
+        'Ak nevieš, čo skúsiť, otvor si osobné ciele a vyber si jeden.',,
+        'Nezabúdaj, že vzhľad je oddelený od samotných herných výsledkov.',,
+        'Keď skúšaš nový dizajn, najprv ho nechaj chvíľu bežať a až potom ho ulož.',,
+        'Pri častom prepínaní tém používaj Obľúbené a Naposledy použité.',,
+        'Vlastné témy si môžeš vytvoriť z existujúcej témy a potom ju ďalej upravovať.',,
+        'Ak je text príliš malý, editor témy umožňuje zvýšiť veľkosť písma.',,
+        'Ak chceš kompaktné rozhranie bez veľkého textu, zvoľ Compressed.',,
+        'Ak chceš nostalgický vzhľad, zvoľ Old School.',
+];
+
+    let arciTipTimer=null;
+    let arciTipIndex=-1;
+    function showRandomArciTip(){
+        const els=[document.getElementById('designTipTextModern'),document.getElementById('designTipTextAlternative')].filter(Boolean);
+        if(!els.length) return;
+        let next=Math.floor(Math.random()*ARCI_GAME_TIPS.length);
+        if(ARCI_GAME_TIPS.length>1 && next===arciTipIndex) next=(next+1)%ARCI_GAME_TIPS.length;
+        arciTipIndex=next;
+        els.forEach(el=>el.textContent=ARCI_GAME_TIPS[next]);
+    }
+    function startArciTipRotation(){
+        clearInterval(arciTipTimer);
+        showRandomArciTip();
+        arciTipTimer=setInterval(showRandomArciTip,20000);
+    }
+    function stopArciTipRotation(){ clearInterval(arciTipTimer); arciTipTimer=null; }
+
     async function saveAppearance(){
         if(!appState || !appState.settings) return;
         const theme=appState.settings.theme || 'Default';
-        const design=['classic','modern','alternative'].includes(appState.settings.design)?appState.settings.design:'classic';
+        const design=['classic','modern','alternative','oldschool','compressed'].includes(appState.settings.design)?appState.settings.design:'classic';
         appState.settings.theme=theme;
         appState.settings.design=design;
         appState.settings.appearanceSaved=true;
@@ -68169,8 +68372,9 @@ function createModal(contentHtml, id = null) {
     }
 
     function applyDesign(name){
-        const design=['classic','modern','alternative'].includes(name)?name:'classic';
-        document.body.classList.toggle('design-modern',design==='modern'); document.body.classList.toggle('design-alternative',design==='alternative'); document.body.classList.toggle('design-classic',design==='classic');
+        const allowed=['classic','modern','alternative','oldschool','compressed'];
+        const design=allowed.includes(name)?name:'classic';
+        document.body.classList.toggle('design-modern',design==='modern'); document.body.classList.toggle('design-alternative',design==='alternative'); document.body.classList.toggle('design-oldschool',design==='oldschool'); document.body.classList.toggle('design-compressed',design==='compressed'); document.body.classList.toggle('design-classic',design==='classic');
     }
     function applyTheme(name){
         ensureCustomThemesLoaded(); const map=getThemeMap(); const t=map[name]||map['Default']||Object.values(map)[0]; if(!t)return;
