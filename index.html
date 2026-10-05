@@ -1,19 +1,18 @@
 ﻿<!DOCTYPE html>
+
 <html lang="sk">
 <head>
-    <meta charset="UTF-8">
-    <meta id="viewportMeta" name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ArciWeb - PGA · Arci Project</title>
-    <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#2ecc71">
-
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" id="viewportMeta" name="viewport"/>
+<title>ArciWeb - PGA · Arci Project</title>
+<link href="manifest.json" rel="manifest"/>
+<meta content="#2ecc71" name="theme-color"/>
 <script>
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('sw.js');
   }
 </script>
-
-    <style>
+<style>
         :root {
             --bg-color: #1e1e1e;
             --card-bg: #2d2d2d;
@@ -2551,9 +2550,7 @@ background: radial-gradient(circle at center, #5d9e3c 0%, #3e6b28 100%) !importa
         }
  
     </style>
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-
-
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 <style id="arci-modern-design-css">
 /* ================================================================
    ARCIWEB MODERN DESIGN — iba domovská obrazovka, funkcie ostávajú
@@ -2577,7 +2574,6 @@ body.design-alternative #modernHomeShell{display:none!important}
 @media(max-width:700px){.modern-shell{grid-template-columns:1fr}.modern-actions{grid-template-columns:repeat(3,1fr)}.modern-ranks{grid-template-columns:repeat(2,1fr)}.modern-more{grid-template-columns:repeat(3,1fr)}.modern-title{font-size:1.5rem}}
 @media(min-width:1000px){.modern-shell{grid-template-columns:1.2fr .8fr}.modern-status-grid{grid-template-columns:1fr 1fr}}
 </style>
-
 <style id="arci-extra-designs-css">
 /* Dva nové dizajny: vizuálne menia rozloženie, nie hernú logiku. */
 body.design-oldschool{background:#d8c7a0;color:#20180f;font-family:"Courier New",monospace;}body.design-oldschool #modernHomeShell{max-width:1100px;margin:0 auto;} body.design-oldschool .modern-shell{display:grid;grid-template-columns:2fr 1fr;grid-template-areas:"hero status";gap:10px;margin-bottom:10px;} body.design-oldschool .modern-hero{grid-area:hero;min-height:170px;display:flex;flex-direction:column;justify-content:flex-start;} body.design-oldschool .modern-status-grid{grid-area:status;display:flex;flex-direction:column;gap:6px;} body.design-oldschool .modern-status{min-height:42px;text-align:left;display:grid;grid-template-columns:28px 1fr;grid-template-rows:auto auto;column-gap:5px;align-items:center;} body.design-oldschool .modern-status .mi{grid-row:1/3;} body.design-oldschool .modern-section{margin-top:10px;} body.design-oldschool .modern-section-title{border-bottom:2px solid #76522d;padding-bottom:4px;margin-bottom:7px;font-family:Georgia,serif;} body.design-oldschool .modern-actions{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;} body.design-oldschool .modern-action{min-height:42px;padding:6px!important;text-align:left;display:flex;align-items:center;gap:6px;} body.design-oldschool .modern-action .icon{font-size:.9rem;} body.design-oldschool .modern-map-btn{margin-top:auto;} body.design-oldschool .modern-title{font-size:1.45rem;} body.design-oldschool .modern-sub{font-family:"Courier New",monospace;} body.design-oldschool .pro-header{border-bottom:4px double #4b321d;} body.design-oldschool .brand-wrapper{align-items:flex-start;} body.design-oldschool .rank-nav{border-top:2px solid #76522d;border-bottom:2px solid #76522d;padding:4px 0;margin-top:6px;} @media(max-width:700px){body.design-oldschool .modern-shell{grid-template-columns:1fr;grid-template-areas:"hero" "status";} body.design-oldschool .modern-actions{grid-template-columns:repeat(2,1fr);}} 
@@ -2703,6 +2699,54 @@ body.design-compressed #mainTable .player-count-footer td{padding:7px 4px;font-s
 body.design-classic .design-tip-panel{display:none!important;}
 @media(max-width:700px){body.design-compressed .modern-status-grid{grid-template-columns:repeat(2,1fr)}body.design-compressed .modern-actions{grid-template-columns:repeat(4,1fr)}body.design-compressed .modern-more{grid-template-columns:repeat(4,1fr)}body.design-compressed .modern-ranks{grid-template-columns:repeat(4,1fr)}}
 @media(max-width:560px){body.design-oldschool .modern-shell{grid-template-columns:1fr}.design-tip-panel{font-size:.72rem}}
+/* Dizajnové horné lišty pre ne-Classic dizajny */
+.design-header{display:none;align-items:center;justify-content:space-between;gap:10px;margin:-20px -20px 14px -20px;padding:10px 14px;position:relative;z-index:100;min-height:44px;box-sizing:border-box}
+.design-header-brand{display:flex;align-items:baseline;gap:8px;min-width:0}
+.design-header-logo{appearance:none;border:0;background:transparent;padding:0;margin:0;font:inherit;font-size:1.35rem;font-weight:900;line-height:1;cursor:pointer;text-decoration:none;outline:none;color:inherit}
+.design-header-sub{font-size:.62rem;font-weight:800;letter-spacing:1.4px;opacity:.7;white-space:nowrap}
+.design-header-tools{display:flex;align-items:center;gap:5px;flex-wrap:wrap;justify-content:flex-end}
+.design-header-tools button{border:1px solid currentColor;background:transparent;color:inherit;border-radius:5px;padding:4px 7px;font-size:.62rem;font-weight:800;cursor:pointer;white-space:nowrap}
+body.design-alternative .pro-header,body.design-oldschool .pro-header,body.design-compressed .pro-header{display:none!important}
+body.design-alternative #designHeaderAlternative{display:flex;background:var(--card-bg);border:1px solid var(--theme-border);border-radius:5px;box-shadow:5px 5px 0 var(--theme-shadow);color:var(--text-main)}
+body.design-alternative .design-header-logo{color:var(--theme-accent-2);letter-spacing:-.5px}
+body.design-oldschool #designHeaderOldschool{display:flex;background:#efe2bd;border-bottom:4px double #4b321d;color:#3a2413;box-shadow:0 4px 0 rgba(75,50,29,.18);font-family:Georgia,serif}
+body.design-oldschool .design-header-logo{font-family:Georgia,serif;letter-spacing:1.5px;text-shadow:2px 2px 0 #c8b184}
+body.design-oldschool .design-header-tools button{border-color:#76522d;border-radius:2px;background:#e1d0a8}
+body.design-compressed #designHeaderCompressed{display:flex;background:var(--card-bg);border-bottom:1px solid var(--theme-border);color:var(--text-main);padding:5px 7px;margin:-20px -20px 7px -20px;min-height:32px}
+body.design-compressed .design-header-logo{font-size:.92rem;letter-spacing:-.4px}
+body.design-compressed .design-header-tools{gap:2px}
+body.design-compressed .design-header-tools button{padding:2px 5px;font-size:.54rem;border-radius:3px}
+@media(max-width:560px){.design-header{align-items:flex-start}.design-header-tools{max-width:55%}.design-header-tools button{font-size:.54rem;padding:3px 5px}}
+
+/* Tabuľka: Pozícia a meno ostávajú pri horizontálnom posúvaní ako v turnajovom kalendári. */
+#mainTable{border-collapse:separate!important;border-spacing:0;min-width:980px}
+#mainTable th,#mainTable td{white-space:nowrap}
+#mainTable th:first-child,#mainTable td:first-child{position:sticky;left:0;z-index:5;min-width:28px;width:28px;max-width:34px;text-align:center}
+#mainTable th:nth-child(2),#mainTable td:nth-child(2){position:sticky;left:34px;z-index:4;min-width:72px;width:72px;max-width:96px;text-align:left;overflow:hidden;text-overflow:ellipsis}
+#mainTable thead th:first-child{z-index:8}
+#mainTable thead th:nth-child(2){z-index:7}
+#mainTable th:first-child:after,#mainTable td:first-child:after,#mainTable th:nth-child(2):after,#mainTable td:nth-child(2):after{content:'';position:absolute;right:-1px;top:0;bottom:0;width:1px;background:var(--theme-border)}
+body.design-modern #mainTable th:first-child,body.design-modern #mainTable td:first-child{background:#172554;color:inherit}
+body.design-modern #mainTable th:nth-child(2),body.design-modern #mainTable td:nth-child(2){background:#101827;color:inherit}
+body.design-alternative #mainTable th:first-child,body.design-alternative #mainTable td:first-child{background:var(--theme-button)}
+body.design-alternative #mainTable th:nth-child(2),body.design-alternative #mainTable td:nth-child(2){background:var(--card-bg)}
+body.design-oldschool #mainTable th:first-child,body.design-oldschool #mainTable td:first-child{background:#76522d;color:#f4e8c9}
+body.design-oldschool #mainTable th:nth-child(2),body.design-oldschool #mainTable td:nth-child(2){background:#e1d0a8;color:#3a2413}
+body.design-compressed #mainTable th:first-child,body.design-compressed #mainTable td:first-child{background:var(--theme-button)}
+body.design-compressed #mainTable th:nth-child(2),body.design-compressed #mainTable td:nth-child(2){background:var(--card-bg)}
+
+/* Vývojársky režim */
+body.arci-developer-mode{overflow-x:hidden}
+#arciDeveloperOverlay{position:fixed;inset:0;z-index:100000;pointer-events:none;border:2px solid #ffb000;box-shadow:inset 0 0 0 2px rgba(255,176,0,.2);background:rgba(255,176,0,.025)}
+#arciDeveloperBar{position:fixed;left:50%;bottom:12px;transform:translateX(-50%);z-index:100005;display:flex;align-items:center;gap:8px;background:#111;color:#fff;border:2px solid #ffb000;border-radius:12px;padding:8px 10px;box-shadow:0 8px 30px rgba(0,0,0,.5);font:700 12px system-ui}
+#arciDeveloperBar button{border:1px solid #ffb000;background:#2a2100;color:#fff;border-radius:7px;padding:8px 13px;font-weight:900;cursor:pointer}
+#arciDeveloperBar .dev-cancel{border-color:#777;background:#222}
+.dev-editable{outline:1px dashed rgba(255,176,0,.72)!important;outline-offset:2px!important;cursor:grab!important;position:relative}
+.dev-editable.dev-selected{outline:2px solid #ffb000!important;outline-offset:2px!important;z-index:100001!important}
+.dev-editable.dev-dragging{cursor:grabbing!important;opacity:.78!important}
+.dev-resize-handle{position:absolute!important;right:-5px!important;bottom:-5px!important;width:12px!important;height:12px!important;background:#ffb000!important;border:2px solid #111!important;border-radius:3px!important;z-index:100004!important;cursor:nwse-resize!important;box-sizing:border-box!important}
+.dev-drop-target{outline:2px dashed #48d1ff!important;outline-offset:3px!important}
+body.arci-developer-mode .design-header,body.arci-developer-mode .pro-header{z-index:100002}
 </style>
 <style id="arci-theme-system-css">
 .theme-category{margin-bottom:7px}.theme-category-btn{width:100%;display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border:1px solid var(--theme-border);border-radius:8px;background:var(--theme-button);color:var(--text-main);font-weight:800;cursor:pointer}.theme-category-btn.open{border-color:var(--theme-accent-2);box-shadow:0 0 0 1px var(--theme-accent-2) inset}.theme-category-grid{margin-top:6px;padding:5px;background:var(--modal-bg);border:1px solid var(--theme-border);border-radius:8px}.theme-star-badge{position:absolute;left:5px;top:3px;font-size:.72rem;color:#f1c40f;text-shadow:0 1px 2px #000}.theme-editor-star{position:absolute;left:8px;top:8px;width:36px;height:36px;border:1px solid var(--theme-border);border-radius:50%;background:var(--theme-button);color:#f1c40f;font-size:1.35rem;cursor:pointer;z-index:4}.theme-editor-star.fav{box-shadow:0 0 12px rgba(241,196,15,.35)}.theme-editor-modal .modal-header{position:relative;padding-left:52px}.theme-palette-label{margin-top:10px;font-size:.7rem;color:var(--theme-muted);font-weight:700}.theme-color-palette{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:5px;margin-top:6px;padding:7px;background:var(--card-bg);border:1px solid var(--theme-border);border-radius:8px}.theme-field-palette{grid-column:1/-1}.theme-color-swatch{height:26px;border-radius:5px;border:1px solid rgba(255,255,255,.45);cursor:pointer}.theme-color-swatch:hover{transform:scale(1.08)}
@@ -2732,15 +2776,14 @@ body.design-alternative #alternativeHomeShell{display:block}
 @media(max-width:850px){.alternative-grid{grid-template-columns:1fr 1fr}.alt-hero{grid-row:auto;grid-column:1/-1}.alt-strip{grid-template-columns:repeat(5,1fr)}}
 @media(max-width:560px){.alternative-grid{grid-template-columns:1fr}.alt-hero{grid-column:auto}.alt-ranks{grid-template-columns:repeat(2,1fr)}.alt-strip{grid-template-columns:repeat(2,1fr)}.theme-edit-grid{grid-template-columns:1fr}}
 </style>
-
 </head>
 <body>
-    <header class="pro-header">
-        <div class="brand-section">
-            <div class="brand-wrapper">
-                <span id="arciWebLogo" class="brand-logo" title="Podrž 5 sekúnd pre núdzový reset vzhľadu" onpointerdown="startArciResetHold(event)" onpointerup="cancelArciResetHold(event)" onpointercancel="cancelArciResetHold(event)" onpointerleave="cancelArciResetHold(event)">ArciWeb</span>
-                <span class="brand-subtitle">PGA</span>
-                <span id="headerGameDate" onclick="openGameCalendar()" style="
+<header class="pro-header">
+<div class="brand-section">
+<div class="brand-wrapper">
+<span class="brand-logo arci-web-logo-trigger" id="arciWebLogo" onclick="handleArciWebClick(event)" onpointercancel="cancelArciResetHold(event)" onpointerdown="startArciResetHold(event)" onpointerleave="cancelArciResetHold(event)" onpointerup="cancelArciResetHold(event)" title="Klikni: informácie · 5× klik: vývojársky režim · podrž 5 s: Classic">ArciWeb</span>
+<span class="brand-subtitle">PGA</span>
+<span id="headerGameDate" onclick="openGameCalendar()" onmouseout="this.style.background='rgba(241, 196, 15, 0.1)'; this.style.transform='scale(1)'" onmouseover="this.style.background='rgba(241, 196, 15, 0.2)'; this.style.transform='scale(1.05)'" style="
                     margin-left: 10px;
                     font-size: 0.8rem;
                     color: var(--highlight-gold);
@@ -2755,136 +2798,154 @@ body.design-alternative #alternativeHomeShell{display:block}
                     gap: 5px;
                     cursor: pointer;
                     transition: 0.2s;
-                " onmouseover="this.style.background='rgba(241, 196, 15, 0.2)'; this.style.transform='scale(1.05)'" onmouseout="this.style.background='rgba(241, 196, 15, 0.1)'; this.style.transform='scale(1)'" title="Klikni pre otvorenie kalendára">📅 Úvod sezóny</span>
-            </div>
-
-            <nav class="rank-nav">
-                <div class="rank-row">
-                    <span class="rank-pill rp-official" onclick="showRankTable('Official')">Official Rank</span>
-                    <span class="rank-pill rp-gold" onclick="showRankTable('PGA')">PGA Rank</span>
-                    <span class="rank-pill rp-gold" onclick="showRankTable('FEDEX')">FED EX Rank</span>
-                    <span class="rank-pill rp-red" onclick="showRankTable('Association')">Players Rank</span>
-                </div>
-
-                <div class="rank-row">
-                    <span class="rank-pill rp-red" onclick="showRankTable('Tour')">World Tour Rank</span>
-                    <span class="rank-pill rp-red" onclick="showRankTable('EA')">EA Sports Rank</span>
-                    <span class="rank-pill rp-amateur amateur-rank" onclick="showRankTable('Amateur')">Amateur Rank</span>
-                    <span class="rank-pill rp-elo" onclick="showRankTable('ELO')">ELO</span>
-                </div>
-            </nav>
-        </div>
-
-        <div class="pro-icons">
-            <button class="pro-icon-btn icon-cards" onclick="showGlobalPlayerCards()" title="Rebríček Hráčov (Cards)">🃏</button>
-                        <button class="pro-icon-btn icon-personal-ach" onclick="openPersonalAchievements()" title="Osobné Úspechy & Ciele">👤</button>
-
-            <button class="pro-icon-btn icon-ach" onclick="openGlobalAchievementsList()" title="Zoznam Achievementov">🏅</button>
-            <button class="pro-icon-btn icon-hof" onclick="openHallOfFame()" title="Sieň slávy">🏆</button>
-            <button class="pro-icon-btn icon-vs" onclick="openComparator()" title="Porovnávač">🆚</button>
-            <button class="pro-icon-btn icon-news" onclick="openArciNews()" title="ArciNews">📰</button>
-            <button class="pro-icon-btn icon-gal" onclick="openTrophyGallery()" title="Galéria">🖼️</button>
-            <button class="pro-icon-btn icon-set" onclick="openSettings()" title="Nastavenia">&#9881;</button>
-                <button class="btn btn-nav" onclick="openScannerModal()" style="background: linear-gradient(135deg, #10b981, #059669); color: white; border-color: #047857;">📸</button>
-
-        </div>
-    </header>
-
+                " title="Klikni pre otvorenie kalendára">📅 Úvod sezóny</span>
+</div>
+<nav class="rank-nav" data-dev-key="sig:nav.rank-nav:1">
+<div class="rank-row" data-dev-key="sig:div.rank-row:1">
+<span class="rank-pill rp-official" data-dev-key="sig:span.rank-pill.rp-official:1" onclick="showRankTable('Official')">Official Rank</span>
+<span class="rank-pill rp-gold" data-dev-key="sig:span.rank-pill.rp-gold:1" onclick="showRankTable('PGA')">PGA Rank</span>
+<span class="rank-pill rp-gold" data-dev-key="sig:span.rank-pill.rp-gold:2" onclick="showRankTable('FEDEX')">FED EX Rank</span>
+<span class="rank-pill rp-red" data-dev-key="sig:span.rank-pill.rp-red:1" onclick="showRankTable('Association')">Players Rank</span>
+</div>
+<div class="rank-row" data-dev-key="sig:div.rank-row:2">
+<span class="rank-pill rp-red" data-dev-key="sig:span.rank-pill.rp-red:2" onclick="showRankTable('Tour')">World Tour Rank</span>
+<span class="rank-pill rp-red" data-dev-key="sig:span.rank-pill.rp-red:3" onclick="showRankTable('EA')">EA Sports Rank</span>
+<span class="rank-pill rp-amateur amateur-rank" data-dev-key="sig:span.amateur-rank.rank-pill.rp-amateur:1" onclick="showRankTable('Amateur')">Amateur Rank</span>
+<span class="rank-pill rp-elo" data-dev-key="sig:span.rank-pill.rp-elo:1" onclick="showRankTable('ELO')">ELO</span>
+</div>
+</nav>
+</div>
+<div class="pro-icons" data-dev-key="sig:div.pro-icons:1">
+<button class="pro-icon-btn icon-cards" data-dev-key="sig:button.icon-cards.pro-icon-btn:1" onclick="showGlobalPlayerCards()" title="Rebríček Hráčov (Cards)">🃏</button>
+<button class="pro-icon-btn icon-personal-ach" data-dev-key="sig:button.icon-personal-ach.pro-icon-btn:1" onclick="openPersonalAchievements()" title="Osobné Úspechy &amp; Ciele">👤</button>
+<button class="pro-icon-btn icon-ach" data-dev-key="sig:button.icon-ach.pro-icon-btn:1" onclick="openGlobalAchievementsList()" title="Zoznam Achievementov">🏅</button>
+<button class="pro-icon-btn icon-hof" data-dev-key="sig:button.icon-hof.pro-icon-btn:1" onclick="openHallOfFame()" title="Sieň slávy">🏆</button>
+<button class="pro-icon-btn icon-vs" data-dev-key="sig:button.icon-vs.pro-icon-btn:1" onclick="openComparator()" title="Porovnávač">🆚</button>
+<button class="pro-icon-btn icon-news" data-dev-key="sig:button.icon-news.pro-icon-btn:1" onclick="openArciNews()" title="ArciNews">📰</button>
+<button class="pro-icon-btn icon-gal" data-dev-key="sig:button.icon-gal.pro-icon-btn:1" onclick="openTrophyGallery()" title="Galéria">🖼️</button>
+<button class="pro-icon-btn icon-set" data-dev-key="sig:button.icon-set.pro-icon-btn:1" onclick="openSettings()" title="Nastavenia">⚙</button>
+<button class="btn btn-nav" onclick="openScannerModal()" style="background: linear-gradient(135deg, #10b981, #059669); color: white; border-color: #047857;">📸</button>
+</div>
+</header>
+<!-- Dizajnové horné lišty: Classic používa pôvodnú .pro-header, Modern svoju pôvodnú lištu. -->
+<div class="design-header design-header-alternative" data-dev-key="id:designHeaderAlternative" id="designHeaderAlternative">
+<div class="design-header-brand">
+<button class="design-header-logo arci-web-logo-trigger" onclick="handleArciWebClick(event)" onpointercancel="cancelArciResetHold(event)" onpointerdown="startArciResetHold(event)" onpointerleave="cancelArciResetHold(event)" onpointerup="cancelArciResetHold(event)">ArciWeb</button>
+<span class="design-header-sub">PGA · ALTERNATIVE</span>
+</div>
+<div class="design-header-tools">
+<button onclick="openGameCalendar()">📅</button>
+<button onclick="showRankTable('Official')">Official</button>
+<button onclick="showRankTable('PGA')">PGA</button>
+<button onclick="showRankTable('ELO')">ELO</button>
+</div>
+</div>
+<div class="design-header design-header-oldschool" data-dev-key="id:designHeaderOldschool" id="designHeaderOldschool">
+<div class="design-header-brand">
+<button class="design-header-logo arci-web-logo-trigger" onclick="handleArciWebClick(event)" onpointercancel="cancelArciResetHold(event)" onpointerdown="startArciResetHold(event)" onpointerleave="cancelArciResetHold(event)" onpointerup="cancelArciResetHold(event)">ArciWeb</button>
+<span class="design-header-sub">PGA · GOLFOVÝ ARCHÍV</span>
+</div>
+<div class="design-header-tools">
+<button onclick="openGameCalendar()">Kalendár</button>
+<button onclick="showRankTable('Official')">Rebríček</button>
+<button onclick="showRankTable('Amateur')">Amatéri</button>
+<button onclick="showRankTable('ELO')">ELO</button>
+</div>
+</div>
+<div class="design-header design-header-compressed" data-dev-key="id:designHeaderCompressed" id="designHeaderCompressed">
+<button class="design-header-logo arci-web-logo-trigger" onclick="handleArciWebClick(event)" onpointercancel="cancelArciResetHold(event)" onpointerdown="startArciResetHold(event)" onpointerleave="cancelArciResetHold(event)" onpointerup="cancelArciResetHold(event)">ArciWeb</button>
+<span class="design-header-sub">PGA</span>
+<div class="design-header-tools">
+<button onclick="openGameCalendar()">▦</button><button onclick="showRankTable('Official')">O</button><button onclick="showRankTable('PGA')">PGA</button><button onclick="showRankTable('ELO')">ELO</button>
+</div>
+</div>
 <div id="modernHomeShell">
-  <div class="modern-shell">
-    <section class="modern-hero">
-      <div class="modern-kicker">ARCIWEB - PGA</div>
-      <div class="modern-title">Tvoja golfová centrála</div>
-      <div id="designTipPanelModern" class="design-tip-panel"><span id="designTipTextModern">Načítavam tip…</span></div>
-      <button class="modern-map-btn" onclick="startArciCityGame()">🧭 Otvoriť ArciCity</button>
-    </section>
-    <section class="modern-status-grid">
-      <button class="modern-status" onclick="openMyPlayer()"><span class="mi">◉</span><b id="modernAccountStatus">Stav účtu -- €</b><small>hráčsky profil</small></button>
-      <button class="modern-status" onclick="openNetWorth()"><span class="mi">◆</span><b id="modernNetWorthStatus">Net Worth -- €</b><small>celkový majetok</small></button>
-      <button class="modern-status" onclick="openLifestyleManager()"><span class="mi">⌂</span><b id="modernExpensesStatus">Náklady -- €</b><small>životný štýl</small></button>
-      <button class="modern-status" onclick="openHappinessOverview()"><span class="mi">✦</span><b id="modernHappyStatus">Spokojnosť --%</b><small>aktuálny stav</small></button>
-    </section>
-  </div>
-
-  <section class="modern-section">
-    <div class="modern-section-title">Rýchly prístup</div>
-    <div class="modern-actions">
-      <button class="modern-action" onclick="openGameCalendar()"><span class="icon">▦</span><span>Kalendár</span></button>
-      <button class="modern-action" onclick="openAiAssistant()"><span class="icon">◈</span><span>ArciBot</span></button>
-      <button class="modern-action" onclick="openSponsorInfo()"><span class="icon">◇</span><span>Sponzori</span></button>
-      <button class="modern-action" onclick="openSettings()"><span class="icon">⚙</span><span>Nastavenia</span></button>
-      <button class="modern-action" onclick="openPersonalAchievements()"><span class="icon">◎</span><span>Osobné úspechy</span></button>
-      <button class="modern-action" onclick="openGlobalAchievementsList()"><span class="icon">◆</span><span>Achievementy</span></button>
-      <button class="modern-action" onclick="openHallOfFame()"><span class="icon">♛</span><span>Sieň slávy</span></button>
-      <button class="modern-action" onclick="openComparator()"><span class="icon">⇄</span><span>Porovnanie</span></button>
-      <button class="modern-action" onclick="openArciNews()"><span class="icon">▤</span><span>ArciNews</span></button>
-      <button class="modern-action" onclick="openTrophyGallery()"><span class="icon">◇</span><span>Trofeje</span></button>
-      <button class="modern-action" onclick="showGlobalPlayerCards()"><span class="icon">▣</span><span>PGA Cards</span></button>
-      <button class="modern-action" onclick="openScannerModal()"><span class="icon">⌁</span><span>Skener</span></button>
-    </div>
-  </section>
-
-  <section class="modern-section">
-    <div class="modern-section-title">Rebríčky</div>
-    <div class="modern-ranks">
-      <button class="modern-rank" onclick="showRankTable('Official')">Official</button>
-      <button class="modern-rank" onclick="showRankTable('PGA')">PGA</button>
-      <button class="modern-rank" onclick="showRankTable('FEDEX')">FedEx</button>
-      <button class="modern-rank" onclick="showRankTable('Association')">Players</button>
-      <button class="modern-rank" onclick="showRankTable('Tour')">World Tour</button>
-      <button class="modern-rank" onclick="showRankTable('EA')">EA Sports</button>
-      <button class="modern-rank" onclick="showRankTable('Amateur')">Amateur</button>
-      <button class="modern-rank" onclick="showRankTable('ELO')">ELO</button>
-    </div>
-  </section>
-
-  <section class="modern-section">
-    <div class="modern-section-title">Ekonomika & zábava</div>
-    <div class="modern-more">
-      <button class="modern-action" onclick="openArciShop()"><span class="icon">□</span><span>ArciShop</span></button>
-      <button class="modern-action" onclick="openArciCardsHub()"><span class="icon">▣</span><span>ArciCards</span></button>
-      <button class="modern-action" onclick="openArciInvest()"><span class="icon">↗</span><span>ArciInvest</span></button>
-      <button class="modern-action" onclick="openArciTip()"><span class="icon">⌁</span><span>ArciTip</span></button>
-      <button class="modern-action" onclick="openArciCasino()"><span class="icon">◈</span><span>ArciBet</span></button>
-      <button class="modern-action" onclick="openArciUnderground()"><span class="icon">▼</span><span>Podsvetie</span></button>
-      <button class="modern-action" onclick="openMapSearchModal()"><span class="icon">⌕</span><span>Hráč</span></button>
-      <button class="modern-action" onclick="openFavoritesModal()"><span class="icon">☆</span><span>Obľúbení</span></button>
-      <button class="modern-action" onclick="openJointSpot()"><span class="icon">○</span><span>Chill Spot</span></button>
-      <button class="modern-action" onclick="openLifestyleManager()"><span class="icon">⌂</span><span>Životný štýl</span></button>
-    </div>
-  </section>
+<div class="modern-shell" data-dev-key="sig:div.modern-shell:1">
+<section class="modern-hero" data-dev-key="sig:section.modern-hero:1">
+<div class="modern-kicker">ARCIWEB - PGA</div>
+<div class="modern-title">Tvoja golfová centrála</div>
+<div class="design-tip-panel" id="designTipPanelModern"><span id="designTipTextModern">Načítavam tip…</span></div>
+<button class="modern-map-btn" onclick="startArciCityGame()">🧭 Otvoriť ArciCity</button>
+</section>
+<section class="modern-status-grid" data-dev-key="sig:section.modern-status-grid:1">
+<button class="modern-status" data-dev-key="sig:button.modern-status:1" onclick="openMyPlayer()"><span class="mi">◉</span><b id="modernAccountStatus">Stav účtu -- €</b><small>hráčsky profil</small></button>
+<button class="modern-status" data-dev-key="sig:button.modern-status:2" onclick="openNetWorth()"><span class="mi">◆</span><b id="modernNetWorthStatus">Net Worth -- €</b><small>celkový majetok</small></button>
+<button class="modern-status" data-dev-key="sig:button.modern-status:3" onclick="openLifestyleManager()"><span class="mi">⌂</span><b id="modernExpensesStatus">Náklady -- €</b><small>životný štýl</small></button>
+<button class="modern-status" data-dev-key="sig:button.modern-status:4" onclick="openHappinessOverview()"><span class="mi">✦</span><b id="modernHappyStatus">Spokojnosť --%</b><small>aktuálny stav</small></button>
+</section>
 </div>
-
-
-
-
+<section class="modern-section" data-dev-key="sig:section.modern-section:1">
+<div class="modern-section-title">Rýchly prístup</div>
+<div class="modern-actions" data-dev-key="sig:div.modern-actions:1">
+<button class="modern-action" data-dev-key="sig:button.modern-action:1" onclick="openGameCalendar()"><span class="icon">▦</span><span>Kalendár</span></button>
+<button class="modern-action" data-dev-key="sig:button.modern-action:2" onclick="openAiAssistant()"><span class="icon">◈</span><span>ArciBot</span></button>
+<button class="modern-action" data-dev-key="sig:button.modern-action:3" onclick="openSponsorInfo()"><span class="icon">◇</span><span>Sponzori</span></button>
+<button class="modern-action" data-dev-key="sig:button.modern-action:4" onclick="openSettings()"><span class="icon">⚙</span><span>Nastavenia</span></button>
+<button class="modern-action" data-dev-key="sig:button.modern-action:5" onclick="openPersonalAchievements()"><span class="icon">◎</span><span>Osobné úspechy</span></button>
+<button class="modern-action" data-dev-key="sig:button.modern-action:6" onclick="openGlobalAchievementsList()"><span class="icon">◆</span><span>Achievementy</span></button>
+<button class="modern-action" data-dev-key="sig:button.modern-action:7" onclick="openHallOfFame()"><span class="icon">♛</span><span>Sieň slávy</span></button>
+<button class="modern-action" data-dev-key="sig:button.modern-action:8" onclick="openComparator()"><span class="icon">⇄</span><span>Porovnanie</span></button>
+<button class="modern-action" data-dev-key="sig:button.modern-action:9" onclick="openArciNews()"><span class="icon">▤</span><span>ArciNews</span></button>
+<button class="modern-action" data-dev-key="sig:button.modern-action:10" onclick="openTrophyGallery()"><span class="icon">◇</span><span>Trofeje</span></button>
+<button class="modern-action" data-dev-key="sig:button.modern-action:11" onclick="showGlobalPlayerCards()"><span class="icon">▣</span><span>PGA Cards</span></button>
+<button class="modern-action" data-dev-key="sig:button.modern-action:12" onclick="openScannerModal()"><span class="icon">⌁</span><span>Skener</span></button>
+</div>
+</section>
+<section class="modern-section" data-dev-key="sig:section.modern-section:2">
+<div class="modern-section-title">Rebríčky</div>
+<div class="modern-ranks" data-dev-key="sig:div.modern-ranks:1">
+<button class="modern-rank" data-dev-key="sig:button.modern-rank:1" onclick="showRankTable('Official')">Official</button>
+<button class="modern-rank" data-dev-key="sig:button.modern-rank:2" onclick="showRankTable('PGA')">PGA</button>
+<button class="modern-rank" data-dev-key="sig:button.modern-rank:3" onclick="showRankTable('FEDEX')">FedEx</button>
+<button class="modern-rank" data-dev-key="sig:button.modern-rank:4" onclick="showRankTable('Association')">Players</button>
+<button class="modern-rank" data-dev-key="sig:button.modern-rank:5" onclick="showRankTable('Tour')">World Tour</button>
+<button class="modern-rank" data-dev-key="sig:button.modern-rank:6" onclick="showRankTable('EA')">EA Sports</button>
+<button class="modern-rank" data-dev-key="sig:button.modern-rank:7" onclick="showRankTable('Amateur')">Amateur</button>
+<button class="modern-rank" data-dev-key="sig:button.modern-rank:8" onclick="showRankTable('ELO')">ELO</button>
+</div>
+</section>
+<section class="modern-section" data-dev-key="sig:section.modern-section:3">
+<div class="modern-section-title">Ekonomika &amp; zábava</div>
+<div class="modern-more" data-dev-key="sig:div.modern-more:1">
+<button class="modern-action" data-dev-key="sig:button.modern-action:13" onclick="openArciShop()"><span class="icon">□</span><span>ArciShop</span></button>
+<button class="modern-action" data-dev-key="sig:button.modern-action:14" onclick="openArciCardsHub()"><span class="icon">▣</span><span>ArciCards</span></button>
+<button class="modern-action" data-dev-key="sig:button.modern-action:15" onclick="openArciInvest()"><span class="icon">↗</span><span>ArciInvest</span></button>
+<button class="modern-action" data-dev-key="sig:button.modern-action:16" onclick="openArciTip()"><span class="icon">⌁</span><span>ArciTip</span></button>
+<button class="modern-action" data-dev-key="sig:button.modern-action:17" onclick="openArciCasino()"><span class="icon">◈</span><span>ArciBet</span></button>
+<button class="modern-action" data-dev-key="sig:button.modern-action:18" onclick="openArciUnderground()"><span class="icon">▼</span><span>Podsvetie</span></button>
+<button class="modern-action" data-dev-key="sig:button.modern-action:19" onclick="openMapSearchModal()"><span class="icon">⌕</span><span>Hráč</span></button>
+<button class="modern-action" data-dev-key="sig:button.modern-action:20" onclick="openFavoritesModal()"><span class="icon">☆</span><span>Obľúbení</span></button>
+<button class="modern-action" data-dev-key="sig:button.modern-action:21" onclick="openJointSpot()"><span class="icon">○</span><span>Chill Spot</span></button>
+<button class="modern-action" data-dev-key="sig:button.modern-action:22" onclick="openLifestyleManager()"><span class="icon">⌂</span><span>Životný štýl</span></button>
+</div>
+</section>
+</div>
 <div id="alternativeHomeShell">
-  <div class="alternative-grid">
-    <section class="alt-panel alt-hero">
-      <div><div class="alt-kicker">ARCIWEB / ALTERNATIVE</div><div class="alt-title">Golf. Dáta.<br>Rozhodnutia.</div><div id="designTipPanelAlternative" class="design-tip-panel"><span class="design-tip-label">💡 TIP PRE HRU</span><span id="designTipTextAlternative">Načítavam tip…</span></div></div>
-      <button class="alt-map" onclick="startArciCityGame()">🗺 VSTÚPIŤ DO ARCICITY</button>
-    </section>
-    <section class="alt-panel alt-status"><span class="big">€</span><div><b id="altAccountStatus">Stav účtu -- €</b><small>hráčsky profil</small></div></section>
-    <section class="alt-panel alt-status"><span class="big">◆</span><div><b id="altNetWorthStatus">Net Worth -- €</b><small>celkový majetok</small></div></section>
-    <section class="alt-panel"><div class="alt-kicker">AKCIE</div><div class="alt-actions" style="margin-top:8px">
-      <button class="alt-action" onclick="openGameCalendar()"><span class="ai">▦</span><b>Kalendár</b></button><button class="alt-action" onclick="openAiAssistant()"><span class="ai">◈</span><b>ArciBot</b></button>
-      <button class="alt-action" onclick="openSponsorInfo()"><span class="ai">◇</span><b>Sponzori</b></button><button class="alt-action" onclick="openSettings()"><span class="ai">⚙</span><b>Nastavenia</b></button>
-    </div></section>
-    <section class="alt-panel"><div class="alt-kicker">STAV</div><div style="margin-top:8px"><b id="altExpensesStatus">Náklady -- €</b><br><small style="color:var(--theme-muted)">životný štýl</small><br><b id="altHappyStatus">Spokojnosť --%</b></div></section>
-    <section class="alt-panel" style="grid-column:1/-1"><div class="alt-kicker">8 REBRÍČKOV</div><div class="alt-ranks" style="margin-top:8px">
-      <button class="alt-rank" onclick="showRankTable('Official')">Official</button><button class="alt-rank" onclick="showRankTable('PGA')">PGA</button><button class="alt-rank" onclick="showRankTable('FEDEX')">FedEx</button><button class="alt-rank" onclick="showRankTable('Association')">Players</button><button class="alt-rank" onclick="showRankTable('Tour')">World Tour</button><button class="alt-rank" onclick="showRankTable('EA')">EA Sports</button><button class="alt-rank" onclick="showRankTable('Amateur')">Amateur</button><button class="alt-rank" onclick="showRankTable('ELO')">ELO</button>
-    </div></section>
-    <div class="alt-strip">
-      <button class="alt-action" onclick="openPersonalAchievements()"><span class="ai">◎</span><b>Úspechy</b></button><button class="alt-action" onclick="openGlobalAchievementsList()"><span class="ai">◆</span><b>Achievementy</b></button><button class="alt-action" onclick="openHallOfFame()"><span class="ai">♛</span><b>Sieň slávy</b></button><button class="alt-action" onclick="openComparator()"><span class="ai">⇄</span><b>Porovnanie</b></button><button class="alt-action" onclick="openArciNews()"><span class="ai">▤</span><b>ArciNews</b></button><button class="alt-action" onclick="openTrophyGallery()"><span class="ai">◇</span><b>Trofeje</b></button><button class="alt-action" onclick="showGlobalPlayerCards()"><span class="ai">▣</span><b>PGA Cards</b></button><button class="alt-action" onclick="openScannerModal()"><span class="ai">⌁</span><b>Skener</b></button><button class="alt-action" onclick="openArciShop()"><span class="ai">□</span><b>Shop</b></button><button class="alt-action" onclick="openArciInvest()"><span class="ai">↗</span><b>Invest</b></button>
-    </div>
-    <div class="alt-strip">
-      <button class="alt-action" onclick="openArciTip()"><span class="ai">⌁</span><b>ArciTip</b></button><button class="alt-action" onclick="openArciCasino()"><span class="ai">◈</span><b>ArciBet</b></button><button class="alt-action" onclick="openArciUnderground()"><span class="ai">▼</span><b>Podsvetie</b></button><button class="alt-action" onclick="openMapSearchModal()"><span class="ai">⌕</span><b>Hráč</b></button><button class="alt-action" onclick="openFavoritesModal()"><span class="ai">☆</span><b>Obľúbení</b></button><button class="alt-action" onclick="openJointSpot()"><span class="ai">○</span><b>Chill</b></button><button class="alt-action" onclick="openLifestyleManager()"><span class="ai">⌂</span><b>Lifestyle</b></button><button class="alt-action" onclick="openMyPlayer()"><span class="ai">◉</span><b>Profil</b></button><button class="alt-action" onclick="openNetWorth()"><span class="ai">◆</span><b>Majetok</b></button><button class="alt-action" onclick="openHappinessOverview()"><span class="ai">✦</span><b>Spokojnosť</b></button>
-    </div>
-  </div>
+<div class="alternative-grid" data-dev-key="sig:div.alternative-grid:1">
+<section class="alt-panel alt-hero" data-dev-key="sig:section.alt-hero.alt-panel:1">
+<div><div class="alt-kicker">ARCIWEB / ALTERNATIVE</div><div class="alt-title">Golf. Dáta.<br/>Rozhodnutia.</div><div class="design-tip-panel" id="designTipPanelAlternative"><span class="design-tip-label">💡 TIP PRE HRU</span><span id="designTipTextAlternative">Načítavam tip…</span></div></div>
+<button class="alt-map" onclick="startArciCityGame()">🗺 VSTÚPIŤ DO ARCICITY</button>
+</section>
+<section class="alt-panel alt-status" data-dev-key="sig:section.alt-panel.alt-status:1"><span class="big">€</span><div><b id="altAccountStatus">Stav účtu -- €</b><small>hráčsky profil</small></div></section>
+<section class="alt-panel alt-status" data-dev-key="sig:section.alt-panel.alt-status:2"><span class="big">◆</span><div><b id="altNetWorthStatus">Net Worth -- €</b><small>celkový majetok</small></div></section>
+<section class="alt-panel" data-dev-key="sig:section.alt-panel:1"><div class="alt-kicker">AKCIE</div><div class="alt-actions" data-dev-key="sig:div.alt-actions:1" style="margin-top:8px">
+<button class="alt-action" data-dev-key="sig:button.alt-action:1" onclick="openGameCalendar()"><span class="ai">▦</span><b>Kalendár</b></button><button class="alt-action" data-dev-key="sig:button.alt-action:2" onclick="openAiAssistant()"><span class="ai">◈</span><b>ArciBot</b></button>
+<button class="alt-action" data-dev-key="sig:button.alt-action:3" onclick="openSponsorInfo()"><span class="ai">◇</span><b>Sponzori</b></button><button class="alt-action" data-dev-key="sig:button.alt-action:4" onclick="openSettings()"><span class="ai">⚙</span><b>Nastavenia</b></button>
+</div></section>
+<section class="alt-panel" data-dev-key="sig:section.alt-panel:2"><div class="alt-kicker">STAV</div><div style="margin-top:8px"><b id="altExpensesStatus">Náklady -- €</b><br/><small style="color:var(--theme-muted)">životný štýl</small><br/><b id="altHappyStatus">Spokojnosť --%</b></div></section>
+<section class="alt-panel" data-dev-key="sig:section.alt-panel:3" style="grid-column:1/-1"><div class="alt-kicker">8 REBRÍČKOV</div><div class="alt-ranks" style="margin-top:8px">
+<button class="alt-rank" data-dev-key="sig:button.alt-rank:1" onclick="showRankTable('Official')">Official</button><button class="alt-rank" data-dev-key="sig:button.alt-rank:2" onclick="showRankTable('PGA')">PGA</button><button class="alt-rank" data-dev-key="sig:button.alt-rank:3" onclick="showRankTable('FEDEX')">FedEx</button><button class="alt-rank" data-dev-key="sig:button.alt-rank:4" onclick="showRankTable('Association')">Players</button><button class="alt-rank" data-dev-key="sig:button.alt-rank:5" onclick="showRankTable('Tour')">World Tour</button><button class="alt-rank" data-dev-key="sig:button.alt-rank:6" onclick="showRankTable('EA')">EA Sports</button><button class="alt-rank" data-dev-key="sig:button.alt-rank:7" onclick="showRankTable('Amateur')">Amateur</button><button class="alt-rank" data-dev-key="sig:button.alt-rank:8" onclick="showRankTable('ELO')">ELO</button>
+</div></section>
+<div class="alt-strip" data-dev-key="sig:div.alt-strip:1">
+<button class="alt-action" data-dev-key="sig:button.alt-action:5" onclick="openPersonalAchievements()"><span class="ai">◎</span><b>Úspechy</b></button><button class="alt-action" data-dev-key="sig:button.alt-action:6" onclick="openGlobalAchievementsList()"><span class="ai">◆</span><b>Achievementy</b></button><button class="alt-action" data-dev-key="sig:button.alt-action:7" onclick="openHallOfFame()"><span class="ai">♛</span><b>Sieň slávy</b></button><button class="alt-action" data-dev-key="sig:button.alt-action:8" onclick="openComparator()"><span class="ai">⇄</span><b>Porovnanie</b></button><button class="alt-action" data-dev-key="sig:button.alt-action:9" onclick="openArciNews()"><span class="ai">▤</span><b>ArciNews</b></button><button class="alt-action" data-dev-key="sig:button.alt-action:10" onclick="openTrophyGallery()"><span class="ai">◇</span><b>Trofeje</b></button><button class="alt-action" data-dev-key="sig:button.alt-action:11" onclick="showGlobalPlayerCards()"><span class="ai">▣</span><b>PGA Cards</b></button><button class="alt-action" data-dev-key="sig:button.alt-action:12" onclick="openScannerModal()"><span class="ai">⌁</span><b>Skener</b></button><button class="alt-action" data-dev-key="sig:button.alt-action:13" onclick="openArciShop()"><span class="ai">□</span><b>Shop</b></button><button class="alt-action" data-dev-key="sig:button.alt-action:14" onclick="openArciInvest()"><span class="ai">↗</span><b>Invest</b></button>
 </div>
-
+<div class="alt-strip" data-dev-key="sig:div.alt-strip:2">
+<button class="alt-action" data-dev-key="sig:button.alt-action:15" onclick="openArciTip()"><span class="ai">⌁</span><b>ArciTip</b></button><button class="alt-action" data-dev-key="sig:button.alt-action:16" onclick="openArciCasino()"><span class="ai">◈</span><b>ArciBet</b></button><button class="alt-action" data-dev-key="sig:button.alt-action:17" onclick="openArciUnderground()"><span class="ai">▼</span><b>Podsvetie</b></button><button class="alt-action" data-dev-key="sig:button.alt-action:18" onclick="openMapSearchModal()"><span class="ai">⌕</span><b>Hráč</b></button><button class="alt-action" data-dev-key="sig:button.alt-action:19" onclick="openFavoritesModal()"><span class="ai">☆</span><b>Obľúbení</b></button><button class="alt-action" data-dev-key="sig:button.alt-action:20" onclick="openJointSpot()"><span class="ai">○</span><b>Chill</b></button><button class="alt-action" data-dev-key="sig:button.alt-action:21" onclick="openLifestyleManager()"><span class="ai">⌂</span><b>Lifestyle</b></button><button class="alt-action" data-dev-key="sig:button.alt-action:22" onclick="openMyPlayer()"><span class="ai">◉</span><b>Profil</b></button><button class="alt-action" data-dev-key="sig:button.alt-action:23" onclick="openNetWorth()"><span class="ai">◆</span><b>Majetok</b></button><button class="alt-action" data-dev-key="sig:button.alt-action:24" onclick="openHappinessOverview()"><span class="ai">✦</span><b>Spokojnosť</b></button>
+</div>
+</div>
+</div>
 <div id="classicHomeContent">
-<button id="btnOpenMap"" class="main-menu-btn" onclick="startArciCityGame()" style="
+<button "="" class="main-menu-btn" data-dev-key="id:btnOpenMap" id="btnOpenMap" onclick="startArciCityGame()" style="
     background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%); 
     color: #fff; border: 2px solid #fff; font-size: 1.2rem; font-weight: 900;
     box-shadow: 0 0 15px rgba(46, 204, 113, 0.5);
@@ -2892,11 +2953,8 @@ body.design-alternative #alternativeHomeShell{display:block}
     height: 45px !important; min-height: 45px !important; display: flex; align-items: center; justify-content: center; gap: 10px;">
     🗺️ OTVORIŤ MAPU MESTA
 </button>
-
-
-
-<div class="main-menu-container" style="display: flex; flex-direction: column; gap: 12px; width: 100%; align-items: center;">
-   <button id="btnHappyStatus" class="main-menu-btn" onclick="openHappinessOverview()" style="
+<div class="main-menu-container" data-dev-key="sig:div.main-menu-container:1" style="display: flex; flex-direction: column; gap: 12px; width: 100%; align-items: center;">
+<button class="main-menu-btn" data-dev-key="id:btnHappyStatus" id="btnHappyStatus" onclick="openHappinessOverview()" style="
     background: linear-gradient(135deg, #f1c40f 0%, #f39c12 100%); 
     color: #000; border: 1px solid #fff; font-size: 0.75rem !important; font-weight: 900;
     box-shadow: 0 0 10px rgba(241, 196, 15, 0.4);
@@ -2906,10 +2964,8 @@ body.design-alternative #alternativeHomeShell{display:block}
     padding: 0 15px !important;">
     😊 Spokojnosť --%
 </button>
-
-
-    <div style="display: flex; gap: 10px; width: 100%; justify-content: center;">
-        <button class="main-menu-btn" onclick="openSponsorInfo()" style="
+<div style="display: flex; gap: 10px; width: 100%; justify-content: center;">
+<button class="main-menu-btn" data-dev-key="sig:button.main-menu-btn:1" onclick="openSponsorInfo()" style="
             flex: 1; background: #111; color: #FFD700; border: 1px solid #FFD700;
             border-radius: 8px; font-size: 0.95rem; font-weight: bold; cursor: pointer; 
             box-shadow: 0 0 8px rgba(255, 215, 0, 0.2);
@@ -2917,8 +2973,7 @@ body.design-alternative #alternativeHomeShell{display:block}
             padding: 0 !important; margin: 0 !important;">
             🤝 Sponzor
         </button>
-
-        <button class="main-menu-btn" onclick="openAiAssistant()" style="
+<button class="main-menu-btn" data-dev-key="sig:button.main-menu-btn:2" onclick="openAiAssistant()" style="
             flex: 1; background: #111; color: #3498db; border: 1px solid #3498db;
             border-radius: 8px; font-size: 0.95rem; font-weight: bold; cursor: pointer; 
             box-shadow: 0 0 8px rgba(52, 152, 219, 0.2);
@@ -2926,9 +2981,8 @@ body.design-alternative #alternativeHomeShell{display:block}
             padding: 0 !important; margin: 0 !important;">
             🤖 ArciBot
         </button>
-    </div>
-
-    <button id="btnNetWorthStatus" onclick="openNetWorth()" style="
+</div>
+<button id="btnNetWorthStatus" onclick="openNetWorth()" style="
         background: #111; color: var(--highlight-gold); border: 1px solid var(--highlight-gold);
         border-radius: 8px; padding: 8px 15px; font-size: 0.95rem; font-weight: bold;
         width: 100%; cursor: pointer; box-shadow: 0 0 8px rgba(241, 196, 15, 0.2);
@@ -2936,87 +2990,72 @@ body.design-alternative #alternativeHomeShell{display:block}
         height: 40px !important; min-height: 40px !important;">
         💎 Net Worth -- €
     </button>
-    
-
-
-    <button id="btnAccountBalance" class="main-menu-btn" onclick="openMyPlayer()" style="
+<button class="main-menu-btn" data-dev-key="id:btnAccountBalance" id="btnAccountBalance" onclick="openMyPlayer()" style="
         background: linear-gradient(135deg, #2c3e50 0%, #4ca1af 100%); 
         color: #fff; border: 2px solid rgba(255,255,255,0.3); font-size: 1.2rem; font-weight: 800;
         width: 100%; border-radius: 16px; box-shadow: 0 4px 10px rgba(0,0,0,0.2);">
         💰 Stav účtu -- €
     </button>
-    
-    <button id="btnWeeklyExpenses" class="main-menu-btn" onclick="openLifestyleManager()" style="
+<button class="main-menu-btn" data-dev-key="id:btnWeeklyExpenses" id="btnWeeklyExpenses" onclick="openLifestyleManager()" style="
         background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); 
         color: #000; border: 2px solid #fff; font-size: 1.2rem; font-weight: bold;
         width: 100%; border-radius: 16px; box-shadow: 0 4px 10px rgba(0,0,0,0.2);">
         🏡 Týždenné náklady -- €
     </button>
-
-    <div style="display: flex; gap: 10px; width: 100%;">
-        <button class="main-menu-btn" onclick="openArciShop()" style="
+<div style="display: flex; gap: 10px; width: 100%;">
+<button class="main-menu-btn" data-dev-key="sig:button.main-menu-btn:3" onclick="openArciShop()" style="
             flex: 1; background: linear-gradient(135deg, #8e44ad 0%, #c0392b 100%); 
             color: #fff; font-size: 1.1rem; font-weight: bold; border-radius: 50px;">
             🛒 ArciShop 
         </button>
-
-        <button class="main-menu-btn" onclick="openArciCardsHub()" style="
+<button class="main-menu-btn" data-dev-key="sig:button.main-menu-btn:4" onclick="openArciCardsHub()" style="
             flex: 1; background: linear-gradient(135deg, #e67e22 0%, #d35400 100%); 
             color: #fff; border: 2px solid #f1c40f; font-size: 1.1rem; font-weight: bold;
             box-shadow: 0 0 15px rgba(230, 126, 34, 0.4); border-radius: 50px;">
             🃏 ArciCards
         </button>
-    </div>
-
-    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; width: 100%;">
-        
-        <button class="main-menu-btn" onclick="openArciInvest()" style="
+</div>
+<div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; width: 100%;">
+<button class="main-menu-btn" data-dev-key="sig:button.main-menu-btn:5" onclick="openArciInvest()" style="
             background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%); 
             color: #fff; border: 2px solid #4da6ff; border-radius: 16px;
             box-shadow: 0 0 15px rgba(77, 166, 255, 0.4);
             display: flex; align-items: center; justify-content: center; gap: 2px;
             height: auto !important; min-height: 65px !important; padding: 4px 2px !important;">
-            
-            <span style="font-size: 1.3rem; margin: 0;">📈</span>
-            <div style="display: flex; flex-direction: column; text-align: left; font-size: 0.65rem; font-weight: bold; line-height: 1.1;">
-                <span>Arciinvest</span>
-                <span>Burza &</span>
-                <span>Nehnuteľnosti</span>
-            </div>
-        </button>
-
-        <button class="main-menu-btn" onclick="openArciTip()" style="
+<span style="font-size: 1.3rem; margin: 0;">📈</span>
+<div style="display: flex; flex-direction: column; text-align: left; font-size: 0.65rem; font-weight: bold; line-height: 1.1;">
+<span>Arciinvest</span>
+<span>Burza &amp;</span>
+<span>Nehnuteľnosti</span>
+</div>
+</button>
+<button class="main-menu-btn" data-dev-key="sig:button.main-menu-btn:6" onclick="openArciTip()" style="
             background: linear-gradient(135deg, #1e272e 0%, #000 100%); 
             color: var(--highlight-gold); border: 1px solid var(--highlight-gold); border-radius: 16px;
             display: flex; align-items: center; justify-content: center; gap: 2px;
             height: auto !important; min-height: 65px !important; padding: 4px 2px !important;">
-            
-            <span style="font-size: 1.3rem; margin: 0;">🎲</span>
-            <div style="display: flex; flex-direction: column; text-align: left; font-size: 0.65rem; font-weight: bold; line-height: 1.1;">
-                <span>ArciTip</span>
-                <span>Stávková</span>
-                <span>Kancelária</span>
-            </div>
-        </button>
-
-        <button class="main-menu-btn" onclick="openArciCasino()" style="
+<span style="font-size: 1.3rem; margin: 0;">🎲</span>
+<div style="display: flex; flex-direction: column; text-align: left; font-size: 0.65rem; font-weight: bold; line-height: 1.1;">
+<span>ArciTip</span>
+<span>Stávková</span>
+<span>Kancelária</span>
+</div>
+</button>
+<button class="main-menu-btn" data-dev-key="sig:button.main-menu-btn:7" onclick="openArciCasino()" style="
             background: linear-gradient(135deg, #4b134f 0%, #c94b4b 100%); 
             color: #fff; border: 2px solid #ff7979; border-radius: 16px;
             box-shadow: 0 0 15px rgba(201, 75, 75, 0.5);
             display: flex; align-items: center; justify-content: center; gap: 2px;
             height: auto !important; min-height: 65px !important; padding: 4px 2px !important;">
-            
-            <span style="font-size: 1.3rem; margin: 0;">🎰</span>
-            <div style="display: flex; flex-direction: column; text-align: left; font-size: 0.65rem; font-weight: bold; line-height: 1.1;">
-                <span>ArciBet</span>
-                <span>Casino &</span>
-                <span>Hazard</span>
-            </div>
-        </button>
-
-    </div>
-
-    <button class="main-menu-btn" onclick="openArciUnderground()" style="
+<span style="font-size: 1.3rem; margin: 0;">🎰</span>
+<div style="display: flex; flex-direction: column; text-align: left; font-size: 0.65rem; font-weight: bold; line-height: 1.1;">
+<span>ArciBet</span>
+<span>Casino &amp;</span>
+<span>Hazard</span>
+</div>
+</button>
+</div>
+<button class="main-menu-btn" data-dev-key="sig:button.main-menu-btn:8" onclick="openArciUnderground()" style="
         background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%); 
         color: #a29bfe; border: 2px solid #6c5ce7; font-size: 1rem; font-weight: 900;
         box-shadow: 0 0 15px rgba(108, 92, 231, 0.4); letter-spacing: 2px;
@@ -3026,93 +3065,76 @@ body.design-alternative #alternativeHomeShell{display:block}
         💀 ILEGAL (Podsvetie)
     </button>
 </div>
-
-
-
-
-
-
-    
 </div>
-
-<div class="search-container">
-        <input type="text" id="playerSearch" placeholder="Vyhľadať hráča..." oninput="handleSearch(this.value)">
-        <div id="searchResults"></div>
-    </div>
-
-    <div id="favoritesPanel" class="favorites-bar">
-        <div class="favorites-header" onclick="toggleFavoritesWidget()">
-            <div class="favorites-title">
-                <span>★ Obľúbení Hráči</span>
-                <span id="favCountBadge" style="background:#444; color:#fff; font-size:0.7rem; padding:2px 6px; border-radius:10px; margin-left:5px;">0</span>
-            </div>
-            <span id="favArrow">▼</span>
-        </div>
-        <div id="favoritesList" class="favorites-content">
-            <div style="color:#777; font-style:italic; width:100%; text-align:center; padding:10px;">Zatiaľ nemáš žiadnych obľúbených hráčov. Klikni na hviezdičku v profile hráča.</div>
-        </div>
-    </div>
-
-
-    <div id="filterContainer">
-        <div class="filter-section">
-            <span class="filter-label">Tour</span>
-            <div class="filter-row">
-                <button class="filter-btn active" id="btn-tour-all" onclick="setTourFilter('ALL')">Všetky</button>
-                <button class="filter-btn" id="btn-tour-KFT" onclick="setTourFilter('KFT')">KFT</button>
-                <button class="filter-btn" id="btn-tour-PGA" onclick="setTourFilter('PGA')">PGA</button>
-                <button class="filter-btn" id="btn-tour-EA SPORTS" onclick="setTourFilter('EA SPORTS')">EA Sports</button>
-                <button class="filter-btn" id="btn-tour-THE PLAYERS" onclick="setTourFilter('THE PLAYERS')">The Players</button>
-                <button class="filter-btn" id="btn-tour-FED EX" onclick="setTourFilter('FED EX')">FED EX</button>
-            </div>
-        </div>
-
-        <div class="filter-section">
-            <span class="filter-label">Dôležitosť</span>
-            <div class="dropdown-filter" onclick="toggleImportanceDropdown()">
-                <span id="importanceFilterLabel">Všetky</span>
-                <span style="float:right">▼</span>
-            </div>
-            <div id="importanceDropdown" class="dropdown-content">
-                </div>
-        </div>
-
-        <div class="filter-section">
-            <span class="filter-label">Sezóna</span>
-            <div class="dropdown-filter" onclick="toggleSeasonDropdown()">
-                <span id="seasonFilterLabel">Všetky</span>
-                <span style="float:right">▼</span>
-            </div>
-            <div id="seasonDropdown" class="dropdown-content">
-                </div>
-        </div>
-
-        <div class="filter-section">
-             <span class="filter-label">Turnaje</span>
-             <div class="dropdown-filter" onclick="toggleEventDropdown()">
-                 <span id="eventFilterLabel">Všetky turnaje</span>
-                 <span style="float:right">▼</span>
-             </div>
-             <div id="eventDropdown" class="dropdown-content">
-                 </div>
-        </div>
-        
-        <div class="filter-section">
-             <button class="filter-btn btn-full-width" id="weekToggleBtn" onclick="toggleWeekView()">Zobraziť konkrétne týždne (Súbory)</button>
-             <div id="weeksContainer" class="filter-row" style="display:none; margin-top:10px;"></div>
-        </div>
-    </div>
-
-    <div class="table-container">
-        <table id="mainTable">
-            <thead></thead>
-            <tbody></tbody>
-        </table>
-    </div>
-    <input type="file" id="fileInput" accept=".txt" multiple onchange="handleFiles(this.files)">
-    <input type="file" id="slotFileInput" accept=".json" onchange="finishSlotUpload(this.files)">
-    <input type="file" id="seasonFileInput" accept=".txt" multiple onchange="handleSeasonFiles(this.files)">
-
+<div class="search-container" data-dev-key="sig:div.search-container:1">
+<input id="playerSearch" oninput="handleSearch(this.value)" placeholder="Vyhľadať hráča..." type="text"/>
+<div id="searchResults"></div>
+</div>
+<div class="favorites-bar" data-dev-key="id:favoritesPanel" id="favoritesPanel">
+<div class="favorites-header" onclick="toggleFavoritesWidget()">
+<div class="favorites-title">
+<span>★ Obľúbení Hráči</span>
+<span id="favCountBadge" style="background:#444; color:#fff; font-size:0.7rem; padding:2px 6px; border-radius:10px; margin-left:5px;">0</span>
+</div>
+<span id="favArrow">▼</span>
+</div>
+<div class="favorites-content" id="favoritesList">
+<div style="color:#777; font-style:italic; width:100%; text-align:center; padding:10px;">Zatiaľ nemáš žiadnych obľúbených hráčov. Klikni na hviezdičku v profile hráča.</div>
+</div>
+</div>
+<div data-dev-key="id:filterContainer" id="filterContainer">
+<div class="filter-section">
+<span class="filter-label">Tour</span>
+<div class="filter-row">
+<button class="filter-btn active" id="btn-tour-all" onclick="setTourFilter('ALL')">Všetky</button>
+<button class="filter-btn" id="btn-tour-KFT" onclick="setTourFilter('KFT')">KFT</button>
+<button class="filter-btn" id="btn-tour-PGA" onclick="setTourFilter('PGA')">PGA</button>
+<button class="filter-btn" id="btn-tour-EA SPORTS" onclick="setTourFilter('EA SPORTS')">EA Sports</button>
+<button class="filter-btn" id="btn-tour-THE PLAYERS" onclick="setTourFilter('THE PLAYERS')">The Players</button>
+<button class="filter-btn" id="btn-tour-FED EX" onclick="setTourFilter('FED EX')">FED EX</button>
+</div>
+</div>
+<div class="filter-section">
+<span class="filter-label">Dôležitosť</span>
+<div class="dropdown-filter" onclick="toggleImportanceDropdown()">
+<span id="importanceFilterLabel">Všetky</span>
+<span style="float:right">▼</span>
+</div>
+<div class="dropdown-content" id="importanceDropdown">
+</div>
+</div>
+<div class="filter-section">
+<span class="filter-label">Sezóna</span>
+<div class="dropdown-filter" onclick="toggleSeasonDropdown()">
+<span id="seasonFilterLabel">Všetky</span>
+<span style="float:right">▼</span>
+</div>
+<div class="dropdown-content" id="seasonDropdown">
+</div>
+</div>
+<div class="filter-section">
+<span class="filter-label">Turnaje</span>
+<div class="dropdown-filter" onclick="toggleEventDropdown()">
+<span id="eventFilterLabel">Všetky turnaje</span>
+<span style="float:right">▼</span>
+</div>
+<div class="dropdown-content" id="eventDropdown">
+</div>
+</div>
+<div class="filter-section">
+<button class="filter-btn btn-full-width" id="weekToggleBtn" onclick="toggleWeekView()">Zobraziť konkrétne týždne (Súbory)</button>
+<div class="filter-row" id="weeksContainer" style="display:none; margin-top:10px;"></div>
+</div>
+</div>
+<div class="table-container" data-dev-key="sig:div.table-container:1">
+<table id="mainTable">
+<thead></thead>
+<tbody></tbody>
+</table>
+</div>
+<input accept=".txt" id="fileInput" multiple="" onchange="handleFiles(this.files)" type="file"/>
+<input accept=".json" id="slotFileInput" onchange="finishSlotUpload(this.files)" type="file"/>
+<input accept=".txt" id="seasonFileInput" multiple="" onchange="handleSeasonFiles(this.files)" type="file"/>
 <div id="popupsLayer"></div>
 <script>
 
@@ -3670,7 +3692,8 @@ window.updateMenuStats = function() {
 // Obalíme pôvodnú saveAuto funkciu
 const originalSaveAuto = window.saveAuto;
 window.saveAuto = function() {
-    // Pôvodný Autosave je autoritatívny. Nové štatistiky nesmú jeho beh nikdy zablokovať.
+    // Pôvodný Autosave zostáva autoritatívny; rozloženie vývojárskeho režimu je len ďalšia časť appState.
+    try { captureDeveloperLayout(); } catch(e) { console.warn('Uloženie vývojárskeho rozloženia zlyhalo:',e); }
     let saveResult;
     if (typeof originalSaveAuto === 'function') saveResult = originalSaveAuto();
     try { updateMenuStats(); } catch(e) { console.warn('Aktualizácia menu po Autosave zlyhala:', e); }
@@ -3683,6 +3706,7 @@ window.renderApp = function() {
     let renderResult;
     if (typeof originalRenderApp === 'function') renderResult = originalRenderApp();
     try { updateMenuStats(); } catch(e) { console.warn('Aktualizácia menu po renderApp zlyhala:', e); }
+    try { applyDeveloperLayout(); if(arciDeveloperMode) setupDeveloperElements(); } catch(e) { console.warn('Obnovenie vývojárskeho rozloženia zlyhalo:', e); }
     return renderResult;
 };
 
@@ -62254,7 +62278,7 @@ function renderNewsList(fileKey) {
         filters: { tours: ['ALL'], events: [], seasons: [], importance: 'ALL', activeWeek: null },
         ui: { showWeeks: false, eventDropdownOpen: false, seasonDropdownOpen: false, importanceDropdownOpen: false },
         sort: { column: 'points', dir: 'desc' },
-        settings: { zoom: 0, theme: 'Default', themesOpen: false, themeCategory: null, design: 'classic', customThemes: [], favoriteThemes: [], recentThemes: [] }, 
+        settings: { zoom: 0, theme: 'Default', themesOpen: false, themeCategory: null, design: 'classic', customThemes: [], favoriteThemes: [], recentThemes: [], developerLayouts: {} }, 
         history: [],
         unlockedBadges: {} // <--- TOTO PRIDAJ (Pamäť pre odznaky)
     };
@@ -62361,6 +62385,188 @@ function renderNewsList(fileKey) {
         return arr;
     }
 
+    // ================================================================
+    // ARCIWEB: INFO / 5× KLIK / 5 SEKÚND / VÝVOJÁRSKY REŽIM
+    // ================================================================
+    let arciLogoClickTimer=null;
+    let arciLogoClickCount=0;
+    let arciDeveloperMode=false;
+    let arciDevDrag=null;
+    let arciDevResize=null;
+
+    function openArciWebInfo(){
+        const html=`
+          <div class="modal-header"><h2>ARCIWEB - PGA</h2><button class="close-btn" onclick="closeTopModal()">&times;</button></div>
+          <div class="modal-body" style="line-height:1.55">
+            <h3 style="margin-top:0">ArciWeb</h3>
+            <p>Golfová centrála spájajúca rebríčky, turnaje, hráčov, štatistiky a herný svet ArciCity do jednej aplikácie.</p>
+            <p><strong>Vývojár:</strong> Milan Arči Majk pomocou AI technológií.</p>
+            <p style="color:var(--theme-muted);font-size:.82rem">Projekt je navrhnutý ako živá golfová databáza a herné prostredie, ktoré sa môže ďalej rozširovať o nové funkcie, dizajny a herné systémy.</p>
+          </div>`;
+        createModal(html,'arciweb-info-modal');
+    }
+
+    function handleArciWebClick(ev){
+        if(ev){ ev.preventDefault(); ev.stopPropagation(); }
+        if(arciResetTriggered || arciDeveloperMode) return;
+        arciLogoClickCount++;
+        clearTimeout(arciLogoClickTimer);
+        if(arciLogoClickCount>=5){
+            arciLogoClickCount=0;
+            enterArciDeveloperMode();
+            return;
+        }
+        arciLogoClickTimer=setTimeout(()=>{
+            if(arciLogoClickCount===1) openArciWebInfo();
+            arciLogoClickCount=0;
+        },520);
+    }
+
+    function getDevEditableElements(){
+        const selectors=[
+          '#designHeaderAlternative','#designHeaderOldschool','#designHeaderCompressed',
+          '#modernHomeShell .modern-shell','#modernHomeShell .modern-hero','#modernHomeShell .modern-status-grid','#modernHomeShell .modern-status',
+          '#modernHomeShell .modern-section','#modernHomeShell .modern-actions','#modernHomeShell .modern-action','#modernHomeShell .modern-ranks','#modernHomeShell .modern-rank','#modernHomeShell .modern-more',
+          '#alternativeHomeShell .alternative-grid','#alternativeHomeShell .alt-panel','#alternativeHomeShell .alt-actions','#alternativeHomeShell .alt-action','#alternativeHomeShell .alt-rank','#alternativeHomeShell .alt-strip',
+          '.search-container','#favoritesPanel','#filterContainer','.table-container','.main-menu-container','.main-menu-btn','.pro-icons','.pro-icon-btn','.rank-nav','.rank-pill'
+        ];
+        const out=[]; const seen=new Set();
+        selectors.forEach(sel=>document.querySelectorAll(sel).forEach(el=>{if(seen.has(el))return;seen.add(el);out.push(el);}));
+        return out.filter(el=>{
+            const cs=getComputedStyle(el); const r=el.getBoundingClientRect();
+            return cs.display!=='none' && cs.visibility!=='hidden' && r.width>1 && r.height>1;
+        });
+    }
+
+    function devEnsureId(el){
+        if(!el.dataset.devId) el.dataset.devId=el.dataset.devKey ? 'key_'+el.dataset.devKey : (el.id ? 'id_'+el.id : 'anon_'+[...document.querySelectorAll('*')].indexOf(el));
+        return el.dataset.devId;
+    }
+    function devElementMap(){
+        const map={};
+        document.querySelectorAll('[data-dev-id]').forEach(el=>map[el.dataset.devId]=el);
+        return map;
+    }
+    function devIsContainer(el){
+        return el && ['DIV','SECTION','HEADER','NAV','MAIN','ASIDE'].includes(el.tagName) && !el.classList.contains('dev-resize-handle');
+    }
+    function devCaptureElement(el){
+        const id=devEnsureId(el), parent=el.parentElement;
+        return {id,parentId:parent?devEnsureId(parent):null,order:parent?[...parent.children].indexOf(el):0,transform:el.dataset.devTransform||'',width:el.dataset.devWidth||'',height:el.dataset.devHeight||''};
+    }
+    function captureDeveloperLayout(){
+        if(!appState?.settings) return;
+        const design=appState.settings.design||'classic';
+        const elements=getDevEditableElements();
+        const items=elements.map(devCaptureElement);
+        appState.settings.developerLayouts=appState.settings.developerLayouts||{};
+        appState.settings.developerLayouts[design]={version:1,items};
+    }
+    function applyDeveloperLayout(){
+        if(!appState?.settings) return;
+        const design=appState.settings.design||'classic';
+        const layout=appState.settings.developerLayouts?.[design];
+        if(!layout || !Array.isArray(layout.items)) return;
+        getDevEditableElements().forEach(devEnsureId);
+        const all=[...document.querySelectorAll('[data-dev-id]')];
+        const byId={}; all.forEach(el=>byId[el.dataset.devId]=el);
+        layout.items.forEach(item=>{
+            const el=byId[item.id]; if(!el) return;
+            if(item.transform!==undefined){el.dataset.devTransform=item.transform||'';el.style.transform=item.transform||'';}
+            if(item.width!==undefined){el.dataset.devWidth=item.width||'';el.style.width=item.width||'';}
+            if(item.height!==undefined){el.dataset.devHeight=item.height||'';el.style.height=item.height||'';}
+        });
+        // Obnovíme poradie len tam, kde je uložený rodič stále dostupný.
+        layout.items.slice().sort((a,b)=>(a.order||0)-(b.order||0)).forEach(item=>{
+            const el=byId[item.id], parent=byId[item.parentId];
+            if(el && parent && el.parentElement!==parent && devIsContainer(parent)) parent.appendChild(el);
+        });
+        layout.items.slice().sort((a,b)=>(a.order||0)-(b.order||0)).forEach(item=>{
+            const el=byId[item.id], parent=byId[item.parentId];
+            if(!el || !parent || !devIsContainer(parent)) return;
+            const siblings=[...parent.children].filter(x=>x!==el && !x.classList.contains('dev-resize-handle'));
+            const ref=siblings[item.order||0];
+            if(ref) parent.insertBefore(el,ref); else parent.appendChild(el);
+        });
+    }
+
+    function devRemoveHandles(){document.querySelectorAll('.dev-resize-handle').forEach(h=>h.remove());}
+    function devSelect(el){
+        document.querySelectorAll('.dev-editable.dev-selected').forEach(x=>x.classList.remove('dev-selected'));
+        if(el) el.classList.add('dev-selected');
+    }
+    function devStartDrag(el,e){
+        if(e.target.classList.contains('dev-resize-handle')) return;
+        const startX=e.clientX,startY=e.clientY;
+        const oldTransform=el.dataset.devTransform||'';
+        let dx=0,dy=0,moved=false;
+        arciDevDrag={el,startX,startY,oldTransform,move(ev){
+            dx=ev.clientX-startX;dy=ev.clientY-startY;
+            if(Math.abs(dx)+Math.abs(dy)>4) moved=true;
+            if(!moved)return;
+            el.classList.add('dev-dragging');
+            const base=oldTransform && oldTransform.includes('translate')?oldTransform:'';
+            // Nadviažeme na uložený posun, ak existuje.
+            const m=base.match(/translate\(\s*(-?[0-9.]+)px\s*,\s*(-?[0-9.]+)px\s*\)/);
+            const bx=m?parseFloat(m[1]):0, by=m?parseFloat(m[2]):0;
+            el.dataset.devTransform=`translate(${bx+dx}px, ${by+dy}px)`;el.style.transform=el.dataset.devTransform;
+        },up(ev){
+            el.classList.remove('dev-dragging');
+            const under=document.elementFromPoint(ev.clientX,ev.clientY);
+            const target=under?.closest?.('[data-dev-id]');
+            if(moved && target && target!==el){
+                const container=target.classList.contains('dev-drop-container')?target:(devIsContainer(target)?target:null);
+                if(container && container!==el && !el.contains(container)){container.appendChild(el);}
+                else if(target.parentElement===el.parentElement){
+                    const r=target.getBoundingClientRect();
+                    if(ev.clientY<r.top+r.height/2 || ev.clientX<r.left+r.width/2) target.parentElement.insertBefore(el,target); else target.parentElement.insertBefore(el,target.nextSibling);
+                }
+            }
+            if(moved) captureDeveloperLayout();
+            document.removeEventListener('pointermove',arciDevDrag.move);document.removeEventListener('pointerup',arciDevDrag.up);arciDevDrag=null;
+        }};
+        document.addEventListener('pointermove',arciDevDrag.move);document.addEventListener('pointerup',arciDevDrag.up,{once:true});
+    }
+    function devStartResize(el,e){
+        e.preventDefault();e.stopPropagation();
+        const r=el.getBoundingClientRect();
+        arciDevResize={el,startX:e.clientX,startY:e.clientY,startW:r.width,startH:r.height,move(ev){
+            const w=Math.max(40,arciDevResize.startW+(ev.clientX-arciDevResize.startX));
+            const h=Math.max(24,arciDevResize.startH+(ev.clientY-arciDevResize.startY));
+            el.dataset.devWidth=Math.round(w)+'px';el.dataset.devHeight=Math.round(h)+'px';el.style.width=el.dataset.devWidth;el.style.height=el.dataset.devHeight;
+        },up(){captureDeveloperLayout();document.removeEventListener('pointermove',arciDevResize.move);document.removeEventListener('pointerup',arciDevResize.up);arciDevResize=null;}};
+        document.addEventListener('pointermove',arciDevResize.move);document.addEventListener('pointerup',arciDevResize.up,{once:true});
+    }
+    function setupDeveloperElements(){
+        devRemoveHandles();
+        const elements=getDevEditableElements();
+        elements.forEach(el=>{
+            devEnsureId(el);el.classList.add('dev-editable');
+            el.setAttribute('draggable','false');
+            el.onpointerdown=(e)=>{ e.stopPropagation(); if(e.button!==undefined && e.button!==0)return; devSelect(el); if(!e.target.classList.contains('dev-resize-handle')) devStartDrag(el,e); };
+            el.onclick=(e)=>{ if(el.classList.contains('dev-dragging')){e.preventDefault();e.stopPropagation();} };
+            const handle=document.createElement('span');handle.className='dev-resize-handle';handle.title='Roztiahnuť / zmenšiť';
+            handle.addEventListener('pointerdown',e=>devStartResize(el,e));el.appendChild(handle);
+        });
+    }
+    async function saveDeveloperLayoutAndExit(){
+        captureDeveloperLayout();
+        try{ await saveAuto(); }catch(e){ console.warn('Autosave vývojárskeho rozloženia zlyhal:',e); }
+        exitArciDeveloperMode();
+        if(typeof showArciAlerts==='function') showArciAlerts([{type:'success',title:'ROZLOŽENIE ULOŽENÉ',text:'Nové rozloženie bolo uložené do herného Autosave aj do aktuálneho stavu Slotu. Pri exporte Slotu sa prenesie ako súčasť JSON.'}]);
+    }
+    function enterArciDeveloperMode(){
+        if(arciDeveloperMode)return;
+        arciDeveloperMode=true;document.body.classList.add('arci-developer-mode');
+        const overlay=document.createElement('div');overlay.id='arciDeveloperOverlay';document.body.appendChild(overlay);
+        const bar=document.createElement('div');bar.id='arciDeveloperBar';bar.innerHTML='<span>VÝVOJÁR · potiahni prvky, presúvaj medzi panelmi, roztiahni rohovým bodom</span><button onclick="saveDeveloperLayoutAndExit()">Uložiť</button><button class="dev-cancel" onclick="exitArciDeveloperMode()">Zrušiť</button>';document.body.appendChild(bar);
+        setupDeveloperElements();
+    }
+    function exitArciDeveloperMode(){
+        arciDeveloperMode=false;document.body.classList.remove('arci-developer-mode');devRemoveHandles();document.querySelectorAll('.dev-editable').forEach(el=>{el.classList.remove('dev-editable','dev-selected','dev-dragging');el.onpointerdown=null;el.onclick=null;});
+        document.getElementById('arciDeveloperOverlay')?.remove();document.getElementById('arciDeveloperBar')?.remove();
+    }
+
     // Núdzová poistka vzhľadu: 5 sekúnd podržať logo ArciWeb = Default + Classic.
     let arciResetHoldTimer=null;
     let arciResetTriggered=false;
@@ -62392,11 +62598,12 @@ function renderNewsList(fileKey) {
             appState.settings.zoom = appState.settings.zoom ? 1 : 0;
         }
         if (!appState.filters.importance) appState.filters.importance = 'ALL';
-        if (!appState.settings) appState.settings = { zoom:0, theme:'Default', themesOpen:false, themeCategory:null, design:'classic', customThemes:[], favoriteThemes:[], recentThemes:[], appearanceSaved:false };
+        if (!appState.settings) appState.settings = { zoom:0, theme:'Default', themesOpen:false, themeCategory:null, design:'classic', customThemes:[], favoriteThemes:[], recentThemes:[], developerLayouts:{}, appearanceSaved:false };
         if (!appState.settings.design || !['classic','modern','alternative','oldschool','compressed'].includes(appState.settings.design)) appState.settings.design = 'classic';
         if (!Array.isArray(appState.settings.customThemes)) appState.settings.customThemes = [];
         if (!Array.isArray(appState.settings.favoriteThemes)) appState.settings.favoriteThemes = [];
         if (!Array.isArray(appState.settings.recentThemes)) appState.settings.recentThemes = [];
+        if (!appState.settings.developerLayouts || typeof appState.settings.developerLayouts !== 'object') appState.settings.developerLayouts = {};
         if (!('themeCategory' in appState.settings)) appState.settings.themeCategory = null;
         if (!('appearanceSaved' in appState.settings)) appState.settings.appearanceSaved=false;
         // Autosave zostáva hlavným zdrojom stavu hry. Preferencie vzhľadu sa načítajú
@@ -62413,6 +62620,7 @@ function renderNewsList(fileKey) {
         startArciTipRotation();
         updateViewport();
         renderApp();
+        applyDeveloperLayout();
 
         window.onpopstate = function(event) {
             // Ak sme stlačili krížik, ignorujeme túto udalosť, aby sa nezavrelo aj okno pod tým
@@ -68859,6 +69067,7 @@ function createModal(contentHtml, id = null) {
     }
 
     async function saveToSlot(i) { 
+        try { captureDeveloperLayout(); } catch(e) { console.warn('Rozloženie pred uložením Slotu:',e); }
         if(confirm("Naozaj chcete uložiť hru do Slotu " + i + "?")) {
             // VYTVORENIE PRESNÉHO ČASU A DÁTUMU
             const now = new Date();
@@ -79233,49 +79442,43 @@ window.scanToBase64URL = function(file) {
         background: #000; color: #fff; border-radius: 6px; text-align: center; font-size: 1rem;
     }
 </style>
-
-<div id="modalUnderground" class="modal-overlay">
-    <div class="ug-content-box">
-        <div class="ug-header-v2">
-            <div>
-                <h2 style="margin:0; letter-spacing:2px; color:#fff;">ARCI<span style="color:#4834d4;">UNDERGROUND</span></h2>
-                <small id="ug-balance-display" style="color:#2ecc71; font-weight:bold;">Zostatok: 0.00 €</small>
-            </div>
-            <button onclick="closeUgModal()" style="background:#e74c3c; border:1px solid #c0392b; color:#fff; font-size:0.8rem; padding:8px 12px; border-radius:6px; font-weight:900; cursor:pointer; text-transform:uppercase; box-shadow: 0 0 10px rgba(231, 76, 60, 0.4); transition:0.2s;">🚪 Opustiť Ghetto</button>
-        </div>
-
-        <div style="display:flex; gap:10px; padding: 0 20px; margin-top:10px;">
-            <div onclick="openBribeMenu()" style="flex:1; background:#111; padding:10px; border-radius:8px; border-bottom: 2px solid #ff4757; cursor:pointer; transition:0.2s;" onmouseover="this.style.background='#222'" onmouseout="this.style.background='#111'" title="Klikni pre podplatenie polície">
-                <div style="display:flex; justify-content:space-between; font-size:0.6rem; color:#ff4757; font-weight:bold;"><span>🚨 POLICE HEAT (Úplatok)</span><span id="txt-ug-heat">0%</span></div>
-                <div style="width:100%; height:4px; background:#222; margin-top:5px;"><div id="bar-ug-heat" style="width:0%; height:100%; background:#ff4757; transition: 0.3s;"></div></div>
-            </div>
-            <div style="flex:1; background:#111; padding:10px; border-radius:8px; border-bottom: 2px solid #2ecc71;">
-                <div style="display:flex; justify-content:space-between; font-size:0.6rem; color:#888;"><span>LOYALTY</span><span id="txt-ug-loy">0%</span></div>
-                <div style="width:100%; height:4px; background:#222; margin-top:5px;"><div id="bar-ug-loy" style="width:0%; height:100%; background:#2ecc71;"></div></div>
-            </div>
-        </div>
-
-        <div class="ug-tab-nav">
-            <button id="ug-btn-market" class="ug-tab-v2 active" onclick="ugSwitch('market')">🛒 ČIERNY TRH</button>
-            <button id="ug-btn-inv" class="ug-tab-v2" onclick="ugSwitch('inv')">📦 SKLAD (FIFO)</button>
-            <button id="ug-btn-deals" class="ug-tab-v2" onclick="ugSwitch('deals')">🤝 OBCHODY</button>
-        </div>
-
-        <div id="ug-body-content" class="ug-body">
-            </div>
-    </div>
+<div class="modal-overlay" id="modalUnderground">
+<div class="ug-content-box">
+<div class="ug-header-v2">
+<div>
+<h2 style="margin:0; letter-spacing:2px; color:#fff;">ARCI<span style="color:#4834d4;">UNDERGROUND</span></h2>
+<small id="ug-balance-display" style="color:#2ecc71; font-weight:bold;">Zostatok: 0.00 €</small>
 </div>
-
+<button onclick="closeUgModal()" style="background:#e74c3c; border:1px solid #c0392b; color:#fff; font-size:0.8rem; padding:8px 12px; border-radius:6px; font-weight:900; cursor:pointer; text-transform:uppercase; box-shadow: 0 0 10px rgba(231, 76, 60, 0.4); transition:0.2s;">🚪 Opustiť Ghetto</button>
+</div>
+<div style="display:flex; gap:10px; padding: 0 20px; margin-top:10px;">
+<div onclick="openBribeMenu()" onmouseout="this.style.background='#111'" onmouseover="this.style.background='#222'" style="flex:1; background:#111; padding:10px; border-radius:8px; border-bottom: 2px solid #ff4757; cursor:pointer; transition:0.2s;" title="Klikni pre podplatenie polície">
+<div style="display:flex; justify-content:space-between; font-size:0.6rem; color:#ff4757; font-weight:bold;"><span>🚨 POLICE HEAT (Úplatok)</span><span id="txt-ug-heat">0%</span></div>
+<div style="width:100%; height:4px; background:#222; margin-top:5px;"><div id="bar-ug-heat" style="width:0%; height:100%; background:#ff4757; transition: 0.3s;"></div></div>
+</div>
+<div style="flex:1; background:#111; padding:10px; border-radius:8px; border-bottom: 2px solid #2ecc71;">
+<div style="display:flex; justify-content:space-between; font-size:0.6rem; color:#888;"><span>LOYALTY</span><span id="txt-ug-loy">0%</span></div>
+<div style="width:100%; height:4px; background:#222; margin-top:5px;"><div id="bar-ug-loy" style="width:0%; height:100%; background:#2ecc71;"></div></div>
+</div>
+</div>
+<div class="ug-tab-nav">
+<button class="ug-tab-v2 active" id="ug-btn-market" onclick="ugSwitch('market')">🛒 ČIERNY TRH</button>
+<button class="ug-tab-v2" id="ug-btn-inv" onclick="ugSwitch('inv')">📦 SKLAD (FIFO)</button>
+<button class="ug-tab-v2" id="ug-btn-deals" onclick="ugSwitch('deals')">🤝 OBCHODY</button>
+</div>
+<div class="ug-body" id="ug-body-content">
+</div>
+</div>
+</div>
 <div id="ug-custom-alert-overlay">
-    <div class="ug-custom-alert-box">
-        <div id="ug-custom-alert-title" class="ug-custom-alert-title">Oznámenie</div>
-        <div id="ug-custom-alert-text" class="ug-custom-alert-text"></div>
-        <input type="number" id="ug-custom-alert-input" class="ug-alert-input" style="display:none;">
-        <div class="ug-custom-alert-buttons" id="ug-custom-alert-buttons">
-            </div>
-    </div>
+<div class="ug-custom-alert-box">
+<div class="ug-custom-alert-title" id="ug-custom-alert-title">Oznámenie</div>
+<div class="ug-custom-alert-text" id="ug-custom-alert-text"></div>
+<input class="ug-alert-input" id="ug-custom-alert-input" style="display:none;" type="number"/>
+<div class="ug-custom-alert-buttons" id="ug-custom-alert-buttons">
 </div>
-
+</div>
+</div>
 <script>
 /* --- ENGINE 2.1 (DEGRADATION, TRASH SYSTEM & IN-GAME CALENDAR) --- */
 
@@ -80408,7 +80611,6 @@ function finishFight() {
 }
 
 </script>
-
 <style>
     /* Animácie */
     @keyframes popInModern {
@@ -80517,90 +80719,77 @@ function finishFight() {
     .btn-attack.scissors:hover { border-color: #2980b9; background: #0c2333; }
     .btn-attack .act-icon { font-size: 1.8rem; }
 </style>
-
-<div id="interactionMenuOverlay" class="modern-overlay">
-    <div class="interaction-box">
-        <div class="interaction-header" id="interact-title">Zákazník</div>
-        <div class="interaction-sub">Čo chceš urobiť?</div>
-
-        <button class="btn-interact btn-chat" onclick="handleInteraction('chat')">
-            <span class="icon">💬</span> <span>Konverzácia (Arcibot)</span>
-        </button>
-        
-        <button class="btn-interact btn-sell" onclick="handleInteraction('sell')">
-            <span class="icon">💊</span> <span>Predať drogy</span>
-        </button>
-        
-        <button class="btn-interact btn-fight" onclick="handleInteraction('fight')">
-            <span class="icon">🥊</span> <span>Vyzvať na súboj (Stávka 100€)</span>
-        </button>
-        
-        <button class="btn-interact btn-cancel" onclick="handleInteraction('cancel')">
-            <span>🏃 Nechať tak (Odísť)</span>
-        </button>
-    </div>
+<div class="modern-overlay" id="interactionMenuOverlay">
+<div class="interaction-box">
+<div class="interaction-header" id="interact-title">Zákazník</div>
+<div class="interaction-sub">Čo chceš urobiť?</div>
+<button class="btn-interact btn-chat" onclick="handleInteraction('chat')">
+<span class="icon">💬</span> <span>Konverzácia (Arcibot)</span>
+</button>
+<button class="btn-interact btn-sell" onclick="handleInteraction('sell')">
+<span class="icon">💊</span> <span>Predať drogy</span>
+</button>
+<button class="btn-interact btn-fight" onclick="handleInteraction('fight')">
+<span class="icon">🥊</span> <span>Vyzvať na súboj (Stávka 100€)</span>
+</button>
+<button class="btn-interact btn-cancel" onclick="handleInteraction('cancel')">
+<span>🏃 Nechať tak (Odísť)</span>
+</button>
 </div>
-
-<div id="fightArenaOverlay" class="modern-overlay">
-    <div class="fight-arena-box">
-        <div class="arena-header">STREET FIGHT</div>
-        
-        <div class="fighters-split">
-            <div class="fighter-side player">
-                <div class="fighter-img-wrap" style="border-color: #2ecc71;">
-                    <img src="panáčik_stoji.png" alt="Ty">
-                </div>
-                <div class="fighter-name">Ty (ArciBoss)</div>
-                <div class="fighter-stats" id="player-stats">
-                    <span class="stat-badge">🗡️ Zbraň</span> <span class="stat-badge">🔥 Schopnosť</span>
-                </div>
-                <div class="hp-bar-container">
-                    <div class="hp-fill player" id="player-hp-bar"></div>
-                    <div class="hp-text" id="player-hp-text">100 / 100</div>
-                </div>
-            </div>
-
-            <div class="fighter-side npc">
-                <div class="fighter-img-wrap" style="border-color: #e74c3c;">
-                    <img id="npc-fight-img" src="" alt="Súper">
-                </div>
-                <div class="fighter-name" id="npc-fight-name">Súper</div>
-                <div class="fighter-stats" id="npc-stats">
-                    <span class="stat-badge">🗡️ Zbraň</span> <span class="stat-badge">🔥 Schopnosť</span>
-                </div>
-                <div class="hp-bar-container">
-                    <div class="hp-fill npc" id="npc-hp-bar"></div>
-                    <div class="hp-text" id="npc-hp-text">100 / 100</div>
-                </div>
-            </div>
-        </div>
-
-        <div class="combat-log" id="combat-log">
-            <div class="log-entry">Súboj sa začína! Vyber svoj prvý ťah.</div>
-        </div>
-
-        <div class="arena-actions" id="arena-action-buttons">
-            <button class="btn-attack rock" onclick="executeFightRound('fast')">
-                <span class="act-icon">⚡</span>
-                <span>Rýchly úder</span>
-            </button>
-            <button class="btn-attack paper" onclick="executeFightRound('heavy')">
-                <span class="act-icon">✊</span>
-                <span>Tvrdá rana</span>
-            </button>
-            <button class="btn-attack scissors" onclick="executeFightRound('block')">
-                <span class="act-icon">🛡️</span>
-                <span>Krytie/Protiútok</span>
-            </button>
-        </div>
-    </div>
 </div>
-
+<div class="modern-overlay" id="fightArenaOverlay">
+<div class="fight-arena-box">
+<div class="arena-header">STREET FIGHT</div>
+<div class="fighters-split">
+<div class="fighter-side player">
+<div class="fighter-img-wrap" style="border-color: #2ecc71;">
+<img alt="Ty" src="panáčik_stoji.png"/>
+</div>
+<div class="fighter-name">Ty (ArciBoss)</div>
+<div class="fighter-stats" id="player-stats">
+<span class="stat-badge">🗡️ Zbraň</span> <span class="stat-badge">🔥 Schopnosť</span>
+</div>
+<div class="hp-bar-container">
+<div class="hp-fill player" id="player-hp-bar"></div>
+<div class="hp-text" id="player-hp-text">100 / 100</div>
+</div>
+</div>
+<div class="fighter-side npc">
+<div class="fighter-img-wrap" style="border-color: #e74c3c;">
+<img alt="Súper" id="npc-fight-img" src=""/>
+</div>
+<div class="fighter-name" id="npc-fight-name">Súper</div>
+<div class="fighter-stats" id="npc-stats">
+<span class="stat-badge">🗡️ Zbraň</span> <span class="stat-badge">🔥 Schopnosť</span>
+</div>
+<div class="hp-bar-container">
+<div class="hp-fill npc" id="npc-hp-bar"></div>
+<div class="hp-text" id="npc-hp-text">100 / 100</div>
+</div>
+</div>
+</div>
+<div class="combat-log" id="combat-log">
+<div class="log-entry">Súboj sa začína! Vyber svoj prvý ťah.</div>
+</div>
+<div class="arena-actions" id="arena-action-buttons">
+<button class="btn-attack rock" onclick="executeFightRound('fast')">
+<span class="act-icon">⚡</span>
+<span>Rýchly úder</span>
+</button>
+<button class="btn-attack paper" onclick="executeFightRound('heavy')">
+<span class="act-icon">✊</span>
+<span>Tvrdá rana</span>
+</button>
+<button class="btn-attack scissors" onclick="executeFightRound('block')">
+<span class="act-icon">🛡️</span>
+<span>Krytie/Protiútok</span>
+</button>
+</div>
+</div>
+</div>
 <div id="arci-city-game-container" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 999999; background: black;">
-    </div>
-
-<link rel="stylesheet" href="arci-map.css">
-
+</div>
+<link href="arci-map.css" rel="stylesheet"/>
 <script id="arci-map-inline">
 // ==========================================
 // 1. DÁTA BUDOV A SÚRADNICE
@@ -82064,6 +82253,5 @@ window.handleMapSearch = function(val) {
 };
 
 </script>
-
 </body>
 </html>
