@@ -2624,7 +2624,7 @@ body.design-compressed .modern-rank{padding:6px 2px;font-size:.5rem;border-radiu
 body.design-compressed .design-tip-panel{font-size:.62rem;padding:5px;border-radius:5px;}
 body.design-compressed .design-tip-label{font-size:.52rem;display:block;margin-bottom:2px;}
 
-/* Domovská obrazovka dizajnov: pôvodný Classic obsah sa nezobrazuje v nových dizajnoch. */
+/* Dizajn určuje iba hornú domácu časť; vyhľadávanie, obľúbení, filtre a hlavná tabuľka sú spoločné pre všetky dizajny. */
 #classicHomeContent{display:block;}
 body:not(.design-classic) #classicHomeContent{display:none!important;}
 body.design-classic #modernHomeShell,
@@ -2635,6 +2635,54 @@ body.design-oldschool #modernHomeShell{display:block;}
 body.design-oldschool #alternativeHomeShell{display:none!important;}
 body.design-compressed #modernHomeShell{display:block;}
 body.design-compressed #alternativeHomeShell{display:none!important;}
+
+/* Spoločná dátová časť musí zostať viditeľná pod každým dizajnom. */
+body.design-modern .search-container,body.design-modern #favoritesPanel,body.design-modern #filterContainer,body.design-modern .table-container,
+body.design-alternative .search-container,body.design-alternative #favoritesPanel,body.design-alternative #filterContainer,body.design-alternative .table-container,
+body.design-oldschool .search-container,body.design-oldschool #favoritesPanel,body.design-oldschool #filterContainer,body.design-oldschool .table-container,
+body.design-compressed .search-container,body.design-compressed #favoritesPanel,body.design-compressed #filterContainer,body.design-compressed .table-container{display:block;}
+
+/* Modern */
+body.design-modern #playerSearch{background:rgba(15,23,42,.88);border:1px solid #263653;color:#fff;border-radius:14px;box-shadow:0 8px 24px rgba(0,0,0,.22);}
+body.design-modern #favoritesPanel,body.design-modern #filterContainer,body.design-modern .table-container{background:rgba(10,15,28,.78);border:1px solid #263653;border-radius:16px;box-shadow:0 14px 35px rgba(0,0,0,.24);padding:10px;}
+body.design-modern .filter-label{color:#60a5fa;}
+body.design-modern .filter-btn,body.design-modern .dropdown-filter{background:#0f172a;border:1px solid #334155;color:#dbeafe;border-radius:10px;}
+body.design-modern .filter-btn.active{background:linear-gradient(135deg,#2563eb,#4f46e5);border-color:#60a5fa;color:#fff;}
+body.design-modern table th{background:#172554;color:#bfdbfe;border-bottom:1px solid #334155;}
+body.design-modern table td{border-bottom:1px solid #1e293b;}
+body.design-modern table tbody tr:hover{background:rgba(59,130,246,.10);}
+
+/* Alternative */
+body.design-alternative #playerSearch{border-radius:10px;border:1px solid var(--theme-border);background:var(--card-bg);}
+body.design-alternative #favoritesPanel,body.design-alternative #filterContainer,body.design-alternative .table-container{border:1px solid var(--theme-border);border-radius:10px;background:var(--card-bg);padding:10px;box-shadow:0 6px 18px rgba(0,0,0,.14);}
+body.design-alternative .filter-btn,body.design-alternative .dropdown-filter{border-radius:8px;}
+body.design-alternative table th{background:var(--theme-button);color:var(--text-main);}
+
+/* Old School */
+body.design-oldschool #playerSearch{font-family:"Courier New",monospace;background:#f4e8c9;color:#3a2413;border:2px solid #76522d;border-radius:2px;}
+body.design-oldschool #favoritesPanel,body.design-oldschool #filterContainer,body.design-oldschool .table-container{background:#efe2bd;border:3px double #76522d;border-radius:2px;box-shadow:4px 4px 0 rgba(75,50,29,.18);padding:8px;}
+body.design-oldschool .filter-label{font-family:Georgia,serif;color:#76522d;}
+body.design-oldschool .filter-btn,body.design-oldschool .dropdown-filter{font-family:Georgia,serif;background:#e1d0a8;color:#3a2413;border:2px solid #76522d;border-radius:2px;}
+body.design-oldschool .filter-btn.active{background:#3f6b3a;color:#fff;border-color:#244521;}
+body.design-oldschool table th{background:#76522d;color:#f4e8c9;}
+body.design-oldschool table td{border-bottom:1px solid #a88b5b;color:#3a2413;}
+
+/* Compressed */
+body.design-compressed #playerSearch{padding:7px 9px;border-radius:6px;font-size:.7rem;}
+body.design-compressed #favoritesPanel,body.design-compressed #filterContainer,body.design-compressed .table-container{padding:5px;border-radius:7px;margin-bottom:7px;box-shadow:none;}
+body.design-compressed #filterContainer{gap:6px;}
+body.design-compressed .filter-label{font-size:.58rem;margin-bottom:2px;}
+body.design-compressed .filter-row{gap:3px;}
+body.design-compressed .filter-btn,body.design-compressed .dropdown-filter{padding:5px 7px;font-size:.62rem;border-radius:5px;}
+body.design-compressed table th,body.design-compressed table td{padding:5px 4px;font-size:.62rem;}
+body.design-compressed table{min-width:720px;}
+
+/* Spodná štatistika tabuľky patrí ku každému dizajnu. */
+#mainTable .player-count-footer td{font-size:.82rem;}
+body.design-modern #mainTable .player-count-footer td{background:rgba(23,37,84,.75);border-top:1px solid #60a5fa;}
+body.design-alternative #mainTable .player-count-footer td{background:var(--theme-button);border-top:1px solid var(--theme-border);}
+body.design-oldschool #mainTable .player-count-footer td{background:#e1d0a8;color:#3a2413;border-top:2px double #76522d;}
+body.design-compressed #mainTable .player-count-footer td{padding:7px 4px;font-size:.62rem;}
 
 /* Tip je pokračovanie textu, nie vnorený rámček. Jediným rámčekom v hero ostáva ArciCity. */
 .design-tip-panel{
@@ -2984,7 +3032,10 @@ body.design-alternative #alternativeHomeShell{display:block}
 
 
 
-    <div class="search-container">
+    
+</div>
+
+<div class="search-container">
         <input type="text" id="playerSearch" placeholder="Vyhľadať hráča..." oninput="handleSearch(this.value)">
         <div id="searchResults"></div>
     </div>
@@ -3061,8 +3112,6 @@ body.design-alternative #alternativeHomeShell{display:block}
     <input type="file" id="fileInput" accept=".txt" multiple onchange="handleFiles(this.files)">
     <input type="file" id="slotFileInput" accept=".json" onchange="finishSlotUpload(this.files)">
     <input type="file" id="seasonFileInput" accept=".txt" multiple onchange="handleSeasonFiles(this.files)">
-    
-    </div>
 
 <div id="popupsLayer"></div>
 <script>
@@ -64235,14 +64284,14 @@ function calculateGlobalAchievements() {
 
             // 3. Vytvoríme spodný riadok tabuľky
             const footerTr = document.createElement('tr');
-            footerTr.style.backgroundColor = '#252525';
-            footerTr.style.borderTop = '2px solid #555';
+            footerTr.className = 'player-count-footer';
             
             const footerTd = document.createElement('td');
             footerTd.colSpan = columns.length; // Roztiahnuť cez všetky stĺpce
             footerTd.style.textAlign = 'center';
             footerTd.style.padding = '15px';
             footerTd.style.fontSize = '0.9rem';
+            footerTd.className = 'player-count-footer-cell';
             
             footerTd.innerHTML = `
                 <span style="display:inline-block; margin: 0 15px; padding: 5px 10px; background:rgba(255,255,255,0.05); border-radius:6px;">
