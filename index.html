@@ -3696,7 +3696,7 @@ window.updateMenuStats = function() {
 const originalSaveAuto = window.saveAuto;
 window.saveAuto = function() {
     // Pôvodný Autosave zostáva autoritatívny; rozloženie vývojárskeho režimu je len ďalšia časť appState.
-    try { captureDeveloperLayout(); } catch(e) { console.warn('Uloženie vývojárskeho rozloženia zlyhalo:',e); }
+    try { captureDeveloperLayout(); persistDeveloperLayoutDirect(); } catch(e) { console.warn('Uloženie vývojárskeho rozloženia zlyhalo:',e); }
     let saveResult;
     if (typeof originalSaveAuto === 'function') saveResult = originalSaveAuto();
     try { updateMenuStats(); } catch(e) { console.warn('Aktualizácia menu po Autosave zlyhala:', e); }
@@ -3709,7 +3709,11 @@ window.renderApp = function() {
     let renderResult;
     if (typeof originalRenderApp === 'function') renderResult = originalRenderApp();
     try { updateMenuStats(); } catch(e) { console.warn('Aktualizácia menu po renderApp zlyhala:', e); }
-    try { applyDeveloperLayout(); if(arciDeveloperMode) setupDeveloperElements(); } catch(e) { console.warn('Obnovenie vývojárskeho rozloženia zlyhalo:', e); }
+    try {
+        applyDeveloperLayout();
+        if(arciDeveloperMode) setupDeveloperElements();
+        else setTimeout(()=>{ try{ applyDeveloperLayout(); }catch(e){} },0);
+    } catch(e) { console.warn('Obnovenie vývojárskeho rozloženia zlyhalo:', e); }
     return renderResult;
 };
 
@@ -62458,12 +62462,31 @@ function renderNewsList(fileKey) {
         return {id,parentId:parent?devEnsureId(parent):null,order:parent?[...parent.children].indexOf(el):0,transform:el.dataset.devTransform||'',width:el.dataset.devWidth||'',height:el.dataset.devHeight||''};
     }
     function captureDeveloperLayout(){
-        if(!appState?.settings) return;
+        if(!appState?.settings) return null;
         const design=appState.settings.design||'classic';
         const elements=getDevEditableElements();
+        elements.forEach(devEnsureId);
         const items=elements.map(devCaptureElement);
         appState.settings.developerLayouts=appState.settings.developerLayouts||{};
-        appState.settings.developerLayouts[design]={version:1,items};
+        appState.settings.developerLayouts[design]={version:2,items,savedAt:Date.now()};
+        return appState.settings.developerLayouts[design];
+    }
+    function persistDeveloperLayoutDirect(){
+        try{
+            if(!appState?.settings?.developerLayouts) return;
+            const payload=JSON.stringify(appState.settings.developerLayouts);
+            localStorage.setItem('arci_developer_layouts_v1',payload);
+        }catch(e){ console.warn('Priame uloženie vývojárskeho rozloženia zlyhalo:',e); }
+    }
+    function restoreDeveloperLayoutDirect(){
+        try{
+            const raw=localStorage.getItem('arci_developer_layouts_v1');
+            if(!raw || !appState?.settings) return;
+            const saved=JSON.parse(raw);
+            if(saved && typeof saved==='object'){
+                appState.settings.developerLayouts=Object.assign({},saved,appState.settings.developerLayouts||{});
+            }
+        }catch(e){ console.warn('Priame načítanie vývojárskeho rozloženia zlyhalo:',e); }
     }
     function applyDeveloperLayout(){
         if(!appState?.settings) return;
@@ -62488,7 +62511,7 @@ function renderNewsList(fileKey) {
             const el=byId[item.id], parent=byId[item.parentId];
             if(!el || !parent || !devIsContainer(parent)) return;
             const siblings=[...parent.children].filter(x=>x!==el && !x.classList.contains('dev-resize-handle'));
-            const ref=siblings[item.order||0];
+            const ref=siblings[Math.min(item.order||0,siblings.length)];
             if(ref) parent.insertBefore(el,ref); else parent.appendChild(el);
         });
     }
@@ -62544,7 +62567,7 @@ function renderNewsList(fileKey) {
             }
         };
         const up=()=>{
-            if(moved || swapped) captureDeveloperLayout();
+            if(moved || swapped){ captureDeveloperLayout(); persistDeveloperLayoutDirect(); }
             document.removeEventListener('pointermove',move);
             document.removeEventListener('pointerup',up);
             arciDevDrag=null;
@@ -62563,6 +62586,7 @@ function renderNewsList(fileKey) {
             el.style.width=el.dataset.devWidth;el.style.height=el.dataset.devHeight;
         },up(){
             captureDeveloperLayout();
+            persistDeveloperLayoutDirect();
             document.removeEventListener('pointermove',arciDevResize.move);
             document.removeEventListener('pointerup',arciDevResize.up);
             arciDevResize=null;
@@ -62589,9 +62613,13 @@ function renderNewsList(fileKey) {
     }
     async function saveDeveloperLayoutAndExit(){
         captureDeveloperLayout();
+        persistDeveloperLayoutDirect();
         try{ await saveAuto(); }catch(e){ console.warn('Autosave vývojárskeho rozloženia zlyhal:',e); }
         exitArciDeveloperMode();
-        if(typeof showArciAlerts==='function') showArciAlerts([{type:'success',title:'ROZLOŽENIE ULOŽENÉ',text:'Nové rozloženie bolo uložené do herného Autosave aj do aktuálneho stavu Slotu. Pri exporte Slotu sa prenesie ako súčasť JSON.'}]);
+        if(typeof renderApp==='function'){
+            try{ renderApp(); }catch(e){ console.warn('Obnovenie normálneho režimu po uložení:',e); }
+        }
+        if(typeof showArciAlerts==='function') showArciAlerts([{type:'success',title:'ROZLOŽENIE ULOŽENÉ',text:'Nové rozloženie bolo uložené do Autosave aj do lokálnej zálohy. Zachová sa po obnovení stránky a pri exporte Slotu bude súčasťou JSON.'}]);
     }
     function enterArciDeveloperMode(){
         if(arciDeveloperMode)return;
@@ -62601,8 +62629,20 @@ function renderNewsList(fileKey) {
         setupDeveloperElements();
     }
     function exitArciDeveloperMode(){
-        arciDeveloperMode=false;document.body.classList.remove('arci-developer-mode');devRemoveHandles();document.querySelectorAll('.dev-editable').forEach(el=>{el.classList.remove('dev-editable','dev-selected','dev-dragging');el.onpointerdown=null;el.onclick=null;});
-        document.getElementById('arciDeveloperOverlay')?.remove();document.getElementById('arciDeveloperBar')?.remove();
+        arciDeveloperMode=false;
+        if(arciDevDrag){ document.removeEventListener('pointermove',arciDevDrag.move); document.removeEventListener('pointerup',arciDevDrag.up); arciDevDrag=null; }
+        if(arciDevResize){ document.removeEventListener('pointermove',arciDevResize.move); document.removeEventListener('pointerup',arciDevResize.up); arciDevResize=null; }
+        document.body.classList.remove('arci-developer-mode');
+        devRemoveHandles();
+        document.querySelectorAll('.dev-editable').forEach(el=>{
+            el.classList.remove('dev-editable','dev-selected','dev-dragging');
+            el.onpointerdown=null;
+            el.onclick=null;
+            el.removeAttribute('draggable');
+        });
+        document.getElementById('arciDeveloperOverlay')?.remove();
+        document.getElementById('arciDeveloperBar')?.remove();
+        document.querySelectorAll('[data-dev-id]').forEach(el=>el.removeAttribute('data-dev-id'));
     }
 
     // Núdzová poistka vzhľadu: 5 sekúnd podržať logo ArciWeb = Default + Classic.
@@ -62632,6 +62672,7 @@ function renderNewsList(fileKey) {
 
     document.addEventListener('DOMContentLoaded', async () => {
         const hadAutoSave = await loadAutoSave();
+        restoreDeveloperLayoutDirect();
         if (typeof appState.settings.zoom === 'boolean') {
             appState.settings.zoom = appState.settings.zoom ? 1 : 0;
         }
