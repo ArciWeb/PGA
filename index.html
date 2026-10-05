@@ -3328,6 +3328,29 @@ function saveThemePreferences() {
         }));
     } catch(e) { console.warn('Uloženie preferencií tém zlyhalo:', e); }
 }
+function saveConfirmedAppearance() {
+    try {
+        if (!appState || !appState.settings) return false;
+        localStorage.setItem('arci_confirmed_appearance_v1', JSON.stringify({
+            theme: appState.settings.theme || 'Default',
+            design: appState.settings.design || 'classic'
+        }));
+        return true;
+    } catch(e) { console.warn('Uloženie potvrdeného vzhľadu zlyhalo:', e); return false; }
+}
+function loadConfirmedAppearance() {
+    try {
+        if (!appState || !appState.settings) return false;
+        const raw = localStorage.getItem('arci_confirmed_appearance_v1');
+        if (!raw) return false;
+        const saved = JSON.parse(raw);
+        if (!saved || typeof saved !== 'object') return false;
+        if (saved.theme) appState.settings.theme = saved.theme;
+        if (['classic','modern','alternative'].includes(saved.design)) appState.settings.design = saved.design;
+        appState.settings.appearanceSaved = true;
+        return true;
+    } catch(e) { console.warn('Načítanie potvrdeného vzhľadu zlyhalo:', e); return false; }
+}
 function loadThemePreferences() {
     try {
         const raw = localStorage.getItem('arci_theme_preferences_v1');
@@ -62205,8 +62228,10 @@ function renderNewsList(fileKey) {
         if (!Array.isArray(appState.settings.recentThemes)) appState.settings.recentThemes = [];
         if (!('themeCategory' in appState.settings)) appState.settings.themeCategory = null;
         if (!('appearanceSaved' in appState.settings)) appState.settings.appearanceSaved=false;
-        // Staršie verzie mali vzhľad iba v localStorage; nové save súbory ho majú priamo v appState.
-        if (!appState.settings.appearanceSaved) loadThemePreferences();
+        // Potvrdený vzhľad má vlastný malý persistentný záznam. Ten má prednosť pred starým/nesprávnym autosave.
+        if (!loadConfirmedAppearance()) {
+            if (!appState.settings.appearanceSaved) loadThemePreferences();
+        }
         ensureCustomThemesLoaded();
         if (!db.seasonStats) db.seasonStats = [];
 
@@ -68044,7 +68069,8 @@ function createModal(contentHtml, id = null) {
     }
     function toggleThemeCategory(category) {
         appState.settings.themeCategory=appState.settings.themeCategory===category?null:category;
-        saveThemePreferences(); saveAuto(); renderThemeBrowser();
+        // Toto je iba stav rozbalenia UI. Nečakáme na autosave ani neobnovujeme celé nastavenia.
+        renderThemeBrowser();
     }
     function openSettings() {
         ensureCustomThemesLoaded();
@@ -68101,9 +68127,18 @@ function createModal(contentHtml, id = null) {
     async function saveAppearance(){
         if(!appState || !appState.settings) return;
         appState.settings.appearanceSaved=true;
+        // Uložíme vzhľad do appState/autosave aj do samostatného potvrdeného záznamu.
+        // Samostatný záznam zabráni tomu, aby starý autosave po reloade prepísal potvrdenú tému/dizajn.
         saveThemePreferences();
+        const confirmedOk=saveConfirmedAppearance();
         await saveAuto();
-        alert('Vzhľad bol uložený. Téma a dizajn zostanú zachované aj po obnovení stránky.');
+        applyTheme(appState.settings.theme);
+        applyDesign(appState.settings.design);
+        refreshThemeUI();
+        refreshDesignButtons();
+        alert(confirmedOk
+            ? 'Vzhľad bol uložený. Potvrdená téma a dizajn zostanú zachované aj po obnovení stránky.'
+            : 'Vzhľad bol uložený do hry, ale prehliadač nedovolil vytvoriť doplnkovú zálohu vzhľadu.');
     }
     function applyDesign(name){
         const design=['classic','modern','alternative'].includes(name)?name:'classic';
