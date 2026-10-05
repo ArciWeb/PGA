@@ -2849,6 +2849,88 @@ body.design-compressed .btn{border-radius:4px!important;padding:6px 9px!importan
 body.design-modern .card,body.design-modern .panel,body.design-alternative .card,body.design-alternative .panel,body.design-oldschool .card,body.design-oldschool .panel,body.design-compressed .card,body.design-compressed .panel{border-color:var(--theme-border)!important;background:var(--card-bg)!important;color:var(--text-main)!important}
 body.design-modern .card,body.design-modern .panel{border-radius:14px!important}body.design-alternative .card,body.design-alternative .panel{border-radius:3px!important}body.design-oldschool .card,body.design-oldschool .panel{border-radius:0!important}body.design-compressed .card,body.design-compressed .panel{border-radius:4px!important}
 </style>
+<style id="complete-secondary-design-system">
+/* ===== COMPLETE SECONDARY-UI DESIGN SYSTEM =====
+   Applies only to non-Classic designs. Classic intentionally untouched. */
+body.design-modern .modal-content,body.design-modern .modal,
+body.design-modern .theme-editor-modal,body.design-modern .slot-card{
+  border:1px solid color-mix(in srgb,var(--theme-border) 75%,#fff 25%)!important;
+  border-radius:18px!important; box-shadow:0 24px 70px rgba(0,0,0,.42),0 2px 0 rgba(255,255,255,.05) inset!important;
+  overflow:hidden;
+}
+body.design-modern .modal-header{padding:15px 18px!important;background:linear-gradient(135deg,color-mix(in srgb,var(--card-bg) 88%,#fff 12%),var(--card-bg))!important;border-bottom:1px solid var(--theme-border)!important}
+body.design-modern .modal-header h2{font-size:1.12rem!important;font-weight:800!important;letter-spacing:-.02em}
+body.design-modern .modal-body{padding:16px!important}
+body.design-modern .modal-content .btn,body.design-modern .modal-content button:not(.close-btn),body.design-modern .slot-card button{border-radius:11px!important;border:1px solid var(--theme-border)!important;box-shadow:0 3px 10px rgba(0,0,0,.16)!important;transition:transform .12s ease,box-shadow .12s ease}
+body.design-modern .modal-content button:not(.close-btn):active{transform:scale(.98)}
+body.design-modern .modal-content table{border-collapse:separate!important;border-spacing:0!important;overflow:hidden;border:1px solid var(--theme-border);border-radius:12px}
+body.design-modern .modal-content th{background:linear-gradient(180deg,color-mix(in srgb,var(--theme-button) 90%,#fff 10%),var(--theme-button))!important;font-weight:800;border-bottom:1px solid var(--theme-border)!important}
+body.design-modern .modal-content td{border-bottom:1px solid color-mix(in srgb,var(--theme-border) 55%,transparent)!important}
+body.design-modern .modal-content input,body.design-modern .modal-content select,body.design-modern .modal-content textarea{border-radius:10px!important;border:1px solid var(--theme-border)!important;padding:9px 11px!important}
+body.design-modern .profile-tabs{gap:6px!important;padding:5px!important;border:1px solid var(--theme-border)!important;border-radius:12px!important;background:color-mix(in srgb,var(--card-bg) 82%,transparent)!important}
+body.design-modern .profile-tab{border-radius:9px!important;border:1px solid transparent!important}
+body.design-modern .profile-tab.active{box-shadow:0 3px 12px rgba(0,0,0,.18)!important}
+body.design-modern .stat-box,body.design-modern .profile-filters-area{border-radius:13px!important;border:1px solid var(--theme-border)!important;box-shadow:0 5px 18px rgba(0,0,0,.14)!important}
+body.design-modern .close-btn{width:34px!important;height:34px!important;border-radius:10px!important;background:color-mix(in srgb,var(--card-bg) 70%,transparent)!important}
+
+body.design-alternative .modal-content,body.design-alternative .modal,
+body.design-alternative .theme-editor-modal,body.design-alternative .slot-card{
+  border:2px solid var(--theme-border)!important;border-radius:4px!important;box-shadow:9px 9px 0 color-mix(in srgb,var(--theme-border) 28%,transparent)!important;overflow:hidden
+}
+body.design-alternative .modal-header{background:var(--card-bg)!important;border-bottom:2px solid var(--theme-border)!important;padding:12px 16px!important;position:relative}
+body.design-alternative .modal-header:after{content:"";position:absolute;right:0;bottom:-2px;width:80px;height:2px;background:var(--theme-accent-2)}
+body.design-alternative .modal-header h2{font-weight:950!important;text-transform:uppercase!important;letter-spacing:.08em!important}
+body.design-alternative .modal-body{padding:14px!important}
+body.design-alternative .modal-content .btn,body.design-alternative .modal-content button:not(.close-btn),body.design-alternative .slot-card button{border-radius:3px!important;border:2px solid var(--theme-border)!important;box-shadow:3px 3px 0 color-mix(in srgb,var(--theme-border) 35%,transparent)!important;font-weight:800!important}
+body.design-alternative .modal-content table{border-collapse:separate!important;border-spacing:0!important;border:2px solid var(--theme-border)!important}
+body.design-alternative .modal-content th{background:var(--theme-button)!important;border-bottom:2px solid var(--theme-border)!important;text-transform:uppercase;letter-spacing:.04em}
+body.design-alternative .modal-content td{border-bottom:1px solid var(--theme-border)!important}
+body.design-alternative .modal-content input,body.design-alternative .modal-content select,body.design-alternative .modal-content textarea{border-radius:3px!important;border:2px solid var(--theme-border)!important}
+body.design-alternative .profile-tabs{display:flex;gap:4px!important;padding:4px!important;border:2px solid var(--theme-border)!important;border-radius:4px!important}
+body.design-alternative .profile-tab{border-radius:2px!important;border:1px solid var(--theme-border)!important;font-weight:800!important;text-transform:uppercase}
+body.design-alternative .stat-box,body.design-alternative .profile-filters-area{border-radius:3px!important;border:2px solid var(--theme-border)!important;box-shadow:4px 4px 0 color-mix(in srgb,var(--theme-border) 25%,transparent)!important}
+body.design-alternative .close-btn{border-radius:2px!important;border:2px solid var(--theme-border)!important}
+
+body.design-oldschool .modal-content,body.design-oldschool .modal,
+body.design-oldschool .theme-editor-modal,body.design-oldschool .slot-card{
+  border:5px double var(--theme-border)!important;border-radius:0!important;box-shadow:8px 8px 0 rgba(70,45,20,.28)!important;overflow:hidden;background:var(--modal-bg)!important
+}
+body.design-oldschool .modal-header{background:var(--card-bg)!important;border-bottom:4px double var(--theme-border)!important;padding:11px 15px!important}
+body.design-oldschool .modal-header h2{font-family:Georgia,'Times New Roman',serif!important;text-transform:uppercase!important;letter-spacing:.07em!important;font-weight:900!important}
+body.design-oldschool .modal-body{padding:15px!important;font-family:Georgia,'Times New Roman',serif!important}
+body.design-oldschool .modal-content .btn,body.design-oldschool .modal-content button:not(.close-btn),body.design-oldschool .slot-card button{border-radius:0!important;border:2px solid var(--theme-border)!important;box-shadow:2px 2px 0 rgba(70,45,20,.25)!important;font-family:Georgia,'Times New Roman',serif!important}
+body.design-oldschool .modal-content table{border-collapse:collapse!important;border:3px double var(--theme-border)!important}
+body.design-oldschool .modal-content th{background:var(--theme-button)!important;border-bottom:3px double var(--theme-border)!important;font-family:Georgia,'Times New Roman',serif!important;text-transform:uppercase}
+body.design-oldschool .modal-content td{border-bottom:1px solid var(--theme-border)!important}
+body.design-oldschool .modal-content input,body.design-oldschool .modal-content select,body.design-oldschool .modal-content textarea{border-radius:0!important;border:2px solid var(--theme-border)!important;font-family:Georgia,'Times New Roman',serif!important;background:var(--card-bg)!important}
+body.design-oldschool .profile-tabs{padding:4px!important;border-bottom:4px double var(--theme-border)!important;background:transparent!important}
+body.design-oldschool .profile-tab{border-radius:0!important;border:1px solid var(--theme-border)!important;font-family:Georgia,'Times New Roman',serif!important;background:var(--card-bg)!important}
+body.design-oldschool .stat-box,body.design-oldschool .profile-filters-area{border-radius:0!important;border:3px double var(--theme-border)!important;box-shadow:none!important}
+body.design-oldschool .close-btn{border-radius:0!important;border:2px solid var(--theme-border)!important;font-family:Georgia,serif!important}
+
+body.design-compressed .modal-content,body.design-compressed .modal,
+body.design-compressed .theme-editor-modal,body.design-compressed .slot-card{
+  border:1px solid var(--theme-border)!important;border-radius:5px!important;box-shadow:0 8px 24px rgba(0,0,0,.35)!important;overflow:hidden
+}
+body.design-compressed .modal-header{padding:7px 10px!important;border-bottom:1px solid var(--theme-border)!important}
+body.design-compressed .modal-header h2{font-size:.86rem!important;font-weight:900!important;text-transform:uppercase!important;letter-spacing:.03em}
+body.design-compressed .modal-body{padding:8px!important;font-size:.78rem!important}
+body.design-compressed .modal-content .btn,body.design-compressed .modal-content button:not(.close-btn),body.design-compressed .slot-card button{min-height:30px!important;padding:4px 7px!important;border-radius:4px!important;border:1px solid var(--theme-border)!important;font-size:.72rem!important}
+body.design-compressed .modal-content table{border-collapse:collapse!important;border:1px solid var(--theme-border)!important;font-size:.72rem!important}
+body.design-compressed .modal-content th{padding:5px 6px!important;background:var(--theme-button)!important;border-bottom:1px solid var(--theme-border)!important}
+body.design-compressed .modal-content td{padding:4px 6px!important;border-bottom:1px solid var(--theme-border)!important}
+body.design-compressed .modal-content input,body.design-compressed .modal-content select,body.design-compressed .modal-content textarea{padding:5px 7px!important;border-radius:4px!important;border:1px solid var(--theme-border)!important;font-size:.75rem!important}
+body.design-compressed .profile-tabs{gap:2px!important;padding:2px!important;border-bottom:1px solid var(--theme-border)!important}
+body.design-compressed .profile-tab{padding:5px 7px!important;border-radius:3px!important}
+body.design-compressed .stat-box,body.design-compressed .profile-filters-area{padding:6px!important;border-radius:4px!important;border:1px solid var(--theme-border)!important}
+body.design-compressed .close-btn{width:27px!important;height:27px!important;border-radius:4px!important}
+
+/* Secondary cards, list rows and generic panels inherit the selected design too. */
+body.design-modern .modal-content .card,body.design-modern .modal-content .panel,body.design-modern .modal-content .list-group-item{border-radius:12px!important;border:1px solid var(--theme-border)!important}
+body.design-alternative .modal-content .card,body.design-alternative .modal-content .panel,body.design-alternative .modal-content .list-group-item{border-radius:3px!important;border:2px solid var(--theme-border)!important}
+body.design-oldschool .modal-content .card,body.design-oldschool .modal-content .panel,body.design-oldschool .modal-content .list-group-item{border-radius:0!important;border:2px double var(--theme-border)!important}
+body.design-compressed .modal-content .card,body.design-compressed .modal-content .panel,body.design-compressed .modal-content .list-group-item{border-radius:4px!important;border:1px solid var(--theme-border)!important}
+</style>
 </head>
 <body>
 <header class="pro-header">
