@@ -3359,14 +3359,16 @@ async function loadConfirmedAppearance() {
         return true;
     } catch(e) { console.warn('Načítanie potvrdeného vzhľadu zlyhalo:', e); return false; }
 }
-function loadThemePreferences() {
+function loadThemePreferences(applyAppearance = true) {
     try {
         const raw = localStorage.getItem('arci_theme_preferences_v1');
         if (!raw || !appState || !appState.settings) return;
         const saved = JSON.parse(raw);
         if (saved && typeof saved === 'object') {
-            if (saved.theme) appState.settings.theme = saved.theme;
-            if (saved.design) appState.settings.design = saved.design;
+            if (applyAppearance) {
+                if (saved.theme) appState.settings.theme = saved.theme;
+                if (saved.design) appState.settings.design = saved.design;
+            }
             if (Array.isArray(saved.customThemes)) appState.settings.customThemes = saved.customThemes;
             if (Array.isArray(saved.favoriteThemes)) appState.settings.favoriteThemes = saved.favoriteThemes;
             if (Array.isArray(saved.recentThemes)) appState.settings.recentThemes = saved.recentThemes;
@@ -3449,6 +3451,7 @@ function formatWholeEuro(val) {
 // =========================================================================
 window.updateMenuStats = function() {
     if (!appState || !appState.betting) return;
+    let totalNW = 0;
 
     // 1. STAV ÚČTU (Hotovosť)
     const btnAccount = document.getElementById('btnAccountBalance');
@@ -3481,7 +3484,6 @@ window.updateMenuStats = function() {
     // 4. NET WORTH (Celkový majetok - ZAOKRÚHLENÝ)
     const btnNW = document.getElementById('btnNetWorthStatus');
     if (btnNW) {
-        let totalNW = 0;
         totalNW += (appState.betting.balance || 0);
         totalNW -= (appState.betting.debt || 0);
         
@@ -3537,15 +3539,20 @@ window.updateMenuStats = function() {
 // Obalíme pôvodnú saveAuto funkciu
 const originalSaveAuto = window.saveAuto;
 window.saveAuto = function() {
-    if (typeof originalSaveAuto === 'function') originalSaveAuto();
-    updateMenuStats(); // Aktualizuje menu pri každom autosave
+    // Pôvodný Autosave je autoritatívny. Nové štatistiky nesmú jeho beh nikdy zablokovať.
+    let saveResult;
+    if (typeof originalSaveAuto === 'function') saveResult = originalSaveAuto();
+    try { updateMenuStats(); } catch(e) { console.warn('Aktualizácia menu po Autosave zlyhala:', e); }
+    return saveResult;
 };
 
 // Obalíme pôvodnú renderApp funkciu
 const originalRenderApp = window.renderApp;
 window.renderApp = function() {
-    if (typeof originalRenderApp === 'function') originalRenderApp();
-    updateMenuStats(); // Aktualizuje menu pri štarte/prepnutí obrazovky
+    let renderResult;
+    if (typeof originalRenderApp === 'function') renderResult = originalRenderApp();
+    try { updateMenuStats(); } catch(e) { console.warn('Aktualizácia menu po renderApp zlyhala:', e); }
+    return renderResult;
 };
 
 // Spustíme hneď po načítaní
@@ -62224,7 +62231,7 @@ function renderNewsList(fileKey) {
     }
 
     document.addEventListener('DOMContentLoaded', async () => {
-        await loadAutoSave();
+        const hadAutoSave = await loadAutoSave();
         if (typeof appState.settings.zoom === 'boolean') {
             appState.settings.zoom = appState.settings.zoom ? 1 : 0;
         }
@@ -62238,7 +62245,7 @@ function renderNewsList(fileKey) {
         if (!('appearanceSaved' in appState.settings)) appState.settings.appearanceSaved=false;
         // Autosave zostáva hlavným zdrojom stavu hry. Preferencie vzhľadu sa načítajú
         // zo samostatného kľúča iba pre tému/dizajn, ktoré používateľ výslovne uložil.
-        loadThemePreferences();
+        loadThemePreferences(!hadAutoSave);
         ensureCustomThemesLoaded();
         if (!db.seasonStats) db.seasonStats = [];
 
@@ -68633,8 +68640,10 @@ function createModal(contentHtml, id = null) {
             if (data) {
                 db = data.db; if(!db.seasonStats) db.seasonStats = [];
                 appState = data.appState;
+                return true;
             }
         } catch(e) { console.error("Load zlyhal:", e); }
+        return false;
     }
 
     async function downloadSlot(i) {
