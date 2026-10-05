@@ -2565,7 +2565,9 @@ body.design-modern .brand-logo{letter-spacing:-1px;background:linear-gradient(90
 body.design-modern .brand-subtitle{color:#60a5fa;}
 body.design-modern .rank-nav,body.design-modern .pro-header .pro-icons{display:none!important}
 body.design-modern #btnOpenMap,body.design-modern .main-menu-container{display:none!important}
+body.design-alternative #btnOpenMap,body.design-alternative .main-menu-container{display:none!important}
 body.design-modern #modernHomeShell{display:block}
+body.design-alternative #modernHomeShell{display:none!important}
 .modern-shell{display:grid;grid-template-columns:1.4fr 1fr;gap:14px;margin-bottom:18px}
 .modern-hero{position:relative;overflow:hidden;border:1px solid #263653;border-radius:24px;padding:20px;background:linear-gradient(145deg,rgba(30,64,175,.28),rgba(15,23,42,.9));box-shadow:0 20px 50px rgba(0,0,0,.35)}
 .modern-hero:after{content:"";position:absolute;width:180px;height:180px;right:-55px;top:-70px;border-radius:50%;background:rgba(59,130,246,.22);filter:blur(5px)}
@@ -2574,6 +2576,32 @@ body.design-modern #modernHomeShell{display:block}
 .modern-section{border:1px solid #263653;border-radius:20px;background:rgba(9,14,26,.82);padding:14px;margin-bottom:14px}.modern-section-title{font-size:.72rem;color:#64748b;text-transform:uppercase;letter-spacing:1.4px;font-weight:900;margin:0 0 10px}.modern-actions{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.modern-action{border:1px solid #263653;background:#111827;color:#e5e7eb;border-radius:14px;padding:11px 7px;cursor:pointer;text-align:center;min-height:70px;transition:.18s}.modern-action:hover{background:#172033;border-color:#60a5fa;transform:translateY(-2px)}.modern-action .icon{display:block;font-size:1.35rem;margin-bottom:5px}.modern-action span:last-child{font-size:.68rem;font-weight:800;line-height:1.1}.modern-ranks{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.modern-rank{border:1px solid #263653;background:linear-gradient(145deg,#111827,#0b1220);border-radius:13px;padding:10px 6px;color:#cbd5e1;font-size:.68rem;font-weight:800;text-align:center;cursor:pointer}.modern-rank:hover{border-color:#f1c40f;color:#fff}.modern-more{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
 @media(max-width:700px){.modern-shell{grid-template-columns:1fr}.modern-actions{grid-template-columns:repeat(3,1fr)}.modern-ranks{grid-template-columns:repeat(2,1fr)}.modern-more{grid-template-columns:repeat(3,1fr)}.modern-title{font-size:1.5rem}}
 @media(min-width:1000px){.modern-shell{grid-template-columns:1.2fr .8fr}.modern-status-grid{grid-template-columns:1fr 1fr}}
+</style>
+<style id="arci-theme-system-css">
+:root{--theme-muted:#9aa4b2;--theme-border:rgba(255,255,255,.16);--theme-button:#1f2937;--theme-input:#10151b;--theme-accent-2:#60a5fa;--theme-shadow:rgba(0,0,0,.28);--app-font-family:system-ui;--app-font-size:16px}
+body{font-family:var(--app-font-family);font-size:var(--app-font-size);background:var(--bg-color);color:var(--text-main)}
+.modal-content,.modal-body,.modal-header,.slot-card,.theme-editor-modal{border-color:var(--theme-border)!important}
+.modal-content,.modal-body{background:var(--modal-bg)!important;color:var(--text-main)}
+input,select,textarea{background:var(--theme-input)!important;color:var(--text-main)!important;border-color:var(--theme-border)!important}
+.btn-grey{background:var(--theme-button)!important;color:var(--text-main)!important}.theme-editor-help{color:var(--theme-muted);font-size:.8rem}.theme-edit-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.theme-edit-field,.theme-edit-wide{display:flex;flex-direction:column;gap:4px;background:var(--card-bg);border:1px solid var(--theme-border);border-radius:9px;padding:8px}.theme-edit-field span,.theme-edit-wide span{font-size:.7rem;color:var(--theme-muted);font-weight:700}.theme-edit-field input[type=color]{width:100%;height:38px;padding:2px;border:0;background:transparent!important}.theme-edit-wide{margin-top:8px}.theme-edit-wide select,.theme-edit-wide input[type=text]{height:38px;border:1px solid var(--theme-border);border-radius:6px;padding:0 8px}.theme-edit-wide input[type=range]{width:100%}
+/* Modern: farby dizajnu sú zámerne odvodené od vybratej témy */
+body.design-modern{background:radial-gradient(circle at 15% 0%,color-mix(in srgb,var(--theme-accent-2) 28%,var(--bg-color)) 0%,var(--bg-color) 48%,var(--modal-bg) 100%)}
+body.design-modern .pro-header{background:color-mix(in srgb,var(--card-bg) 86%,transparent);border-color:var(--theme-border)}
+body.design-modern .modern-hero,body.design-modern .modern-section{background:linear-gradient(145deg,color-mix(in srgb,var(--card-bg) 88%,var(--theme-accent-2)),var(--modal-bg));border-color:var(--theme-border);box-shadow:0 20px 50px var(--theme-shadow)}
+body.design-modern .modern-kicker,body.design-modern .modern-sub,body.design-modern .modern-section-title{color:var(--theme-muted)}
+body.design-modern .modern-title,body.design-modern .modern-action,body.design-modern .modern-status,body.design-modern .modern-rank{color:var(--text-main)}
+body.design-modern .modern-action,body.design-modern .modern-status,body.design-modern .modern-rank{background:var(--theme-button);border-color:var(--theme-border)}
+body.design-modern .modern-map-btn{background:linear-gradient(135deg,var(--accent-green),var(--theme-accent-2));border-color:var(--theme-accent-2)}
+/* Alternative — úplne iné, asymetrické rozloženie */
+#alternativeHomeShell{display:none}
+body.design-alternative{background:linear-gradient(135deg,var(--bg-color),var(--modal-bg));}
+body.design-alternative #modernHomeShell{display:none!important}
+body.design-alternative .pro-header{background:var(--card-bg);border:2px solid var(--theme-border);border-radius:8px;box-shadow:8px 8px 0 var(--theme-shadow);}
+body.design-alternative .rank-nav{order:3}
+body.design-alternative #alternativeHomeShell{display:block}
+.alternative-grid{display:grid;grid-template-columns:1.65fr .75fr .9fr;grid-template-rows:auto auto;gap:10px;margin:8px 0 20px}.alt-panel{background:var(--card-bg);border:1px solid var(--theme-border);border-radius:5px;padding:13px;color:var(--text-main);box-shadow:4px 4px 0 var(--theme-shadow)}.alt-hero{grid-row:span 2;min-height:290px;display:flex;flex-direction:column;justify-content:space-between;background:linear-gradient(160deg,var(--card-bg),var(--modal-bg));position:relative;overflow:hidden}.alt-hero:before{content:'A';position:absolute;right:-18px;bottom:-55px;font-size:13rem;line-height:1;font-weight:900;color:var(--theme-accent-2);opacity:.08}.alt-kicker{font-size:.65rem;letter-spacing:3px;color:var(--theme-accent-2);font-weight:900}.alt-title{font-size:2rem;line-height:.95;font-weight:950;max-width:260px;margin:12px 0}.alt-sub{font-size:.75rem;color:var(--theme-muted);max-width:320px;line-height:1.5}.alt-map{align-self:flex-start;background:var(--theme-accent-2);color:var(--bg-color);border:0;padding:12px 18px;border-radius:3px;font-weight:900;cursor:pointer}.alt-status{display:flex;align-items:center;gap:10px;min-height:70px}.alt-status .big{font-size:1.4rem;font-weight:900}.alt-status small{display:block;color:var(--theme-muted);font-size:.62rem}.alt-actions{display:grid;grid-template-columns:repeat(2,1fr);gap:6px}.alt-action{min-height:70px;border:1px solid var(--theme-border);background:var(--theme-input);color:var(--text-main);border-radius:3px;padding:7px;cursor:pointer;text-align:left}.alt-action .ai{font-size:1.25rem;display:block;color:var(--theme-accent-2)}.alt-action b{font-size:.68rem}.alt-ranks{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}.alt-rank{border:1px solid var(--theme-border);background:var(--theme-input);color:var(--text-main);padding:10px 4px;border-radius:2px;cursor:pointer;font-size:.65rem;font-weight:900}.alt-strip{grid-column:1/-1;display:grid;grid-template-columns:repeat(10,1fr);gap:5px}.alt-strip .alt-action{min-height:55px;text-align:center}.alt-strip .ai{font-size:1rem}.alt-strip b{font-size:.58rem}
+@media(max-width:850px){.alternative-grid{grid-template-columns:1fr 1fr}.alt-hero{grid-row:auto;grid-column:1/-1}.alt-strip{grid-template-columns:repeat(5,1fr)}}
+@media(max-width:560px){.alternative-grid{grid-template-columns:1fr}.alt-hero{grid-column:auto}.alt-ranks{grid-template-columns:repeat(2,1fr)}.alt-strip{grid-template-columns:repeat(2,1fr)}.theme-edit-grid{grid-template-columns:1fr}}
 </style>
 
 </head>
@@ -2701,7 +2729,32 @@ body.design-modern #modernHomeShell{display:block}
 
 
 
-<button id="btnOpenMap" class="main-menu-btn" onclick="startArciCityGame()" style="
+<div id="alternativeHomeShell">
+  <div class="alternative-grid">
+    <section class="alt-panel alt-hero">
+      <div><div class="alt-kicker">ARCIWEB / ALTERNATIVE</div><div class="alt-title">Golf. Dáta.<br>Rozhodnutia.</div><div class="alt-sub">Asymetrická domovská obrazovka pre hráča, ktorý nechce mať všetko v pekných rovnakých štvorčekoch.</div></div>
+      <button class="alt-map" onclick="startArciCityGame()">🗺 VSTÚPIŤ DO ARCICITY</button>
+    </section>
+    <section class="alt-panel alt-status"><span class="big">€</span><div><b id="altAccountStatus">Stav účtu -- €</b><small>hráčsky profil</small></div></section>
+    <section class="alt-panel alt-status"><span class="big">◆</span><div><b id="altNetWorthStatus">Net Worth -- €</b><small>celkový majetok</small></div></section>
+    <section class="alt-panel"><div class="alt-kicker">AKCIE</div><div class="alt-actions" style="margin-top:8px">
+      <button class="alt-action" onclick="openGameCalendar()"><span class="ai">▦</span><b>Kalendár</b></button><button class="alt-action" onclick="openAiAssistant()"><span class="ai">◈</span><b>ArciBot</b></button>
+      <button class="alt-action" onclick="openSponsorInfo()"><span class="ai">◇</span><b>Sponzori</b></button><button class="alt-action" onclick="openSettings()"><span class="ai">⚙</span><b>Nastavenia</b></button>
+    </div></section>
+    <section class="alt-panel"><div class="alt-kicker">STAV</div><div style="margin-top:8px"><b id="altExpensesStatus">Náklady -- €</b><br><small style="color:var(--theme-muted)">životný štýl</small><br><b id="altHappyStatus">Spokojnosť --%</b></div></section>
+    <section class="alt-panel" style="grid-column:1/-1"><div class="alt-kicker">8 REBRÍČKOV</div><div class="alt-ranks" style="margin-top:8px">
+      <button class="alt-rank" onclick="showRankTable('Official')">Official</button><button class="alt-rank" onclick="showRankTable('PGA')">PGA</button><button class="alt-rank" onclick="showRankTable('FEDEX')">FedEx</button><button class="alt-rank" onclick="showRankTable('Association')">Players</button><button class="alt-rank" onclick="showRankTable('Tour')">World Tour</button><button class="alt-rank" onclick="showRankTable('EA')">EA Sports</button><button class="alt-rank" onclick="showRankTable('Amateur')">Amateur</button><button class="alt-rank" onclick="showRankTable('ELO')">ELO</button>
+    </div></section>
+    <div class="alt-strip">
+      <button class="alt-action" onclick="openPersonalAchievements()"><span class="ai">◎</span><b>Úspechy</b></button><button class="alt-action" onclick="openGlobalAchievementsList()"><span class="ai">◆</span><b>Achievementy</b></button><button class="alt-action" onclick="openHallOfFame()"><span class="ai">♛</span><b>Sieň slávy</b></button><button class="alt-action" onclick="openComparator()"><span class="ai">⇄</span><b>Porovnanie</b></button><button class="alt-action" onclick="openArciNews()"><span class="ai">▤</span><b>ArciNews</b></button><button class="alt-action" onclick="openTrophyGallery()"><span class="ai">◇</span><b>Trofeje</b></button><button class="alt-action" onclick="showGlobalPlayerCards()"><span class="ai">▣</span><b>PGA Cards</b></button><button class="alt-action" onclick="openScannerModal()"><span class="ai">⌁</span><b>Skener</b></button><button class="alt-action" onclick="openArciShop()"><span class="ai">□</span><b>Shop</b></button><button class="alt-action" onclick="openArciInvest()"><span class="ai">↗</span><b>Invest</b></button>
+    </div>
+    <div class="alt-strip">
+      <button class="alt-action" onclick="openArciTip()"><span class="ai">⌁</span><b>ArciTip</b></button><button class="alt-action" onclick="openArciCasino()"><span class="ai">◈</span><b>ArciBet</b></button><button class="alt-action" onclick="openArciUnderground()"><span class="ai">▼</span><b>Podsvetie</b></button><button class="alt-action" onclick="openMapSearchModal()"><span class="ai">⌕</span><b>Hráč</b></button><button class="alt-action" onclick="openFavoritesModal()"><span class="ai">☆</span><b>Obľúbení</b></button><button class="alt-action" onclick="openJointSpot()"><span class="ai">○</span><b>Chill</b></button><button class="alt-action" onclick="openLifestyleManager()"><span class="ai">⌂</span><b>Lifestyle</b></button><button class="alt-action" onclick="openMyPlayer()"><span class="ai">◉</span><b>Profil</b></button><button class="alt-action" onclick="openNetWorth()"><span class="ai">◆</span><b>Majetok</b></button><button class="alt-action" onclick="openHappinessOverview()"><span class="ai">✦</span><b>Spokojnosť</b></button>
+    </div>
+  </div>
+</div>
+
+<button id="btnOpenMap"" class="main-menu-btn" onclick="startArciCityGame()" style="
     background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%); 
     color: #fff; border: 2px solid #fff; font-size: 1.2rem; font-weight: 900;
     box-shadow: 0 0 15px rgba(46, 204, 113, 0.5);
@@ -3256,7 +3309,29 @@ const colorSchemes = {
 
 };
 
-
+// --- VLASTNÉ TÉMY: ukladajú sa do appState a nezasahujú do DB turnajov ---
+if (!colorSchemes.Default) {
+    colorSchemes.Default = { bg:'#0b0f14', card:'#151a21', modalBg:'#10151b', text:'#f2f4f7', accent:'#2ecc71', muted:'#9aa4b2', border:'#34404d', button:'#1f2937', input:'#0f141a', fontFamily:'system-ui', fontSize:16 };
+}
+function getCustomThemes() {
+    return (appState && appState.settings && Array.isArray(appState.settings.customThemes)) ? appState.settings.customThemes : [];
+}
+function getThemeMap() {
+    const map = Object.assign({}, colorSchemes);
+    getCustomThemes().forEach(t => { if (t && t.name && t.scheme) map[t.name] = t.scheme; });
+    return map;
+}
+function ensureCustomThemesLoaded() {
+    getCustomThemes().forEach(t => { if (t && t.name && t.scheme) colorSchemes[t.name] = t.scheme; });
+}
+function nextCustomThemeName(base) {
+    const clean = String(base || 'Vlastná téma').trim() || 'Vlastná téma';
+    const root = clean.replace(/\s+\d+$/, '').trim() || clean;
+    const names = Object.keys(getThemeMap()).map(n => n.toLowerCase());
+    let i = 2;
+    while (names.includes(`${root} ${i}`.toLowerCase())) i++;
+    return `${root} ${i}`;
+}
 
 const realEstateData = [
     { id: 1, name: "Garážové státie", price: 5000, weeklyIncome: 5, img: "nehnuteľnosti garážové státie.png" },
@@ -3388,6 +3463,10 @@ window.updateMenuStats = function() {
     if (modernExpenses) modernExpenses.innerText = `Náklady ${formatWholeEuro(typeof calculateTotalWeeklyExpenses === 'function' ? calculateTotalWeeklyExpenses() : 0)}`;
     const modernHappy = document.getElementById('modernHappyStatus');
     if (modernHappy && typeof calculateLifestyleStats === 'function') modernHappy.innerText = `Spokojnosť ${Math.round(calculateLifestyleStats().totalHappy)}%`;
+    const altAccount = document.getElementById('altAccountStatus'); if (altAccount) altAccount.innerText = `Stav účtu ${formatWholeEuro(appState.betting.balance || 0)}`;
+    const altNW = document.getElementById('altNetWorthStatus'); if (altNW) altNW.innerText = `Net Worth ${formatWholeEuro(totalNW)}`;
+    const altExpenses = document.getElementById('altExpensesStatus'); if (altExpenses) altExpenses.innerText = `Náklady ${formatWholeEuro(typeof calculateTotalWeeklyExpenses === 'function' ? calculateTotalWeeklyExpenses() : 0)}`;
+    const altHappy = document.getElementById('altHappyStatus'); if (altHappy && typeof calculateLifestyleStats === 'function') altHappy.innerText = `Spokojnosť ${Math.round(calculateLifestyleStats().totalHappy)}%`;
 };
 
 // =========================================================================
@@ -61976,7 +62055,7 @@ function renderNewsList(fileKey) {
         filters: { tours: ['ALL'], events: [], seasons: [], importance: 'ALL', activeWeek: null },
         ui: { showWeeks: false, eventDropdownOpen: false, seasonDropdownOpen: false, importanceDropdownOpen: false },
         sort: { column: 'points', dir: 'desc' },
-        settings: { zoom: 0, theme: 'Default', themesOpen: false, design: 'classic' }, 
+        settings: { zoom: 0, theme: 'Default', themesOpen: false, design: 'classic', customThemes: [] }, 
         history: [],
         unlockedBadges: {} // <--- TOTO PRIDAJ (Pamäť pre odznaky)
     };
@@ -62089,8 +62168,10 @@ function renderNewsList(fileKey) {
             appState.settings.zoom = appState.settings.zoom ? 1 : 0;
         }
         if (!appState.filters.importance) appState.filters.importance = 'ALL';
-        if (!appState.settings) appState.settings = { zoom:0, theme:'Default', themesOpen:false, design:'classic' };
+        if (!appState.settings) appState.settings = { zoom:0, theme:'Default', themesOpen:false, design:'classic', customThemes:[] };
         if (!appState.settings.design) appState.settings.design = 'classic';
+        if (!Array.isArray(appState.settings.customThemes)) appState.settings.customThemes = [];
+        ensureCustomThemesLoaded();
         if (!db.seasonStats) db.seasonStats = [];
 
         calculateELO();
@@ -67874,20 +67955,23 @@ function createModal(contentHtml, id = null) {
         meta.setAttribute('content', targetContent); if(btn) btn.style.color = btnColor;
     }
     function openSettings() {
+        ensureCustomThemesLoaded();
         let themeBtns = '';
-        Object.keys(colorSchemes).forEach(k => {
-            const sch = colorSchemes[k];
+        Object.keys(getThemeMap()).forEach(k => {
+            const sch = getThemeMap()[k] || {};
             const borderColor = (appState.settings.theme === k) ? '#fff' : 'transparent';
-            themeBtns += `<div class="theme-btn" style="background:${sch.bg}; border-color:${borderColor}; color:${sch.text}" onclick="changeTheme('${k}')">${k}</div>`;
+            const safe = String(k).replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+            themeBtns += `<div class="theme-btn ${appState.settings.theme === k ? 'active' : ''}" style="background:${sch.bg || '#222'}; border-color:${borderColor}; color:${sch.text || '#fff'}" onclick="changeTheme('${safe}')" onpointerdown="startThemeHold(event,'${safe}')" onpointerup="cancelThemeHold(event)" onpointercancel="cancelThemeHold(event)" oncontextmenu="event.preventDefault();openThemeEditor('${safe}');return false;" title="Klik = použiť · podržanie = upraviť">${k}</div>`;
         });
         const zoomLabels = ['Mobilný', 'Desktop', 'Hybridný'];
         const currentZoomLabel = zoomLabels[appState.settings.zoom] || 'Mobilný';
         const themesDisplay = appState.settings.themesOpen ? 'grid' : 'none';
         const toggleBtnText = appState.settings.themesOpen ? 'Skryť Témy' : 'Zobraziť Témy';
         const designBtns = `
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px;">
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px;">
                 <button class="btn ${(!appState.settings.design || appState.settings.design === 'classic') ? 'btn-green' : 'btn-grey'}" onclick="changeDesign('classic')">▦ Classic</button>
                 <button class="btn ${appState.settings.design === 'modern' ? 'btn-blue' : 'btn-grey'}" onclick="changeDesign('modern')">◈ Modern</button>
+                <button class="btn ${appState.settings.design === 'alternative' ? 'btn-blue' : 'btn-grey'}" onclick="changeDesign('alternative')">✦ Alternative</button>
             </div>`;
 
         const html = `
@@ -67897,7 +67981,6 @@ function createModal(contentHtml, id = null) {
                 <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:15px;">
                     <button class="btn btn-full-width" style="background:linear-gradient(135deg, #f1c40f 0%, #b8860b 100%); color:black; font-weight:bold; border:1px solid #fff;" onclick="openGlobalAchievementsList()">🏆 Zoznam Achievementov</button>
                 </div>
-
                 <h3>Nástroje</h3>
                 <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:15px;">
                     <button class="btn btn-green" onclick="document.getElementById('fileInput').click()">Vložiť .txt</button>
@@ -67905,16 +67988,17 @@ function createModal(contentHtml, id = null) {
                     <button class="btn btn-grey" onclick="openFileManager()">Správca súborov</button>
                     <button class="btn btn-red" onclick="clearDB()">Vymazať DB</button>
                     <button class="btn btn-red" style="background:#d35400;" onclick="openClearOnlyMenu()">Vymazať Iba...</button>
-
                     <button class="btn btn-grey" onclick="toggleZoomInSettings()">Režim: ${currentZoomLabel}</button>
                 </div>
                 <h3>Vzhľad</h3>
-                <div style="background:var(--card-bg);border:1px solid #444;border-radius:10px;padding:10px;margin-bottom:10px;">
+                <div style="background:var(--card-bg);border:1px solid var(--theme-border);border-radius:10px;padding:10px;margin-bottom:10px;">
                     <div style="font-size:.8rem;color:var(--text-muted);text-transform:uppercase;font-weight:bold;">Dizajn aplikácie</div>
                     ${designBtns}
+                    <div style="font-size:.7rem;color:var(--text-muted);margin-top:8px;">Classic = pôvodný · Modern = dashboard · Alternative = úplne iné rozloženie</div>
                 </div>
                 <button class="btn btn-full-width btn-grey" onclick="toggleThemes(this)" style="margin-bottom:10px;">${toggleBtnText}</button>
                 <div class="theme-grid" id="themeContainer" style="display:${themesDisplay};">${themeBtns}</div>
+                <div style="margin-top:8px;font-size:.7rem;color:var(--text-muted);">Podrž ľubovoľnú tému → otvorí sa editor. Pravým tlačidlom funguje tiež.</div>
                 <h3>Sloty (Uložiť / Načítať)</h3>
                 <div class="slot-grid" id="slotContainer"></div>
             </div>`;
@@ -67922,40 +68006,138 @@ function createModal(contentHtml, id = null) {
         renderSlots();
     }
 
+    let themeHoldTimer = null;
+    let themeHoldTriggered = false;
+    function startThemeHold(ev, name) {
+        themeHoldTriggered = false;
+        clearTimeout(themeHoldTimer);
+        themeHoldTimer = setTimeout(() => {
+            themeHoldTriggered = true;
+            openThemeEditor(name);
+        }, 650);
+    }
+    function cancelThemeHold(ev) {
+        clearTimeout(themeHoldTimer);
+        if (ev && themeHoldTriggered) {
+            ev.preventDefault();
+            ev.stopPropagation();
+        }
+    }
+
     function toggleThemes(btn) {
         appState.settings.themesOpen = !appState.settings.themesOpen;
         const container = document.getElementById('themeContainer');
-        if (appState.settings.themesOpen) { container.style.display = 'grid'; btn.innerText = 'Skryť Témy'; } 
+        if (appState.settings.themesOpen) { container.style.display = 'grid'; btn.innerText = 'Skryť Témy'; }
         else { container.style.display = 'none'; btn.innerText = 'Zobraziť Témy'; }
         saveAuto();
     }
 
     function toggleZoomInSettings() { toggleZoom(); closeTopModal(); openSettings(); }
-    function changeTheme(name) { appState.settings.theme = name; applyTheme(name); saveAuto(); closeTopModal(); openSettings(); }
+    function changeTheme(name) {
+        if (themeHoldTriggered) { themeHoldTriggered = false; return; }
+        ensureCustomThemesLoaded();
+        appState.settings.theme = name;
+        applyTheme(name);
+        saveAuto();
+        closeTopModal();
+        openSettings();
+    }
     function changeDesign(name) {
-        appState.settings.design = (name === 'modern') ? 'modern' : 'classic';
+        const allowed = ['classic','modern','alternative'];
+        appState.settings.design = allowed.includes(name) ? name : 'classic';
         applyDesign(appState.settings.design);
         saveAuto();
         closeTopModal();
         openSettings();
     }
     function applyDesign(name) {
-        const design = name === 'modern' ? 'modern' : 'classic';
+        const design = ['classic','modern','alternative'].includes(name) ? name : 'classic';
         document.body.classList.toggle('design-modern', design === 'modern');
+        document.body.classList.toggle('design-alternative', design === 'alternative');
         document.body.classList.toggle('design-classic', design === 'classic');
     }
-function applyTheme(name) {
-    const t = colorSchemes[name] || colorSchemes['Default'];
-    const root = document.documentElement;
-    root.style.setProperty('--bg-color', t.bg);
-    root.style.setProperty('--card-bg', t.card);
-    root.style.setProperty('--text-main', t.text);
-    root.style.setProperty('--accent-green', t.accent);
-    
-    // TENTO RIADOK PRIDAJ:
-    // Ak téma nemá definovaný modalBg, použije sa farba karty (t.card) alebo fallback #121212
-    root.style.setProperty('--modal-bg', t.modalBg || t.card || '#121212'); 
-}
+    function applyTheme(name) {
+        ensureCustomThemesLoaded();
+        const map = getThemeMap();
+        const t = map[name] || map['Default'] || Object.values(map)[0];
+        if (!t) return;
+        const root = document.documentElement;
+        root.style.setProperty('--bg-color', t.bg || '#0b0f14');
+        root.style.setProperty('--card-bg', t.card || t.bg || '#151a21');
+        root.style.setProperty('--text-main', t.text || '#fff');
+        root.style.setProperty('--accent-green', t.accent || '#2ecc71');
+        root.style.setProperty('--modal-bg', t.modalBg || t.card || t.bg || '#121212');
+        root.style.setProperty('--theme-muted', t.muted || '#9aa4b2');
+        root.style.setProperty('--theme-border', t.border || 'rgba(255,255,255,.16)');
+        root.style.setProperty('--theme-button', t.button || t.card || '#1f2937');
+        root.style.setProperty('--theme-input', t.input || t.modalBg || t.card || '#10151b');
+        root.style.setProperty('--theme-accent-2', t.accent2 || t.accent || '#60a5fa');
+        root.style.setProperty('--theme-shadow', t.shadow || 'rgba(0,0,0,.28)');
+        root.style.setProperty('--app-font-family', t.fontFamily || 'system-ui');
+        root.style.setProperty('--app-font-size', `${Number(t.fontSize) || 16}px`);
+        document.body.style.fontFamily = t.fontFamily || '';
+        document.body.style.fontSize = `${Number(t.fontSize) || 16}px`;
+        document.documentElement.dataset.themeName = name;
+        applyDesign(appState.settings.design);
+    }
+
+    function openThemeEditor(name) {
+        ensureCustomThemesLoaded();
+        const map = getThemeMap();
+        const base = map[name] || map['Default'];
+        if (!base) return;
+        const fonts = ['system-ui','Arial','Verdana','Tahoma','Trebuchet MS','Georgia','Times New Roman','Courier New','monospace'];
+        const colorField = (key,label) => `<label class="theme-edit-field"><span>${label}</span><input id="te_${key}" type="color" value="${base[key] || '#000000'}"></label>`;
+        const fontOptions = fonts.map(f => `<option value="${f}" ${(base.fontFamily||'system-ui')===f?'selected':''}>${f}</option>`).join('');
+        const html = `
+          <div class="modal-header"><h2>🎨 Upraviť tému: ${name}</h2><button class="close-btn" onclick="closeTopModal()">&times;</button></div>
+          <div class="modal-body theme-editor-modal">
+            <p class="theme-editor-help">Úprava sa uloží ako <b>nová téma</b>. Pôvodná téma zostane nedotknutá.</p>
+            <div class="theme-edit-grid">
+              ${colorField('bg','Pozadie aplikácie')}
+              ${colorField('card','Panely / karty')}
+              ${colorField('modalBg','Pozadie okien')}
+              ${colorField('text','Hlavné písmo')}
+              ${colorField('accent','Hlavná zvýrazňovacia farba')}
+              ${colorField('accent2','Druhá zvýrazňovacia farba')}
+              ${colorField('muted','Tlmené písmo')}
+              ${colorField('border','Rámčeky')}
+              ${colorField('button','Tlačidlá')}
+              ${colorField('input','Vstupné polia')}
+              ${colorField('shadow','Tiene')}
+            </div>
+            <label class="theme-edit-wide"><span>Typ písma</span><select id="te_fontFamily">${fontOptions}</select></label>
+            <label class="theme-edit-wide"><span>Veľkosť písma: <b id="te_fontSizeVal">${Number(base.fontSize)||16}px</b></span><input id="te_fontSize" type="range" min="11" max="24" step="1" value="${Number(base.fontSize)||16}" oninput="document.getElementById('te_fontSizeVal').innerText=this.value+'px'"></label>
+            <label class="theme-edit-wide"><span>Názov novej témy (voliteľné)</span><input id="te_name" type="text" maxlength="40" placeholder="Prázdne = ${nextCustomThemeName(name)}"></label>
+            <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:15px;flex-wrap:wrap;">
+              <button class="btn btn-grey" onclick="closeTopModal()">Zrušiť</button>
+              <button class="btn btn-green" onclick="saveEditedTheme('${String(name).replace(/\\/g,'\\\\').replace(/'/g,"\\'")}')">💾 Uložiť ako novú tému</button>
+            </div>
+          </div>`;
+        createModal(html, 'theme-editor-modal');
+    }
+
+    function saveEditedTheme(sourceName) {
+        const map = getThemeMap();
+        const base = map[sourceName] || map['Default'];
+        const keys = ['bg','card','modalBg','text','accent','accent2','muted','border','button','input','shadow'];
+        const scheme = Object.assign({}, base);
+        keys.forEach(k => { const el=document.getElementById('te_'+k); if(el) scheme[k]=el.value; });
+        scheme.fontFamily = document.getElementById('te_fontFamily').value;
+        scheme.fontSize = Number(document.getElementById('te_fontSize').value) || 16;
+        let requested = (document.getElementById('te_name').value || '').trim();
+        const finalName = requested || nextCustomThemeName(sourceName);
+        const used = Object.keys(getThemeMap()).map(n=>n.toLowerCase());
+        let uniqueName = finalName, i = 2;
+        while (used.includes(uniqueName.toLowerCase())) { uniqueName = `${finalName} ${i++}`; }
+        appState.settings.customThemes.push({name:uniqueName, source:sourceName, scheme});
+        colorSchemes[uniqueName] = scheme;
+        appState.settings.theme = uniqueName;
+        applyTheme(uniqueName);
+        saveAuto();
+        closeTopModal();
+        openSettings();
+    }
 
 
     function openFileManager() {
@@ -68131,6 +68313,7 @@ function applyTheme(name) {
                     <button class="btn btn-red" onclick="clearSpecificData('NEWS')">📰 Noviny (ArciNews)</button>
                     <button class="btn btn-red" onclick="clearSpecificData('TOURNAMENTS')">⛳ Turnaje a Tabuľky</button>
                     <button class="btn btn-red" onclick="clearSpecificData('ACHIEVEMENTS')">🏅 Odznaky (Klasické)</button>
+                    <button class="btn btn-red" onclick="clearSpecificData('THEMES')">🎨 Vlastné témy</button>
                     <button class="btn btn-red" onclick="clearSpecificData('PERSONAL_ACHIEVEMENTS')" style="border: 2px solid #9b59b6; box-shadow: inset 0 0 10px rgba(155, 89, 182, 0.5);">👤 Osobné Tituly & Kariéra</button>
                 </div>
             </div>
@@ -68152,6 +68335,7 @@ function applyTheme(name) {
             case 'TOURNAMENTS': typeName = "Turnaje a Tabuľky"; break;
             case 'ACHIEVEMENTS': typeName = "Odznaky (Klasické)"; break;
             case 'PERSONAL_ACHIEVEMENTS': typeName = "Osobné Tituly a Kariéra"; break;
+            case 'THEMES': typeName = "Vlastné témy"; break;
         }
 
         if (!confirm(`Naozaj chcete vymazať IBA dáta pre: ${typeName}? Táto akcia je nevratná!`)) return;
@@ -68208,6 +68392,12 @@ function applyTheme(name) {
                 break;
             case 'ACHIEVEMENTS':
                 appState.unlockedBadges = {};
+                break;
+            case 'THEMES':
+                const customNames = (appState.settings.customThemes || []).map(t => t.name);
+                appState.settings.customThemes = [];
+                customNames.forEach(n => delete colorSchemes[n]);
+                if (customNames.includes(appState.settings.theme)) { appState.settings.theme = 'Default'; applyTheme('Default'); }
                 break;
             case 'PERSONAL_ACHIEVEMENTS':
                 appState.personalAchievements = [];
@@ -78054,11 +78244,11 @@ window.openTournamentResultModal = function(fileId) {
             .tour-result-meta{display:flex;gap:8px;flex-wrap:wrap;padding:12px 16px;background:#111827;border-bottom:1px solid #263244;}
             .tour-result-badge{padding:5px 9px;border-radius:999px;background:#1f2937;color:#cbd5e1;font-size:.72rem;font-weight:800;border:1px solid #334155;}
             .tour-result-scroll{overflow:auto;max-height:calc(92vh - 125px);}
-            .tour-result-table{border-collapse:separate;border-spacing:0;min-width:1180px;width:100%;font-size:.76rem;}
+            .tour-result-table{border-collapse:separate;border-spacing:0;min-width:1120px;width:100%;font-size:.74rem;}
             .tour-result-table th{position:sticky;top:0;background:#162033;color:#9ca3af;z-index:2;padding:8px 6px;border-bottom:1px solid #334155;white-space:nowrap;text-align:center;}
             .tour-result-table td{padding:7px 6px;border-bottom:1px solid #1f2937;text-align:center;white-space:nowrap;}
-            .tour-result-table .tour-name{text-align:left;min-width:175px;font-weight:700;position:sticky;left:0;background:#0d1117;z-index:1;}
-            .tour-result-table .tour-pos{position:sticky;left:0;z-index:2;background:#111827;min-width:52px;}
+            .tour-result-table .tour-name{text-align:left;min-width:88px;width:88px;max-width:120px;font-weight:700;position:sticky;left:0;background:#0d1117;z-index:1;}
+            .tour-result-table .tour-pos{position:sticky;left:0;z-index:2;background:#111827;min-width:22px;width:22px;max-width:28px;padding-left:4px!important;padding-right:4px!important;}
             .tour-result-row:nth-child(even) td{background:#0c1016;}.tour-result-row:nth-child(even) .tour-name{background:#0c1016;}
             .tour-result-row:hover td{background:#172033;}.tour-result-row:hover .tour-name,.tour-result-row:hover .tour-pos{background:#172033;}
             .tour-cut-row td{color:#94a3b8;}.tour-cut-row .tour-pos{color:#f59e0b;}.tour-points{color:#f1c40f;font-weight:900;}
