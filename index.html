@@ -2700,6 +2700,12 @@ body.design-classic .design-tip-panel{display:none!important;}
 @media(max-width:700px){body.design-compressed .modern-status-grid{grid-template-columns:repeat(2,1fr)}body.design-compressed .modern-actions{grid-template-columns:repeat(4,1fr)}body.design-compressed .modern-more{grid-template-columns:repeat(4,1fr)}body.design-compressed .modern-ranks{grid-template-columns:repeat(4,1fr)}}
 @media(max-width:560px){body.design-oldschool .modern-shell{grid-template-columns:1fr}.design-tip-panel{font-size:.72rem}}
 /* Dizajnové horné lišty pre ne-Classic dizajny */
+/* Jednotný tvar horných ovládaní */
+.unified-header-tools{display:flex;align-items:center;gap:4px;margin-left:6px}
+.unified-header-btn{appearance:none;border:1px solid currentColor;background:transparent;color:inherit;border-radius:5px;padding:3px 7px;font:inherit;font-size:.62rem;font-weight:800;line-height:1;cursor:pointer;white-space:nowrap;min-height:25px;box-sizing:border-box}
+.unified-palette-btn{padding-left:6px;padding-right:6px}
+#headerGameDate{margin-left:6px!important;padding:3px 7px!important;border-radius:5px!important;font-size:.62rem!important;min-height:25px;box-sizing:border-box}
+@media(max-width:560px){.unified-header-tools{gap:2px}.unified-header-btn,#headerGameDate{font-size:.54rem!important;padding:3px 5px!important}}
 .design-header{display:none;align-items:center;justify-content:space-between;gap:10px;margin:-20px -20px 14px -20px;padding:10px 14px;position:relative;z-index:100;min-height:44px;box-sizing:border-box}
 .design-header-brand{display:flex;align-items:baseline;gap:8px;min-width:0}
 .design-header-logo{appearance:none;border:0;background:transparent;padding:0;margin:0;font:inherit;font-size:1.35rem;font-weight:900;line-height:1;cursor:pointer;text-decoration:none;outline:none;color:inherit}
@@ -2779,7 +2785,6 @@ body.design-alternative #alternativeHomeShell{display:block}
 @media(max-width:850px){.alternative-grid{grid-template-columns:1fr 1fr}.alt-hero{grid-row:auto;grid-column:1/-1}.alt-strip{grid-template-columns:repeat(5,1fr)}}
 @media(max-width:560px){.alternative-grid{grid-template-columns:1fr}.alt-hero{grid-column:auto}.alt-ranks{grid-template-columns:repeat(2,1fr)}.alt-strip{grid-template-columns:repeat(2,1fr)}.theme-edit-grid{grid-template-columns:1fr}}
 </style>
-
 <style id="arci-complete-design-system">
 /* COMPLETE NON-CLASSIC DESIGN SYSTEM — popups, tables, profiles, settings and cards */
 body.design-modern .modal,body.design-alternative .modal,body.design-oldschool .modal,body.design-compressed .modal,
@@ -2931,7 +2936,13 @@ body.design-alternative .modal-content .card,body.design-alternative .modal-cont
 body.design-oldschool .modal-content .card,body.design-oldschool .modal-content .panel,body.design-oldschool .modal-content .list-group-item{border-radius:0!important;border:2px double var(--theme-border)!important}
 body.design-compressed .modal-content .card,body.design-compressed .modal-content .panel,body.design-compressed .modal-content .list-group-item{border-radius:4px!important;border:1px solid var(--theme-border)!important}
 </style>
-</head>
+<style id="arci-modern-layout-adjustments">
+body.design-modern .economy-player,body.design-modern .economy-favorites,body.design-modern .economy-lifestyle,body.design-modern .economy-chill,
+body.design-alternative .economy-player,body.design-alternative .economy-favorites,body.design-alternative .economy-lifestyle,body.design-alternative .economy-chill,
+body.design-oldschool .economy-player,body.design-oldschool .economy-favorites,body.design-oldschool .economy-lifestyle,body.design-oldschool .economy-chill,
+body.design-compressed .economy-player,body.design-compressed .economy-favorites,body.design-compressed .economy-lifestyle{display:none!important;}
+body.design-compressed .quick-move-modern-oldschool{display:none!important;}
+</style></head>
 <body>
 <header class="pro-header">
 <div class="brand-section">
@@ -2955,6 +2966,7 @@ body.design-compressed .modal-content .card,body.design-compressed .modal-conten
                     transition: 0.2s;
                 " title="Klikni pre otvorenie kalendára">📅 Úvod sezóny</span>
 </div>
+<div class="unified-header-tools" aria-label="Hlavné ovládanie"><button class="unified-header-btn" onclick="document.getElementById('fileInput').click()" title="Vložiť .txt">.txt</button><button class="unified-header-btn unified-palette-btn" onclick="cycleDesign()" title="Zmeniť dizajn">🎨</button></div>
 <nav class="rank-nav" data-dev-key="sig:nav.rank-nav:1">
 <div class="rank-row" data-dev-key="sig:div.rank-row:1">
 <span class="rank-pill rp-official" data-dev-key="sig:span.rank-pill.rp-official:1" onclick="showRankTable('Official')">Official Rank</span>
@@ -2988,31 +3000,19 @@ body.design-compressed .modal-content .card,body.design-compressed .modal-conten
 <button class="design-header-logo arci-web-logo-trigger" onclick="handleArciWebClick(event)" onpointercancel="cancelArciResetHold(event)" onpointerdown="startArciResetHold(event)" onpointerleave="cancelArciResetHold(event)" onpointerup="cancelArciResetHold(event)">ArciWeb</button>
 <span class="design-header-sub">PGA · ALTERNATIVE</span>
 </div>
-<div class="design-header-tools">
-<button onclick="openGameCalendar()">📅</button>
-<button onclick="showRankTable('Official')">Official</button>
-<button onclick="showRankTable('PGA')">PGA</button>
-<button onclick="showRankTable('ELO')">ELO</button>
-</div>
+<div class="design-header-tools"><button class="unified-header-btn" data-header-date="true" onclick="openGameCalendar()">📅 --</button><button class="unified-header-btn" onclick="document.getElementById(\'fileInput\').click()">.txt</button><button class="unified-header-btn unified-palette-btn" onclick="cycleDesign()">🎨</button></div>
 </div>
 <div class="design-header design-header-oldschool" data-dev-key="id:designHeaderOldschool" id="designHeaderOldschool">
 <div class="design-header-brand">
 <button class="design-header-logo arci-web-logo-trigger" onclick="handleArciWebClick(event)" onpointercancel="cancelArciResetHold(event)" onpointerdown="startArciResetHold(event)" onpointerleave="cancelArciResetHold(event)" onpointerup="cancelArciResetHold(event)">ArciWeb</button>
 <span class="design-header-sub">PGA · GOLFOVÝ ARCHÍV</span>
 </div>
-<div class="design-header-tools">
-<button onclick="openGameCalendar()">Kalendár</button>
-<button onclick="showRankTable('Official')">Rebríček</button>
-<button onclick="showRankTable('Amateur')">Amatéri</button>
-<button onclick="showRankTable('ELO')">ELO</button>
-</div>
+<div class="design-header-tools"><button class="unified-header-btn" data-header-date="true" onclick="openGameCalendar()">📅 --</button><button class="unified-header-btn" onclick="document.getElementById(\'fileInput\').click()">.txt</button><button class="unified-header-btn unified-palette-btn" onclick="cycleDesign()">🎨</button></div>
 </div>
 <div class="design-header design-header-compressed" data-dev-key="id:designHeaderCompressed" id="designHeaderCompressed">
 <button class="design-header-logo arci-web-logo-trigger" onclick="handleArciWebClick(event)" onpointercancel="cancelArciResetHold(event)" onpointerdown="startArciResetHold(event)" onpointerleave="cancelArciResetHold(event)" onpointerup="cancelArciResetHold(event)">ArciWeb</button>
 <span class="design-header-sub">PGA</span>
-<div class="design-header-tools">
-<button onclick="openGameCalendar()">▦</button><button onclick="showRankTable('Official')">O</button><button onclick="showRankTable('PGA')">PGA</button><button onclick="showRankTable('ELO')">ELO</button>
-</div>
+<div class="design-header-tools"><button class="unified-header-btn" data-header-date="true" onclick="openGameCalendar()">📅 --</button><button class="unified-header-btn" onclick="document.getElementById(\'fileInput\').click()">.txt</button><button class="unified-header-btn unified-palette-btn" onclick="cycleDesign()">🎨</button></div>
 </div>
 <div id="modernHomeShell">
 <div class="modern-shell" data-dev-key="sig:div.modern-shell:1">
@@ -3029,9 +3029,6 @@ body.design-compressed .modal-content .card,body.design-compressed .modal-conten
 <button class="modern-status" data-dev-key="sig:button.modern-status:4" onclick="openHappinessOverview()"><span class="mi">✦</span><b id="modernHappyStatus">Spokojnosť --%</b><small>aktuálny stav</small></button>
 </section>
 </div>
-
-
-
 <section class="modern-section" data-dev-key="sig:section.modern-section:3">
 <div class="modern-section-title">Ekonomika &amp; zábava</div>
 <div class="modern-more" data-dev-key="sig:div.modern-more:1">
@@ -3041,10 +3038,10 @@ body.design-compressed .modal-content .card,body.design-compressed .modal-conten
 <button class="modern-action" data-dev-key="sig:button.modern-action:16" onclick="openArciTip()"><span class="icon">⌁</span><span>ArciTip</span></button>
 <button class="modern-action" data-dev-key="sig:button.modern-action:17" onclick="openArciCasino()"><span class="icon">◈</span><span>ArciBet</span></button>
 <button class="modern-action" data-dev-key="sig:button.modern-action:18" onclick="openArciUnderground()"><span class="icon">▼</span><span>Podsvetie</span></button>
-<button class="modern-action" data-dev-key="sig:button.modern-action:19" onclick="openMapSearchModal()"><span class="icon">⌕</span><span>Hráč</span></button>
-<button class="modern-action" data-dev-key="sig:button.modern-action:20" onclick="openFavoritesModal()"><span class="icon">☆</span><span>Obľúbení</span></button>
-<button class="modern-action" data-dev-key="sig:button.modern-action:21" onclick="openJointSpot()"><span class="icon">○</span><span>Chill Spot</span></button>
-<button class="modern-action" data-dev-key="sig:button.modern-action:22" onclick="openLifestyleManager()"><span class="icon">⌂</span><span>Životný štýl</span></button>
+<button class="modern-action economy-player" data-dev-key="sig:button.modern-action:19" onclick="openMapSearchModal()"><span class="icon">⌕</span><span>Hráč</span></button>
+<button class="modern-action economy-favorites" data-dev-key="sig:button.modern-action:20" onclick="openFavoritesModal()"><span class="icon">☆</span><span>Obľúbení</span></button>
+<button class="modern-action economy-chill" data-dev-key="sig:button.modern-action:21" onclick="openJointSpot()"><span class="icon">○</span><span>Chill Spot</span></button>
+<button class="modern-action economy-lifestyle" data-dev-key="sig:button.modern-action:22" onclick="openLifestyleManager()"><span class="icon">⌂</span><span>Životný štýl</span></button>
 </div>
 </section><section class="modern-section" data-dev-key="sig:section.modern-section:2">
 <div class="modern-section-title">Rebríčky</div>
@@ -3073,6 +3070,9 @@ body.design-compressed .modal-content .card,body.design-compressed .modal-conten
 <button class="modern-action" data-dev-key="sig:button.modern-action:10" onclick="openTrophyGallery()"><span class="icon">◇</span><span>Trofeje</span></button>
 <button class="modern-action" data-dev-key="sig:button.modern-action:11" onclick="showGlobalPlayerCards()"><span class="icon">▣</span><span>PGA Cards</span></button>
 <button class="modern-action" data-dev-key="sig:button.modern-action:12" onclick="openScannerModal()"><span class="icon">⌁</span><span>Skener</span></button>
+<button class="modern-action quick-move-modern-oldschool" onclick="openMapSearchModal()"><span class="icon">⌕</span><span>Hráč</span></button>
+<button class="modern-action quick-move-modern-oldschool" onclick="openFavoritesModal()"><span class="icon">☆</span><span>Obľúbení</span></button>
+<button class="modern-action quick-move-modern-oldschool" onclick="openJointSpot()"><span class="icon">○</span><span>Chill Spot</span></button>
 </div>
 </section></div>
 <div id="alternativeHomeShell">
@@ -64403,6 +64403,14 @@ function calculateGlobalAchievements() {
         return arr;
     }
 
+    function formatHeaderGameDate(season, eventName) {
+        try { const d=getTournamentDateObj(season,eventName); return `${d.getDate()}. ${d.getMonth()+1}. ${d.getFullYear()}`; }
+        catch(e) { return 'Začiatok kariéry'; }
+    }
+    function syncDesignHeaderDates(label) {
+        document.querySelectorAll('[data-header-date="true"]').forEach(el => { el.textContent=`📅 ${label}`; });
+    }
+
     // --- Render Functions ---
     function renderApp() {
         // --- AKTUALIZÁCIA HERNÉHO DÁTUMU V HLAVIČKE ---
@@ -64411,13 +64419,12 @@ function calculateGlobalAchievements() {
             if (typeof db !== 'undefined' && db.files && db.files.length > 0) {
                 const sorted = [...db.files].sort((a,b) => a.timestamp - b.timestamp);
                 const lastFile = sorted[sorted.length - 1];
-                
-                // Použijeme našu novú, múdrejšiu funkciu na dátum (ktorá už počíta s prestupnými rokmi)
-                if (typeof getTournamentDate === 'function') {
-                    dateElement.innerHTML = `📅 ` + getTournamentDate(lastFile.season, lastFile.eventName);
-                }
+                const headerDate = formatHeaderGameDate(lastFile.season, lastFile.eventName);
+                dateElement.innerHTML = `📅 ${headerDate}`;
+                syncDesignHeaderDates(headerDate);
             } else {
                 dateElement.innerHTML = `📅 Začiatok kariéry`;
+                syncDesignHeaderDates('Začiatok kariéry');
             }
         }
         // ----------------------------------------------
@@ -68736,6 +68743,7 @@ function createModal(contentHtml, id = null) {
         // Výber je iba náhľad. Trvalé potvrdenie vykoná „Uložiť vzhľad“.
         applyDesign(appState.settings.design); refreshDesignButtons();
     }
+    function cycleDesign(){ const a=['classic','modern','alternative','oldschool','compressed']; const c=a.includes(appState.settings.design)?appState.settings.design:'classic'; const n=a[(a.indexOf(c)+1)%a.length]; changeDesign(n); try{saveThemePreferences();saveAuto();}catch(e){} }
     // 100 krátkych tipov, návodov a postrehov pre rotujúci panel dizajnov.
     const ARCI_GAME_TIPS = [
         'Pri výbere hráča potvrď voľbu a počkaj na hlášku o uložení.',
