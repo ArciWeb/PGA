@@ -2779,6 +2779,76 @@ body.design-alternative #alternativeHomeShell{display:block}
 @media(max-width:850px){.alternative-grid{grid-template-columns:1fr 1fr}.alt-hero{grid-row:auto;grid-column:1/-1}.alt-strip{grid-template-columns:repeat(5,1fr)}}
 @media(max-width:560px){.alternative-grid{grid-template-columns:1fr}.alt-hero{grid-column:auto}.alt-ranks{grid-template-columns:repeat(2,1fr)}.alt-strip{grid-template-columns:repeat(2,1fr)}.theme-edit-grid{grid-template-columns:1fr}}
 </style>
+
+<style id="arci-complete-design-system">
+/* COMPLETE NON-CLASSIC DESIGN SYSTEM — popups, tables, profiles, settings and cards */
+body.design-modern .modal,body.design-alternative .modal,body.design-oldschool .modal,body.design-compressed .modal,
+body.design-modern .modal-content,body.design-alternative .modal-content,body.design-oldschool .modal-content,body.design-compressed .modal-content{color:var(--text-main)!important;background:var(--modal-bg)!important;border-color:var(--theme-border)!important}
+body.design-modern .modal-overlay,body.design-alternative .modal-overlay,body.design-oldschool .modal-overlay,body.design-compressed .modal-overlay{background:color-mix(in srgb,var(--bg-color) 82%,transparent)!important;backdrop-filter:blur(8px)!important;-webkit-backdrop-filter:blur(8px)!important}
+body.design-modern .modal-header,body.design-alternative .modal-header,body.design-oldschool .modal-header,body.design-compressed .modal-header{background:var(--card-bg)!important;border-color:var(--theme-border)!important}
+body.design-modern .modal-body,body.design-alternative .modal-body,body.design-oldschool .modal-body,body.design-compressed .modal-body{background:var(--modal-bg)!important}
+body.design-modern .close-btn,body.design-alternative .close-btn,body.design-oldschool .close-btn,body.design-compressed .close-btn{color:var(--text-main)!important}
+/* MODERN */
+body.design-modern .modal{width:min(94vw,1040px);border-radius:22px!important;border:1px solid color-mix(in srgb,var(--theme-accent-2) 45%,var(--theme-border))!important;box-shadow:0 24px 70px color-mix(in srgb,var(--theme-shadow) 85%,transparent)!important}
+body.design-modern .modal-header{padding:16px 20px!important;border-bottom:2px solid color-mix(in srgb,var(--theme-accent-2) 32%,var(--theme-border))!important}
+body.design-modern .modal-header h2{font-size:1.15rem!important;letter-spacing:.02em}
+body.design-modern .modal-body{padding:18px!important}
+body.design-modern .table-container{background:color-mix(in srgb,var(--card-bg) 88%,transparent)!important;border:1px solid var(--theme-border);border-radius:16px!important;box-shadow:0 10px 30px color-mix(in srgb,var(--theme-shadow) 55%,transparent)!important;padding:6px!important}
+body.design-modern table{border-collapse:separate!important;border-spacing:0!important;overflow:hidden;border-radius:12px}
+body.design-modern th{background:color-mix(in srgb,var(--theme-accent-2) 12%,var(--card-bg));color:var(--text-main)!important;border-bottom:1px solid var(--theme-border)!important}
+body.design-modern td{border-bottom:1px solid color-mix(in srgb,var(--theme-border) 75%,transparent)!important}
+body.design-modern tr:hover td{background:color-mix(in srgb,var(--theme-accent-2) 7%,transparent)!important}
+body.design-modern .profile-tabs{border-bottom:1px solid var(--theme-border)!important;gap:7px}
+body.design-modern .profile-tab{border:1px solid var(--theme-border)!important;border-radius:12px!important;background:var(--card-bg)!important;color:var(--theme-muted)!important}
+body.design-modern .profile-tab.active{background:var(--theme-accent-2)!important;color:#fff!important;border-color:var(--theme-accent-2)!important}
+body.design-modern .stat-box,body.design-modern .profile-filters-area,body.design-modern .slot-card,body.design-modern .theme-editor-modal{background:var(--card-bg)!important;border:1px solid var(--theme-border)!important;border-radius:14px!important}
+body.design-modern .btn{border-radius:11px!important}body.design-modern input,body.design-modern select,body.design-modern textarea{border-radius:10px!important}
+/* ALTERNATIVE */
+body.design-alternative .modal{width:min(95vw,1100px);border-radius:6px!important;border:2px solid var(--theme-border)!important;box-shadow:12px 12px 0 color-mix(in srgb,var(--theme-accent-2) 20%,transparent)!important}
+body.design-alternative .modal-header{padding:13px 18px!important;border-bottom:2px solid var(--theme-accent-2)!important}
+body.design-alternative .modal-header h2{text-transform:uppercase;letter-spacing:.08em;font-size:1rem!important}
+body.design-alternative .modal-body{padding:16px!important}
+body.design-alternative .table-container{border-radius:3px!important;background:var(--card-bg)!important;border:1px solid var(--theme-border)!important;box-shadow:4px 4px 0 color-mix(in srgb,var(--theme-accent-2) 18%,transparent)!important}
+body.design-alternative table{border-collapse:separate!important;border-spacing:0!important}
+body.design-alternative th{background:var(--theme-button)!important;color:var(--text-main)!important;border-bottom:2px solid var(--theme-accent-2)!important}
+body.design-alternative td{border-bottom:1px dashed var(--theme-border)!important}
+body.design-alternative .profile-tabs{border-bottom:2px solid var(--theme-accent-2)!important;gap:4px}
+body.design-alternative .profile-tab{border-radius:2px!important;border:1px solid var(--theme-border)!important;background:var(--card-bg)!important;text-transform:uppercase}
+body.design-alternative .profile-tab.active{background:var(--theme-accent-2)!important;color:#fff!important}
+body.design-alternative .stat-box,body.design-alternative .profile-filters-area,body.design-alternative .slot-card,body.design-alternative .theme-editor-modal{border-radius:3px!important;background:var(--card-bg)!important;border:1px solid var(--theme-border)!important}
+body.design-alternative .btn{border-radius:3px!important;text-transform:uppercase;letter-spacing:.03em}body.design-alternative input,body.design-alternative select,body.design-alternative textarea{border-radius:2px!important}
+/* OLD SCHOOL */
+body.design-oldschool{font-family:Georgia,'Times New Roman',serif!important}
+body.design-oldschool .modal{width:min(94vw,1000px);border-radius:0!important;border:4px double var(--theme-border)!important;box-shadow:0 12px 30px rgba(0,0,0,.45)!important}
+body.design-oldschool .modal-header{padding:12px 16px!important;border-bottom:3px double var(--theme-border)!important}
+body.design-oldschool .modal-header h2{font-family:Georgia,'Times New Roman',serif!important;font-size:1.18rem!important;letter-spacing:.03em}
+body.design-oldschool .modal-body{padding:16px!important}
+body.design-oldschool .table-container{border-radius:0!important;border:3px double var(--theme-border)!important;background:var(--card-bg)!important;box-shadow:none!important}
+body.design-oldschool table{border-collapse:collapse!important}body.design-oldschool th{font-family:Georgia,'Times New Roman',serif!important;background:var(--theme-button)!important;color:var(--text-main)!important;border-bottom:3px double var(--theme-border)!important}
+body.design-oldschool td{border-bottom:1px solid var(--theme-border)!important}body.design-oldschool .profile-tabs{border-bottom:3px double var(--theme-border)!important}
+body.design-oldschool .profile-tab{border-radius:0!important;border:1px solid var(--theme-border)!important;background:var(--card-bg)!important;font-family:Georgia,'Times New Roman',serif!important}
+body.design-oldschool .profile-tab.active{background:var(--theme-accent-2)!important;color:#fff!important}
+body.design-oldschool .stat-box,body.design-oldschool .profile-filters-area,body.design-oldschool .slot-card,body.design-oldschool .theme-editor-modal{border-radius:0!important;border:2px solid var(--theme-border)!important;background:var(--card-bg)!important}
+body.design-oldschool .btn{border-radius:0!important;font-family:Georgia,'Times New Roman',serif!important}body.design-oldschool input,body.design-oldschool select,body.design-oldschool textarea{border-radius:0!important}
+/* COMPRESSED */
+body.design-compressed{font-size:.91em!important}
+body.design-compressed .modal{width:min(97vw,1180px);border-radius:5px!important;border:1px solid var(--theme-border)!important;box-shadow:0 8px 24px rgba(0,0,0,.5)!important}
+body.design-compressed .modal-header{padding:8px 12px!important;border-bottom:1px solid var(--theme-border)!important}
+body.design-compressed .modal-header h2{font-size:.92rem!important;text-transform:uppercase;letter-spacing:.04em}
+body.design-compressed .modal-body{padding:10px!important}
+body.design-compressed .table-container{padding:2px!important;border-radius:4px!important;background:var(--card-bg)!important;border:1px solid var(--theme-border)!important;box-shadow:none!important}
+body.design-compressed table{min-width:650px!important}body.design-compressed th,body.design-compressed td{padding:4px 5px!important;font-size:.72rem!important}
+body.design-compressed th{background:var(--theme-button)!important;color:var(--text-main)!important}
+body.design-compressed .profile-tabs{gap:3px;margin-bottom:8px;padding-bottom:6px}.body.design-compressed .profile-tab{min-width:65px!important}
+body.design-compressed .profile-tab{min-width:65px!important;padding:6px!important;border-radius:4px!important;border:1px solid var(--theme-border)!important;background:var(--card-bg)!important;font-size:.72rem}
+body.design-compressed .profile-tab.active{background:var(--theme-accent-2)!important;color:#fff!important}
+body.design-compressed .stats-grid{gap:4px!important;margin-bottom:10px!important}.body.design-compressed .stat-box{padding:7px}
+body.design-compressed .stat-box,body.design-compressed .profile-filters-area,body.design-compressed .slot-card,body.design-compressed .theme-editor-modal{border-radius:4px!important;border:1px solid var(--theme-border)!important;background:var(--card-bg)!important}
+body.design-compressed .btn{border-radius:4px!important;padding:6px 9px!important}body.design-compressed input,body.design-compressed select,body.design-compressed textarea{border-radius:3px!important}
+/* common generated cards/panels */
+body.design-modern .card,body.design-modern .panel,body.design-alternative .card,body.design-alternative .panel,body.design-oldschool .card,body.design-oldschool .panel,body.design-compressed .card,body.design-compressed .panel{border-color:var(--theme-border)!important;background:var(--card-bg)!important;color:var(--text-main)!important}
+body.design-modern .card,body.design-modern .panel{border-radius:14px!important}body.design-alternative .card,body.design-alternative .panel{border-radius:3px!important}body.design-oldschool .card,body.design-oldschool .panel{border-radius:0!important}body.design-compressed .card,body.design-compressed .panel{border-radius:4px!important}
+</style>
 </head>
 <body>
 <header class="pro-header">
@@ -2877,7 +2947,36 @@ body.design-alternative #alternativeHomeShell{display:block}
 <button class="modern-status" data-dev-key="sig:button.modern-status:4" onclick="openHappinessOverview()"><span class="mi">✦</span><b id="modernHappyStatus">Spokojnosť --%</b><small>aktuálny stav</small></button>
 </section>
 </div>
-<section class="modern-section" data-dev-key="sig:section.modern-section:1">
+
+
+
+<section class="modern-section" data-dev-key="sig:section.modern-section:3">
+<div class="modern-section-title">Ekonomika &amp; zábava</div>
+<div class="modern-more" data-dev-key="sig:div.modern-more:1">
+<button class="modern-action" data-dev-key="sig:button.modern-action:13" onclick="openArciShop()"><span class="icon">□</span><span>ArciShop</span></button>
+<button class="modern-action" data-dev-key="sig:button.modern-action:14" onclick="openArciCardsHub()"><span class="icon">▣</span><span>ArciCards</span></button>
+<button class="modern-action" data-dev-key="sig:button.modern-action:15" onclick="openArciInvest()"><span class="icon">↗</span><span>ArciInvest</span></button>
+<button class="modern-action" data-dev-key="sig:button.modern-action:16" onclick="openArciTip()"><span class="icon">⌁</span><span>ArciTip</span></button>
+<button class="modern-action" data-dev-key="sig:button.modern-action:17" onclick="openArciCasino()"><span class="icon">◈</span><span>ArciBet</span></button>
+<button class="modern-action" data-dev-key="sig:button.modern-action:18" onclick="openArciUnderground()"><span class="icon">▼</span><span>Podsvetie</span></button>
+<button class="modern-action" data-dev-key="sig:button.modern-action:19" onclick="openMapSearchModal()"><span class="icon">⌕</span><span>Hráč</span></button>
+<button class="modern-action" data-dev-key="sig:button.modern-action:20" onclick="openFavoritesModal()"><span class="icon">☆</span><span>Obľúbení</span></button>
+<button class="modern-action" data-dev-key="sig:button.modern-action:21" onclick="openJointSpot()"><span class="icon">○</span><span>Chill Spot</span></button>
+<button class="modern-action" data-dev-key="sig:button.modern-action:22" onclick="openLifestyleManager()"><span class="icon">⌂</span><span>Životný štýl</span></button>
+</div>
+</section><section class="modern-section" data-dev-key="sig:section.modern-section:2">
+<div class="modern-section-title">Rebríčky</div>
+<div class="modern-ranks" data-dev-key="sig:div.modern-ranks:1">
+<button class="modern-rank" data-dev-key="sig:button.modern-rank:1" onclick="showRankTable('Official')">Official</button>
+<button class="modern-rank" data-dev-key="sig:button.modern-rank:2" onclick="showRankTable('PGA')">PGA</button>
+<button class="modern-rank" data-dev-key="sig:button.modern-rank:3" onclick="showRankTable('FEDEX')">FedEx</button>
+<button class="modern-rank" data-dev-key="sig:button.modern-rank:4" onclick="showRankTable('Association')">Players</button>
+<button class="modern-rank" data-dev-key="sig:button.modern-rank:5" onclick="showRankTable('Tour')">World Tour</button>
+<button class="modern-rank" data-dev-key="sig:button.modern-rank:6" onclick="showRankTable('EA')">EA Sports</button>
+<button class="modern-rank" data-dev-key="sig:button.modern-rank:7" onclick="showRankTable('Amateur')">Amateur</button>
+<button class="modern-rank" data-dev-key="sig:button.modern-rank:8" onclick="showRankTable('ELO')">ELO</button>
+</div>
+</section><section class="modern-section" data-dev-key="sig:section.modern-section:1">
 <div class="modern-section-title">Rýchly prístup</div>
 <div class="modern-actions" data-dev-key="sig:div.modern-actions:1">
 <button class="modern-action" data-dev-key="sig:button.modern-action:1" onclick="openGameCalendar()"><span class="icon">▦</span><span>Kalendár</span></button>
@@ -2893,36 +2992,7 @@ body.design-alternative #alternativeHomeShell{display:block}
 <button class="modern-action" data-dev-key="sig:button.modern-action:11" onclick="showGlobalPlayerCards()"><span class="icon">▣</span><span>PGA Cards</span></button>
 <button class="modern-action" data-dev-key="sig:button.modern-action:12" onclick="openScannerModal()"><span class="icon">⌁</span><span>Skener</span></button>
 </div>
-</section>
-<section class="modern-section" data-dev-key="sig:section.modern-section:2">
-<div class="modern-section-title">Rebríčky</div>
-<div class="modern-ranks" data-dev-key="sig:div.modern-ranks:1">
-<button class="modern-rank" data-dev-key="sig:button.modern-rank:1" onclick="showRankTable('Official')">Official</button>
-<button class="modern-rank" data-dev-key="sig:button.modern-rank:2" onclick="showRankTable('PGA')">PGA</button>
-<button class="modern-rank" data-dev-key="sig:button.modern-rank:3" onclick="showRankTable('FEDEX')">FedEx</button>
-<button class="modern-rank" data-dev-key="sig:button.modern-rank:4" onclick="showRankTable('Association')">Players</button>
-<button class="modern-rank" data-dev-key="sig:button.modern-rank:5" onclick="showRankTable('Tour')">World Tour</button>
-<button class="modern-rank" data-dev-key="sig:button.modern-rank:6" onclick="showRankTable('EA')">EA Sports</button>
-<button class="modern-rank" data-dev-key="sig:button.modern-rank:7" onclick="showRankTable('Amateur')">Amateur</button>
-<button class="modern-rank" data-dev-key="sig:button.modern-rank:8" onclick="showRankTable('ELO')">ELO</button>
-</div>
-</section>
-<section class="modern-section" data-dev-key="sig:section.modern-section:3">
-<div class="modern-section-title">Ekonomika &amp; zábava</div>
-<div class="modern-more" data-dev-key="sig:div.modern-more:1">
-<button class="modern-action" data-dev-key="sig:button.modern-action:13" onclick="openArciShop()"><span class="icon">□</span><span>ArciShop</span></button>
-<button class="modern-action" data-dev-key="sig:button.modern-action:14" onclick="openArciCardsHub()"><span class="icon">▣</span><span>ArciCards</span></button>
-<button class="modern-action" data-dev-key="sig:button.modern-action:15" onclick="openArciInvest()"><span class="icon">↗</span><span>ArciInvest</span></button>
-<button class="modern-action" data-dev-key="sig:button.modern-action:16" onclick="openArciTip()"><span class="icon">⌁</span><span>ArciTip</span></button>
-<button class="modern-action" data-dev-key="sig:button.modern-action:17" onclick="openArciCasino()"><span class="icon">◈</span><span>ArciBet</span></button>
-<button class="modern-action" data-dev-key="sig:button.modern-action:18" onclick="openArciUnderground()"><span class="icon">▼</span><span>Podsvetie</span></button>
-<button class="modern-action" data-dev-key="sig:button.modern-action:19" onclick="openMapSearchModal()"><span class="icon">⌕</span><span>Hráč</span></button>
-<button class="modern-action" data-dev-key="sig:button.modern-action:20" onclick="openFavoritesModal()"><span class="icon">☆</span><span>Obľúbení</span></button>
-<button class="modern-action" data-dev-key="sig:button.modern-action:21" onclick="openJointSpot()"><span class="icon">○</span><span>Chill Spot</span></button>
-<button class="modern-action" data-dev-key="sig:button.modern-action:22" onclick="openLifestyleManager()"><span class="icon">⌂</span><span>Životný štýl</span></button>
-</div>
-</section>
-</div>
+</section></div>
 <div id="alternativeHomeShell">
 <div class="alternative-grid" data-dev-key="sig:div.alternative-grid:1">
 <section class="alt-panel alt-hero" data-dev-key="sig:section.alt-hero.alt-panel:1">
