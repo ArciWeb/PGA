@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta id="viewportMeta" name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ArciWeb - PGA</title>
+    <title>ArciWeb - PGA · Arci Project</title>
     <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#2ecc71">
 
@@ -2553,6 +2553,29 @@ background: radial-gradient(circle at center, #5d9e3c 0%, #3e6b28 100%) !importa
     </style>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
+
+<style id="arci-modern-design-css">
+/* ================================================================
+   ARCIWEB MODERN DESIGN — iba domovská obrazovka, funkcie ostávajú
+   ================================================================ */
+#modernHomeShell{display:none}
+body.design-modern{background:radial-gradient(circle at 15% 0%,#172554 0%,#0b1020 38%,#05070d 100%);}
+body.design-modern .pro-header{background:rgba(10,15,28,.78);border:1px solid #263653;border-radius:22px;padding:16px 18px;margin-bottom:14px;box-shadow:0 18px 50px rgba(0,0,0,.35);backdrop-filter:blur(16px);}
+body.design-modern .brand-logo{letter-spacing:-1px;background:linear-gradient(90deg,#fff,#60a5fa);-webkit-background-clip:text;background-clip:text;color:transparent;}
+body.design-modern .brand-subtitle{color:#60a5fa;}
+body.design-modern .rank-nav,body.design-modern .pro-header .pro-icons{display:none!important}
+body.design-modern #btnOpenMap,body.design-modern .main-menu-container{display:none!important}
+body.design-modern #modernHomeShell{display:block}
+.modern-shell{display:grid;grid-template-columns:1.4fr 1fr;gap:14px;margin-bottom:18px}
+.modern-hero{position:relative;overflow:hidden;border:1px solid #263653;border-radius:24px;padding:20px;background:linear-gradient(145deg,rgba(30,64,175,.28),rgba(15,23,42,.9));box-shadow:0 20px 50px rgba(0,0,0,.35)}
+.modern-hero:after{content:"";position:absolute;width:180px;height:180px;right:-55px;top:-70px;border-radius:50%;background:rgba(59,130,246,.22);filter:blur(5px)}
+.modern-kicker{font-size:.68rem;text-transform:uppercase;letter-spacing:2px;color:#60a5fa;font-weight:900}.modern-title{font-size:1.8rem;font-weight:900;margin:6px 0}.modern-sub{color:#94a3b8;font-size:.82rem;line-height:1.4}.modern-map-btn{margin-top:16px;width:100%;border:1px solid #60a5fa;background:linear-gradient(135deg,#2563eb,#4f46e5);color:white;border-radius:15px;padding:13px;font-weight:900;cursor:pointer;box-shadow:0 10px 25px rgba(37,99,235,.28)}
+.modern-status-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}.modern-status{border:1px solid #263653;border-radius:16px;padding:13px;background:rgba(15,23,42,.78);cursor:pointer;min-height:68px;text-align:left;color:#fff}.modern-status:hover{transform:translateY(-2px);border-color:#60a5fa}.modern-status .mi{font-size:1.2rem}.modern-status b{display:block;margin-top:4px;font-size:.78rem}.modern-status small{color:#64748b;font-size:.65rem}
+.modern-section{border:1px solid #263653;border-radius:20px;background:rgba(9,14,26,.82);padding:14px;margin-bottom:14px}.modern-section-title{font-size:.72rem;color:#64748b;text-transform:uppercase;letter-spacing:1.4px;font-weight:900;margin:0 0 10px}.modern-actions{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.modern-action{border:1px solid #263653;background:#111827;color:#e5e7eb;border-radius:14px;padding:11px 7px;cursor:pointer;text-align:center;min-height:70px;transition:.18s}.modern-action:hover{background:#172033;border-color:#60a5fa;transform:translateY(-2px)}.modern-action .icon{display:block;font-size:1.35rem;margin-bottom:5px}.modern-action span:last-child{font-size:.68rem;font-weight:800;line-height:1.1}.modern-ranks{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.modern-rank{border:1px solid #263653;background:linear-gradient(145deg,#111827,#0b1220);border-radius:13px;padding:10px 6px;color:#cbd5e1;font-size:.68rem;font-weight:800;text-align:center;cursor:pointer}.modern-rank:hover{border-color:#f1c40f;color:#fff}.modern-more{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+@media(max-width:700px){.modern-shell{grid-template-columns:1fr}.modern-actions{grid-template-columns:repeat(3,1fr)}.modern-ranks{grid-template-columns:repeat(2,1fr)}.modern-more{grid-template-columns:repeat(3,1fr)}.modern-title{font-size:1.5rem}}
+@media(min-width:1000px){.modern-shell{grid-template-columns:1.2fr .8fr}.modern-status-grid{grid-template-columns:1fr 1fr}}
+</style>
+
 </head>
 <body>
     <header class="pro-header">
@@ -2609,6 +2632,72 @@ background: radial-gradient(circle at center, #5d9e3c 0%, #3e6b28 100%) !importa
 
         </div>
     </header>
+
+<div id="modernHomeShell">
+  <div class="modern-shell">
+    <section class="modern-hero">
+      <div class="modern-kicker">ArciWeb · PGA</div>
+      <div class="modern-title">Tvoja golfová centrála</div>
+      <div class="modern-sub">Všetko podstatné na jednej obrazovke. Menej tlačidiel, viac priestoru a žiadny UI cirkus z roku 2009.</div>
+      <button class="modern-map-btn" onclick="startArciCityGame()">🧭 Otvoriť ArciCity</button>
+    </section>
+    <section class="modern-status-grid">
+      <button class="modern-status" onclick="openMyPlayer()"><span class="mi">◉</span><b id="modernAccountStatus">Stav účtu -- €</b><small>hráčsky profil</small></button>
+      <button class="modern-status" onclick="openNetWorth()"><span class="mi">◆</span><b id="modernNetWorthStatus">Net Worth -- €</b><small>celkový majetok</small></button>
+      <button class="modern-status" onclick="openLifestyleManager()"><span class="mi">⌂</span><b id="modernExpensesStatus">Náklady -- €</b><small>životný štýl</small></button>
+      <button class="modern-status" onclick="openHappinessOverview()"><span class="mi">✦</span><b id="modernHappyStatus">Spokojnosť --%</b><small>aktuálny stav</small></button>
+    </section>
+  </div>
+
+  <section class="modern-section">
+    <div class="modern-section-title">Rýchly prístup</div>
+    <div class="modern-actions">
+      <button class="modern-action" onclick="openGameCalendar()"><span class="icon">▦</span><span>Kalendár</span></button>
+      <button class="modern-action" onclick="openAiAssistant()"><span class="icon">◈</span><span>ArciBot</span></button>
+      <button class="modern-action" onclick="openSponsorInfo()"><span class="icon">◇</span><span>Sponzori</span></button>
+      <button class="modern-action" onclick="openSettings()"><span class="icon">⚙</span><span>Nastavenia</span></button>
+      <button class="modern-action" onclick="openPersonalAchievements()"><span class="icon">◎</span><span>Osobné úspechy</span></button>
+      <button class="modern-action" onclick="openGlobalAchievementsList()"><span class="icon">◆</span><span>Achievementy</span></button>
+      <button class="modern-action" onclick="openHallOfFame()"><span class="icon">♛</span><span>Sieň slávy</span></button>
+      <button class="modern-action" onclick="openComparator()"><span class="icon">⇄</span><span>Porovnanie</span></button>
+      <button class="modern-action" onclick="openArciNews()"><span class="icon">▤</span><span>ArciNews</span></button>
+      <button class="modern-action" onclick="openTrophyGallery()"><span class="icon">◇</span><span>Trofeje</span></button>
+      <button class="modern-action" onclick="showGlobalPlayerCards()"><span class="icon">▣</span><span>PGA Cards</span></button>
+      <button class="modern-action" onclick="openScannerModal()"><span class="icon">⌁</span><span>Skener</span></button>
+    </div>
+  </section>
+
+  <section class="modern-section">
+    <div class="modern-section-title">Rebríčky</div>
+    <div class="modern-ranks">
+      <button class="modern-rank" onclick="showRankTable('Official')">Official</button>
+      <button class="modern-rank" onclick="showRankTable('PGA')">PGA</button>
+      <button class="modern-rank" onclick="showRankTable('FEDEX')">FedEx</button>
+      <button class="modern-rank" onclick="showRankTable('Association')">Players</button>
+      <button class="modern-rank" onclick="showRankTable('Tour')">World Tour</button>
+      <button class="modern-rank" onclick="showRankTable('EA')">EA Sports</button>
+      <button class="modern-rank" onclick="showRankTable('Amateur')">Amateur</button>
+      <button class="modern-rank" onclick="showRankTable('ELO')">ELO</button>
+    </div>
+  </section>
+
+  <section class="modern-section">
+    <div class="modern-section-title">Ekonomika & zábava</div>
+    <div class="modern-more">
+      <button class="modern-action" onclick="openArciShop()"><span class="icon">□</span><span>ArciShop</span></button>
+      <button class="modern-action" onclick="openArciCardsHub()"><span class="icon">▣</span><span>ArciCards</span></button>
+      <button class="modern-action" onclick="openArciInvest()"><span class="icon">↗</span><span>ArciInvest</span></button>
+      <button class="modern-action" onclick="openArciTip()"><span class="icon">⌁</span><span>ArciTip</span></button>
+      <button class="modern-action" onclick="openArciCasino()"><span class="icon">◈</span><span>ArciBet</span></button>
+      <button class="modern-action" onclick="openArciUnderground()"><span class="icon">▼</span><span>Podsvetie</span></button>
+      <button class="modern-action" onclick="openMapSearchModal()"><span class="icon">⌕</span><span>Hráč</span></button>
+      <button class="modern-action" onclick="openFavoritesModal()"><span class="icon">☆</span><span>Obľúbení</span></button>
+      <button class="modern-action" onclick="openJointSpot()"><span class="icon">○</span><span>Chill Spot</span></button>
+      <button class="modern-action" onclick="openLifestyleManager()"><span class="icon">⌂</span><span>Životný štýl</span></button>
+    </div>
+  </section>
+</div>
+
 
 
 
@@ -3290,7 +3379,15 @@ window.updateMenuStats = function() {
         }
 
         btnNW.innerText = `💎 Net Worth ${formatWholeEuro(totalNW)}`;
+        const modernNW = document.getElementById('modernNetWorthStatus');
+        if (modernNW) modernNW.innerText = `Net Worth ${formatWholeEuro(totalNW)}`;
     }
+    const modernAccount = document.getElementById('modernAccountStatus');
+    if (modernAccount) modernAccount.innerText = `Stav účtu ${formatWholeEuro(appState.betting.balance || 0)}`;
+    const modernExpenses = document.getElementById('modernExpensesStatus');
+    if (modernExpenses) modernExpenses.innerText = `Náklady ${formatWholeEuro(typeof calculateTotalWeeklyExpenses === 'function' ? calculateTotalWeeklyExpenses() : 0)}`;
+    const modernHappy = document.getElementById('modernHappyStatus');
+    if (modernHappy && typeof calculateLifestyleStats === 'function') modernHappy.innerText = `Spokojnosť ${Math.round(calculateLifestyleStats().totalHappy)}%`;
 };
 
 // =========================================================================
@@ -61879,7 +61976,7 @@ function renderNewsList(fileKey) {
         filters: { tours: ['ALL'], events: [], seasons: [], importance: 'ALL', activeWeek: null },
         ui: { showWeeks: false, eventDropdownOpen: false, seasonDropdownOpen: false, importanceDropdownOpen: false },
         sort: { column: 'points', dir: 'desc' },
-        settings: { zoom: 0, theme: 'Default', themesOpen: false }, 
+        settings: { zoom: 0, theme: 'Default', themesOpen: false, design: 'classic' }, 
         history: [],
         unlockedBadges: {} // <--- TOTO PRIDAJ (Pamäť pre odznaky)
     };
@@ -61992,12 +62089,15 @@ function renderNewsList(fileKey) {
             appState.settings.zoom = appState.settings.zoom ? 1 : 0;
         }
         if (!appState.filters.importance) appState.filters.importance = 'ALL';
+        if (!appState.settings) appState.settings = { zoom:0, theme:'Default', themesOpen:false, design:'classic' };
+        if (!appState.settings.design) appState.settings.design = 'classic';
         if (!db.seasonStats) db.seasonStats = [];
 
         calculateELO();
         calculateGlobalAchievements();
 
         applyTheme(appState.settings.theme);
+        applyDesign(appState.settings.design);
         updateViewport();
         renderApp();
 
@@ -67784,6 +67884,11 @@ function createModal(contentHtml, id = null) {
         const currentZoomLabel = zoomLabels[appState.settings.zoom] || 'Mobilný';
         const themesDisplay = appState.settings.themesOpen ? 'grid' : 'none';
         const toggleBtnText = appState.settings.themesOpen ? 'Skryť Témy' : 'Zobraziť Témy';
+        const designBtns = `
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px;">
+                <button class="btn ${(!appState.settings.design || appState.settings.design === 'classic') ? 'btn-green' : 'btn-grey'}" onclick="changeDesign('classic')">▦ Classic</button>
+                <button class="btn ${appState.settings.design === 'modern' ? 'btn-blue' : 'btn-grey'}" onclick="changeDesign('modern')">◈ Modern</button>
+            </div>`;
 
         const html = `
             <div class="modal-header"><h2>Nastavenia</h2><button class="close-btn" onclick="closeTopModal()">&times;</button></div>
@@ -67804,6 +67909,10 @@ function createModal(contentHtml, id = null) {
                     <button class="btn btn-grey" onclick="toggleZoomInSettings()">Režim: ${currentZoomLabel}</button>
                 </div>
                 <h3>Vzhľad</h3>
+                <div style="background:var(--card-bg);border:1px solid #444;border-radius:10px;padding:10px;margin-bottom:10px;">
+                    <div style="font-size:.8rem;color:var(--text-muted);text-transform:uppercase;font-weight:bold;">Dizajn aplikácie</div>
+                    ${designBtns}
+                </div>
                 <button class="btn btn-full-width btn-grey" onclick="toggleThemes(this)" style="margin-bottom:10px;">${toggleBtnText}</button>
                 <div class="theme-grid" id="themeContainer" style="display:${themesDisplay};">${themeBtns}</div>
                 <h3>Sloty (Uložiť / Načítať)</h3>
@@ -67823,6 +67932,18 @@ function createModal(contentHtml, id = null) {
 
     function toggleZoomInSettings() { toggleZoom(); closeTopModal(); openSettings(); }
     function changeTheme(name) { appState.settings.theme = name; applyTheme(name); saveAuto(); closeTopModal(); openSettings(); }
+    function changeDesign(name) {
+        appState.settings.design = (name === 'modern') ? 'modern' : 'classic';
+        applyDesign(appState.settings.design);
+        saveAuto();
+        closeTopModal();
+        openSettings();
+    }
+    function applyDesign(name) {
+        const design = name === 'modern' ? 'modern' : 'classic';
+        document.body.classList.toggle('design-modern', design === 'modern');
+        document.body.classList.toggle('design-classic', design === 'classic');
+    }
 function applyTheme(name) {
     const t = colorSchemes[name] || colorSchemes['Default'];
     const root = document.documentElement;
@@ -77739,7 +77860,7 @@ function renderCalendarGrid() {
 
             html += `
                 <div class="${overlayClass}" style="grid-row: ${w + 2}; grid-column: 4 / 8;">
-                    <div class="cal-tour-title">${tournamentName} (S${tSeason})</div>
+                    <div class="cal-tour-title" ${typeof db !== 'undefined' && db.files && db.files.some(f => parseInt(f.season) === tSeason && f.eventName.includes(tournamentName)) ? `onclick="openTournamentResultModal(${db.files.find(f => parseInt(f.season) === tSeason && f.eventName.includes(tournamentName)).id})" style="cursor:pointer;text-decoration:underline;text-decoration-style:dotted;" title="Otvoriť kompletné výsledky"` : ''}>${tournamentName} (S${tSeason})</div>
                     <div class="cal-tour-res">${playedText}</div>
                 </div>
             `;
@@ -77751,6 +77872,222 @@ function renderCalendarGrid() {
     html += `</div>`; // Koniec gridu
     gridArea.innerHTML = html;
 }
+
+
+// =====================================================================
+// --- DETAIL VÝSLEDKOV KONKRÉTNEHO TURNAJA Z KALENDÁRA ----------------
+// =====================================================================
+function arciTournamentHasFourRounds(p) {
+    return [p.r1, p.r2, p.r3, p.r4].every(v => {
+        if (v === undefined || v === null) return false;
+        const s = String(v).trim().toUpperCase();
+        return s !== '' && s !== 'NA' && s !== '-' && Number.isFinite(Number(s));
+    });
+}
+
+function arciTournamentRankDisplay(players) {
+    const sorted = [...players].sort((a,b) => {
+        const ac = arciTournamentHasFourRounds(a), bc = arciTournamentHasFourRounds(b);
+        if (ac !== bc) return ac ? -1 : 1;
+        if (ac && bc) {
+            const pa = Number(a.par), pb = Number(b.par);
+            if (Number.isFinite(pa) && Number.isFinite(pb) && pa !== pb) return pa - pb;
+            return (Number(b.points) || 0) - (Number(a.points) || 0);
+        }
+        return (Number(b.points) || 0) - (Number(a.points) || 0);
+    });
+
+    let lastScore = null;
+    let lastRank = 0;
+    let completedIndex = 0;
+    let scoreCounts = {};
+    sorted.forEach(p => { if (arciTournamentHasFourRounds(p)) scoreCounts[Number(p.par)] = (scoreCounts[Number(p.par)] || 0) + 1; });
+    return sorted.map(p => {
+        const completed = arciTournamentHasFourRounds(p);
+        if (!completed) return { player: p, displayRank: 'CUT' };
+        completedIndex++;
+        const score = Number(p.par);
+        if (lastScore !== score) {
+            lastRank = completedIndex;
+            lastScore = score;
+        }
+        const tied = scoreCounts[score] > 1;
+        return { player: p, displayRank: tied ? `T${lastRank}` : String(lastRank) };
+    });
+}
+
+function arciTournamentRankingContributions(file) {
+    const out = {};
+    file.content.forEach(p => {
+        const n = normalizeName(p.name);
+        out[n] = { official:0, pga:0, tour:0, fedex:0, players:0, ea:0, amateur:0, elo:0 };
+    });
+
+    // Official Rank = points from every non-KFT event.
+    if (file.type !== 'KFT') {
+        file.content.forEach(p => { out[normalizeName(p.name)].official = Number(p.points) || 0; });
+    }
+
+    // PGA Rank = same formula as getPGARankList(), including recency and importance.
+    const pgaFiles = db.files.filter(f => f.type === 'PGA').sort((a,b) => compareFiles(b,a));
+    const pgaIndex = pgaFiles.findIndex(f => f.id === file.id);
+    if (pgaIndex >= 0 && pgaIndex < 40) {
+        let recencyCoeff = 1.25;
+        if (pgaIndex < 10) recencyCoeff = 2.0;
+        else if (pgaIndex < 20) recencyCoeff = 1.75;
+        else if (pgaIndex < 30) recencyCoeff = 1.5;
+        let importanceCoeff = 1;
+        if (file.isImportant) importanceCoeff = 5;
+        else if (file.isSignificant) importanceCoeff = 2;
+        const mult = recencyCoeff * importanceCoeff;
+        file.content.forEach(p => { out[normalizeName(p.name)].pga = (Number(p.points) || 0) * mult; });
+    }
+
+    // World Tour Rank.
+    if (file.type !== 'KFT') {
+        const coeff = file.isImportant ? 2 : (file.isSignificant ? 1 : 0);
+        if (coeff) file.content.forEach(p => { out[normalizeName(p.name)].tour = (Number(p.points) || 0) * coeff; });
+    }
+
+    // EA Rank.
+    if (file.type === 'EA SPORTS' || file.type === 'FED EX') {
+        file.content.forEach(p => { out[normalizeName(p.name)].ea = Number(p.points) || 0; });
+    }
+
+    // Players Rank = last 10 THE PLAYERS events.
+    const playersFiles = db.files.filter(f => f.type === 'THE PLAYERS').sort((a,b) => compareFiles(b,a)).slice(0,10);
+    if (playersFiles.some(f => f.id === file.id)) {
+        file.content.forEach(p => { out[normalizeName(p.name)].players = Number(p.points) || 0; });
+    }
+
+    // FedEx Rank = current maximum season, all valid tours.
+    const validFedexTypes = ['PGA','EA SPORTS','THE PLAYERS','FED EX'];
+    const maxSeason = db.files.length ? Math.max(...db.files.map(f => parseInt(f.season) || 0)) : 0;
+    if (validFedexTypes.includes(file.type) && parseInt(file.season) === maxSeason) {
+        file.content.forEach(p => { out[normalizeName(p.name)].fedex = Number(p.points) || 0; });
+    }
+
+    // Amateur Rank = KFT.
+    if (file.type === 'KFT') {
+        file.content.forEach(p => { out[normalizeName(p.name)].amateur = Number(p.points) || 0; });
+    }
+
+    // ELO: exact per-tournament rating delta, using the same formula as calculateELO().
+    if (file.type !== 'KFT') {
+        const sortedFiles = [...db.files].sort(compareFiles);
+        const ratings = {};
+        const START_ELO = 1200;
+        const K_BASE = 32;
+        for (const f of sortedFiles) {
+            const active = f.content.filter(p => p.rank > 0);
+            active.forEach(p => {
+                const n = normalizeName(p.name);
+                if (!ratings[n]) ratings[n] = START_ELO;
+            });
+            const changes = {};
+            active.forEach(pA => {
+                const nA = normalizeName(pA.name);
+                const ratingA = ratings[nA];
+                let K = K_BASE;
+                let protect = false;
+                if (f.isImportant) { K = K_BASE * 1.5; protect = true; }
+                if (f.isSignificant) { K = K_BASE * 1.25; protect = true; }
+                if (f.type === 'FED EX') { K = K_BASE * 2.0; protect = true; }
+                let actual = 0, expected = 0;
+                active.forEach(pB => {
+                    if (pA === pB) return;
+                    const nB = normalizeName(pB.name);
+                    const expectedOne = 1 / (1 + Math.pow(10, (ratings[nB] - ratingA) / 400));
+                    expected += expectedOne;
+                    actual += pA.rank < pB.rank ? 1 : (pA.rank > pB.rank ? 0 : 0.5);
+                });
+                const count = active.length - 1;
+                if (count > 0) {
+                    let change = K * (actual - expected) / Math.max(1, (count / 20));
+                    if (protect && change < 0) change = 0;
+                    changes[nA] = change;
+                }
+            });
+            Object.entries(changes).forEach(([n,c]) => ratings[n] += c);
+            if (f.id === file.id) {
+                file.content.forEach(p => {
+                    out[normalizeName(p.name)].elo = changes[normalizeName(p.name)] || 0;
+                });
+                break;
+            }
+        }
+    }
+    return out;
+}
+
+window.openTournamentResultModal = function(fileId) {
+    const file = db.files.find(f => f.id == fileId);
+    if (!file) return;
+    const ranked = arciTournamentRankDisplay(file.content || []);
+    const contributions = arciTournamentRankingContributions(file);
+    const fmt = n => Number.isFinite(Number(n)) ? (Number(n) < 0 ? String(Number(n)) : `+${Number(n)}`) : '0';
+    const num = n => Number.isFinite(Number(n)) ? String(Number(n)) : '—';
+    const cell = n => Number(n) === 0 ? '0' : (Number(n).toFixed(2).replace(/\.00$/,''));
+
+    const rows = ranked.map(({player:p, displayRank}) => {
+        const c = contributions[normalizeName(p.name)] || {};
+        const completed = arciTournamentHasFourRounds(p);
+        const rounds = [p.r1,p.r2,p.r3,p.r4].map(v => {
+            const s = String(v ?? '').trim();
+            return (!s || s.toUpperCase() === 'NA' || s === '-') ? '—' : s;
+        });
+        const par = Number.isFinite(Number(p.par)) ? fmt(Number(p.par)) : '—';
+        return `<tr class="tour-result-row ${completed ? '' : 'tour-cut-row'}">
+            <td class="tour-pos"><b>${displayRank === 'CUT' ? 'CUT' : (displayRank === '1' ? '1' : displayRank)}</b></td>
+            <td class="tour-name">${p.name}</td>
+            <td>${par}</td>
+            <td>${rounds[0]}</td><td>${rounds[1]}</td><td>${rounds[2]}</td><td>${rounds[3]}</td>
+            <td class="tour-points">${cell(p.points)}</td>
+            <td>${cell(c.official)}</td><td>${cell(c.pga)}</td><td>${cell(c.tour)}</td><td>${cell(c.fedex)}</td>
+            <td>${cell(c.players)}</td><td>${cell(c.ea)}</td><td>${cell(c.amateur)}</td><td>${cell(c.elo)}</td>
+        </tr>`;
+    }).join('');
+
+    const html = `
+        <style>
+            .tour-result-wrap{background:#090b10;color:#fff;min-height:100%;}
+            .tour-result-meta{display:flex;gap:8px;flex-wrap:wrap;padding:12px 16px;background:#111827;border-bottom:1px solid #263244;}
+            .tour-result-badge{padding:5px 9px;border-radius:999px;background:#1f2937;color:#cbd5e1;font-size:.72rem;font-weight:800;border:1px solid #334155;}
+            .tour-result-scroll{overflow:auto;max-height:calc(92vh - 125px);}
+            .tour-result-table{border-collapse:separate;border-spacing:0;min-width:1180px;width:100%;font-size:.76rem;}
+            .tour-result-table th{position:sticky;top:0;background:#162033;color:#9ca3af;z-index:2;padding:8px 6px;border-bottom:1px solid #334155;white-space:nowrap;text-align:center;}
+            .tour-result-table td{padding:7px 6px;border-bottom:1px solid #1f2937;text-align:center;white-space:nowrap;}
+            .tour-result-table .tour-name{text-align:left;min-width:175px;font-weight:700;position:sticky;left:0;background:#0d1117;z-index:1;}
+            .tour-result-table .tour-pos{position:sticky;left:0;z-index:2;background:#111827;min-width:52px;}
+            .tour-result-row:nth-child(even) td{background:#0c1016;}.tour-result-row:nth-child(even) .tour-name{background:#0c1016;}
+            .tour-result-row:hover td{background:#172033;}.tour-result-row:hover .tour-name,.tour-result-row:hover .tour-pos{background:#172033;}
+            .tour-cut-row td{color:#94a3b8;}.tour-cut-row .tour-pos{color:#f59e0b;}.tour-points{color:#f1c40f;font-weight:900;}
+            .tour-result-note{padding:9px 16px;color:#64748b;font-size:.7rem;border-top:1px solid #1f2937;}
+        </style>
+        <div class="tour-result-wrap">
+            <div class="modal-header" style="background:linear-gradient(90deg,#0b1220,#172554);border-bottom:2px solid #2563eb;">
+                <div><h2>🏌️ ${file.eventName}</h2><div style="font-size:.72rem;color:#94a3b8;margin-top:3px;">Sezóna ${file.season} · ${file.type || 'Turnaj'}</div></div>
+                <button class="close-btn" onclick="closeTopModal()">&times;</button>
+            </div>
+            <div class="tour-result-meta">
+                <span class="tour-result-badge">Hráči: ${ranked.length}</span>
+                <span class="tour-result-badge">🏆 Body turnaja</span>
+                <span class="tour-result-badge">8 rebríčkov</span>
+                <span class="tour-result-badge">ELO = zmena ratingu</span>
+            </div>
+            <div class="tour-result-scroll">
+                <table class="tour-result-table">
+                    <thead><tr>
+                        <th>Miesto</th><th>Hráč</th><th>Par</th><th>R1</th><th>R2</th><th>R3</th><th>R4</th><th>Body</th>
+                        <th>Official</th><th>PGA</th><th>World Tour</th><th>FedEx</th><th>Players</th><th>EA</th><th>Amateur</th><th>ELO Δ</th>
+                    </tr></thead>
+                    <tbody>${rows}</tbody>
+                </table>
+            </div>
+            <div class="tour-result-note">CUT = hráč nemá dokončené všetky 4 kolá. Rovnaké celkové skóre = delené miesto. Pri rebríčku bez bodov je 0.</div>
+        </div>`;
+    createModal(html, 'tournament-result-modal');
+};
 
 // --- OTVORENIE ŠPECIÁLNEJ UDALOSTI Z KALENDÁRA ---
 window.openCalendarEvent = function(index) {
@@ -79664,7 +80001,1447 @@ function finishFight() {
 
 <link rel="stylesheet" href="arci-map.css">
 
-<script src="arci-map.js"></script>
+<script id="arci-map-inline">
+// ==========================================
+// 1. DÁTA BUDOV A SÚRADNICE
+// ==========================================
+
+const buildingsData = {
+    "jamka": { name: "Turnaj", x: 2.2, y: 60.4, doorX: 1.3, doorY: 61.2, size: 35, img: "buda_turnaj.png", detail: "mapa-turnaj.png", action: "openScannerModal" },
+    "udrzba": { name: "Údržba", x: 8.5, y: 41.0, doorX: 8.5, doorY: 42.0, size: 75, img: "buda_udrzba.png", detail: "mapa-udrzba.png", action: "openSettings" },
+    "bankomat": { name: "Bankomat", x: 29.5, y: 69.4, doorX: 30.4, doorY: 70.7, size: 30, img: "buda_bankomat.png", detail: "mapa-balance.png", action: "openMyPlayer" },
+    "banka": { name: "Net Worth Banka", x: 24.9, y: 73, doorX: 27.5, doorY: 72.2, size: 105, img: "buda_banka.png", detail: "mapa-bank.png", action: "openNetWorth" },
+    "noviny": { name: "Novinový stánok", x: 74.3, y: 62.3, doorX: 74.3, doorY: 62.3, size: 85, img: "buda_noviny.png", detail: "mapa-news.png", action: "openArciNews" },
+    "shop": { name: "ArciShop", x: 47.5, y: 79.5, doorX: 47.5, doorY: 79.5, size: 135, img: "buda_arcishop.png", detail: "mapa-shop.png", action: "openArciShop" },
+    "cards": { name: "ArciCards", x: 59.2, y: 80.5, doorX: 59.2, doorY: 80.5, size: 95, img: "buda_arcicards.png", detail: "mapa-arcicards.png", action: "openArciCardsHub" },
+    "vila": { name: "Životný Štýl", x: 53.0, y: 53.5, doorX: 53.0, doorY: 53.5, size: 120, img: "buda_vila.png", detail: "mapa-villa.png", action: "openLifestyleManager" },
+    "illegal": { name: "Podsvetie", x: 94.7, y: 76.9, doorX: 94.7, doorY: 76.9, size: 85, img: "buda_illegal.png", detail: "mapa-illegal.png", action: "openArciUnderground" }, 
+    "chillspot": { name: "Chill Spot", x: 2.0, y: 53.0, doorX: 1.8, doorY: 48.0, size: 110, img: "buda_joint.png", detail: "joint.png", action: "openJointSpot" },
+    "invest": { name: "ArciInvest", x: 39.8, y: 89.6, doorX: 39.8, doorY: 89.6, size: 135, img: "buda_arciinvest.png", detail: "mapa-invest.png", action: "openArciInvest" },
+    "casino": { name: "ArciBet Casino", x: 78.8, y: 82.5, doorX: 78.5, doorY: 82.5, size: 105, img: "buda_arcibet.png", detail: "mapa-arcibet.png", action: "openArciCasino" },
+    "tip": { name: "ArciTip Stávková", x: 66.7, y: 83.5, doorX: 66.7, doorY: 83.5, size: 95, img: "buda_arcitip.png", detail: "mapa-tip.png", action: "openArciTip" },
+    "osobne": { name: "Osobné úspechy", x: 13, y: 86.8, doorX: 9.3, doorY: 77.8, size: 160, img: "buda_zahradka.png", detail: "mapa-personal.png", action: "openPersonalAchievements" },
+    "plavaren": { name: "História Spokojnosti", x: 90.9, y: 62.3, doorX: 86.9, doorY: 63.4, size: 162, img: "buda_plavaren.png", detail: "mapa-happy.png", action: "openHappinessOverview" },
+        "oblubene": { name: "Obľúbený Hrači", x: 58.1, y: 88.4, doorX: 58, doorY: 83.2, size: 38, img: "buda_oblubene.png", detail: "mapa-oblubene.png", action: "openFavoritesModal" },
+    "vyhladat": { name: "Vyhľadať Hráča", x: 76.17, y: 87.0, doorX: 76.17, doorY: 88.0, size: 30, img: "buda-vyhladat.png", detail: "mapa_vyhladat.png", action: "openMapSearchModal" }, 
+    "kostol": { name: "Kalendár", x: 19.5, y: 28.0, doorX: 19.5, doorY: 28.0, size: 95, img: "buda_kostol.png", detail: "mapa-kostol.png", action: "openGameCalendar" },
+    "global": { name: "Globálne Achievmenty", x: 28.5, y: 97.0, doorX: 28.5, doorY: 95.0, size: 110, img: "buda_tabula.png", detail: "mapa-global.png", action: "openGlobalAchievementsList" },
+    "kniznica": { name: "Sieň Slávy", x: 40.7, y: 50.5, doorX: 40.7, doorY: 50.5, size: 115, img: "buda_kniznica.png", detail: "mapa-hof.png", action: "openHallOfFame" },
+    "gym": { name: "Trofeje", x: 71.0, y: 56.0, doorX: 70.0, doorY: 56.0, size: 95, img: "buda_gym.png", detail: "mapa-trophy.png", action: "openTrophyGallery" },
+    "sponsor": { name: "Sponzori", x: 36.1, y: 31.3, doorX: 34.5, doorY: 30.6, size: 115, img: "buda_palac.png", detail: "mapa-sponsor.png", action: "openSponsorInfo" },
+    "arcibot": { name: "ArciBot", x: 12.5, y: 65.5, doorX: 12.5, doorY: 65.5, size: 35, img: "buda_arcibot.png", detail: "mapa-arcibot.png", action: "openAiAssistant" },
+    "super": { name: "Porovnanie Hráčov", x: 62.5, y: 54.0, doorX: 60.5, doorY: 54.0, size: 90, img: "buda_super.png", detail: "mapa-vs.png", action: "openComparator" },
+    "world": { name: "World Tour Rank", x: 33.5, y: 24.5, doorX: 31.9, doorY: 23.2, size: 105, img: "buda_worldtour.png", detail: "mapa-worldtour.png", action: "showRankTable_Tour" },
+    "official": { name: "Official Rank", x: 51.9, y: 35.0, doorX: 50.9, doorY: 35.0, size: 95, img: "buda_official.png", detail: "mapa-official.png", action: "showRankTable_Official" },
+    "pga": { name: "PGA Rank", x: 60.0, y: 33.5, doorX: 59.0, doorY: 33.5, size: 100, img: "buda_pga.png", detail: "mapa-pga.png", action: "showRankTable_PGA" },
+    "fedex": { name: "Fedex Rank", x: 63.0, y: 37.8, doorX: 62.0, doorY: 37.8, size: 75, img: "buda_fedex.png", detail: "mapa-fedex.png", action: "showRankTable_FEDEX" },
+    "players": { name: "Players Rank", x: 72.5, y: 34.0, doorX: 71.5, doorY: 34.0, size: 100, img: "buda_players.png", detail: "mapa-players.png", action: "showRankTable_Association" },
+    "ea": { name: "EA Rank", x: 84.5, y: 35.5, doorX: 83.5, doorY: 35.5, size: 100, img: "buda_ea.png", detail: "mapa-ea.png", action: "showRankTable_EA" },
+    "amateur": { name: "Amateur Rank", x: 74.7, y: 40.2, doorX: 73.7, doorY: 40.2, size: 65, img: "buda_amateur.png", detail: "mapa-amateur.png", action: "showRankTable_Amateur" },
+    "elo": { name: "ELO Rank", x: 95.8, y: 44.5, doorX: 94.8, doorY: 44.5, size: 95, img: "buda_elo.png", detail: "mapa-elo.png", action: "showRankTable_ELO" },
+    "stadion": { name: "Rebríček PGA Cards", x: 22.8, y: 55.5, doorX: 27.6, doorY: 55, size: 240, img: "buda_stadion.png", detail: "mapa-cards.png", action: "showGlobalPlayerCards" }
+};
+
+// ==========================================
+// 2. JADRO MOTORU MAPY (Z-Index vrstvy a Zoom)
+// ==========================================
+
+let arciScale = 1;
+let isDebugMode = false;
+
+// Nové premenné pre nastavenia (Načítavajú sa z uloženej pamäte, alebo dajú predvolené)
+let speedMultiplier = parseFloat(localStorage.getItem('arciSpeed')) || 0.6;
+let walkOnRoadsOnly = localStorage.getItem('arciRoads') === 'true'; 
+let currentBuildingIndex = -1; // Sleduje, pri ktorej budove hráč naposledy bol
+let directEntry = localStorage.getItem('arciEntry') === 'true';
+let npcSpeedMultiplier = parseFloat(localStorage.getItem('arciNpcSpeed')) || 1.0; 
+
+// --- KONFIGURÁCIA NPC POSTÁV ---
+const npcConfigs = {
+    "npc1":  { width: 20, name: "Piker Mario" },
+    "npc2":  { width: 15, name: "Depka von Klepka" },
+    "npc3":  { width: 18, name: "Laco Trojočko" },
+    "npc4":  { width: 42, name: "Fetoň" },
+    "npc5":  { width: 50, name: "Santa Grass" },
+    "npc6":  { width: 45, name: "Jointimír Jóda" },
+    "npc7":  { width: 45, name: "Buzz Prafeťák" },
+    "npc8":  { width: 45, name: "Asteroidix" },
+    "npc9":  { width: 27, name: "Taťka Zhloula" },
+    "npc10": { width: 25, name: "Jožko Blacksonicson" },
+    "npc11": { width: 28, name: "Líza Papierson" },
+    "npc12": { width: 28, name: "Rosomák van Herák" }, 
+        "npc13": { width: 35, name: "Ubalix" },
+            "npc14": { width: 25, name: "Snich" },
+                "npc15": { width: 18, name: "Hello Weedy" },
+                  "npc16": { width: 25, name: "Sponge Drog" },
+                   "npc17": { width: 20, name: "Hulmiona Ganžerova" },
+                    "npc18": { width: 33, name: "Pyron Man" },
+                   "npc19": { width: 30, name: "Zhulk" },
+                  "npc20": { width: 25, name: "SuperSkank Man" },
+                 "npc21": { width: 33, name: "Ganja Korytnačka" },
+                     "npc22": { width: 15, name: "Harry Squatter" },
+                   "npc23": { width: 20, name: "Green Power" },
+                  "npc24": { width: 35, name: "Malradfin" },
+                 "npc25": { width: 25, name: "Dumbleoutdoore" }
+};
+
+let activeNPCs = []; // Sledovanie aktívnych postáv na mape
+const MIN_NPCS = 8;
+const MAX_NPCS = 14;
+const NPC_STAY_DURATION = 10000; // 10 sekúnd státia pri budove
+const occupiedDoors = {}; // OBJEKT: Sleduje počet ľudí pri vchode (kľúč = key budovy, hodnota = počet)
+
+function getMinScale() {
+    const mapW = 2000;
+    const mapH = 1125;
+    const winW = window.innerWidth;
+    const winH = window.innerHeight;
+    return Math.max(winW / mapW, winH / mapH);
+}
+
+function startArciCityGame() {
+    const container = document.getElementById('arci-city-game-container');
+    
+    const savedX = localStorage.getItem('arciPlayerX') || "10";
+    const savedY = localStorage.getItem('arciPlayerY') || "40";
+
+    let buildingMenuItems = "";
+    for (let key in buildingsData) {
+        buildingMenuItems += `<div onclick="navigateFromMenu('${key}', event)" style="padding: 12px; color: white; border-bottom: 1px solid rgba(255,215,0,0.3); cursor: pointer; text-align: left; font-weight: bold; font-family: sans-serif; font-size: 0.9rem;">🏢 ${buildingsData[key].name}</div>`;
+    }
+
+    container.style.display = 'block';
+    container.style.position = 'fixed';
+    container.style.top = '0';
+    container.style.left = '0';
+    container.style.width = '100vw';
+    container.style.height = '100vh';
+    container.style.zIndex = '900'; 
+    container.style.background = '#000';
+    container.style.overflow = 'auto'; 
+    container.style.scrollbarWidth = 'none'; 
+    
+    // --- VLOŽENÉ CSS PRE HOJDACIU ANIMÁCIU A MAPU ---
+    container.innerHTML = `
+        <style>
+            #arci-city-game-container::-webkit-scrollbar { display: none; } 
+            #buildingNavMenu::-webkit-scrollbar { display: none; } 
+            #settingsNavMenu::-webkit-scrollbar { display: none; }
+            
+            /* Animácia hojdania pre všetky chodiace postavy */
+            @keyframes hojdanie {
+                0%   { transform: translate(-50%, -100%) rotate(0deg) translateY(0); }
+                25%  { transform: translate(-50%, -100%) rotate(-5deg) translateY(-5px); }
+                50%  { transform: translate(-50%, -100%) rotate(0deg) translateY(0); }
+                75%  { transform: translate(-50%, -100%) rotate(5deg) translateY(-5px); }
+                100% { transform: translate(-50%, -100%) rotate(0deg) translateY(0); }
+            }
+            
+            /* Animácia pre chôdzu doľava (pridané zrkadlenie cez scaleX) */
+            @keyframes hojdanie-vlavo {
+                0%   { transform: translate(-50%, -100%) scaleX(-1) rotate(0deg) translateY(0); }
+                25%  { transform: translate(-50%, -100%) scaleX(-1) rotate(-5deg) translateY(-5px); }
+                50%  { transform: translate(-50%, -100%) scaleX(-1) rotate(0deg) translateY(0); }
+                75%  { transform: translate(-50%, -100%) scaleX(-1) rotate(5deg) translateY(-5px); }
+                100% { transform: translate(-50%, -100%) scaleX(-1) rotate(0deg) translateY(0); }
+            }
+
+            .wobble-walk {
+                animation: hojdanie 0.5s infinite linear;
+            }
+            
+            .wobble-walk-left {
+                animation: hojdanie-vlavo 0.5s infinite linear;
+            }
+
+            .face-left {
+                transform: translate(-50%, -100%) scaleX(-1) !important;
+            }
+            
+            .face-right {
+                transform: translate(-50%, -100%) scaleX(1) !important;
+            }
+        </style>
+        
+        <div id="scaleContainer" style="width: 2000px; height: 1125px; transition: width 0.1s ease-out, height 0.1s ease-out;">
+            <div class="map-wrapper" id="mapWrapper" style="position: relative; width: 2000px; height: 1125px; overflow: hidden; transform-origin: 0 0; transition: transform 0.1s ease-out;">
+                <img src="Map_Background.png" class="map-bg" onclick="handleMapClick(event)" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1;">
+                <div id="buildingsLayer"></div>
+                <div id="npcLayer" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: auto;"></div>
+                <div id="debugLayer" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 400;"></div>
+                
+                <img src="panáčik_stoji.png" id="player-character" class="face-right" style="position: absolute; left: ${savedX}%; top: ${savedY}%; width: 45px; z-index: 500; transition: none; pointer-events: none; filter: drop-shadow(0px 5px 5px rgba(0,0,0,0.5));">
+            </div>
+        </div>
+        
+        <div id="buildingDetailLayer" onclick="closeBuildingDetail()" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.85); z-index: 950; flex-direction: column; align-items: center; justify-content: center;">
+            <img id="detailImg" src="" onclick="executeBuildingAction(event)" style="width: 95vw; max-height: 80vh; object-fit: contain; border: 5px solid gold; border-radius: 20px; box-shadow: 0 0 50px gold; cursor: pointer; transition: transform 0.2s;">
+            <div id="buildingActionText" style="color: gold; font-weight: bold; margin-top: 15px; font-size: 1.2rem; text-shadow: 2px 2px #000; background: rgba(0,0,0,0.7); padding: 10px; border-radius: 10px; text-align: center;">
+                👆 KLIKNI NA FOTKU PRE VSTUP
+            </div>
+        </div>
+
+        <div id="jointModalLayer" onclick="closeJointModal(event)" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.85); z-index: 970; flex-direction: column; align-items: center; justify-content: center;">
+            <div style="background: #111; border: 3px solid #2ecc71; border-radius: 15px; padding: 25px; text-align: center; max-width: 300px; width: 85%; box-shadow: 0 0 40px rgba(46, 204, 113, 0.4);" onclick="event.stopPropagation()">
+                <h2 style="color: #fff; margin-top: 0; border-bottom: 1px solid #333; padding-bottom: 10px; font-size: 1.5rem;">🌿 CHILL SPOT</h2>
+                <p style="color: #ccc; font-size: 0.9rem; margin-bottom: 20px;">Daj si špeka na uvoľnenie! Zvýši ti to šťastie o 10%.</p>
+                
+                <div id="jointImageContainer" style="margin: 0 auto; width: 150px; border: 2px solid #2ecc71; border-radius: 12px; overflow: hidden; transition: 0.2s; background: #000;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                    <img src="joint.png" style="width: 100%; display: block; object-fit: cover;">
+                </div>
+                
+                <h3 style="color: gold; margin: 15px 0 5px 0; font-size: 1.3rem;">Cena: 20 €</h3>
+                <div id="jointStatusText" style="margin-bottom: 15px;"></div>
+                
+                <button onclick="closeJointModal(event)" style="margin-top: 10px; background: #333; color: #fff; border: 1px solid #555; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; font-size: 1rem;">Zavrieť</button>
+            </div>
+        </div>
+
+        <div id="miniMapLayer" onclick="closeMiniMap()" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.9); z-index: 960; flex-direction: column; align-items: center; justify-content: center;">
+            <img src="Map_Background_Small.png" style="width: 95vw; max-height: 85vh; object-fit: contain; border: 3px solid gold; border-radius: 15px; box-shadow: 0 0 30px gold;">
+            <div style="color: gold; font-weight: bold; margin-top: 15px; font-size: 1.2rem; text-shadow: 2px 2px #000; background: rgba(0,0,0,0.7); padding: 10px; border-radius: 10px; text-align: center;">
+                👆 KLIKNI KAMKOĽVEK PRE ZATVORENIE MAPY
+            </div>
+        </div>
+
+        <button onclick="toggleSettingsMenu(event)" style="position:fixed; top:15px; right:145px; z-index:940; padding:5px 15px; background: #333; color: gold; border: 3px solid white; border-radius: 30px; font-weight: 900; font-size: 1rem; cursor: pointer; box-shadow: 0 0 15px rgba(0,0,0,0.5);">⚙️</button>
+        <button onclick="toggleBuildingMenu(event)" style="position:fixed; top:15px; right:85px; z-index:940; padding:5px 15px; background: #333; color: gold; border: 3px solid white; border-radius: 30px; font-weight: 900; font-size: 1rem; cursor: pointer; box-shadow: 0 0 15px rgba(0,0,0,0.5);">⋮</button>
+        <button onclick="exitMap()" style="position:fixed; top:15px; right:15px; z-index:940; padding:5px 15px; background: red; color: white; border: 3px solid white; border-radius: 30px; font-weight: 900; font-size: 0.5rem; cursor: pointer; box-shadow: 0 0 15px rgba(0,0,0,0.5);">MENU</button>
+        
+        <button onclick="goToNextBuilding(event)" style="position:fixed; bottom:20px; right:20px; z-index:940; width:60px; height:60px; background: #333; color: gold; border: 3px solid gold; border-radius: 50%; font-weight: 900; font-size: 1.8rem; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 0 20px rgba(0,0,0,0.8);">➡️</button>
+
+        <button onclick="goToPreviousBuilding(event)" style="position:fixed; bottom:20px; left:20px; z-index:940; width:60px; height:60px; background: #333; color: gold; border: 3px solid gold; border-radius: 50%; font-weight: 900; font-size: 1.8rem; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 0 20px rgba(0,0,0,0.8);">⬅️</button>
+
+        <div id="settingsNavMenu" style="display:none; position:fixed; top:55px; right:145px; width: 220px; background: rgba(0,0,0,0.95); border: 2px solid gold; border-radius: 10px; z-index: 945; flex-direction: column; padding: 15px; box-shadow: 0 0 20px rgba(0,0,0,0.8); color: white; font-family: sans-serif;">
+            <h3 style="margin-top: 0; color: gold; text-align: center; border-bottom: 1px solid rgba(255,215,0,0.3); padding-bottom: 10px;">Nastavenia</h3>
+            
+            <label style="font-size: 0.85rem; font-weight: bold; margin-bottom: 5px;">Rýchlosť chôdze:</label>
+            <select onchange="changeMovementSpeed(this.value)" style="width: 100%; margin-bottom: 15px; padding: 5px; background: #222; color: white; border: 1px solid gold; border-radius: 5px;">
+                <option value="1.2" ${speedMultiplier === 1.2 ? 'selected' : ''}>Pomaly</option>
+                <option value="0.6" ${speedMultiplier === 0.6 ? 'selected' : ''}>Stredne</option>
+                <option value="0.25" ${speedMultiplier === 0.25 ? 'selected' : ''}>Rýchlo</option>
+                <option value="0.08" ${speedMultiplier === 0.08 ? 'selected' : ''}>Piker (Super rýchlo)</option>
+            </select>
+
+            <label style="font-size: 0.85rem; font-weight: bold; margin-bottom: 5px;">Rýchlosť NPC:</label>
+            <select onchange="changeNpcSpeed(this.value)" style="width: 100%; margin-bottom: 15px; padding: 5px; background: #222; color: white; border: 1px solid gold; border-radius: 5px;">
+                <option value="1" ${npcSpeedMultiplier === 1 ? 'selected' : ''}>Rýchla (aktuálna)</option>
+                <option value="1.6" ${npcSpeedMultiplier === 1.6 ? 'selected' : ''}>Stredná</option>
+                <option value="2.4" ${npcSpeedMultiplier === 2.4 ? 'selected' : ''}>Pomalá</option>
+            </select>
+
+            <label style="font-size: 0.85rem; font-weight: bold; margin-bottom: 5px;">Kliknutie na mapu:</label>
+            <select onchange="changeMovementMode(this.value)" style="width: 100%; margin-bottom: 15px; padding: 5px; background: #222; color: white; border: 1px solid gold; border-radius: 5px;">
+                <option value="free" ${!walkOnRoadsOnly ? 'selected' : ''}>Voľný pohyb</option>
+                <option value="roads" ${walkOnRoadsOnly ? 'selected' : ''}>Len po cestičkách</option>
+            </select>
+
+            <label style="font-size: 0.85rem; font-weight: bold; margin-bottom: 5px;">Vstup do budovy:</label>
+            <select onchange="changeEntryMode(this.value)" style="width: 100%; margin-bottom: 15px; padding: 5px; background: #222; color: white; border: 1px solid gold; border-radius: 5px;">
+                <option value="click" ${!directEntry ? 'selected' : ''}>Kliknúť na fotku</option>
+                <option value="direct" ${directEntry ? 'selected' : ''}>Rovno vstúpiť</option>
+            </select>
+
+            <button onclick="openMiniMap(event)" style="width: 100%; padding: 8px; background: gold; color: black; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; margin-top: 5px;">Zobraziť Mapu</button>
+        </div>
+
+        <div id="buildingNavMenu" style="display:none; position:fixed; top:55px; right:85px; width: 220px; max-height: 70vh; background: rgba(0,0,0,0.95); border: 2px solid gold; border-radius: 10px; z-index: 945; overflow-y: auto; box-shadow: 0 0 20px rgba(0,0,0,0.8); flex-direction: column; scrollbar-width: none;">
+            ${buildingMenuItems}
+        </div>
+    `;
+
+    renderBuildings();
+    drawDebugWaypoints();
+    
+    const mapWrapper = document.getElementById('mapWrapper');
+    const scaleContainer = document.getElementById('scaleContainer');
+    
+    arciScale = Math.max(getMinScale(), 1);
+    mapWrapper.style.transform = `scale(${arciScale})`;
+    
+    scaleContainer.style.width = (2000 * arciScale) + 'px';
+    scaleContainer.style.height = (1125 * arciScale) + 'px';
+    
+    initArciPinchZoom(mapWrapper);
+    
+    setTimeout(() => { 
+        centerCamera(); 
+        initNPCSystem(); 
+    }, 150);
+}
+
+// ==========================================
+// FUNKCIE PRE NASTAVENIA, MAPU A ĎALŠIU BUDOVU
+// ==========================================
+
+function goToNextBuilding(event) {
+    if (event) event.stopPropagation();
+    
+    const keys = Object.keys(buildingsData); 
+    if (keys.length === 0) return;
+
+    currentBuildingIndex++; 
+    
+    if (currentBuildingIndex >= keys.length) {
+        currentBuildingIndex = 0;
+    }
+
+    const nextBuildingKey = keys[currentBuildingIndex];
+    moveToBuilding(nextBuildingKey);
+}
+
+function goToPreviousBuilding(event) {
+    if (event) event.stopPropagation();
+    
+    const keys = Object.keys(buildingsData); 
+    if (keys.length === 0) return;
+
+    if (currentBuildingIndex <= 0) {
+        currentBuildingIndex = keys.length - 1;
+    } else {
+        currentBuildingIndex--; 
+    }
+
+    const prevBuildingKey = keys[currentBuildingIndex];
+    moveToBuilding(prevBuildingKey);
+}
+
+
+function toggleSettingsMenu(event) {
+    if (event) event.stopPropagation();
+    const sMenu = document.getElementById('settingsNavMenu');
+    const bMenu = document.getElementById('buildingNavMenu');
+    if (sMenu) {
+        if (sMenu.style.display === 'none') {
+            sMenu.style.display = 'flex';
+            if (bMenu) bMenu.style.display = 'none'; 
+        } else {
+            sMenu.style.display = 'none';
+        }
+    }
+}
+
+function changeMovementSpeed(val) {
+    speedMultiplier = parseFloat(val);
+    localStorage.setItem('arciSpeed', speedMultiplier); 
+}
+
+function changeNpcSpeed(val) {
+    npcSpeedMultiplier = parseFloat(val);
+    if (!Number.isFinite(npcSpeedMultiplier) || npcSpeedMultiplier <= 0) npcSpeedMultiplier = 1;
+    localStorage.setItem('arciNpcSpeed', npcSpeedMultiplier);
+}
+
+function changeMovementMode(val) {
+    walkOnRoadsOnly = (val === 'roads');
+    localStorage.setItem('arciRoads', walkOnRoadsOnly); 
+}
+
+function changeEntryMode(val) {
+    directEntry = (val === 'direct');
+    localStorage.setItem('arciEntry', directEntry); 
+}
+
+function openMiniMap(event) {
+    if (event) event.stopPropagation();
+    const layer = document.getElementById('miniMapLayer');
+    const sMenu = document.getElementById('settingsNavMenu');
+    if (layer) layer.style.display = 'flex';
+    if (sMenu) sMenu.style.display = 'none'; 
+}
+
+function closeMiniMap() {
+    const layer = document.getElementById('miniMapLayer');
+    if (layer) layer.style.display = 'none';
+}
+
+// ==========================================
+// FUNKCIE PRE ROZBAĽOVACIE MENU BUDOV A JOINT
+// ==========================================
+
+function toggleBuildingMenu(event) {
+    if (event) event.stopPropagation();
+    const bMenu = document.getElementById('buildingNavMenu');
+    const sMenu = document.getElementById('settingsNavMenu');
+    if (bMenu) {
+        if (bMenu.style.display === 'none') {
+            bMenu.style.display = 'flex';
+            if (sMenu) sMenu.style.display = 'none'; 
+        } else {
+            bMenu.style.display = 'none';
+        }
+    }
+}
+
+function navigateFromMenu(key, event) {
+    if (event) event.stopPropagation();
+    const menu = document.getElementById('buildingNavMenu');
+    if (menu) menu.style.display = 'none';
+    
+    moveToBuilding(key);
+}
+
+// OTVORENIE CUSTOM MODALU PRE JOINT (Vyhneme sa veľkej fotke detailu)
+window.openJointSpot = function() {
+    closeBuildingDetail(); // Pre istotu zavrie ten veľký modal, ak by sa tam hráč dostal inak
+
+    let hasJoint = false;
+    if (appState && appState.myPlayer && appState.myPlayer.lifestyle && appState.myPlayer.lifestyle.tempBonus > 0) {
+        hasJoint = true;
+    }
+
+    const layer = document.getElementById('jointModalLayer');
+    const imgCont = document.getElementById('jointImageContainer');
+    const statusTxt = document.getElementById('jointStatusText');
+
+    if (hasJoint) {
+        imgCont.style.opacity = '0.4';
+        imgCont.style.cursor = 'not-allowed';
+        imgCont.onclick = null;
+        statusTxt.innerHTML = '<span style="color: #e74c3c; font-weight: bold; font-size: 0.9rem;">Tento týždeň si už jedného mal, stačí!</span>';
+    } else {
+        imgCont.style.opacity = '1';
+        imgCont.style.cursor = 'pointer';
+        imgCont.onclick = window.buyJointFromMap;
+        statusTxt.innerHTML = '<span style="color: #2ecc71; font-weight: bold; font-size: 0.9rem; text-transform: uppercase;">👆 Klikni na fotku pre nákup</span>';
+    }
+
+    if (layer) layer.style.display = 'flex';
+};
+
+window.closeJointModal = function(e) {
+    if (e) e.stopPropagation();
+    const layer = document.getElementById('jointModalLayer');
+    if (layer) layer.style.display = 'none';
+};
+
+window.buyJointFromMap = function() {
+    if (typeof window.buyJoint === 'function') {
+        window.buyJoint(); // Volá tvoju pôvodnú funkciu z lifestyle (zoberie 20€, pridá bonus, uloží históriu)
+        window.closeJointModal();
+        
+        // Zobrazenie štýlovej notifikácie priamo nad mapou
+        const container = document.getElementById('arci-city-game-container');
+        const alertDiv = document.createElement('div');
+        alertDiv.innerText = "🌿 Ubalil si jointa! Nálada stúpla o 10%.";
+        alertDiv.style.cssText = "position:absolute; top:20%; left:50%; transform:translateX(-50%); background:rgba(46, 204, 113, 0.95); color:#000; padding:15px 30px; font-weight:bold; border-radius:10px; z-index:9999; font-size:1.1rem; box-shadow: 0 0 20px #2ecc71; text-align:center; transition: opacity 0.5s ease;";
+        container.appendChild(alertDiv);
+        
+        setTimeout(() => {
+            alertDiv.style.opacity = '0';
+            setTimeout(() => alertDiv.remove(), 500);
+        }, 3000);
+
+    } else {
+        alert("Funkcia na kúpenie jointa (buyJoint) nebola nájdená. Uisti sa, že je nahratá lifestyle časť.");
+    }
+};
+
+function initArciPinchZoom(el) {
+    let initialDist = 0;
+    const scaleContainer = document.getElementById('scaleContainer');
+
+    el.addEventListener('touchstart', e => {
+        if (e.touches.length === 2) {
+            initialDist = Math.hypot(e.touches[0].pageX - e.touches[1].pageX, e.touches[0].pageY - e.touches[1].pageY);
+        }
+    }, {passive: false});
+
+    el.addEventListener('touchmove', e => {
+        if (e.touches.length === 2) {
+            e.preventDefault();
+            const dist = Math.hypot(e.touches[0].pageX - e.touches[1].pageX, e.touches[0].pageY - e.touches[1].pageY);
+            const zoom = dist / initialDist;
+            
+            const minScale = getMinScale();
+            
+            arciScale = Math.min(Math.max(minScale, arciScale * zoom), 3);
+            el.style.transform = `scale(${arciScale})`;
+            
+            scaleContainer.style.width = (2000 * arciScale) + 'px';
+            scaleContainer.style.height = (1125 * arciScale) + 'px';
+            
+            initialDist = dist;
+        }
+    }, {passive: false});
+}
+
+function exitMap() {
+    const container = document.getElementById('arci-city-game-container');
+    container.style.display = 'none';
+    container.innerHTML = ""; 
+    isTrackingCamera = false; 
+    clearTimeout(currentMovementTimeout);
+    isMoving = false;
+    
+    // Vyčistenie NPC pri ukončení
+    activeNPCs.forEach(npc => {
+        if(npc.timeout) clearTimeout(npc.timeout);
+    });
+    activeNPCs = [];
+}
+
+// ==========================================
+// 3. OTVORENIE HRY BEZ ZATVORENIA MAPY!
+// ==========================================
+
+function executeBuildingAction(event) {
+    if (event) event.stopPropagation(); 
+    
+    if (window.currentMapAction) {
+        const action = window.currentMapAction;
+        try {
+            if (action.startsWith('showRankTable_')) {
+                const rankType = action.split('_')[1]; 
+                if (typeof window.showRankTable === 'function') {
+                    window.showRankTable(rankType);
+                } else {
+                    console.error("Tabuľka nenájdená!");
+                }
+            } 
+            else {
+                if (typeof window[action] === 'function') {
+                    window[action]();
+                } else {
+                    console.error("Akcia " + action + " nebola nájdená!");
+                }
+            }
+        } catch(e) { 
+            console.error("Chyba pri spúšťaní akcie: ", e); 
+        }
+    }
+}
+
+// ==========================================
+// 4. POHYB, VYKRESLOVANIE A DYNAMICKÝ DEBUG MÓD
+// ==========================================
+
+window.arciDebug = function() {
+    isDebugMode = !isDebugMode;
+    console.log(`🛠️ Režim ladenia bol ${isDebugMode ? 'ZAPNUTÝ' : 'VYPNUTÝ'}`);
+    renderBuildings();
+    drawDebugWaypoints();
+};
+
+window.addEventListener('keydown', (e) => {
+    if (e.shiftKey && e.key.toLowerCase() === 'd') {
+        window.arciDebug();
+    }
+});
+
+function renderBuildings() {
+    const layer = document.getElementById('buildingsLayer');
+    if(!layer) return;
+    
+    layer.innerHTML = "";
+    
+    for (let key in buildingsData) {
+        const b = buildingsData[key];
+        const sizePercent = b.size !== undefined ? b.size : 100;
+        const widthPx = 180 * (sizePercent / 100);
+
+        const hitbox = document.createElement('div');
+        hitbox.style.position = 'absolute';
+        hitbox.style.left = b.x + '%';
+        hitbox.style.top = b.y + '%'; 
+        
+        hitbox.style.width = (widthPx * 0.85) + 'px'; 
+        hitbox.style.height = (widthPx * 0.70) + 'px'; 
+        
+        hitbox.style.transform = 'translate(-50%, -100%)';
+
+        hitbox.style.cursor = 'pointer';
+        hitbox.style.zIndex = Math.floor(b.y) + 20; 
+        
+        // UPRAVENÉ: X-Ray klik! Ak je pod budovou postavička, klikne sa na ňu.
+        hitbox.onclick = (e) => { 
+            if (isDebugMode) {
+                handleMapClick(e); // V debug móde úplne ignorujeme budovu a posúvame klik na mapu
+                return;
+            }
+
+            e.stopPropagation(); 
+            
+            // 1. Schováme budovu, aby sme videli "cez" ňu
+            hitbox.style.display = 'none';
+            
+            // 2. Získame presné súradnice prstu/myši
+            let cx = e.clientX;
+            let cy = e.clientY;
+            if (e.touches && e.touches.length > 0) {
+                cx = e.touches[0].clientX;
+                cy = e.touches[0].clientY;
+            }
+            
+            // 3. Pozrieme sa, čo všetko sa na tom mieste nachádza
+            const elementsUnder = document.elementsFromPoint(cx, cy) || [];
+            
+            // 4. Budovu vrátime ihneď naspäť, hráč si to ani nevšimne
+            hitbox.style.display = 'block';
+
+            // 5. Nájdeme, či je v zozname nájdených prvkov nejaká NPC postavička
+            const clickedNPC = Array.from(elementsUnder).find(el => el.classList && el.classList.contains('arci-npc'));
+            
+            if (clickedNPC) {
+                clickedNPC.click(); // Ak áno, budovu odignorujeme a aktivujeme postavičku!
+                return;
+            }
+
+            // Inak spravíme normálny klik na budovu
+            moveToBuilding(key);
+        };
+
+        const img = document.createElement('img');
+        img.style.position = 'absolute';
+        img.style.left = b.x + '%'; 
+        img.style.top = b.y + '%';
+        img.style.transform = 'translate(-50%, -100%)';
+        img.style.width = widthPx + 'px';
+        img.style.maxWidth = 'none'; 
+        img.style.zIndex = Math.floor(b.y); 
+        img.style.pointerEvents = 'none'; 
+
+        if (isDebugMode) {
+            img.src = ""; 
+            img.alt = `🏢 ${b.name}`; 
+            img.style.border = "1px solid red";
+            img.style.background = "rgba(0,0,0,0.6)";
+            img.style.color = "white";
+            img.style.padding = "5px";
+            img.style.fontSize = "12px";
+            
+            hitbox.style.border = '2px solid lime';
+            hitbox.style.background = 'rgba(0, 255, 0, 0.4)';
+        } else {
+            img.src = b.img; 
+            img.style.filter = 'drop-shadow(2px 2px 5px rgba(0,0,0,0.5))';
+            img.alt = "";
+            hitbox.style.border = 'none';
+            hitbox.style.background = 'transparent';
+        }
+        
+        layer.appendChild(img);
+        layer.appendChild(hitbox);
+    }
+}
+
+function handleMapClick(e) {
+    const bMenu = document.getElementById('buildingNavMenu');
+    const sMenu = document.getElementById('settingsNavMenu');
+    if (bMenu) bMenu.style.display = 'none';
+    if (sMenu) sMenu.style.display = 'none';
+
+    const wrapper = document.getElementById('mapWrapper');
+    const rect = wrapper.getBoundingClientRect();
+    
+    let cx = e.clientX;
+    let cy = e.clientY;
+    if (e.touches && e.touches.length > 0) {
+        cx = e.touches[0].clientX;
+        cy = e.touches[0].clientY;
+    }
+
+    const x = ((cx - rect.left) / rect.width) * 100;
+    const y = ((cy - rect.top) / rect.height) * 100;
+
+    if (isDebugMode) {
+        console.log(`📍 Presné miesto kliku: x: ${x.toFixed(2)}, y: ${y.toFixed(2)}`);
+        navigatePlayerDirectly(x, y); // V debug móde ide postava vždy priamo na miesto
+        return;
+    }
+    
+    if (walkOnRoadsOnly) {
+        navigatePlayerViaRoads(x, y);
+    } else {
+        navigatePlayerDirectly(x, y);
+    }
+}
+
+let isTrackingCamera = false;
+let trackEndTime = 0;
+
+function movePlayerStep(x, y, timeInSeconds) {
+    const player = document.getElementById('player-character');
+    if(!player) return;
+    
+    player.style.transition = `left ${timeInSeconds}s linear, top ${timeInSeconds}s linear`;
+    player.style.left = x + '%'; 
+    player.style.top = y + '%';
+    player.style.zIndex = Math.floor(y) + 1; 
+    
+    localStorage.setItem('arciPlayerX', x); 
+    localStorage.setItem('arciPlayerY', y);
+    
+    trackEndTime = Date.now() + (timeInSeconds * 1000) + 500;
+    if (!isTrackingCamera) {
+        isTrackingCamera = true;
+        requestAnimationFrame(trackCameraLoop);
+    }
+}
+
+function trackCameraLoop() {
+    if (Date.now() > trackEndTime) {
+        isTrackingCamera = false;
+        return;
+    }
+    centerCamera();
+    requestAnimationFrame(trackCameraLoop);
+}
+
+function centerCamera() {
+    const player = document.getElementById('player-character');
+    const container = document.getElementById('arci-city-game-container');
+    
+    if(player && container) {
+        const pRect = player.getBoundingClientRect();
+        const cRect = container.getBoundingClientRect();
+        
+        container.scrollLeft += (pRect.left + pRect.width / 2) - (cRect.left + cRect.width / 2);
+        container.scrollTop += (pRect.top + pRect.height / 2) - (cRect.top + cRect.height / 2);
+    }
+}
+
+function moveToBuilding(key) {
+    currentBuildingIndex = Object.keys(buildingsData).indexOf(key); 
+    
+    const b = buildingsData[key];
+    const targetX = b.doorX !== undefined ? b.doorX : b.x;
+    const targetY = b.doorY !== undefined ? b.doorY : b.y;
+
+    navigatePlayerViaRoads(targetX, targetY, () => {
+        // Obchádza funkciu veľkej detailnej fotky a otvára malé okno priamo
+        if (directEntry || b.action === "openJointSpot") {
+            window.currentMapAction = b.action;
+            executeBuildingAction(null); 
+        } else {
+            showBuildingDetail(b); 
+        }
+    });
+}
+
+function showBuildingDetail(b) {
+    const layer = document.getElementById('buildingDetailLayer');
+    const img = document.getElementById('detailImg');
+    const textLayer = document.getElementById('buildingActionText'); 
+    
+    if(!layer || !img || !textLayer) return;
+    
+    img.src = b.detail;
+    textLayer.innerText = `👆 KLIKNI NA FOTKU PRE VSTUP DO ${b.name.toUpperCase()}`;
+    window.currentMapAction = b.action; 
+    layer.style.display = 'flex'; 
+}
+
+function closeBuildingDetail() {
+    const layer = document.getElementById('buildingDetailLayer');
+    if(layer) layer.style.display = 'none';
+}
+
+// ==========================================
+// 5. OBMEDZENÝ POHYB POSTAVIČKY (WAYPOINTY)
+// ==========================================
+
+const roadNodes = [
+    { id: 1, x: 24.9, y: 32.7 },
+    { id: 2, x: 50.3, y: 39.6 },
+    { id: 3, x: 11.1, y: 72 },
+    { id: 4, x: 85.4, y: 49.9 },
+    { id: 17, x: 55, y: 40.8 },
+    { id: 18, x: 66.9, y: 44.9 },
+    { id: 19, x: 79.9, y: 47.0 },
+    { id: 21, x: 93.2, y: 50.3 },
+    { id: 22, x: 80.4, y: 58.9 },
+    { id: 23, x: 65.9, y: 63.3 },
+    { id: 24, x: 48.9, y: 55 },
+    { id: 25, x: 36.8, y: 66.6 },
+    { id: 26, x: 28.4, y: 58.3 },
+    { id: 27, x: 33.5, y: 90.3 },
+    { id: 28, x: 56.5, y: 82.7 },
+    { id: 29, x: 65.3, y: 86.9 },
+    { id: 30, x: 72.6, y: 87 },
+    { id: 31, x: 76, y: 82.6 },
+    { id: 32, x: 5.3, y: 67.6 },
+    { id: 33, x: 36.4, y: 36.9 },
+    { id: 34, x: 27, y: 29.5 },
+    { id: 35, x: 29.6, y: 72.8 },
+    { id: 36, x: 45, y: 85.7 },
+    { id: 37, x: 6.7, y: 99.7 }, // Spawn point pre npc
+    { id: 5, x: 8.6, y: 44.6 },
+    { id: 6, x: 45, y: 53 },
+    { id: 7, x: 59.1, y: 59.6 },
+    { id: 8, x: 76.2, y: 67.4 },
+    { id: 9, x: 86.7, y: 73.4 },
+    { id: 15, x: 81.7, y: 85.5 },
+    { id: 16, x: 93.5, y: 80.1 },
+    { id: 10, x: 22.9, y: 92.6 },
+    { id: 11, x: 24, y: 82.7 },
+    { id: 12, x: 41.8, y: 95 },
+    { id: 13, x: 51.9, y: 80.8 },
+    { id: 14, x: 77.9, y: 91.8 }
+];
+
+const roadEdges = [
+    [1, 2], [2, 4], [3, 5],[1, 5], 
+    [6, 7], [7, 8], [8, 9],
+    [10, 11], [11, 12], [12, 13], [13, 14],
+    [14,15], [9,15], [15,16], [19,17], [19,18], [19,4], [19,2],
+    [21,19], [21,17], [21,18], [21,2], [21,4], [17,18], [17,4], [17,2],
+    [18,2], [18,4],
+    [6,25], [11,25], [26,25], [26,3],
+    [22,4], [22,8], [24,6], [24,7],
+    [27,12], [27,11], [23,7], [23,8],
+    [29,30], [13,28], [13,29], [13,30],
+    [30,14], [29,14], [28,29], [28,30], [28,14],[37,11],
+    [32,3],[33,1],[33,2],[34,1],[11,35], [25,35], [36,12],[36,13],
+    [2, 6], [6, 11],[31,30],[31,15],
+    [9, 14], [3, 11], [7, 13]
+];
+
+function drawDebugWaypoints() {
+    const layer = document.getElementById('debugLayer');
+    if (!layer) return;
+    if (!isDebugMode) {
+        layer.innerHTML = "";
+        return;
+    }
+    let svgHTML = `<svg viewBox="0 0 100 100" preserveAspectRatio="none" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; overflow: visible;">`;
+    roadEdges.forEach(edge => {
+        const n1 = roadNodes.find(n => n.id === edge[0]);
+        const n2 = roadNodes.find(n => n.id === edge[1]);
+        if (n1 && n2) {
+            svgHTML += `<line x1="${n1.x}" y1="${n1.y}" x2="${n2.x}" y2="${n2.y}" stroke="rgba(255,0,0,0.8)" stroke-width="0.3" vector-effect="non-scaling-stroke" />`;
+        }
+    });
+    roadNodes.forEach(node => {
+        svgHTML += `<circle cx="${node.x}" cy="${node.y}" r="0.4" fill="yellow" stroke="red" stroke-width="0.1" vector-effect="non-scaling-stroke" />`;
+    });
+    for (let key in buildingsData) {
+        const b = buildingsData[key];
+        svgHTML += `<circle cx="${b.x}" cy="${b.y}" r="0.5" fill="red" stroke="white" stroke-width="0.1" vector-effect="non-scaling-stroke" />`;
+        const doorX = b.doorX !== undefined ? b.doorX : b.x;
+        const doorY = b.doorY !== undefined ? b.doorY : b.y;
+        svgHTML += `<circle cx="${doorX}" cy="${doorY}" r="0.4" fill="lime" stroke="black" stroke-width="0.1" vector-effect="non-scaling-stroke" />`;
+    }
+    svgHTML += `</svg>`;
+    layer.innerHTML = svgHTML;
+}
+
+let pathQueue = [];
+let isMoving = false;
+let currentMovementTimeout = null;
+let activeCallback = null;
+
+// --- POMOCNÁ FUNKCIA PRE ANIMÁCIE WOBBLE ---
+function applyWobbleAnimation(element, startX, targetX, isMoving) {
+    if (!element) return;
+    
+    const isGoingLeft = targetX < startX;
+    
+    element.classList.remove('wobble-walk', 'wobble-walk-left', 'face-left', 'face-right');
+    
+    if (isMoving) {
+        if (isGoingLeft) {
+            element.classList.add('wobble-walk-left');
+        } else {
+            element.classList.add('wobble-walk');
+        }
+    } else {
+        if (isGoingLeft) {
+            element.classList.add('face-left');
+        } else {
+            element.classList.add('face-right');
+        }
+    }
+}
+// --------------------------------------------
+
+function navigatePlayerDirectly(targetX, targetY) {
+    activeCallback = null;
+    clearTimeout(currentMovementTimeout);
+    isMoving = false; 
+    pathQueue = [{ x: targetX, y: targetY }];
+    processNextMovementStep();
+}
+
+function navigatePlayerViaRoads(targetX, targetY, onComplete = null) {
+    activeCallback = onComplete;
+    clearTimeout(currentMovementTimeout);
+    isMoving = false; 
+    const player = document.getElementById('player-character');
+    let startX = parseFloat(player.style.left || localStorage.getItem('arciPlayerX') || "10");
+    let startY = parseFloat(player.style.top || localStorage.getItem('arciPlayerY') || "40");
+    pathQueue = calculateShortestPathGraph(startX, startY, targetX, targetY);
+    processNextMovementStep();
+}
+
+function processNextMovementStep() {
+    const player = document.getElementById('player-character');
+
+    if (pathQueue.length === 0) {
+        isMoving = false;
+        
+        let wasGoingLeft = player.classList.contains('wobble-walk-left');
+        applyWobbleAnimation(player, wasGoingLeft ? 1 : 0, 0, false); 
+        
+        if (activeCallback) {
+            activeCallback();
+            activeCallback = null;
+        }
+        return;
+    }
+    isMoving = true;
+    const nextPoint = pathQueue.shift();
+    
+    let currentX = parseFloat(player.style.left || "0");
+    let currentY = parseFloat(player.style.top || "0");
+    
+    applyWobbleAnimation(player, currentX, nextPoint.x, true);
+
+    let dist = Math.hypot(nextPoint.x - currentX, nextPoint.y - currentY);
+    let timeInSeconds = (dist / 10.0) * speedMultiplier; 
+    if (timeInSeconds < 0.1) timeInSeconds = 0.1;
+    movePlayerStep(nextPoint.x, nextPoint.y, timeInSeconds);
+    currentMovementTimeout = setTimeout(() => {
+        processNextMovementStep();
+    }, timeInSeconds * 1000);
+}
+
+function calculateShortestPathGraph(startX, startY, targetX, targetY) {
+    let startNodeId = getClosestNode(startX, startY);
+    let targetNodeId = getClosestNode(targetX, targetY);
+    let distances = {};
+    let previous = {};
+    let queue = [];
+    roadNodes.forEach(node => {
+        distances[node.id] = Infinity;
+        previous[node.id] = null;
+        queue.push(node.id);
+    });
+    distances[startNodeId] = 0;
+    while (queue.length > 0) {
+        queue.sort((a, b) => distances[a] - distances[b]);
+        let currId = queue.shift();
+        if (currId === targetNodeId) break;
+        let neighbors = roadEdges.filter(e => e[0] === currId || e[1] === currId).map(e => e[0] === currId ? e[1] : e[0]);
+        neighbors.forEach(neighborId => {
+            if (queue.includes(neighborId)) {
+                let currNode = roadNodes.find(n => n.id === currId);
+                let neighborNode = roadNodes.find(n => n.id === neighborId);
+                let dist = Math.hypot(currNode.x - neighborNode.x, currNode.y - neighborNode.y);
+                let altDistance = distances[currId] + dist;
+                if (altDistance < distances[neighborId]) {
+                    distances[neighborId] = altDistance;
+                    previous[neighborId] = currId;
+                }
+            }
+        });
+    }
+    let calculatedPath = [];
+    let currentTrace = targetNodeId;
+    if (previous[currentTrace] !== null || currentTrace === startNodeId) {
+        while (currentTrace !== null) {
+            let n = roadNodes.find(node => node.id === currentTrace);
+            calculatedPath.unshift({ x: n.x, y: n.y });
+            currentTrace = previous[currentTrace];
+        }
+    }
+    let startNode = roadNodes.find(n => n.id === startNodeId);
+    if (startNode) calculatedPath.unshift({ x: startNode.x, y: startNode.y });
+    calculatedPath.push({ x: targetX, y: targetY });
+    return calculatedPath;
+}
+
+function getClosestNode(x, y) {
+    let closestId = null;
+    let minPath = Infinity;
+    roadNodes.forEach(node => {
+        let dist = Math.hypot(node.x - x, node.y - y);
+        if (dist < minPath) {
+            minPath = dist;
+            closestId = node.id;
+        }
+    });
+    return closestId;
+}
+
+// ==========================================
+// 6. SYSTÉM NPC POSTÁV (LOGIKA POHYBU A SPAWNU)
+// ==========================================
+
+function initNPCSystem() {
+    setInterval(manageNPCs, 5000);
+    manageNPCs(); 
+}
+
+function manageNPCs() {
+    if (activeNPCs.length < MIN_NPCS) {
+        spawnNPC();
+    } else if (activeNPCs.length < MAX_NPCS) {
+        if (Math.random() > 0.6) spawnNPC();
+    }
+}
+
+// UPRAVENÉ SPAWNOVANIE NPC PRE WOBBLE ANIMÁCIE, WRAPPER A PRIORITU!
+function spawnNPC() {
+    const currentActiveIDs = activeNPCs.map(npc => npc.configID);
+    const availableIDs = Object.keys(npcConfigs).filter(id => !currentActiveIDs.includes(id));
+    
+    if (availableIDs.length === 0) return;
+    
+    const chosenID = availableIDs[Math.floor(Math.random() * availableIDs.length)];
+    const config = npcConfigs[chosenID];
+    const spawnNode = roadNodes.find(n => n.id === 37);
+    
+    // --- Vytvoríme NEVIDITEĽNÝ WRAPPER, ktorý slúži ako gigantické tlačidlo ---
+    const npcWrapper = document.createElement('div');
+    npcWrapper.classList.add('face-right'); 
+    npcWrapper.classList.add('arci-npc'); // DÔLEŽITÉ PRE PRIORITU KLIKNUTIA
+    
+    npcWrapper.style.position = 'absolute';
+    npcWrapper.style.left = spawnNode.x + '%';
+    npcWrapper.style.top = spawnNode.y + '%';
+    npcWrapper.style.transform = 'translate(-50%, -100%)';
+    npcWrapper.style.zIndex = Math.floor(spawnNode.y) + 1;
+    npcWrapper.style.pointerEvents = 'auto'; // Aby sa na wrapper dalo kliknúť
+    npcWrapper.style.cursor = 'pointer';
+    
+    // Tu prebieha to zväčšenie - pridáme zo všetkých strán neviditeľných 20px
+    npcWrapper.style.padding = '20px';
+    // Keďže to padding posunie "hore", posunieme to naspäť "dole" maržou, vizuál sa nezmení!
+    npcWrapper.style.marginTop = '20px'; 
+
+    // --- Do wrappera vložíme samotný obrázok ---
+    const npcImg = document.createElement('img');
+    npcImg.src = chosenID + ".png"; 
+    npcImg.style.width = config.width + 'px'; // Ostanú maličké, ale klikáš na veľký wrapper!
+    npcImg.style.display = 'block';
+    npcImg.style.pointerEvents = 'none'; // Ignorujeme klik na samotný obrázok, klikneme na wrapper
+    npcImg.style.filter = 'drop-shadow(0px 3px 3px rgba(0,0,0,0.4))';
+
+    npcWrapper.appendChild(npcImg);
+
+    const npcObj = {
+        configID: chosenID,
+        el: npcWrapper, // Všade manipulujeme s wrapperom!
+        x: spawnNode.x,
+        y: spawnNode.y,
+        visitsLeft: Math.floor(Math.random() * 2) + 3, 
+        timeout: null,
+        isWaitingForPlayer: false, 
+        idForMap: 'map_' + chosenID 
+    };
+
+    npcWrapper.onclick = (e) => {
+        e.stopPropagation(); 
+        
+        clearTimeout(npcObj.timeout);
+        npcObj.isWaitingForPlayer = true;
+        
+        let wasGoingLeft = npcWrapper.classList.contains('wobble-walk-left');
+        applyWobbleAnimation(npcWrapper, wasGoingLeft ? 1 : 0, 0, false);
+        
+        let npcName = config.name || ("Zákazník " + chosenID.replace('npc', ''));
+        
+        let targetX = parseFloat(npcWrapper.style.left) || npcObj.x;
+        let targetY = parseFloat(npcWrapper.style.top)  || npcObj.y;
+
+        // NOVÁ LOGIKA: Hráč podíde k NPC a otvorí sa Rázcestie (Interaction Menu)
+        if (walkOnRoadsOnly) {
+            navigatePlayerViaRoads(targetX, targetY, () => {
+                openNpcInteractionMenu(npcObj, npcName);
+            });
+        } else {
+            navigatePlayerDirectly(targetX, targetY);
+            activeCallback = () => {
+                openNpcInteractionMenu(npcObj, npcName);
+            };
+        }
+    };
+
+    document.getElementById('npcLayer').appendChild(npcWrapper);
+    
+    activeNPCs.push(npcObj);
+    npcBrain(npcObj);
+}
+
+function checkNpcStatusAfterDeal(npcObj) {
+    npcObj.isWaitingForPlayer = false;
+
+    let checkInterval = setInterval(() => {
+        const ugModal = document.getElementById('modalUnderground');
+        if (ugModal && ugModal.style.display === 'none') {
+            clearInterval(checkInterval);
+
+            if (appState && appState.underground && appState.underground.mapCustomers) {
+                let customerData = appState.underground.mapCustomers[npcObj.idForMap];
+
+                if (customerData && customerData.status === 'done') {
+                    const path = calculateShortestPathGraph(npcObj.x, npcObj.y, 1.8, 50);
+                    moveNPC(npcObj, path, () => {
+                        npcObj.timeout = setTimeout(() => {
+                            const exitNode = roadNodes.find(n => n.id === 37);
+                            const finalPath = calculateShortestPathGraph(npcObj.x, npcObj.y, exitNode.x, exitNode.y);
+                            moveNPC(npcObj, finalPath, () => {
+                                despawnNPC(npcObj);
+                            });
+                        }, 10000);
+                    });
+                } else {
+                    const exitNode = roadNodes.find(n => n.id === 37);
+                    const path = calculateShortestPathGraph(npcObj.x, npcObj.y, exitNode.x, exitNode.y);
+                    moveNPC(npcObj, path, () => {
+                        despawnNPC(npcObj);
+                    });
+                }
+            } else {
+                 npcBrain(npcObj); 
+            }
+        }
+    }, 500);
+}
+
+function npcBrain(npc) {
+    if (npc.isWaitingForPlayer) return; 
+
+    if (npc.visitsLeft <= 0) {
+        const exitNode = roadNodes.find(n => n.id === 37);
+        const path = calculateShortestPathGraph(npc.x, npc.y, exitNode.x, exitNode.y);
+        moveNPC(npc, path, () => {
+            despawnNPC(npc);
+        });
+        return;
+    }
+    
+    const keys = Object.keys(buildingsData);
+    const targetKey = keys[Math.floor(Math.random() * keys.length)];
+    const b = buildingsData[targetKey];
+    
+    let doorX = b.doorX !== undefined ? b.doorX : b.x;
+    let doorY = b.doorY !== undefined ? b.doorY : b.y;
+
+    const occupants = occupiedDoors[targetKey] || 0;
+    if (occupants > 0) {
+        doorX += (occupants * 2.0); 
+    }
+
+    npc.visitsLeft--;
+    const path = calculateShortestPathGraph(npc.x, npc.y, doorX, doorY);
+    
+    moveNPC(npc, path, () => {
+        if (npc.isWaitingForPlayer) return;
+
+        occupiedDoors[targetKey] = (occupiedDoors[targetKey] || 0) + 1;
+
+        npc.timeout = setTimeout(() => {
+            occupiedDoors[targetKey] = Math.max(0, (occupiedDoors[targetKey] || 0) - 1);
+            npcBrain(npc);
+        }, NPC_STAY_DURATION);
+    });
+}
+
+function moveNPC(npc, path, onComplete) {
+    if (npc.isWaitingForPlayer) return; 
+
+    if (path.length === 0) {
+        let wasGoingLeft = npc.el.classList.contains('wobble-walk-left');
+        applyWobbleAnimation(npc.el, wasGoingLeft ? 1 : 0, 0, false); 
+        onComplete();
+        return;
+    }
+    
+    const next = path.shift();
+    
+    applyWobbleAnimation(npc.el, npc.x, next.x, true);
+
+    const dist = Math.hypot(next.x - npc.x, next.y - npc.y);
+    
+    let duration = ((dist / 10.0) * 2.8) * npcSpeedMultiplier; 
+    if (duration < 0.1) duration = 0.1;
+    
+    npc.el.style.transition = `left ${duration}s linear, top ${duration}s linear`;
+    npc.el.style.left = next.x + '%';
+    npc.el.style.top = next.y + '%';
+    
+    npc.el.style.zIndex = Math.floor(next.y) + 1;
+
+    npc.x = next.x;
+    npc.y = next.y;
+    
+    npc.timeout = setTimeout(() => {
+        moveNPC(npc, path, onComplete);
+    }, duration * 1000);
+}
+
+function despawnNPC(npc) {
+    npc.el.remove();
+    activeNPCs = activeNPCs.filter(n => n !== npc);
+}
+// ==========================================
+// 7. AI KONVERZÁCIA S NPC POSTAVIČKAMI
+// ==========================================
+
+window.openNpcAiChat = function(npcObj, npcName) {
+    // Zastavíme timeout, aby postavička neodišla, kým s ňou kecáme
+    if (npcObj && npcObj.timeout) clearTimeout(npcObj.timeout);
+    
+    // Načítanie unikátnej histórie pre konkrétnu postavičku
+    const historyKey = 'arci_npc_chat_' + npcName;
+    let npcHistory = JSON.parse(localStorage.getItem(historyKey) || '[]');
+    
+    let historyHtml = '';
+    if (npcHistory.length > 0) {
+        npcHistory.forEach(msg => {
+            if(msg.role !== 'system') {
+                const type = msg.role === 'user' ? 'user' : 'ai';
+                historyHtml += `<div class="message ${type}">${typeof formatAiMessage === 'function' ? formatAiMessage(msg.content) : msg.content}</div>`;
+            }
+        });
+    } else {
+        // Uvítacia správa, ak s ňou hovoríš prvýkrát
+        historyHtml = `
+            <div class="message ai">
+                Čau, ja som ${npcName}. Čo odo mňa chceš? Rýchlo, nemám celý deň!
+            </div>
+        `;
+    }
+    
+    const html = `
+        <div class="modal-header" style="background: linear-gradient(135deg, #1a0000, #3a0000); border-bottom: 2px solid #ef4444;">
+            <h2>🗣️ Ulica: ${npcName}</h2>
+            <div style="display:flex; gap:10px;">
+                <button class="btn btn-sm btn-red" onclick="clearNpcHistory('${npcName}')">🗑️ Zabudnúť</button>
+                <button class="close-btn" onclick="closeNpcInteraction(this, '${npcObj ? npcObj.idForMap : ''}')">&times;</button>
+            </div>
+        </div>
+        <div class="modal-body" style="padding:0; overflow:hidden; display:flex; flex-direction:column; height:75vh; background: #0a0a0a;">
+            
+            <div id="npcChatMessages" class="chat-messages" style="flex-grow: 1; padding: 15px; overflow-y: auto;">
+                ${historyHtml}
+            </div>
+
+            <div id="npcTypingIndicator" class="typing-indicator" style="display:none; padding: 10px; color: #ef4444; text-align:center; font-style:italic;">${npcName} niečo splieta...</div>
+
+            <div class="chat-input-area" style="background: #111; padding: 10px; border-top: 1px solid #333; display: flex; gap: 10px;">
+                <input type="text" id="npcChatInput" class="chat-input" placeholder="Povedz niečo..." onkeypress="if(event.key === 'Enter') sendNpcAiMessage('${npcName}')" style="flex-grow: 1; padding: 10px; border-radius: 5px; background: #222; color: #fff; border: 1px solid #444;">
+                <button class="chat-send-btn btn btn-green" onclick="sendNpcAiMessage('${npcName}')" style="padding: 10px 20px;">➤</button>
+            </div>
+        </div>
+    `;
+    createModal(html, 'npc-chat-modal');
+    
+    // Scroll dole, aby sme videli najnovšie správy
+    setTimeout(() => {
+        const container = document.getElementById('npcChatMessages');
+        if(container) container.scrollTop = container.scrollHeight;
+    }, 100);
+}
+
+window.closeNpcInteraction = function(btn, npcId) {
+    closeTopModal();
+    // NPC pokračuje vo svojom potulovaní po mape
+    let npcObj = activeNPCs.find(n => n.idForMap === npcId);
+    if (npcObj) {
+        npcObj.isWaitingForPlayer = false;
+        npcBrain(npcObj); 
+    }
+}
+
+window.clearNpcHistory = function(npcName) {
+    if(confirm("Naozaj chceš, aby " + npcName + " zabudol na všetko, o čom ste sa bavili?")) {
+        localStorage.removeItem('arci_npc_chat_' + npcName);
+        closeTopModal();
+        setTimeout(() => openNpcInteractionMenu(null, npcName), 100);
+    }
+}
+
+window.sendNpcAiMessage = async function(npcName) {
+    const inputEl = document.getElementById('npcChatInput');
+    const msg = inputEl.value.trim();
+    if(!msg) return;
+    
+    const apiKey = localStorage.getItem('arci_groq_key');
+    if(!apiKey) {
+        alert("Zastav sa! Najprv musíte zadať API kľúč u ArciBota, inak títo feťáci nevedia rozprávať.");
+        return;
+    }
+
+    const historyKey = 'arci_npc_chat_' + npcName;
+    let npcHistory = JSON.parse(localStorage.getItem(historyKey) || '[]');
+    
+    const container = document.getElementById('npcChatMessages');
+    const formatMsg = typeof formatAiMessage === 'function' ? formatAiMessage : (t) => t;
+    
+    // Pridať správu hráča
+    container.innerHTML += `<div class="message user">${formatMsg(msg)}</div>`;
+    container.scrollTop = container.scrollHeight;
+    inputEl.value = '';
+    
+    document.getElementById('npcTypingIndicator').style.display = 'block';
+
+    try {
+        const contextData = typeof generateGameContext === 'function' ? generateGameContext() : {};
+        
+        // --- MOZOG POSTAVIČKY ---
+        const systemPrompt = `
+        Si fiktívna postava v golfovej hre ArciWeb s menom "${npcName}". Nachádzaš sa na mape v tmavej uličke a si z prostredia podsvetia.
+        
+        TVOJA OSOBNOSŤ (Závisí od tvojho mena):
+        - Ak tvoje meno naznačuje marihuanu (napr. Jointimír, Weed, Grass, Ganja), buď extrémne uvoľnený, spomalený, filozofuj o vesmíre, používaj slová ako "brácho", "chill", "husté".
+        - Ak tvoje meno naznačuje pervitín/rýchle drogy (napr. Piker, Fetoň, Rýchlik, Snich), buď hyperaktívny, skáč do reči, rýchlo meň témy, používaj veľa výkričníkov, buď paranoidný a extrémne nabudený.
+        - Ak tvoje meno naznačuje iné (Heroín, Depka), buď spomalený, pesimistický a bez nálady.
+        Si paródiou na známu postavu, ale si namočený v drogách. Vydedukuj si svoj štýl podľa svojho mena.
+        
+        HRÁČ, S KTORÝM HOVORÍŠ:
+        Volá sa: "${contextData.PLAYER_PROFILE?.name || 'Neznámy'}".
+        Má na účte: ${contextData.PLAYER_PROFILE?.money || 0} €.
+        Jeho pozícia v rebríčku (Official Rank): ${contextData.PLAYER_PROFILE?.leaderboards_deep_dive?.Official?.my_standing?.rank || 'Amatér'}.
+        
+        PRAVIDLÁ:
+        1. Nikdy sa nepriznaj, že si AI. Si živá postava v meste ArciCity.
+        2. Reaguj na hráčove dáta. Ak je bohatý, skús ho namotať na drahší tovar alebo pýtaj drobné. Ak je chudobný, vysmievaj sa mu.
+        3. Spomeň golf. Rob si z neho srandu, ako mu to ide na turnajoch.
+        4. Odpovedaj stručne a uderne! Maximálne 2 až 4 vety. Žiadne dlhé slohy.
+        5. Komunikuj výhradne v slovenčine.
+        `;
+
+        const messagesPayload = [
+            { role: "system", content: systemPrompt },
+            ...npcHistory.slice(-10), // Pamätá si posledných 10 správ
+            { role: "user", content: msg }
+        ];
+
+        const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${apiKey}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                messages: messagesPayload,
+                model: 'meta-llama/llama-4-scout-17b-16e-instruct',
+                temperature: 0.85, // Mierne vyššia kreativita, aby zneli šialenejšie
+                max_tokens: 400
+            })
+        });
+
+        const data = await response.json();
+        if(data.error) throw new Error(data.error.message);
+
+        const aiText = data.choices[0].message.content;
+        
+        npcHistory.push({ role: "user", content: msg });
+        npcHistory.push({ role: "assistant", content: aiText });
+        localStorage.setItem(historyKey, JSON.stringify(npcHistory));
+
+        container.innerHTML += `<div class="message ai">${formatMsg(aiText)}</div>`;
+        container.scrollTop = container.scrollHeight;
+
+    } catch (err) {
+        container.innerHTML += `<div class="message system">Kámo, niečo mi seklo signál: ${err.message}</div>`;
+    } finally {
+        document.getElementById('npcTypingIndicator').style.display = 'none';
+    }
+}
+
+
+// ==========================================
+// VYHĽADÁVANIE HRÁČOV PRIAMO Z MAPY
+// ==========================================
+
+// 1. Funkcia, ktorá sa zavolá pri vstupe do budovy
+window.openMapSearchModal = function() {
+    closeBuildingDetail(); // Zatvorí veľkú detailnú fotku budovy, ak je otvorená
+
+    // Ak už okno existuje, zmažeme ho (prevencia duplikátov)
+    let existingModal = document.getElementById('mapSearchModalLayer');
+    if (existingModal) existingModal.remove();
+
+    // Vytvorenie pekného modálneho okna v Arči štýle
+    const modalHTML = `
+        <div id="mapSearchModalLayer" onclick="closeMapSearchModal(event)" style="display: flex; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.85); z-index: 9999; flex-direction: column; align-items: center; justify-content: center;">
+            <div style="background: #111; border: 3px solid gold; border-radius: 15px; padding: 25px; text-align: center; max-width: 400px; width: 85%; box-shadow: 0 0 40px rgba(255, 215, 0, 0.4);" onclick="event.stopPropagation()">
+                <h2 style="color: gold; margin-top: 0; border-bottom: 1px solid #333; padding-bottom: 10px; font-size: 1.5rem;">🔍 Vyhľadať Hráča</h2>
+                <p style="color: #ccc; font-size: 0.9rem; margin-bottom: 20px;">Zadaj meno hráča, ktorého profil chceš navštíviť.</p>
+
+                <input type="text" id="mapPlayerSearchInput" placeholder="Začni písať meno..." oninput="handleMapSearch(this.value)" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid gold; background: #222; color: white; font-size: 1.1rem; box-sizing: border-box; outline: none; text-align: center; margin-bottom: 10px;">
+
+                <div id="mapSearchResults" style="max-height: 200px; overflow-y: auto; text-align: left; background: #222; border-radius: 8px; display: none; border: 1px solid #555; scrollbar-width: thin;">
+                    </div>
+
+                <button onclick="closeMapSearchModal(event)" style="margin-top: 20px; background: #333; color: white; border: 1px solid #555; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; font-size: 1rem;">Zavrieť</button>
+            </div>
+        </div>
+    `;
+
+    // Vložíme okno do body
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+
+    // Automaticky zameriame kurzor do vyhľadávacieho poľa
+    setTimeout(() => {
+        const input = document.getElementById('mapPlayerSearchInput');
+        if(input) input.focus();
+    }, 100);
+};
+
+// 2. Funkcia na zatvorenie okna
+window.closeMapSearchModal = function(e) {
+    if (e) e.stopPropagation();
+    const modal = document.getElementById('mapSearchModalLayer');
+    if (modal) modal.remove();
+};
+
+// 3. Logika vyhľadávania (presná kópia tvojho fungujúceho kódu)
+window.handleMapSearch = function(val) {
+    const results = document.getElementById('mapSearchResults');
+    if (!val) { 
+        results.style.display = 'none'; 
+        results.innerHTML = '';
+        return; 
+    }
+    
+    const normVal = normalizeName(val);
+    const players = new Set();
+    
+    // Tvoja priama logika na vytiahnutie mien z databázy
+    db.files.forEach(f => f.content.forEach(p => players.add(p.name)));
+    
+    const matches = [...players].filter(name => normalizeName(name).includes(normVal));
+    results.innerHTML = '';
+
+    if (matches.length > 0) {
+        results.style.display = 'block';
+        matches.slice(0, 10).forEach(m => {
+            const div = document.createElement('div');
+            div.className = 'search-item'; // Pridaná tvoja trieda
+            
+            // Zachované inline CSS, aby to pekne ladilo s oknom
+            div.style.padding = '12px 15px';
+            div.style.color = 'white';
+            div.style.borderBottom = '1px solid #444';
+            div.style.cursor = 'pointer';
+            div.style.fontWeight = 'bold';
+            div.innerText = m;
+
+            // Hover efekt
+            div.onmouseover = () => div.style.background = '#444';
+            div.onmouseout = () => div.style.background = 'transparent';
+
+            // Akcia po kliknutí
+            div.onclick = () => {
+                openPlayerProfile(m);
+                results.style.display = 'none';
+                document.getElementById('mapPlayerSearchInput').value = '';
+                closeMapSearchModal();
+            };
+            results.appendChild(div);
+        });
+    } else {
+        // Skrytie rovnako ako v tvojom origináli
+        results.style.display = 'none';
+    }
+};
+
+</script>
 
 </body>
 </html>
