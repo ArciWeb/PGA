@@ -62198,13 +62198,15 @@ function renderNewsList(fileKey) {
             appState.settings.zoom = appState.settings.zoom ? 1 : 0;
         }
         if (!appState.filters.importance) appState.filters.importance = 'ALL';
-        if (!appState.settings) appState.settings = { zoom:0, theme:'Default', themesOpen:false, themeCategory:null, design:'classic', customThemes:[], favoriteThemes:[], recentThemes:[] };
+        if (!appState.settings) appState.settings = { zoom:0, theme:'Default', themesOpen:false, themeCategory:null, design:'classic', customThemes:[], favoriteThemes:[], recentThemes:[], appearanceSaved:false };
         if (!appState.settings.design) appState.settings.design = 'classic';
         if (!Array.isArray(appState.settings.customThemes)) appState.settings.customThemes = [];
         if (!Array.isArray(appState.settings.favoriteThemes)) appState.settings.favoriteThemes = [];
         if (!Array.isArray(appState.settings.recentThemes)) appState.settings.recentThemes = [];
         if (!('themeCategory' in appState.settings)) appState.settings.themeCategory = null;
-        loadThemePreferences();
+        if (!('appearanceSaved' in appState.settings)) appState.settings.appearanceSaved=false;
+        // Staršie verzie mali vzhľad iba v localStorage; nové save súbory ho majú priamo v appState.
+        if (!appState.settings.appearanceSaved) loadThemePreferences();
         ensureCustomThemesLoaded();
         if (!db.seasonStats) db.seasonStats = [];
 
@@ -68038,7 +68040,7 @@ function createModal(contentHtml, id = null) {
     }
     function refreshThemeUI() {
         const root=document.getElementById('themeBrowser');
-        if(root) { root.style.display=appState.settings.themesOpen?'block':'none'; renderThemeBrowser(); }
+        if(root) { root.style.display='block'; renderThemeBrowser(); }
     }
     function toggleThemeCategory(category) {
         appState.settings.themeCategory=appState.settings.themeCategory===category?null:category;
@@ -68054,7 +68056,7 @@ function createModal(contentHtml, id = null) {
                 <h3>Štatistiky & Zoznamy</h3>
                 <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:15px;"><button class="btn btn-full-width" style="background:linear-gradient(135deg,#f1c40f 0%,#b8860b 100%);color:black;font-weight:bold;border:1px solid #fff;" onclick="openGlobalAchievementsList()">🏆 Zoznam Achievementov</button><button class="btn btn-full-width btn-blue" onclick="openAllOptions()">☷ Všetky možnosti</button></div>
                 <h3>Nástroje</h3>
-                <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:15px;"><button class="btn btn-green" onclick="document.getElementById('fileInput').click()">Vložiť .txt</button><button class="btn btn-blue" onclick="document.getElementById('seasonFileInput').click()">Vložiť Sezónu</button><button class="btn btn-grey" onclick="openFileManager()">Správca súborov</button><button class="btn btn-red" onclick="clearDB()">Vymazať DB</button><button class="btn btn-red" style="background:#d35400;" onclick="openClearOnlyMenu()">Vymazať Iba...</button><button class="btn btn-grey" onclick="toggleZoomInSettings()">Režim: ${currentZoomLabel}</button></div>
+                <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:15px;"><button class="btn btn-green" onclick="document.getElementById('fileInput').click()">Vložiť .txt</button><button class="btn btn-blue" onclick="document.getElementById('seasonFileInput').click()">Vložiť Sezónu</button><button class="btn btn-grey" onclick="openFileManager()">Správca súborov</button><button class="btn btn-red" onclick="clearDB()">Vymazať DB</button><button class="btn btn-red" style="background:#d35400;" onclick="openClearOnlyMenu()">Vymazať Iba...</button><button class="btn btn-grey" onclick="toggleZoomInSettings()">Režim: ${currentZoomLabel}</button><button class="btn btn-green" onclick="saveAppearance()">💾 Uložiť vzhľad</button></div>
                 <h3>Vzhľad</h3>
                 <div style="background:var(--card-bg);border:1px solid var(--theme-border);border-radius:10px;padding:10px;margin-bottom:10px;">
                     <div style="font-size:.8rem;color:var(--text-muted);text-transform:uppercase;font-weight:bold;">Dizajn aplikácie</div>
@@ -68064,8 +68066,7 @@ function createModal(contentHtml, id = null) {
                         <button id="designBtnAlternative" class="btn ${appState.settings.design==='alternative'?'btn-blue':'btn-grey'}" onclick="changeDesign('alternative')">✦ Alternative</button>
                     </div>
                 </div>
-                <button class="btn btn-full-width btn-grey" onclick="toggleThemes(this)" style="margin-bottom:10px;">${appState.settings.themesOpen?'Skryť Témy':'Zobraziť Témy'}</button>
-                <div id="themeBrowser" style="display:${appState.settings.themesOpen?'block':'none'}"></div>
+                <div id="themeBrowser" style="display:block"></div>
                 <div style="margin-top:8px;font-size:.7rem;color:var(--text-muted);">Klik = použiť · podržanie = upraviť. V editore môžeš tému označiť ★, uložiť na pôvodné miesto alebo vytvoriť novú.</div>
                 <h3>Sloty (Uložiť / Načítať)</h3><div class="slot-grid" id="slotContainer"></div>
             </div>`;
@@ -68076,17 +68077,16 @@ function createModal(contentHtml, id = null) {
     function startThemeHold(ev,name){ themeHoldTriggered=false; clearTimeout(themeHoldTimer); themeHoldTimer=setTimeout(()=>{themeHoldTriggered=true;openThemeEditor(name);},650); }
     function cancelThemeHold(ev){ clearTimeout(themeHoldTimer); if(ev&&themeHoldTriggered){ev.preventDefault();ev.stopPropagation();} }
     function toggleThemes(btn){
-        appState.settings.themesOpen=!appState.settings.themesOpen;
-        if(!appState.settings.themesOpen) appState.settings.themeCategory=null;
-        btn.innerText=appState.settings.themesOpen?'Skryť Témy':'Zobraziť Témy';
-        const root=document.getElementById('themeBrowser'); if(root){root.style.display=appState.settings.themesOpen?'block':'none';if(appState.settings.themesOpen)renderThemeBrowser();}
-        saveAuto();
+        // Kompatibilita so staršími volaniami – kategórie tém sú odteraz priamo v nastaveniach.
+        appState.settings.themesOpen=true;
+        const root=document.getElementById('themeBrowser'); if(root){root.style.display='block';renderThemeBrowser();}
     }
     function toggleZoomInSettings(){toggleZoom();closeTopModal();openSettings();}
     function changeTheme(name){
         if(themeHoldTriggered){themeHoldTriggered=false;return;}
         ensureCustomThemesLoaded(); if(!getThemeMap()[name]) return;
-        appState.settings.theme=name; registerRecentTheme(name); applyTheme(name); saveThemePreferences(); saveAuto(); refreshThemeUI();
+        // Výber je iba náhľad. Trvalé potvrdenie vykoná „Uložiť vzhľad“.
+        appState.settings.theme=name; registerRecentTheme(name); applyTheme(name); refreshThemeUI();
     }
     function refreshDesignButtons(){
         const d=appState.settings.design||'classic';
@@ -68095,7 +68095,15 @@ function createModal(contentHtml, id = null) {
     }
     function changeDesign(name){
         const allowed=['classic','modern','alternative']; appState.settings.design=allowed.includes(name)?name:'classic';
-        applyDesign(appState.settings.design); refreshDesignButtons(); saveThemePreferences(); saveAuto();
+        // Výber je iba náhľad. Trvalé potvrdenie vykoná „Uložiť vzhľad“.
+        applyDesign(appState.settings.design); refreshDesignButtons();
+    }
+    async function saveAppearance(){
+        if(!appState || !appState.settings) return;
+        appState.settings.appearanceSaved=true;
+        saveThemePreferences();
+        await saveAuto();
+        alert('Vzhľad bol uložený. Téma a dizajn zostanú zachované aj po obnovení stránky.');
     }
     function applyDesign(name){
         const design=['classic','modern','alternative'].includes(name)?name:'classic';
@@ -68488,6 +68496,24 @@ function createModal(contentHtml, id = null) {
         }
     }
 
+    function getSaveLocalStorageExtras(){
+        const keys=['arciEntry','arciNpcSpeed','arciPlayerX','arciPlayerY','arciRoads','arciSpeed'];
+        const out={};
+        keys.forEach(k=>{
+            const v=localStorage.getItem(k);
+            if(v!==null) out[k]=v;
+        });
+        return out;
+    }
+    function restoreSaveLocalStorageExtras(extras){
+        if(!extras || typeof extras!=='object') return;
+        Object.entries(extras).forEach(([k,v])=>{
+            if(['arciEntry','arciNpcSpeed','arciPlayerX','arciPlayerY','arciRoads','arciSpeed'].includes(k) && v!==null && v!==undefined){
+                localStorage.setItem(k,String(v));
+            }
+        });
+    }
+
     async function saveToSlot(i) { 
         if(confirm("Naozaj chcete uložiť hru do Slotu " + i + "?")) {
             // VYTVORENIE PRESNÉHO ČASU A DÁTUMU
@@ -68500,7 +68526,7 @@ function createModal(contentHtml, id = null) {
             const saveDate = `${dd}.${mm}.${yy} - ${hh}:${min}`;
 
             // Pripíšeme premennú saveDate do uložených dát
-            await idb.set(`Slot_${i}`, { db, appState, saveDate });
+            await idb.set(`Slot_${i}`, { db, appState, saveDate, localStorageData:getSaveLocalStorageExtras() });
             alert("Uložené do Slotu " + i + " (IndexedDB)");
             renderSlots(); 
         }
@@ -68512,6 +68538,7 @@ function createModal(contentHtml, id = null) {
             if(data) {
                 db = data.db; if(!db.seasonStats) db.seasonStats = [];
                 appState = data.appState;
+                restoreSaveLocalStorageExtras(data.localStorageData);
                 calculateELO();
                 calculateGlobalAchievements();
                 applyTheme(appState.settings.theme); updateViewport(); renderApp(); saveAuto(); closeTopModal();
@@ -68528,10 +68555,9 @@ function createModal(contentHtml, id = null) {
 
     async function saveAuto() {
    if(window.checkPersonalAchievements) window.checkPersonalAchievements();
-        saveThemePreferences();
 
         try {
-            await idb.set('autosave_v380', { db, appState });
+            await idb.set('autosave_v380', { db, appState, localStorageData:getSaveLocalStorageExtras() });
         } catch(e) { console.error("AutoSave zlyhal:", e); }
     }
 
@@ -68550,6 +68576,7 @@ function createModal(contentHtml, id = null) {
             if (data) {
                 db = data.db; if(!db.seasonStats) db.seasonStats = [];
                 appState = data.appState;
+                restoreSaveLocalStorageExtras(data.localStorageData);
             }
         } catch(e) { console.error("Load zlyhal:", e); }
     }
