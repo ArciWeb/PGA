@@ -2578,7 +2578,7 @@ body.design-alternative #modernHomeShell{display:none!important}
 @media(min-width:1000px){.modern-shell{grid-template-columns:1.2fr .8fr}.modern-status-grid{grid-template-columns:1fr 1fr}}
 </style>
 <style id="arci-theme-system-css">
-.theme-category{margin-bottom:7px}.theme-category-btn{width:100%;display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border:1px solid var(--theme-border);border-radius:8px;background:var(--theme-button);color:var(--text-main);font-weight:800;cursor:pointer}.theme-category-btn.open{border-color:var(--theme-accent-2);box-shadow:0 0 0 1px var(--theme-accent-2) inset}.theme-category-grid{margin-top:6px;padding:5px;background:var(--modal-bg);border:1px solid var(--theme-border);border-radius:8px}.theme-star-badge{position:absolute;left:5px;top:3px;font-size:.72rem;color:#f1c40f;text-shadow:0 1px 2px #000}.theme-editor-star{position:absolute;left:8px;top:8px;width:36px;height:36px;border:1px solid var(--theme-border);border-radius:50%;background:var(--theme-button);color:#f1c40f;font-size:1.35rem;cursor:pointer;z-index:4}.theme-editor-star.fav{box-shadow:0 0 12px rgba(241,196,15,.35)}.theme-editor-modal .modal-header{position:relative;padding-left:52px}.theme-palette-label{margin-top:10px;font-size:.7rem;color:var(--theme-muted);font-weight:700}.theme-color-palette{display:grid;grid-template-columns:repeat(8,1fr);gap:5px;margin-top:6px;padding:7px;background:var(--card-bg);border:1px solid var(--theme-border);border-radius:8px}.theme-color-swatch{height:26px;border-radius:5px;border:1px solid rgba(255,255,255,.45);cursor:pointer}.theme-color-swatch:hover{transform:scale(1.08)}
+.theme-category{margin-bottom:7px}.theme-category-btn{width:100%;display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border:1px solid var(--theme-border);border-radius:8px;background:var(--theme-button);color:var(--text-main);font-weight:800;cursor:pointer}.theme-category-btn.open{border-color:var(--theme-accent-2);box-shadow:0 0 0 1px var(--theme-accent-2) inset}.theme-category-grid{margin-top:6px;padding:5px;background:var(--modal-bg);border:1px solid var(--theme-border);border-radius:8px}.theme-star-badge{position:absolute;left:5px;top:3px;font-size:.72rem;color:#f1c40f;text-shadow:0 1px 2px #000}.theme-editor-star{position:absolute;left:8px;top:8px;width:36px;height:36px;border:1px solid var(--theme-border);border-radius:50%;background:var(--theme-button);color:#f1c40f;font-size:1.35rem;cursor:pointer;z-index:4}.theme-editor-star.fav{box-shadow:0 0 12px rgba(241,196,15,.35)}.theme-editor-modal .modal-header{position:relative;padding-left:52px}.theme-palette-label{margin-top:10px;font-size:.7rem;color:var(--theme-muted);font-weight:700}.theme-color-palette{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:5px;margin-top:6px;padding:7px;background:var(--card-bg);border:1px solid var(--theme-border);border-radius:8px}.theme-field-palette{grid-column:1/-1}.theme-color-swatch{height:26px;border-radius:5px;border:1px solid rgba(255,255,255,.45);cursor:pointer}.theme-color-swatch:hover{transform:scale(1.08)}
 
 :root{--theme-muted:#9aa4b2;--theme-border:rgba(255,255,255,.16);--theme-button:#1f2937;--theme-input:#10151b;--theme-accent-2:#60a5fa;--theme-shadow:rgba(0,0,0,.28);--app-font-family:system-ui;--app-font-size:16px}
 body{font-family:var(--app-font-family);font-size:var(--app-font-size);background:var(--bg-color);color:var(--text-main)}
@@ -67959,8 +67959,13 @@ function createModal(contentHtml, id = null) {
         else if (mode === 2) { btnColor = 'var(--accent-blue)'; targetContent = modalStack.length > 0 ? 'width=1200, initial-scale=0.1' : 'width=device-width, initial-scale=1.0'; }
         meta.setAttribute('content', targetContent); if(btn) btn.style.color = btnColor;
     }
-    const THEME_EXTRA_COLORS = ['#ff6b6b','#ff9f43','#feca57','#48dbfb','#1dd1a1','#5f27cd','#ff00a8','#00f5d4','#ff7f50','#7bed9f','#70a1ff','#a29bfe','#fd79a8','#e17055','#00cec9','#ffeaa7'];
-    const THEME_EXTRA_FONTS = ['Brush Script MT','Comic Sans MS','Impact','Rockwell','Copperplate','Lucida Handwriting','Segoe Print','Papyrus'];
+    // Rozšírená paleta: 24 farieb PRI KAŽDOM farebnom poli.
+    const THEME_24_COLORS = [
+        '#000000','#ffffff','#ff3b30','#ff6b6b','#ff9500','#ffcc00','#34c759','#00c7be',
+        '#32ade6','#007aff','#5856d6','#af52de','#ff2d55','#8e8e93','#636366','#48484a',
+        '#7f8c8d','#2ecc71','#16a085','#3498db','#9b59b6','#e67e22','#e74c3c','#f1c40f'
+    ];
+    const THEME_EXTRA_FONTS = ['Brush Script MT','Comic Sans MS','Impact','Rockwell','Copperplate','Lucida Handwriting','Segoe Print','Papyrus','Bradley Hand','Chalkboard','Marker Felt','URW Chancery L','DejaVu Sans Mono','Liberation Serif','Liberation Sans','Noto Sans'];
     let themeColorTarget = 'bg';
 
     function themeSafeName(name) { return String(name).replace(/\\/g,'\\\\').replace(/'/g,"\\'"); }
@@ -67970,7 +67975,7 @@ function createModal(contentHtml, id = null) {
         const i=appState.settings.favoriteThemes.indexOf(name);
         if(i>=0) appState.settings.favoriteThemes.splice(i,1); else appState.settings.favoriteThemes.push(name);
         saveAuto();
-        if(document.getElementById('themeBrowser')) renderThemeBrowser();
+        refreshThemeUI();
         if(document.getElementById('themeEditorFavorite')) document.getElementById('themeEditorFavorite').innerText=isThemeFavorite(name)?'★':'☆';
     }
     function registerRecentTheme(name) {
@@ -67989,17 +67994,24 @@ function createModal(contentHtml, id = null) {
         return names.map(k=>{
             const sch=map[k]||{}; const active=appState.settings.theme===k; const fav=isThemeFavorite(k);
             const safe=themeSafeName(k);
-            return `<div class="theme-btn ${active?'active':''}" style="background:${sch.bg||'#222'};border-color:${active?'#fff':'transparent'};color:${sch.text||'#fff'};position:relative" onclick="changeTheme('${safe}')" onpointerdown="startThemeHold(event,'${safe}')" onpointerup="cancelThemeHold(event)" onpointercancel="cancelThemeHold(event)" oncontextmenu="event.preventDefault();openThemeEditor('${safe}');return false;" title="Klik = použiť · podržanie = upraviť">${fav?'<span class="theme-star-badge">★</span>':''}${k}</div>`;
+            return `<div class="theme-btn ${active?'active':''}" style="background:${sch.bg||'#222'};border-color:${active?'#fff':'transparent'};color:${sch.text||'#fff'};position:relative;font-family:${(sch.fontFamily||'system-ui').replace(/'/g,'\\\'')}" onclick="changeTheme('${safe}')" onpointerdown="startThemeHold(event,'${safe}')" onpointerup="cancelThemeHold(event)" onpointercancel="cancelThemeHold(event)" oncontextmenu="event.preventDefault();openThemeEditor('${safe}');return false;" title="Klik = použiť · podržanie = upraviť">${fav?'<span class="theme-star-badge">★</span>':''}${k}</div>`;
         }).join('') || '<div style="padding:10px;color:var(--theme-muted);font-size:.8rem;grid-column:1/-1">Zatiaľ nič.</div>';
     }
     function renderThemeBrowser() {
         const root=document.getElementById('themeBrowser'); if(!root) return;
+        ensureCustomThemesLoaded();
         const cats=[['favorites','★ Obľúbené témy'],['mine','✎ Moje témy'],['recent','◷ Naposledy použité'],['all','▦ Všetky témy']];
         root.innerHTML=cats.map(([id,label])=>{
             const open=appState.settings.themeCategory===id;
-            const count=getThemeCategoryNames(id).length;
-            return `<div class="theme-category"><button class="theme-category-btn ${open?'open':''}" onclick="toggleThemeCategory('${id}')"><span>${label}</span><span>${count} ${open?'▴':'▾'}</span></button>${open?`<div class="theme-grid theme-category-grid">${renderThemeButtons(getThemeCategoryNames(id))}</div>`:''}</div>`;
+            const names=getThemeCategoryNames(id), count=names.length;
+            return `<div class="theme-category"><button type="button" class="theme-category-btn ${open?'open':''}" data-theme-category="${id}"><span>${label}</span><span>${count} ${open?'▴':'▾'}</span></button>${open?`<div class="theme-grid theme-category-grid">${renderThemeButtons(names)}</div>`:''}</div>`;
         }).join('');
+        // Delegovaný klik vyrieši aj situáciu, keď sa vnútorný zoznam práve nanovo vyrenderoval.
+        root.querySelectorAll('[data-theme-category]').forEach(btn=>btn.addEventListener('click',()=>toggleThemeCategory(btn.dataset.themeCategory)));
+    }
+    function refreshThemeUI() {
+        const root=document.getElementById('themeBrowser');
+        if(root) { root.style.display=appState.settings.themesOpen?'block':'none'; renderThemeBrowser(); }
     }
     function toggleThemeCategory(category) {
         appState.settings.themeCategory=appState.settings.themeCategory===category?null:category;
@@ -68013,7 +68025,7 @@ function createModal(contentHtml, id = null) {
             <div class="modal-header"><h2>Nastavenia</h2><button class="close-btn" onclick="closeTopModal()">&times;</button></div>
             <div class="modal-body">
                 <h3>Štatistiky & Zoznamy</h3>
-                <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:15px;"><button class="btn btn-full-width" style="background:linear-gradient(135deg,#f1c40f 0%,#b8860b 100%);color:black;font-weight:bold;border:1px solid #fff;" onclick="openGlobalAchievementsList()">🏆 Zoznam Achievementov</button></div>
+                <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:15px;"><button class="btn btn-full-width" style="background:linear-gradient(135deg,#f1c40f 0%,#b8860b 100%);color:black;font-weight:bold;border:1px solid #fff;" onclick="openGlobalAchievementsList()">🏆 Zoznam Achievementov</button><button class="btn btn-full-width btn-blue" onclick="openAllOptions()">☷ Všetky možnosti</button></div>
                 <h3>Nástroje</h3>
                 <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:15px;"><button class="btn btn-green" onclick="document.getElementById('fileInput').click()">Vložiť .txt</button><button class="btn btn-blue" onclick="document.getElementById('seasonFileInput').click()">Vložiť Sezónu</button><button class="btn btn-grey" onclick="openFileManager()">Správca súborov</button><button class="btn btn-red" onclick="clearDB()">Vymazať DB</button><button class="btn btn-red" style="background:#d35400;" onclick="openClearOnlyMenu()">Vymazať Iba...</button><button class="btn btn-grey" onclick="toggleZoomInSettings()">Režim: ${currentZoomLabel}</button></div>
                 <h3>Vzhľad</h3>
@@ -68024,11 +68036,10 @@ function createModal(contentHtml, id = null) {
                         <button id="designBtnModern" class="btn ${appState.settings.design==='modern'?'btn-blue':'btn-grey'}" onclick="changeDesign('modern')">◈ Modern</button>
                         <button id="designBtnAlternative" class="btn ${appState.settings.design==='alternative'?'btn-blue':'btn-grey'}" onclick="changeDesign('alternative')">✦ Alternative</button>
                     </div>
-                    <div style="font-size:.7rem;color:var(--text-muted);margin-top:8px;">Dizajn sa prepína okamžite a aktívne tlačidlo sa zmení hneď.</div>
                 </div>
                 <button class="btn btn-full-width btn-grey" onclick="toggleThemes(this)" style="margin-bottom:10px;">${appState.settings.themesOpen?'Skryť Témy':'Zobraziť Témy'}</button>
                 <div id="themeBrowser" style="display:${appState.settings.themesOpen?'block':'none'}"></div>
-                <div style="margin-top:8px;font-size:.7rem;color:var(--text-muted);">Podrž tému → editor. V editore ju môžeš označiť ★, uložiť na pôvodné miesto alebo uložiť ako novú.</div>
+                <div style="margin-top:8px;font-size:.7rem;color:var(--text-muted);">Klik = použiť · podržanie = upraviť. V editore môžeš tému označiť ★, uložiť na pôvodné miesto alebo vytvoriť novú.</div>
                 <h3>Sloty (Uložiť / Načítať)</h3><div class="slot-grid" id="slotContainer"></div>
             </div>`;
         createModal(html); renderThemeBrowser(); renderSlots();
@@ -68048,8 +68059,7 @@ function createModal(contentHtml, id = null) {
     function changeTheme(name){
         if(themeHoldTriggered){themeHoldTriggered=false;return;}
         ensureCustomThemesLoaded(); if(!getThemeMap()[name]) return;
-        appState.settings.theme=name; registerRecentTheme(name); applyTheme(name); saveAuto();
-        const root=document.getElementById('themeBrowser'); if(root) renderThemeBrowser();
+        appState.settings.theme=name; registerRecentTheme(name); applyTheme(name); saveAuto(); refreshThemeUI();
     }
     function refreshDesignButtons(){
         const d=appState.settings.design||'classic';
@@ -68068,25 +68078,24 @@ function createModal(contentHtml, id = null) {
         ensureCustomThemesLoaded(); const map=getThemeMap(); const t=map[name]||map['Default']||Object.values(map)[0]; if(!t)return;
         const root=document.documentElement;
         root.style.setProperty('--bg-color',t.bg||'#0b0f14'); root.style.setProperty('--card-bg',t.card||t.bg||'#151a21'); root.style.setProperty('--text-main',t.text||'#fff'); root.style.setProperty('--accent-green',t.accent||'#2ecc71'); root.style.setProperty('--modal-bg',t.modalBg||t.card||t.bg||'#121212'); root.style.setProperty('--theme-muted',t.muted||'#9aa4b2'); root.style.setProperty('--theme-border',t.border||'rgba(255,255,255,.16)'); root.style.setProperty('--theme-button',t.button||t.card||'#1f2937'); root.style.setProperty('--theme-input',t.input||t.modalBg||t.card||'#10151b'); root.style.setProperty('--theme-accent-2',t.accent2||t.accent||'#60a5fa'); root.style.setProperty('--theme-shadow',t.shadow||'rgba(0,0,0,.28)'); root.style.setProperty('--app-font-family',t.fontFamily||'system-ui'); root.style.setProperty('--app-font-size',`${Number(t.fontSize)||16}px`);
-        document.body.style.fontFamily=t.fontFamily||''; document.body.style.fontSize=`${Number(t.fontSize)||16}px`; document.documentElement.dataset.themeName=name; applyDesign(appState.settings.design);
+        document.body.style.fontFamily=t.fontFamily||''; document.body.style.fontSize=`${Number(t.fontSize)||16}px`; document.documentElement.dataset.themeName=name; applyDesign(appState.settings.design); refreshDesignButtons();
     }
     function openThemeEditor(name){
         ensureCustomThemesLoaded(); const map=getThemeMap(); const base=map[name]||map['Default']; if(!base)return;
         const fonts=['system-ui','Arial','Verdana','Tahoma','Trebuchet MS','Georgia','Times New Roman','Courier New','monospace',...THEME_EXTRA_FONTS];
-        const colorField=(key,label)=>`<label class="theme-edit-field"><span>${label}</span><input id="te_${key}" type="color" value="${base[key]||'#000000'}" onclick="themeColorTarget='${key}'"></label>`;
-        const fontOptions=fonts.map(f=>`<option value="${f}" ${(base.fontFamily||'system-ui')===f?'selected':''}>${f}</option>`).join('');
-        const swatches=THEME_EXTRA_COLORS.map(c=>`<button type="button" class="theme-color-swatch" style="background:${c}" title="${c}" onclick="if(document.getElementById('te_'+themeColorTarget))document.getElementById('te_'+themeColorTarget).value='${c}'"></button>`).join('');
+        const colorField=(key,label)=>`<div class="theme-edit-field"><span>${label}</span><input id="te_${key}" type="color" value="${base[key]||'#000000'}" onclick="themeColorTarget='${key}'"><div class="theme-color-palette theme-field-palette">${THEME_24_COLORS.map(c=>`<button type="button" class="theme-color-swatch" style="background:${c}" title="${c}" onclick="document.getElementById('te_${key}').value='${c}'"></button>`).join('')}</div></div>`;
+        const fontOptions=fonts.map(f=>`<option value="${f}" ${(base.fontFamily||'system-ui')===f?'selected':''} style="font-family:${f.replace(/'/g,"\\'")}">${f}</option>`).join('');
         const fav=isThemeFavorite(name);
         const html=`<div class="modal-header"><button id="themeEditorFavorite" class="theme-editor-star ${fav?'fav':''}" onclick="toggleThemeFavorite('${themeSafeName(name)}')">${fav?'★':'☆'}</button><h2>🎨 Upraviť tému: ${name}</h2><button class="close-btn" onclick="closeTopModal()">&times;</button></div><div class="modal-body theme-editor-modal">
-          <p class="theme-editor-help">Môžeš prepísať pôvodnú tému alebo vytvoriť novú. ★ = obľúbená téma.</p>
+          <p class="theme-editor-help">Každé pole má vlastnú 24-farebnú paletu. Názvy písiem sú zobrazené priamo daným písmom.</p>
           <div class="theme-edit-grid">${colorField('bg','Pozadie aplikácie')}${colorField('card','Panely / karty')}${colorField('modalBg','Pozadie okien')}${colorField('text','Hlavné písmo')}${colorField('accent','Hlavná zvýrazňovacia farba')}${colorField('accent2','Druhá zvýrazňovacia farba')}${colorField('muted','Tlmené písmo')}${colorField('border','Rámčeky')}${colorField('button','Tlačidlá')}${colorField('input','Vstupné polia')}${colorField('shadow','Tiene')}</div>
-          <div class="theme-palette-label">Rýchla paleta — klikni na farebný bod a vloží sa do práve zvoleného poľa</div><div class="theme-color-palette">${swatches}</div>
-          <label class="theme-edit-wide"><span>Typ písma</span><select id="te_fontFamily">${fontOptions}</select></label>
+          <label class="theme-edit-wide"><span>Typ písma</span><select id="te_fontFamily" onchange="this.style.fontFamily=this.value">${fontOptions}</select></label>
           <label class="theme-edit-wide"><span>Veľkosť písma: <b id="te_fontSizeVal">${Number(base.fontSize)||16}px</b></span><input id="te_fontSize" type="range" min="11" max="28" step="1" value="${Number(base.fontSize)||16}" oninput="document.getElementById('te_fontSizeVal').innerText=this.value+'px'"></label>
           <label class="theme-edit-wide"><span>Názov novej témy (pri „Uložiť ako novú“)</span><input id="te_name" type="text" maxlength="40" placeholder="Prázdne = ${nextCustomThemeName(name)}"></label>
           <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:15px;flex-wrap:wrap;"><button class="btn btn-grey" onclick="closeTopModal()">Zrušiť</button><button class="btn btn-red" onclick="deleteCustomTheme('${themeSafeName(name)}')">🗑 Vymazať tému</button><button class="btn btn-blue" onclick="saveEditedTheme('${themeSafeName(name)}',true)">💾 Uložiť tému</button><button class="btn btn-green" onclick="saveEditedTheme('${themeSafeName(name)}',false)">💾 Uložiť ako novú</button></div>
         </div>`;
         createModal(html,'theme-editor-modal');
+        const fs=document.getElementById('te_fontFamily'); if(fs)fs.style.fontFamily=fs.value;
     }
     function readThemeEditorScheme(sourceName){
         const map=getThemeMap(), base=map[sourceName]||map['Default']; const scheme=Object.assign({},base); ['bg','card','modalBg','text','accent','accent2','muted','border','button','input','shadow'].forEach(k=>{const el=document.getElementById('te_'+k);if(el)scheme[k]=el.value;});
@@ -68103,13 +68112,29 @@ function createModal(contentHtml, id = null) {
             appState.settings.customThemes.push({name:uniqueName,source:sourceName,scheme}); colorSchemes[uniqueName]=scheme; appState.settings.theme=uniqueName; registerRecentTheme(uniqueName);
             if(isThemeFavorite(sourceName)){appState.settings.favoriteThemes=appState.settings.favoriteThemes.filter(n=>n!==sourceName);appState.settings.favoriteThemes.push(uniqueName);}
         }
-        applyTheme(appState.settings.theme); saveAuto(); closeTopModal(); openSettings();
+        applyTheme(appState.settings.theme); saveAuto(); closeTopModal(); refreshThemeUI();
     }
     function deleteCustomTheme(name){
         const arr=appState.settings.customThemes||[]; const idx=arr.findIndex(t=>t.name===name); if(idx<0){alert('Túto vstavanú tému nie je možné vymazať. Vlastné úpravy môžeš uložiť alebo upraviť.');return;}
         if(!confirm(`Vymazať vlastnú tému „${name}“?`))return;
         arr.splice(idx,1); delete colorSchemes[name]; appState.settings.favoriteThemes=(appState.settings.favoriteThemes||[]).filter(n=>n!==name); appState.settings.recentThemes=(appState.settings.recentThemes||[]).filter(n=>n!==name);
-        if(appState.settings.theme===name)appState.settings.theme=arr[0]?.name||'Default'; applyTheme(appState.settings.theme); saveAuto(); closeTopModal(); openSettings();
+        if(appState.settings.theme===name)appState.settings.theme=arr[0]?.name||'Default'; applyTheme(appState.settings.theme); saveAuto(); closeTopModal(); refreshThemeUI();
+    }
+
+    function openAllOptions(){
+        const ignore = new Set(['Zobraziť Témy','Skryť Témy']);
+        const nodes=[...document.querySelectorAll('button, a, [role="button"], [onclick]')];
+        const entries=[]; const seen=new Set();
+        nodes.forEach(el=>{
+            if(el.closest('#themeEditor-modal-overlay') || el.closest('#clear-only-modal-overlay')) return;
+            const raw=(el.innerText||el.textContent||el.getAttribute('aria-label')||el.getAttribute('title')||'').replace(/\s+/g,' ').trim();
+            if(!raw || raw.length>120 || ignore.has(raw)) return;
+            const key=raw.toLocaleLowerCase('sk-SK'); if(seen.has(key)) return; seen.add(key);
+            entries.push({label:raw,el});
+        });
+        entries.sort((a,b)=>a.label.localeCompare(b.label,'sk',{sensitivity:'base'}));
+        const rows=entries.map((e,i)=>`<div style="display:flex;align-items:center;gap:10px;padding:8px 10px;border-bottom:1px solid var(--theme-border);background:${i%2?'var(--card-bg)':'transparent'}"><span style="min-width:28px;color:var(--theme-muted);font-size:.72rem">${i+1}</span><span style="flex:1;color:var(--text-main)">${e.label}</span></div>`).join('');
+        createModal(`<div class="modal-header"><h2>☷ Všetky možnosti</h2><button class="close-btn" onclick="closeTopModal()">&times;</button></div><div class="modal-body"><p style="color:var(--theme-muted);font-size:.8rem">Prehľad všetkých aktuálne rozpoznaných klikateľných funkcií a odkazov v hre, zoradený abecedne.</p><div style="border:1px solid var(--theme-border);border-radius:8px;overflow:auto;max-height:70vh">${rows||'<div style="padding:15px">Nenašli sa žiadne možnosti.</div>'}</div></div>`,'all-options-modal');
     }
 
 
@@ -68391,7 +68416,11 @@ function createModal(contentHtml, id = null) {
         // Uložíme nový stav a aktualizujeme zobrazenie
         saveAuto();
         renderApp();
-        
+        // Ak je otvorené Nastavenie pod týmto oknom, obnovíme témy okamžite.
+        if (type === 'THEMES') {
+            ensureCustomThemesLoaded();
+            if (document.getElementById('themeBrowser')) renderThemeBrowser();
+        }
         alert(`✅ Dáta pre sekciu "${typeName}" boli úspešne vymazané!`);
         closeTopModal(); // Zatvorí okno s výberom (Vymazať iba...)
     }
