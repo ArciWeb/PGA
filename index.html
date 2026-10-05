@@ -3315,6 +3315,34 @@ const colorSchemes = {
 if (!colorSchemes.Default) {
     colorSchemes.Default = { bg:'#0b0f14', card:'#151a21', modalBg:'#10151b', text:'#f2f4f7', accent:'#2ecc71', muted:'#9aa4b2', border:'#34404d', button:'#1f2937', input:'#0f141a', fontFamily:'system-ui', fontSize:16 };
 }
+function saveThemePreferences() {
+    try {
+        if (!appState || !appState.settings) return;
+        const s = appState.settings;
+        localStorage.setItem('arci_theme_preferences_v1', JSON.stringify({
+            theme: s.theme || 'Default',
+            design: s.design || 'classic',
+            customThemes: Array.isArray(s.customThemes) ? s.customThemes : [],
+            favoriteThemes: Array.isArray(s.favoriteThemes) ? s.favoriteThemes : [],
+            recentThemes: Array.isArray(s.recentThemes) ? s.recentThemes : []
+        }));
+    } catch(e) { console.warn('Uloženie preferencií tém zlyhalo:', e); }
+}
+function loadThemePreferences() {
+    try {
+        const raw = localStorage.getItem('arci_theme_preferences_v1');
+        if (!raw || !appState || !appState.settings) return;
+        const saved = JSON.parse(raw);
+        if (saved && typeof saved === 'object') {
+            if (saved.theme) appState.settings.theme = saved.theme;
+            if (saved.design) appState.settings.design = saved.design;
+            if (Array.isArray(saved.customThemes)) appState.settings.customThemes = saved.customThemes;
+            if (Array.isArray(saved.favoriteThemes)) appState.settings.favoriteThemes = saved.favoriteThemes;
+            if (Array.isArray(saved.recentThemes)) appState.settings.recentThemes = saved.recentThemes;
+        }
+    } catch(e) { console.warn('Načítanie preferencií tém zlyhalo:', e); }
+}
+
 function getCustomThemes() {
     return (appState && appState.settings && Array.isArray(appState.settings.customThemes)) ? appState.settings.customThemes : [];
 }
@@ -62176,6 +62204,7 @@ function renderNewsList(fileKey) {
         if (!Array.isArray(appState.settings.favoriteThemes)) appState.settings.favoriteThemes = [];
         if (!Array.isArray(appState.settings.recentThemes)) appState.settings.recentThemes = [];
         if (!('themeCategory' in appState.settings)) appState.settings.themeCategory = null;
+        loadThemePreferences();
         ensureCustomThemesLoaded();
         if (!db.seasonStats) db.seasonStats = [];
 
@@ -67974,7 +68003,7 @@ function createModal(contentHtml, id = null) {
         if (!Array.isArray(appState.settings.favoriteThemes)) appState.settings.favoriteThemes=[];
         const i=appState.settings.favoriteThemes.indexOf(name);
         if(i>=0) appState.settings.favoriteThemes.splice(i,1); else appState.settings.favoriteThemes.push(name);
-        saveAuto();
+        saveThemePreferences(); saveAuto();
         refreshThemeUI();
         if(document.getElementById('themeEditorFavorite')) document.getElementById('themeEditorFavorite').innerText=isThemeFavorite(name)?'★':'☆';
     }
@@ -68004,10 +68033,8 @@ function createModal(contentHtml, id = null) {
         root.innerHTML=cats.map(([id,label])=>{
             const open=appState.settings.themeCategory===id;
             const names=getThemeCategoryNames(id), count=names.length;
-            return `<div class="theme-category"><button type="button" class="theme-category-btn ${open?'open':''}" data-theme-category="${id}"><span>${label}</span><span>${count} ${open?'▴':'▾'}</span></button>${open?`<div class="theme-grid theme-category-grid">${renderThemeButtons(names)}</div>`:''}</div>`;
+            return `<div class="theme-category"><button type="button" class="theme-category-btn ${open?'open':''}" data-theme-category="${id}" onclick="toggleThemeCategory('${id}');event.stopPropagation();"><span>${label}</span><span>${count} ${open?'▴':'▾'}</span></button>${open?`<div class="theme-grid theme-category-grid">${renderThemeButtons(names)}</div>`:''}</div>`;
         }).join('');
-        // Delegovaný klik vyrieši aj situáciu, keď sa vnútorný zoznam práve nanovo vyrenderoval.
-        root.querySelectorAll('[data-theme-category]').forEach(btn=>btn.addEventListener('click',()=>toggleThemeCategory(btn.dataset.themeCategory)));
     }
     function refreshThemeUI() {
         const root=document.getElementById('themeBrowser');
@@ -68015,7 +68042,7 @@ function createModal(contentHtml, id = null) {
     }
     function toggleThemeCategory(category) {
         appState.settings.themeCategory=appState.settings.themeCategory===category?null:category;
-        saveAuto(); renderThemeBrowser();
+        saveThemePreferences(); saveAuto(); renderThemeBrowser();
     }
     function openSettings() {
         ensureCustomThemesLoaded();
@@ -68059,7 +68086,7 @@ function createModal(contentHtml, id = null) {
     function changeTheme(name){
         if(themeHoldTriggered){themeHoldTriggered=false;return;}
         ensureCustomThemesLoaded(); if(!getThemeMap()[name]) return;
-        appState.settings.theme=name; registerRecentTheme(name); applyTheme(name); saveAuto(); refreshThemeUI();
+        appState.settings.theme=name; registerRecentTheme(name); applyTheme(name); saveThemePreferences(); saveAuto(); refreshThemeUI();
     }
     function refreshDesignButtons(){
         const d=appState.settings.design||'classic';
@@ -68068,7 +68095,7 @@ function createModal(contentHtml, id = null) {
     }
     function changeDesign(name){
         const allowed=['classic','modern','alternative']; appState.settings.design=allowed.includes(name)?name:'classic';
-        applyDesign(appState.settings.design); refreshDesignButtons(); saveAuto();
+        applyDesign(appState.settings.design); refreshDesignButtons(); saveThemePreferences(); saveAuto();
     }
     function applyDesign(name){
         const design=['classic','modern','alternative'].includes(name)?name:'classic';
@@ -68112,13 +68139,13 @@ function createModal(contentHtml, id = null) {
             appState.settings.customThemes.push({name:uniqueName,source:sourceName,scheme}); colorSchemes[uniqueName]=scheme; appState.settings.theme=uniqueName; registerRecentTheme(uniqueName);
             if(isThemeFavorite(sourceName)){appState.settings.favoriteThemes=appState.settings.favoriteThemes.filter(n=>n!==sourceName);appState.settings.favoriteThemes.push(uniqueName);}
         }
-        applyTheme(appState.settings.theme); saveAuto(); closeTopModal(); refreshThemeUI();
+        applyTheme(appState.settings.theme); saveThemePreferences(); saveAuto(); closeTopModal(); refreshThemeUI();
     }
     function deleteCustomTheme(name){
         const arr=appState.settings.customThemes||[]; const idx=arr.findIndex(t=>t.name===name); if(idx<0){alert('Túto vstavanú tému nie je možné vymazať. Vlastné úpravy môžeš uložiť alebo upraviť.');return;}
         if(!confirm(`Vymazať vlastnú tému „${name}“?`))return;
         arr.splice(idx,1); delete colorSchemes[name]; appState.settings.favoriteThemes=(appState.settings.favoriteThemes||[]).filter(n=>n!==name); appState.settings.recentThemes=(appState.settings.recentThemes||[]).filter(n=>n!==name);
-        if(appState.settings.theme===name)appState.settings.theme=arr[0]?.name||'Default'; applyTheme(appState.settings.theme); saveAuto(); closeTopModal(); refreshThemeUI();
+        if(appState.settings.theme===name)appState.settings.theme=arr[0]?.name||'Default'; applyTheme(appState.settings.theme); saveThemePreferences(); saveAuto(); closeTopModal(); refreshThemeUI();
     }
 
     function openAllOptions(){
@@ -68398,6 +68425,7 @@ function createModal(contentHtml, id = null) {
                 appState.settings.recentThemes = (appState.settings.recentThemes || []).filter(n => !customNames.includes(n));
                 customNames.forEach(n => delete colorSchemes[n]);
                 if (customNames.includes(appState.settings.theme)) { appState.settings.theme = 'Default'; applyTheme('Default'); }
+                saveThemePreferences();
                 break;
             case 'PERSONAL_ACHIEVEMENTS':
                 appState.personalAchievements = [];
@@ -68500,6 +68528,7 @@ function createModal(contentHtml, id = null) {
 
     async function saveAuto() {
    if(window.checkPersonalAchievements) window.checkPersonalAchievements();
+        saveThemePreferences();
 
         try {
             await idb.set('autosave_v380', { db, appState });
